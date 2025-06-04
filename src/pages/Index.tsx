@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from '../components/Dashboard';
@@ -6,7 +7,7 @@ import ConsultantsTab from '../components/ConsultantsTab';
 import CreateAssignmentForm from '../components/CreateAssignmentForm';
 import { useConsultants } from '../hooks/useConsultants';
 import { Assignment, Match, Stats } from '../types/consultant';
-import { calculateMatch, generateMotivationLetter } from '../utils/matching';
+import { findMatches, generateMotivationLetter } from '../utils/matching';
 import { Users, Target, Sparkles, Brain, Heart, Zap, Plus, TrendingUp, Clock, Award } from 'lucide-react';
 
 const Index = () => {
@@ -98,22 +99,8 @@ const Index = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const generatedMatches = consultants.slice(0, 5).map((consultant, index) => {
-        const match = calculateMatch(consultant, assignment);
-        return {
-          consultant,
-          score: match.score,
-          letter: generateMotivationLetter(consultant, assignment),
-          matchedSkills: match.matchedSkills,
-          estimatedSavings: Math.floor(Math.random() * 50000) + 10000,
-          responseTime: Math.floor(Math.random() * 24) + 1,
-          culturalMatch: Math.floor(Math.random() * 30) + 70,
-          communicationMatch: Math.floor(Math.random() * 25) + 75,
-          valuesAlignment: Math.floor(Math.random() * 20) + 80,
-          humanFactorsScore: Math.floor(Math.random() * 15) + 85
-        };
-      });
-
+      const generatedMatches = findMatches(consultants.slice(0, 5), assignment);
+      
       setMatches(generatedMatches);
       setActiveTab('matches');
       
@@ -224,7 +211,7 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <Dashboard consultants={consultants} onMatch={handleMatch} />
+            <Dashboard consultants={consultants} assignments={assignments} onMatch={handleMatch} />
           </TabsContent>
 
           <TabsContent value="consultants">

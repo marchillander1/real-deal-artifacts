@@ -1,3 +1,4 @@
+
 import { Consultant, Assignment, Match } from '../types/consultant';
 
 export const calculateMatch = (consultant: Consultant, assignment: Assignment): number => {
@@ -12,7 +13,7 @@ export const calculateMatch = (consultant: Consultant, assignment: Assignment): 
   
   const skillScore = (matchingSkills.length / requiredSkills.length) * 60;
   const experienceScore = Math.min(parseInt(consultant.experience) * 2.5, 25);
-  const availabilityScore = consultant.availability === 'Available' ? 10 : 5;
+  const availabilityScore = consultant.availability === 'Available now' ? 10 : 5;
   const ratingScore = consultant.rating * 1;
   
   return Math.min(Math.round(skillScore + experienceScore + availabilityScore + ratingScore), 98);
@@ -23,18 +24,24 @@ export const findMatches = (consultants: Consultant[], assignment: Assignment): 
     const score = calculateMatch(consultant, assignment);
     const letter = generateMotivationLetter(consultant, assignment, score);
     
+    const matchedSkills = consultant.skills.filter(skill => 
+      assignment.requiredSkills.some(req => 
+        skill.toLowerCase().includes(req.toLowerCase()) || 
+        req.toLowerCase().includes(skill.toLowerCase())
+      )
+    );
+
     return {
       consultant,
       score,
       letter,
-      matchedSkills: consultant.skills.filter(skill => 
-        assignment.requiredSkills.some(req => 
-          skill.toLowerCase().includes(req.toLowerCase()) || 
-          req.toLowerCase().includes(skill.toLowerCase())
-        )
-      ),
+      matchedSkills,
       estimatedSavings: Math.floor(score * 100 + Math.random() * 500),
-      responseTime: Math.floor(Math.random() * 24) + 1
+      responseTime: Math.floor(Math.random() * 24) + 1,
+      culturalMatch: Math.floor(Math.random() * 30) + 70,
+      communicationMatch: Math.floor(Math.random() * 25) + 75,
+      valuesAlignment: Math.floor(Math.random() * 20) + 80,
+      humanFactorsScore: Math.floor(Math.random() * 15) + 85
     };
   }).sort((a, b) => b.score - a.score);
 };
