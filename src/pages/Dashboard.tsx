@@ -1,68 +1,22 @@
 
-import React from 'react';
-import Dashboard from '../components/Dashboard';
+import React, { useState } from 'react';
+import { Users, Briefcase, Target, TrendingUp, Upload, Search, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ConsultantsTab from '../components/ConsultantsTab';
+import CreateAssignmentForm from '../components/CreateAssignmentForm';
+import { useConsultants } from '../hooks/useConsultants';
 import { Consultant, Assignment } from '../types/consultant';
+import { useToast } from "@/hooks/use-toast";
 
 const DashboardPage = () => {
-  // Mock data for now - will be replaced with real data from Supabase
-  const mockConsultants: Consultant[] = [
-    {
-      id: 1,
-      name: 'Anna Lindqvist',
-      email: 'anna@example.com',
-      skills: ['React', 'TypeScript', 'Node.js'],
-      experience: '5 years',
-      availability: 'Available',
-      roles: ['Senior Frontend Developer'],
-      location: 'Stockholm',
-      rate: '950 SEK/hour',
-      phone: '+46 70 123 4567',
-      projects: 23,
-      rating: 4.8,
-      lastActive: '2 hours ago',
-      cv: 'Experienced frontend developer with strong leadership skills and passion for clean code.',
-      certifications: ['AWS Certified', 'React Advanced'],
-      languages: ['Swedish', 'English', 'German'],
-      type: 'existing',
-      communicationStyle: 'Direct and collaborative',
-      workStyle: 'Agile and iterative',
-      values: ['Innovation', 'Quality', 'Teamwork', 'Continuous Learning'],
-      personalityTraits: ['Analytical', 'Creative', 'Leadership-oriented', 'Detail-focused'],
-      teamFit: 'Excellent mentor and team player',
-      culturalFit: 4.8,
-      adaptability: 4.7,
-      leadership: 4.9
-    },
-    {
-      id: 2,
-      name: 'Marcus Johansson',
-      email: 'marcus@example.com',
-      skills: ['UX Design', 'Figma', 'User Research'],
-      experience: '3 years',
-      availability: 'Available',
-      roles: ['UX Designer', 'Design Lead'],
-      location: 'Gothenburg',
-      rate: '750 SEK/hour',
-      phone: '+46 70 234 5678',
-      projects: 15,
-      rating: 4.6,
-      lastActive: '1 day ago',
-      cv: 'Creative UX designer with strong user empathy and business understanding.',
-      certifications: ['Google UX Certificate', 'Design Thinking'],
-      languages: ['Swedish', 'English', 'Spanish'],
-      type: 'existing',
-      communicationStyle: 'Empathetic and visual',
-      workStyle: 'User-centered and iterative',
-      values: ['User Experience', 'Creativity', 'Empathy', 'Innovation'],
-      personalityTraits: ['Creative', 'Empathetic', 'Detail-oriented', 'Collaborative'],
-      teamFit: 'Bridge between tech and business',
-      culturalFit: 4.9,
-      adaptability: 4.8,
-      leadership: 4.4
-    }
-  ];
-
-  const mockAssignments: Assignment[] = [
+  const { consultants, isProcessing, uploadCV } = useConsultants();
+  const { toast } = useToast();
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [assignments, setAssignments] = useState<Assignment[]>([
     {
       id: 1,
       title: 'React Developer',
@@ -105,31 +59,259 @@ const DashboardPage = () => {
       leadershipLevel: 2,
       teamDynamics: 'Small design team'
     }
-  ];
+  ]);
 
   const handleMatch = (assignment: Assignment) => {
     console.log('Matching assignment:', assignment);
-    // TODO: Implement actual matching logic with Supabase
+    toast({
+      title: "AI Matching Started",
+      description: "Finding the best consultants for this assignment...",
+    });
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('File uploaded:', event.target.files?.[0]);
-    // TODO: Implement CV upload with Supabase
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        await uploadCV(file);
+        toast({
+          title: "CV Uploaded Successfully",
+          description: "The consultant has been added to the database.",
+        });
+      } catch (error) {
+        toast({
+          title: "Upload Failed",
+          description: "There was an error uploading the CV.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
-  const handleAssignmentCreated = (assignment: Assignment) => {
-    console.log('Assignment created:', assignment);
-    // TODO: Save to Supabase database
+  const handleAssignmentCreated = (newAssignment: Assignment) => {
+    const assignmentWithId = {
+      ...newAssignment,
+      id: Date.now(),
+    };
+    setAssignments(prev => [...prev, assignmentWithId]);
+    setShowCreateForm(false);
+    toast({
+      title: "Assignment Created",
+      description: "New assignment has been added successfully.",
+    });
   };
 
   return (
-    <Dashboard
-      consultants={mockConsultants}
-      assignments={mockAssignments}
-      onMatch={handleMatch}
-      onFileUpload={handleFileUpload}
-      onAssignmentCreated={handleAssignmentCreated}
-    />
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            AI-Driven Consultant Matching Platform
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Match consultants with assignments using advanced AI that analyzes both technical skills and soft factors
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Consultants</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{consultants.length}</div>
+              <p className="text-xs text-muted-foreground">
+                <TrendingUp className="inline h-3 w-3 mr-1" />
+                +2 this week
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Assignments</CardTitle>
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{assignments.length}</div>
+              <p className="text-xs text-muted-foreground">
+                <TrendingUp className="inline h-3 w-3 mr-1" />
+                +1 today
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Successful Matches</CardTitle>
+              <Target className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">156</div>
+              <p className="text-xs text-muted-foreground">
+                <TrendingUp className="inline h-3 w-3 mr-1" />
+                95% success rate
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Avg Match Time</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">12s</div>
+              <p className="text-xs text-muted-foreground">
+                <TrendingUp className="inline h-3 w-3 mr-1" />
+                67% faster
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="consultants" className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <TabsList className="grid w-full sm:w-auto grid-cols-2">
+              <TabsTrigger value="consultants">Consultants</TabsTrigger>
+              <TabsTrigger value="assignments">Assignments</TabsTrigger>
+            </TabsList>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowCreateForm(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Briefcase className="h-4 w-4 mr-2" />
+                New Assignment
+              </Button>
+              
+              <div className="relative">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={isProcessing}
+                />
+                <Button 
+                  variant="outline"
+                  disabled={isProcessing}
+                  className="relative"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isProcessing ? 'Processing...' : 'Upload CV'}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <TabsContent value="consultants" className="space-y-6">
+            <ConsultantsTab consultants={consultants} />
+          </TabsContent>
+
+          <TabsContent value="assignments" className="space-y-6">
+            <div className="grid gap-6">
+              {assignments.map((assignment) => (
+                <Card key={assignment.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-xl">{assignment.title}</CardTitle>
+                        <p className="text-gray-600 mt-2">{assignment.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl mb-2">{assignment.clientLogo}</div>
+                        <p className="font-semibold text-gray-900">{assignment.company}</p>
+                        <p className="text-sm text-gray-500">{assignment.industry}</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-semibold mb-2">Required Skills</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {assignment.requiredSkills.map((skill, index) => (
+                              <Badge key={index} variant="secondary">{skill}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold mb-2">Assignment Details</h4>
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <p><strong>Duration:</strong> {assignment.duration}</p>
+                            <p><strong>Start Date:</strong> {assignment.startDate}</p>
+                            <p><strong>Workload:</strong> {assignment.workload}</p>
+                            <p><strong>Budget:</strong> {assignment.budget}</p>
+                            <p><strong>Remote:</strong> {assignment.remote}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-semibold mb-2">Team & Culture</h4>
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <p><strong>Team Size:</strong> {assignment.teamSize}</p>
+                            <p><strong>Team Culture:</strong> {assignment.teamCulture}</p>
+                            <p><strong>Communication Style:</strong> {assignment.desiredCommunicationStyle}</p>
+                            <p><strong>Leadership Level:</strong> {assignment.leadershipLevel}/5</p>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold mb-2">Required Values</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {assignment.requiredValues.map((value, index) => (
+                              <Badge key={index} variant="outline">{value}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 pt-4">
+                          <Button 
+                            onClick={() => handleMatch(assignment)}
+                            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                          >
+                            <Target className="h-4 w-4 mr-2" />
+                            Find AI Match
+                          </Button>
+                          <Badge 
+                            variant={assignment.urgency === 'High' ? 'destructive' : assignment.urgency === 'Medium' ? 'default' : 'secondary'}
+                          >
+                            {assignment.urgency}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Create Assignment Modal */}
+        {showCreateForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <CreateAssignmentForm
+                onAssignmentCreated={handleAssignmentCreated}
+                onCancel={() => setShowCreateForm(false)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
