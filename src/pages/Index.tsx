@@ -217,26 +217,25 @@ const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [consultants, setConsultants] = useState<Consultant[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [consultants, setConsultants] = useState<Consultant[]>(initialConsultants);
+  const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments);
   const [matches, setMatches] = useState<Match[]>([]);
 
   useEffect(() => {
-    // Load data from localStorage on component mount, or use initial data
+    console.log("Loading consultants:", consultants.length);
+    console.log("Loading assignments:", assignments.length);
+    
+    // Load data from localStorage if it exists, otherwise use initial data
     const storedConsultants = localStorage.getItem("consultants");
     const storedAssignments = localStorage.getItem("assignments");
     const storedMatches = localStorage.getItem("matches");
 
-    if (storedConsultants) {
+    if (storedConsultants && JSON.parse(storedConsultants).length > 0) {
       setConsultants(JSON.parse(storedConsultants));
-    } else {
-      setConsultants(initialConsultants);
     }
     
-    if (storedAssignments) {
+    if (storedAssignments && JSON.parse(storedAssignments).length > 0) {
       setAssignments(JSON.parse(storedAssignments));
-    } else {
-      setAssignments(initialAssignments);
     }
     
     if (storedMatches) {
@@ -246,8 +245,12 @@ const Index = () => {
 
   useEffect(() => {
     // Update localStorage whenever consultants or assignments change
-    localStorage.setItem("consultants", JSON.stringify(consultants));
-    localStorage.setItem("assignments", JSON.stringify(assignments));
+    if (consultants.length > 0) {
+      localStorage.setItem("consultants", JSON.stringify(consultants));
+    }
+    if (assignments.length > 0) {
+      localStorage.setItem("assignments", JSON.stringify(assignments));
+    }
     localStorage.setItem("matches", JSON.stringify(matches));
   }, [consultants, assignments, matches]);
 
@@ -264,12 +267,11 @@ const Index = () => {
       reader.onload = (e: any) => {
         try {
           const text = e.target.result;
-          // Basic parsing logic - improve this based on your CV format
           const newConsultant: Consultant = {
-            id: Date.now(), // Changed to number
-            name: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
-            skills: [text.substring(0, 200)], // Changed to array
-            experience: Math.floor(Math.random() * 10).toString(), // Changed to string
+            id: Date.now(),
+            name: file.name.replace(/\.[^/.]+$/, ""),
+            skills: [text.substring(0, 200)],
+            experience: Math.floor(Math.random() * 10).toString(),
             roles: [],
             location: "Unknown",
             rate: "TBD",
@@ -311,7 +313,6 @@ const Index = () => {
     }
   };
 
-  // Split consultants by type
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const newConsultants = consultants.filter(c => c.type === 'new');
 
@@ -365,11 +366,47 @@ const Index = () => {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {assignments.map((assignment) => (
                 <div key={assignment.id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="text-2xl">{assignment.clientLogo}</div>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      assignment.urgency === 'High' 
+                        ? 'bg-red-100 text-red-800' 
+                        : assignment.urgency === 'Medium'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {assignment.urgency} Priority
+                    </span>
+                  </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{assignment.title}</h3>
-                  <p className="text-gray-600 mb-4">{assignment.description}</p>
-                  <div className="flex items-center space-x-2 text-gray-500">
-                    <span>Skills:</span>
-                    <span>{assignment.requiredSkills.join(', ')}</span>
+                  <p className="text-gray-600 mb-4 text-sm">{assignment.description}</p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Company:</span>
+                      <span className="font-medium">{assignment.company}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Duration:</span>
+                      <span className="font-medium">{assignment.duration}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Budget:</span>
+                      <span className="font-medium text-green-600">{assignment.budget}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Remote:</span>
+                      <span className="font-medium">{assignment.remote}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Required Skills:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {assignment.requiredSkills.map((skill, index) => (
+                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
