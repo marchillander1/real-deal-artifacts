@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -426,21 +425,35 @@ const Index = () => {
 
   const handleFindMatches = async (assignment: Assignment) => {
     console.log("🚀 Starting AI matching for assignment:", assignment.title);
+    console.log("📋 Assignment details:", assignment);
+    console.log("👥 Available consultants:", consultants.length);
     
     setIsMatching(true);
     setSelectedAssignment(assignment);
     
-    // Simulate AI processing time
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const foundMatches = findMatches(consultants, assignment);
-    setMatches(foundMatches);
-    setIsMatching(false);
-    
-    toast({
-      title: "🤖 AI Matching Complete",
-      description: `Found ${foundMatches.length} potential matches for ${assignment.title}`,
-    });
+    try {
+      // Simulate AI processing time
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const foundMatches = findMatches(consultants, assignment);
+      console.log("🎯 Matches found:", foundMatches.length);
+      
+      setMatches(foundMatches);
+      setIsMatching(false);
+      
+      toast({
+        title: "🤖 AI Matching Complete",
+        description: `Found ${foundMatches.length} potential matches for ${assignment.title}`,
+      });
+    } catch (error) {
+      console.error("❌ Error during matching:", error);
+      setIsMatching(false);
+      toast({
+        title: "Error",
+        description: "Something went wrong during matching. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSelectMatch = (match: Match) => {
@@ -756,7 +769,10 @@ const Index = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleFindMatches(assignment)}
+                        onClick={() => {
+                          console.log("🔍 Find Matches button clicked for:", assignment.title);
+                          handleFindMatches(assignment);
+                        }}
                         disabled={isMatching}
                         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                       >
