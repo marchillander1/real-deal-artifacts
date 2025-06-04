@@ -78,7 +78,7 @@ const Landing = () => {
                   className="border border-gray-600 text-gray-300 px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center"
                 >
                   <ArrowRight className="h-5 w-5 mr-2" />
-                  Kom igång
+                  Get Started
                 </button>
               </div>
               
