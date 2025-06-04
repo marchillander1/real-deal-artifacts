@@ -17,6 +17,15 @@ export interface Consultant {
   certifications: string[];
   languages: string[];
   type: 'existing' | 'new';
+  // Human factors - mjuka egenskaper
+  communicationStyle: string;
+  workStyle: string;
+  values: string[];
+  personalityTraits: string[];
+  teamFit: string;
+  culturalFit: number; // 1-5 scale
+  adaptability: number; // 1-5 scale
+  leadership: number; // 1-5 scale
 }
 
 export interface Assignment {
@@ -34,6 +43,12 @@ export interface Assignment {
   remote: string;
   urgency: string;
   clientLogo: string;
+  // Human requirements
+  desiredCommunicationStyle?: string;
+  teamCulture?: string;
+  requiredValues?: string[];
+  leadershipLevel?: number;
+  teamDynamics?: string;
 }
 
 export interface Match {
@@ -43,6 +58,11 @@ export interface Match {
   matchedSkills: string[];
   estimatedSavings: number;
   responseTime: number;
+  // Human matching factors
+  culturalMatch: number;
+  communicationMatch: number;
+  valuesAlignment: number;
+  humanFactorsScore: number;
 }
 
 export interface Stats {
