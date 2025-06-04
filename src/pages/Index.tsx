@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -138,7 +137,7 @@ const Index = () => {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   MatchWise AI
                 </h1>
-                <p className="text-xs text-gray-600">Human-first consultant matching</p>
+                <p className="text-xs text-gray-600">Human-first konsultmatchning</p>
               </div>
             </div>
             
@@ -150,11 +149,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Zap className="h-4 w-4 text-yellow-500" />
-                  <span className="text-gray-600">Instant Matching</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
-                  <span className="text-gray-600">85% Time Saved</span>
+                  <span className="text-gray-600">Instant Match</span>
                 </div>
               </div>
             </div>
@@ -166,22 +161,18 @@ const Index = () => {
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-2">The Human-First AI Platform for Consultant Matching</h2>
+            <h2 className="text-3xl font-bold mb-2">MatchWise AI</h2>
             <p className="text-xl text-blue-100 mb-4">
-              Helping companies find not just skills – but people who truly fit
+              AI-baserad konsultmatchning med fokus på human factors
             </p>
             <div className="flex justify-center space-x-8 text-sm">
               <div className="flex items-center space-x-2">
                 <Brain className="h-5 w-5" />
-                <span>AI-powered analysis of CVs, skills & soft traits</span>
+                <span>AI-analys av skills & mjuka faktorer</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Heart className="h-5 w-5" />
-                <span>Communication, preferences & values matching</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Target className="h-5 w-5" />
-                <span>Real-time availability & instant overview</span>
+                <span>Värderingar & kommunikationsstil</span>
               </div>
             </div>
           </div>
@@ -194,19 +185,19 @@ const Index = () => {
           <TabsList className="grid w-full grid-cols-4 bg-white/50 backdrop-blur-sm">
             <TabsTrigger value="dashboard" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
-              <span>AI Dashboard</span>
+              <span>Dashboard</span>
             </TabsTrigger>
             <TabsTrigger value="consultants" className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
-              <span>Consultant Network</span>
+              <span>Konsulter</span>
             </TabsTrigger>
             <TabsTrigger value="assignments" className="flex items-center space-x-2">
               <Target className="h-4 w-4" />
-              <span>Smart Assignments</span>
+              <span>Uppdrag</span>
             </TabsTrigger>
             <TabsTrigger value="matches" className="flex items-center space-x-2">
               <Sparkles className="h-4 w-4" />
-              <span>AI Matches</span>
+              <span>Matches</span>
             </TabsTrigger>
           </TabsList>
 
@@ -227,15 +218,15 @@ const Index = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Smart Assignments</h2>
-                  <p className="text-gray-600">AI-enhanced projects seeking human-fit consultants</p>
+                  <h2 className="text-2xl font-bold text-gray-900">Uppdrag</h2>
+                  <p className="text-gray-600">AI-förbättrade projekt</p>
                 </div>
                 <button
                   onClick={() => setShowCreateForm(true)}
                   className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Add Assignment</span>
+                  <span>Lägg till uppdrag</span>
                 </button>
               </div>
 
@@ -253,13 +244,12 @@ const Index = () => {
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{assignment.title}</h3>
                         <p className="text-sm text-gray-600 mb-3">{assignment.company}</p>
-                        <p className="text-sm text-gray-700">{assignment.description}</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm mb-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Duration:</span>
+                        <span className="text-gray-600">Längd:</span>
                         <span className="font-medium">{assignment.duration}</span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -270,14 +260,16 @@ const Index = () => {
                         <span className="text-gray-600">Remote:</span>
                         <span className="font-medium">{assignment.remote}</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Team Culture:</span>
-                        <span className="font-medium text-purple-600">{assignment.teamCulture}</span>
-                      </div>
+                      {assignment.teamCulture && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Kultur:</span>
+                          <span className="font-medium text-purple-600">{assignment.teamCulture}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="mb-4">
-                      <p className="text-sm font-medium text-gray-700 mb-2">Required Skills:</p>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Skills:</p>
                       <div className="flex flex-wrap gap-1 mb-3">
                         {assignment.requiredSkills.slice(0, 4).map((skill, index) => (
                           <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">
@@ -286,9 +278,9 @@ const Index = () => {
                         ))}
                       </div>
                       
-                      {assignment.requiredValues && (
+                      {assignment.requiredValues && assignment.requiredValues.length > 0 && (
                         <>
-                          <p className="text-sm font-medium text-gray-700 mb-2">Values & Culture:</p>
+                          <p className="text-sm font-medium text-gray-700 mb-2">Värderingar:</p>
                           <div className="flex flex-wrap gap-1">
                             {assignment.requiredValues.map((value, index) => (
                               <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-md">
@@ -306,7 +298,7 @@ const Index = () => {
                       className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50"
                     >
                       <Brain className="h-4 w-4" />
-                      <span>{isMatching ? 'AI Analyzing...' : 'AI Human-Match'}</span>
+                      <span>{isMatching ? 'AI Analyserar...' : 'AI Human-Match'}</span>
                     </button>
                   </div>
                 ))}
@@ -321,18 +313,8 @@ const Index = () => {
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">AI Human-Fit Matches</h2>
                     <p className="text-gray-600">
-                      Perfect matches for "{selectedAssignment?.title}" - analyzed by our human-first AI
+                      Matches för "{selectedAssignment?.title}"
                     </p>
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <Brain className="h-4 w-4 text-blue-600" />
-                      <span>AI-Analyzed</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Heart className="h-4 w-4 text-red-500" />
-                      <span>Human-First</span>
-                    </div>
                   </div>
                 </div>
 
@@ -458,8 +440,8 @@ const Index = () => {
             ) : (
               <div className="text-center py-12">
                 <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Matches Yet</h3>
-                <p className="text-gray-600">Run AI matching on an assignment to see human-first results here.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Inga matches än</h3>
+                <p className="text-gray-600">Kör AI-matchning på ett uppdrag för att se resultat.</p>
               </div>
             )}
           </TabsContent>

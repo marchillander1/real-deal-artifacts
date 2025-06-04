@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +25,10 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
     industry: '',
     teamSize: '',
     remote: '',
-    urgency: ''
+    urgency: '',
+    teamCulture: '',
+    desiredCommunicationStyle: '',
+    requiredValues: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -42,8 +44,8 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
     
     if (!formData.title || !formData.description || !formData.requiredSkills) {
       toast({
-        title: "Required Fields Missing",
-        description: "Please fill in title, description, and required skills.",
+        title: "Obligatoriska fält saknas",
+        description: "Fyll i titel, beskrivning och skills.",
         variant: "destructive"
       });
       return;
@@ -63,21 +65,26 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
       teamSize: formData.teamSize,
       remote: formData.remote,
       urgency: formData.urgency,
-      clientLogo: '/placeholder.svg'
+      clientLogo: '/placeholder.svg',
+      teamCulture: formData.teamCulture,
+      desiredCommunicationStyle: formData.desiredCommunicationStyle,
+      requiredValues: formData.requiredValues.split(',').map(value => value.trim()).filter(value => value),
+      leadershipLevel: 3,
+      teamDynamics: formData.teamCulture
     };
 
     onAssignmentCreated(newAssignment);
     
     toast({
-      title: "Assignment Created",
-      description: "New assignment has been successfully created.",
+      title: "Uppdrag skapat",
+      description: "Nytt uppdrag har skapats.",
     });
   };
 
   return (
     <div className="bg-white rounded-xl shadow-lg border p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold text-gray-900">Create New Assignment</h3>
+        <h3 className="text-xl font-semibold text-gray-900">Skapa nytt uppdrag</h3>
         <button
           onClick={onCancel}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -89,7 +96,7 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Assignment Title *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Titel *</label>
             <input
               type="text"
               name="title"
@@ -97,24 +104,24 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., Senior React Developer"
+              placeholder="t.ex. Senior React Developer"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Företag</label>
             <input
               type="text"
               name="company"
               value={formData.company}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Company name"
+              placeholder="Företagsnamn"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Beskrivning *</label>
           <textarea
             name="description"
             value={formData.description}
@@ -122,12 +129,12 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
             required
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Detailed description of the assignment..."
+            placeholder="Detaljerad beskrivning av uppdraget..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Required Skills *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Skills *</label>
           <input
             type="text"
             name="requiredSkills"
@@ -135,13 +142,59 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
             onChange={handleInputChange}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="React, Node.js, TypeScript, AWS (comma separated)"
+            placeholder="React, Node.js, TypeScript (kommaseparerat)"
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Team Culture</label>
+            <select
+              name="teamCulture"
+              value={formData.teamCulture}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Välj teamkultur</option>
+              <option value="Innovativ och snabb">Innovativ och snabb</option>
+              <option value="Strukturerad och metodisk">Strukturerad och metodisk</option>
+              <option value="Kreativ och flexibel">Kreativ och flexibel</option>
+              <option value="Resultatfokuserad">Resultatfokuserad</option>
+              <option value="Samarbetsinriktad">Samarbetsinriktad</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Kommunikationsstil</label>
+            <select
+              name="desiredCommunicationStyle"
+              value={formData.desiredCommunicationStyle}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Välj stil</option>
+              <option value="Direkt och tydlig">Direkt och tydlig</option>
+              <option value="Diplomatisk">Diplomatisk</option>
+              <option value="Informal och öppen">Informal och öppen</option>
+              <option value="Formell">Formell</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Värderingar</label>
+          <input
+            type="text"
+            name="requiredValues"
+            value={formData.requiredValues}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Innovation, Kvalitet, Teamwork (kommaseparerat)"
           />
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Startdatum</label>
             <input
               type="date"
               name="startDate"
@@ -151,14 +204,14 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Längd</label>
             <input
               type="text"
               name="duration"
               value={formData.duration}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., 6 months"
+              placeholder="t.ex. 6 månader"
             />
           </div>
           <div>
@@ -169,11 +222,10 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">Select workload</option>
+              <option value="">Välj workload</option>
               <option value="100%">100%</option>
               <option value="75%">75%</option>
               <option value="50%">50%</option>
-              <option value="25%">25%</option>
             </select>
           </div>
         </div>
@@ -251,14 +303,14 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
             className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
           >
             <Plus className="h-4 w-4" />
-            <span>Create Assignment</span>
+            <span>Skapa uppdrag</span>
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            Avbryt
           </button>
         </div>
       </form>
