@@ -61,6 +61,10 @@ const DashboardPage = () => {
     }
   ]);
 
+  // Split consultants by type
+  const existingConsultants = consultants.filter(consultant => consultant.type === 'existing');
+  const newConsultants = consultants.filter(consultant => consultant.type === 'new');
+
   const handleMatch = (assignment: Assignment) => {
     console.log('Matching assignment:', assignment);
     toast({
@@ -211,7 +215,12 @@ const DashboardPage = () => {
           </div>
 
           <TabsContent value="consultants" className="space-y-6">
-            <ConsultantsTab consultants={consultants} />
+            <ConsultantsTab 
+              existingConsultants={existingConsultants}
+              newConsultants={newConsultants}
+              isMatching={isProcessing}
+              onFileUpload={handleFileUpload}
+            />
           </TabsContent>
 
           <TabsContent value="assignments" className="space-y-6">
