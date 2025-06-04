@@ -1,5 +1,4 @@
-
-import { Consultant, Assignment } from '../types/consultant';
+import { Consultant, Assignment, Match } from '../types/consultant';
 
 export const calculateMatch = (consultant: Consultant, assignment: Assignment): number => {
   const consultantSkills = consultant.skills.map(s => s.toLowerCase());
@@ -17,6 +16,27 @@ export const calculateMatch = (consultant: Consultant, assignment: Assignment): 
   const ratingScore = consultant.rating * 1;
   
   return Math.min(Math.round(skillScore + experienceScore + availabilityScore + ratingScore), 98);
+};
+
+export const findMatches = (consultants: Consultant[], assignment: Assignment): Match[] => {
+  return consultants.map(consultant => {
+    const score = calculateMatch(consultant, assignment);
+    const letter = generateMotivationLetter(consultant, assignment, score);
+    
+    return {
+      consultant,
+      score,
+      letter,
+      matchedSkills: consultant.skills.filter(skill => 
+        assignment.requiredSkills.some(req => 
+          skill.toLowerCase().includes(req.toLowerCase()) || 
+          req.toLowerCase().includes(skill.toLowerCase())
+        )
+      ),
+      estimatedSavings: Math.floor(score * 100 + Math.random() * 500),
+      responseTime: Math.floor(Math.random() * 24) + 1
+    };
+  }).sort((a, b) => b.score - a.score);
 };
 
 export const generateMotivationLetter = (consultant: Consultant, assignment: Assignment, matchScore: number): string => {

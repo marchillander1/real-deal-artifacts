@@ -174,6 +174,12 @@ const ConsultantMatcher = () => {
 
   const fileInputRef = useRef(null);
 
+  const handleMatch = async (matches: Match[], assignment: Assignment) => {
+    setMatches(matches);
+    setSelectedAssignment(assignment);
+    setActiveTab('matches');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
@@ -247,9 +253,8 @@ const ConsultantMatcher = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {activeTab === 'dashboard' && (
           <Dashboard 
-            stats={stats} 
-            consultantsCount={consultants.length} 
-            demoMode={demoMode} 
+            consultants={consultants}
+            onMatch={handleMatch}
           />
         )}
 
