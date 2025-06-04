@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -9,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { useNavigate } from "react-router-dom";
 import Logo from '../components/Logo';
 import { findMatches } from "../utils/matching";
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Star } from 'lucide-react';
 
 // Sample data for demo purposes
 const initialConsultants: Consultant[] = [
@@ -360,6 +359,14 @@ const Index = () => {
     }
   };
 
+  const handleAssignmentCreated = (newAssignment: Assignment) => {
+    setAssignments(prevAssignments => [...prevAssignments, newAssignment]);
+    toast({
+      title: "Assignment Created",
+      description: `${newAssignment.title} has been created successfully.`,
+    });
+  };
+
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const newConsultants = consultants.filter(c => c.type === 'new');
 
@@ -397,6 +404,7 @@ const Index = () => {
               assignments={assignments} 
               onMatch={handleMatch}
               onFileUpload={handleFileUpload}
+              onAssignmentCreated={handleAssignmentCreated}
             />
           </TabsContent>
 
@@ -512,6 +520,11 @@ const Index = () => {
                                 <h3 className="text-lg font-semibold text-gray-900">{match.consultant.name}</h3>
                                 <div className="text-right">
                                   <div className="text-2xl font-bold text-green-600">{match.score}%</div>
+                                  <div className="flex items-center justify-end">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star key={i} className={`h-3 w-3 ${i < Math.floor(match.score / 20) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                                    ))}
+                                  </div>
                                   <div className="text-xs text-gray-500">Match Score</div>
                                 </div>
                               </div>

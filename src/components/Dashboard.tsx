@@ -11,9 +11,16 @@ interface DashboardProps {
   assignments: Assignment[];
   onMatch: (assignment: Assignment) => void;
   onFileUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onAssignmentCreated?: (assignment: Assignment) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch, onFileUpload }) => {
+const Dashboard: React.FC<DashboardProps> = ({ 
+  consultants, 
+  assignments, 
+  onMatch, 
+  onFileUpload,
+  onAssignmentCreated 
+}) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -26,7 +33,9 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
   };
 
   const handleCreateAssignment = (newAssignment: Assignment) => {
-    // This would be handled by parent component
+    if (onAssignmentCreated) {
+      onAssignmentCreated(newAssignment);
+    }
     setShowCreateForm(false);
   };
 
@@ -230,6 +239,11 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <span className="text-lg font-bold text-green-600">94% match</span>
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`h-3 w-3 ${i < 5 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                  ))}
+                </div>
                 <p className="text-xs text-gray-500">2 min ago</p>
               </div>
             </div>
@@ -248,6 +262,11 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <span className="text-lg font-bold text-green-600">92% match</span>
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`h-3 w-3 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                  ))}
+                </div>
                 <p className="text-xs text-gray-500">5 min ago</p>
               </div>
             </div>
@@ -266,6 +285,11 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <span className="text-lg font-bold text-green-600">89% match</span>
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`h-3 w-3 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                  ))}
+                </div>
                 <p className="text-xs text-gray-500">12 min ago</p>
               </div>
             </div>
