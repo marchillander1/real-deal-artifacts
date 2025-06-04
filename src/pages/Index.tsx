@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
 import { useNavigate } from "react-router-dom";
 import Logo from '../components/Logo';
+import { findMatches } from "../utils/matching";
+import { Sparkles } from 'lucide-react';
 
 // Sample data for demo purposes
 const initialConsultants: Consultant[] = [
@@ -220,6 +222,8 @@ const Index = () => {
   const [consultants, setConsultants] = useState<Consultant[]>(initialConsultants);
   const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments);
   const [matches, setMatches] = useState<Match[]>([]);
+  const [isMatching, setIsMatching] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
   useEffect(() => {
     console.log("Loading consultants:", consultants.length);
@@ -313,6 +317,38 @@ const Index = () => {
     }
   };
 
+  const handleFindMatches = async (assignment: Assignment) => {
+    setIsMatching(true);
+    setSelectedAssignment(assignment);
+    
+    console.log("Finding matches for assignment:", assignment.title);
+    
+    // Simulate AI processing time
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const foundMatches = findMatches(consultants, assignment);
+    setMatches(foundMatches);
+    setIsMatching(false);
+    
+    toast({
+      title: "AI Matching Complete",
+      description: `Found ${foundMatches.length} potential matches for ${assignment.title}`,
+    });
+  };
+
+  const handleSelectMatch = (match: Match) => {
+    if (selectedAssignment) {
+      handleMatch(selectedAssignment);
+      setMatches([]);
+      setSelectedAssignment(null);
+      
+      toast({
+        title: "Match Selected",
+        description: `${match.consultant.name} has been matched to ${selectedAssignment.title}`,
+      });
+    }
+  };
+
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const newConsultants = consultants.filter(c => c.type === 'new');
 
@@ -363,53 +399,150 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="assignments">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {assignments.map((assignment) => (
-                <div key={assignment.id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="text-2xl">{assignment.clientLogo}</div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      assignment.urgency === 'High' 
-                        ? 'bg-red-100 text-red-800' 
-                        : assignment.urgency === 'Medium'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {assignment.urgency} Priority
-                    </span>
+            <div className="space-y-8">
+              {/* Assignments Grid */}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {assignments.map((assignment) => (
+                  <div key={assignment.id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="text-2xl">{assignment.clientLogo}</div>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        assignment.urgency === 'High' 
+                          ? 'bg-red-100 text-red-800' 
+                          : assignment.urgency === 'Medium'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {assignment.urgency} Priority
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{assignment.title}</h3>
+                    <p className="text-gray-600 mb-4 text-sm line-clamp-2">{assignment.description}</p>
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Company:</span>
+                        <span className="font-medium">{assignment.company}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Duration:</span>
+                        <span className="font-medium">{assignment.duration}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Budget:</span>
+                        <span className="font-medium text-green-600">{assignment.budget}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Remote:</span>
+                        <span className="font-medium">{assignment.remote}</span>
+                      </div>
+                    </div>
+                    <div className="mb-4 pt-4 border-t">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Required Skills:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {assignment.requiredSkills.map((skill, index) => (
+                          <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleFindMatches(assignment)}
+                      disabled={isMatching}
+                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      {isMatching && selectedAssignment?.id === assignment.id ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Finding Matches...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Find AI Matches
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{assignment.title}</h3>
-                  <p className="text-gray-600 mb-4 text-sm">{assignment.description}</p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500">Company:</span>
-                      <span className="font-medium">{assignment.company}</span>
+                ))}
+              </div>
+
+              {/* AI Matches Results */}
+              {matches.length > 0 && selectedAssignment && (
+                <div className="bg-white rounded-xl shadow-sm border p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">
+                        AI Matches for "{selectedAssignment.title}"
+                      </h2>
+                      <p className="text-gray-600">Ranked by compatibility and human factors</p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500">Duration:</span>
-                      <span className="font-medium">{assignment.duration}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500">Budget:</span>
-                      <span className="font-medium text-green-600">{assignment.budget}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500">Remote:</span>
-                      <span className="font-medium">{assignment.remote}</span>
-                    </div>
+                    <button
+                      onClick={() => {
+                        setMatches([]);
+                        setSelectedAssignment(null);
+                      }}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </button>
                   </div>
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Required Skills:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {assignment.requiredSkills.map((skill, index) => (
-                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
+
+                  <div className="space-y-4">
+                    {matches.slice(0, 5).map((match, index) => (
+                      <div key={match.consultant.id} className="border border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-4 flex-1">
+                            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg">
+                              #{index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900">{match.consultant.name}</h3>
+                                <div className="text-right">
+                                  <div className="text-2xl font-bold text-green-600">{match.score}%</div>
+                                  <div className="text-xs text-gray-500">Match Score</div>
+                                </div>
+                              </div>
+                              
+                              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Skills:</span> {match.consultant.skills.slice(0, 3).join(', ')}</p>
+                                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Experience:</span> {match.consultant.experience}</p>
+                                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Rate:</span> {match.consultant.rate}</p>
+                                  <p className="text-sm text-gray-600"><span className="font-medium">Location:</span> {match.consultant.location}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Cultural Match:</span> {match.culturalMatch}%</p>
+                                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Communication:</span> {match.communicationMatch}%</p>
+                                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Values Alignment:</span> {match.valuesAlignment}%</p>
+                                  <p className="text-sm text-gray-600"><span className="font-medium">Response Time:</span> {match.responseTime}h</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <div className="flex flex-wrap gap-2">
+                                  {match.matchedSkills.slice(0, 3).map((skill, skillIndex) => (
+                                    <span key={skillIndex} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md">
+                                      ✓ {skill}
+                                    </span>
+                                  ))}
+                                </div>
+                                <button
+                                  onClick={() => handleSelectMatch(match)}
+                                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                                >
+                                  Select Match
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </TabsContent>
         </Tabs>
