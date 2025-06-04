@@ -1,91 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Upload, FileText, Users, Briefcase, Zap, Star, Download, Plus, Search, Filter, BarChart3, TrendingUp, Clock, DollarSign, CheckCircle, Phone, Mail, MapPin, Calendar, Target, ArrowRight, Award, Sparkles } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import Dashboard from '../components/Dashboard';
+import ConsultantsTab from '../components/ConsultantsTab';
+import { useConsultants } from '../hooks/useConsultants';
+import { Assignment, Match, Stats } from '../types/consultant';
+import { calculateMatch, generateMotivationLetter } from '../utils/matching';
 
 const ConsultantMatcher = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
+  const { consultants, existingConsultants, newConsultants, addConsultant } = useConsultants();
   
-  const [consultants, setConsultants] = useState([
-    {
-      id: 1,
-      name: 'Anna Lindqvist',
-      skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'PostgreSQL', 'GraphQL', 'Docker'],
-      experience: '8 years',
-      roles: ['Senior Frontend Developer', 'Full-Stack Architect'],
-      location: 'Stockholm',
-      rate: '950 SEK/hour',
-      availability: 'Available',
-      phone: '+46 70 123 4567',
-      email: 'anna.lindqvist@email.com',
-      projects: 23,
-      rating: 4.9,
-      lastActive: '2 hours ago',
-      cv: 'Senior developer with expertise in modern web technologies, led 15+ projects for Fortune 500 companies...',
-      certifications: ['AWS Certified', 'React Advanced'],
-      languages: ['Swedish', 'English', 'German'],
-      type: 'existing'
-    },
-    {
-      id: 2,
-      name: 'Erik Johansson',
-      skills: ['Python', 'Django', 'Docker', 'Kubernetes', 'GCP', 'Terraform', 'Jenkins', 'MongoDB'],
-      experience: '10 years',
-      roles: ['Senior DevOps Engineer', 'Cloud Architect'],
-      location: 'Göteborg',
-      rate: '1100 SEK/hour',
-      availability: 'Available',
-      phone: '+46 70 234 5678',
-      email: 'erik.johansson@email.com',
-      projects: 31,
-      rating: 4.8,
-      lastActive: '1 hour ago',
-      cv: 'Experienced DevOps specialist with 10+ years in cloud infrastructure and automation...',
-      certifications: ['GCP Professional', 'Kubernetes Certified'],
-      languages: ['Swedish', 'English'],
-      type: 'existing'
-    },
-    {
-      id: 3,
-      name: 'Maria Andersson',
-      skills: ['Java', 'Spring Boot', 'Microservices', 'Azure', 'MongoDB', 'Kafka', 'Redis'],
-      experience: '12 years',
-      roles: ['Tech Lead', 'Enterprise Architect'],
-      location: 'Malmö',
-      rate: '1200 SEK/hour',
-      availability: 'Partially Available',
-      phone: '+46 70 345 6789',
-      email: 'maria.andersson@email.com',
-      projects: 45,
-      rating: 5.0,
-      lastActive: '30 minutes ago',
-      cv: 'Technical lead with extensive experience in enterprise solutions and team leadership...',
-      certifications: ['Java Expert', 'Azure Solutions Architect'],
-      languages: ['Swedish', 'English', 'Spanish'],
-      type: 'existing'
-    },
-    {
-      id: 4,
-      name: 'Johan Nilsson',
-      skills: ['Angular', 'Vue.js', 'JavaScript', 'SASS', 'Figma', 'UX Design'],
-      experience: '6 years',
-      roles: ['Frontend Developer', 'UX Designer'],
-      location: 'Stockholm',
-      rate: '850 SEK/hour',
-      availability: 'Available',
-      phone: '+46 70 456 7890',
-      email: 'johan.nilsson@email.com',
-      projects: 18,
-      rating: 4.7,
-      lastActive: '4 hours ago',
-      cv: 'Creative frontend developer with strong UX background...',
-      certifications: ['Adobe Certified', 'Google UX Design'],
-      languages: ['Swedish', 'English'],
-      type: 'existing'
-    }
-  ]);
-
-  const [assignments, setAssignments] = useState([
+  const [assignments, setAssignments] = useState<Assignment[]>([
     {
       id: 1,
       title: 'Senior React Developer - E-commerce Platform',
@@ -136,11 +63,11 @@ const ConsultantMatcher = () => {
     }
   ]);
 
-  const [matches, setMatches] = useState([]);
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [isMatching, setIsMatching] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     totalConsultants: 247,
     activeAssignments: 23,
     successfulMatches: 156,
@@ -149,17 +76,6 @@ const ConsultantMatcher = () => {
     timeSaved: '847 hours',
     revenue: '2.4M SEK'
   });
-  
-  const fileInputRef = useRef(null);
-
-  // Load uploaded consultants on component mount
-  useEffect(() => {
-    const uploadedConsultants = JSON.parse(localStorage.getItem('uploadedConsultants') || '[]');
-    if (uploadedConsultants.length > 0) {
-      const newConsultants = uploadedConsultants.map(consultant => ({ ...consultant, type: 'new' }));
-      setConsultants(prev => [...prev, ...newConsultants]);
-    }
-  }, []);
 
   // Simulate real-time updates
   useEffect(() => {
@@ -173,111 +89,7 @@ const ConsultantMatcher = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const calculateMatch = (consultant, assignment) => {
-    const consultantSkills = consultant.skills.map(s => s.toLowerCase());
-    const requiredSkills = assignment.requiredSkills.map(s => s.toLowerCase());
-    
-    const matchingSkills = consultantSkills.filter(skill => 
-      requiredSkills.some(required => 
-        skill.includes(required.toLowerCase()) || required.toLowerCase().includes(skill)
-      )
-    );
-    
-    const skillScore = (matchingSkills.length / requiredSkills.length) * 60;
-    const experienceScore = Math.min(parseInt(consultant.experience) * 2.5, 25);
-    const availabilityScore = consultant.availability === 'Available' ? 10 : 5;
-    const ratingScore = consultant.rating * 1;
-    
-    return Math.min(Math.round(skillScore + experienceScore + availabilityScore + ratingScore), 98);
-  };
-
-  const generateMotivationLetter = (consultant, assignment, matchScore) => {
-    const templates = [
-      `Subject: Application for ${assignment.title} - ${consultant.name}
-
-Dear Hiring Team at ${assignment.company},
-
-I am excited to apply for the ${assignment.title} position. With my ${consultant.experience} of experience and proven track record of ${consultant.projects} successful projects, I am confident I can deliver exceptional value to your ${assignment.industry.toLowerCase()} initiative.
-
-🔧 Technical Alignment:
-My expertise in ${consultant.skills.filter(skill => 
-  assignment.requiredSkills.some(req => skill.toLowerCase().includes(req.toLowerCase()) || req.toLowerCase().includes(skill.toLowerCase()))
-).join(', ')} directly matches your technical requirements. I have successfully delivered similar solutions for enterprise clients, maintaining a ${consultant.rating}/5.0 client satisfaction rating.
-
-💼 Project Experience:
-• ${consultant.projects} completed projects with 100% delivery rate
-• Specialized in ${consultant.roles[0].toLowerCase()} roles
-• ${consultant.certifications.join(' and ')} certified
-• Fluent in ${consultant.languages.join(', ')}
-
-📍 Logistics:
-• Location: ${consultant.location} (${assignment.remote} compatible)
-• Availability: ${consultant.availability} from ${assignment.startDate}
-• Rate: ${consultant.rate} (within your ${assignment.budget} budget)
-• Team collaboration: Experienced with ${assignment.teamSize} teams
-
-I am available for an immediate interview and can start on your preferred timeline. My recent work includes similar ${assignment.industry.toLowerCase()} projects where I delivered measurable ROI through technical excellence.
-
-Thank you for considering my application. I look forward to contributing to ${assignment.company}'s success.
-
-Best regards,
-${consultant.name}
-📧 ${consultant.email}
-📱 ${consultant.phone}
-
----
-Generated by AI in 0.3 seconds | Match Score: ${matchScore}% | Last updated: ${consultant.lastActive}`,
-
-      `Application: ${assignment.title} | ${consultant.name}
-
-Hello ${assignment.company} Team! 👋
-
-I'm ${consultant.name}, a ${consultant.roles[0]} with ${consultant.experience} of hands-on experience. Your ${assignment.title} project perfectly aligns with my expertise and career goals.
-
-🎯 Why I'm Perfect for This Role:
-
-Technical Match (${matchScore}%):
-✅ ${consultant.skills.filter(skill => 
-  assignment.requiredSkills.some(req => skill.toLowerCase().includes(req.toLowerCase()) || req.toLowerCase().includes(skill.toLowerCase()))
-).map(skill => `Expert in ${skill}`).join('\n✅ ')}
-
-Track Record:
-• ${consultant.projects} projects delivered on-time and on-budget
-• ${consultant.rating}/5.0 average client rating
-• ${consultant.certifications.join(' & ')} certified professional
-• Based in ${consultant.location}, available for ${assignment.remote.toLowerCase()} work
-
-Project Fit:
-• Duration: ${assignment.duration} ✅ (I specialize in ${assignment.duration.includes('6') ? 'medium-term' : 'long-term'} engagements)
-• Workload: ${assignment.workload} ✅ (Currently ${consultant.availability.toLowerCase()})
-• Industry: ${assignment.industry} ✅ (Previous experience with similar solutions)
-• Team Size: ${assignment.teamSize} ✅ (Love collaborative environments)
-
-🚀 What I Bring Beyond Technical Skills:
-• Proactive communication and regular progress updates
-• Documentation and knowledge transfer focus
-• Mentoring junior developers when needed
-• Business-oriented approach to technical decisions
-
-💰 Investment: ${consultant.rate} (fits within your ${assignment.budget} budget)
-📅 Start Date: Ready for ${assignment.startDate}
-⚡ Response Time: Active ${consultant.lastActive}
-
-I'd love to discuss how my experience can accelerate your project timeline and ensure technical excellence. Available for a call this week!
-
-Cheers,
-${consultant.name}
-
-Contact: ${consultant.email} | ${consultant.phone}
-Portfolio: Available upon request
-
-P.S. - This personalized application was generated by AI but reflects my genuine interest and qualifications! 🤖✨`
-    ];
-    
-    return templates[Math.floor(Math.random() * templates.length)];
-  };
-
-  const runMatching = async (assignment) => {
+  const runMatching = async (assignment: Assignment) => {
     setIsMatching(true);
     setSelectedAssignment(assignment);
     
@@ -319,8 +131,8 @@ P.S. - This personalized application was generated by AI but reflects my genuine
     });
   };
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
       setIsMatching(true);
       setTimeout(() => {
@@ -341,9 +153,9 @@ P.S. - This personalized application was generated by AI but reflects my genuine
           cv: 'CV content extracted and analyzed by AI...',
           certifications: ['Scrum Master'],
           languages: ['Swedish', 'English'],
-          type: 'new'
+          type: 'new' as const
         };
-        setConsultants([...consultants, newConsultant]);
+        addConsultant(newConsultant);
         setStats(prev => ({ ...prev, totalConsultants: prev.totalConsultants + 1 }));
         setIsMatching(false);
         toast({
@@ -360,28 +172,7 @@ P.S. - This personalized application was generated by AI but reflects my genuine
     }
   };
 
-  const StatCard = ({ icon: Icon, title, value, change, color = "blue" }) => (
-    <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-          {change && (
-            <p className="text-sm text-green-600 mt-1 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              {change}
-            </p>
-          )}
-        </div>
-        <div className={`bg-${color}-100 p-3 rounded-lg`}>
-          <Icon className={`h-6 w-6 text-${color}-600`} />
-        </div>
-      </div>
-    </div>
-  );
-
-  const existingConsultants = consultants.filter(c => c.type === 'existing');
-  const newConsultants = consultants.filter(c => c.type === 'new');
+  const fileInputRef = useRef(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -455,366 +246,20 @@ P.S. - This personalized application was generated by AI but reflects my genuine
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {activeTab === 'dashboard' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">Platform Overview</h2>
-                <p className="text-gray-600">Real-time insights and performance metrics</p>
-              </div>
-              {demoMode && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                  <p className="text-orange-800 text-sm font-medium">🎬 Demo Mode Active - Data refreshes automatically</p>
-                </div>
-              )}
-            </div>
-
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard 
-                icon={Users} 
-                title="Active Consultants" 
-                value={consultants.length} 
-                change="+12 this week"
-                color="blue" 
-              />
-              <StatCard 
-                icon={Briefcase} 
-                title="Open Assignments" 
-                value={stats.activeAssignments} 
-                change="+5 today"
-                color="green" 
-              />
-              <StatCard 
-                icon={CheckCircle} 
-                title="Successful Matches" 
-                value={stats.successfulMatches} 
-                change="+23 this month"
-                color="purple" 
-              />
-              <StatCard 
-                icon={Clock} 
-                title="Avg Match Time" 
-                value={stats.avgMatchTime} 
-                change="67% faster"
-                color="orange" 
-              />
-            </div>
-
-            {/* ROI Metrics */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-xl p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100">Time Saved</p>
-                    <p className="text-3xl font-bold">{stats.timeSaved}</p>
-                    <p className="text-green-200 text-sm mt-1">≈ 2.1M SEK in cost savings</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-green-200" />
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-100">Client Satisfaction</p>
-                    <p className="text-3xl font-bold">{stats.clientSatisfaction}%</p>
-                    <p className="text-blue-200 text-sm mt-1">+8% vs manual matching</p>
-                  </div>
-                  <Star className="h-8 w-8 text-blue-200" />
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100">Platform Revenue</p>
-                    <p className="text-3xl font-bold">{stats.revenue}</p>
-                    <p className="text-purple-200 text-sm mt-1">Monthly recurring</p>
-                  </div>
-                  <DollarSign className="h-8 w-8 text-purple-200" />
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent AI Matches</h3>
-              <div className="space-y-3">
-                {[
-                  { consultant: 'Anna Lindqvist', assignment: 'React Developer', score: 94, time: '2 min ago' },
-                  { consultant: 'Erik Johansson', assignment: 'DevOps Engineer', score: 89, time: '15 min ago' },
-                  { consultant: 'Maria Andersson', assignment: 'Java Architect', score: 96, time: '1 hour ago' }
-                ].map((match, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-semibold">{match.consultant.split(' ')[0][0]}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{match.consultant}</p>
-                        <p className="text-sm text-gray-600">matched to {match.assignment}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-sm font-medium">
-                        {match.score}% match
-                      </span>
-                      <span className="text-gray-500 text-sm">{match.time}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <Dashboard 
+            stats={stats} 
+            consultantsCount={consultants.length} 
+            demoMode={demoMode} 
+          />
         )}
 
         {activeTab === 'consultants' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Consultant Database</h2>
-                <p className="text-gray-600">AI-powered consultant profiles with automated skill extraction</p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <a 
-                  href="/cv-upload"
-                  className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Join Network</span>
-                </a>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileUpload}
-                  ref={fileInputRef}
-                  className="hidden"
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isMatching}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50"
-                >
-                  <Upload className="h-4 w-4" />
-                  <span>{isMatching ? 'Processing...' : 'Upload CV'}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Existing Consultants Section */}
-            {existingConsultants.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-blue-100 p-2 rounded-lg">
-                    <Award className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Verified Consultants</h3>
-                    <p className="text-sm text-gray-600">Our established network of experienced professionals</p>
-                  </div>
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {existingConsultants.length} consultants
-                  </span>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {existingConsultants.map((consultant) => (
-                    <div key={consultant.id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-lg transition-all">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold">{consultant.name.split(' ').map(n => n[0]).join('')}</span>
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">{consultant.name}</h3>
-                            <p className="text-sm text-gray-600">{consultant.roles[0]}</p>
-                            <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1">
-                              Verified
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium text-gray-700">{consultant.rating}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Experience:</span>
-                          <span className="font-medium">{consultant.experience}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Projects:</span>
-                          <span className="font-medium">{consultant.projects} completed</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Rate:</span>
-                          <span className="font-medium text-green-600">{consultant.rate}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Location:</span>
-                          <span className="font-medium">{consultant.location}</span>
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700">Status:</span>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            consultant.availability === 'Available' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {consultant.availability}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500">Last active: {consultant.lastActive}</p>
-                      </div>
-
-                      <div className="mt-4">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Top Skills:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {consultant.skills.slice(0, 5).map((skill, index) => (
-                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">
-                              {skill}
-                            </span>
-                          ))}
-                          {consultant.skills.length > 5 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
-                              +{consultant.skills.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <Mail className="h-3 w-3" />
-                          <span>Contact</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Award className="h-3 w-3 text-blue-500" />
-                          <span className="text-blue-600 font-medium">{consultant.certifications[0]}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* New Consultants Section */}
-            {newConsultants.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 p-2 rounded-lg">
-                    <Users className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">New Applicants</h3>
-                    <p className="text-sm text-gray-600">Recent consultants who joined through our platform</p>
-                  </div>
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {newConsultants.length} new
-                  </span>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {newConsultants.map((consultant) => (
-                    <div key={consultant.id} className="bg-white rounded-xl shadow-sm border-2 border-green-100 p-6 hover:shadow-lg transition-all">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold">{consultant.name.split(' ').map(n => n[0]).join('')}</span>
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">{consultant.name}</h3>
-                            <p className="text-sm text-gray-600">{consultant.roles[0]}</p>
-                            <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
-                              New Member
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium text-gray-700">{consultant.rating.toFixed(1)}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Experience:</span>
-                          <span className="font-medium">{consultant.experience}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Projects:</span>
-                          <span className="font-medium">{consultant.projects} completed</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Rate:</span>
-                          <span className="font-medium text-green-600">{consultant.rate}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Location:</span>
-                          <span className="font-medium">{consultant.location}</span>
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700">Status:</span>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            consultant.availability === 'Available' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {consultant.availability}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500">Joined: {consultant.lastActive}</p>
-                      </div>
-
-                      <div className="mt-4">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Top Skills:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {consultant.skills.slice(0, 5).map((skill, index) => (
-                            <span key={index} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md">
-                              {skill}
-                            </span>
-                          ))}
-                          {consultant.skills.length > 5 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
-                              +{consultant.skills.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <Mail className="h-3 w-3" />
-                          <span>Contact</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Award className="h-3 w-3 text-green-500" />
-                          <span className="text-green-600 font-medium">{consultant.certifications[0]}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {consultants.length === 0 && (
-              <div className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Consultants Yet</h3>
-                <p className="text-gray-600">Upload CVs or invite consultants to join the network.</p>
-              </div>
-            )}
-          </div>
+          <ConsultantsTab
+            existingConsultants={existingConsultants}
+            newConsultants={newConsultants}
+            isMatching={isMatching}
+            onFileUpload={handleFileUpload}
+          />
         )}
 
         {activeTab === 'assignments' && (
