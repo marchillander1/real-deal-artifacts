@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
-import ConsultantsTab from "@/components/ConsultantsTab";
+import { ConsultantsTab } from "@/components/ConsultantsTab";
 import { Assignment, Consultant, Match } from "../types/consultant";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
