@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
 import { useNavigate } from "react-router-dom";
 import Logo from '../components/Logo';
-import { findMatches } from "../utils/matching";
 import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp, User, MapPin, Calendar, Briefcase } from 'lucide-react';
 
 // Sample data for demo purposes
@@ -214,6 +213,86 @@ const initialAssignments: Assignment[] = [
     teamDynamics: "Large, multi-disciplinary team with strict compliance requirements"
   }
 ];
+
+// Define findMatches function directly in this file
+const findMatches = (consultants: Consultant[], assignment: Assignment): Match[] => {
+  console.log("Finding matches for:", assignment.title);
+  console.log("With consultants:", consultants);
+  
+  const matches: Match[] = [];
+  
+  consultants.forEach(consultant => {
+    // Calculate skill match
+    const matchedSkills = consultant.skills.filter(skill => 
+      assignment.requiredSkills.some(reqSkill => 
+        skill.toLowerCase().includes(reqSkill.toLowerCase()) || 
+        reqSkill.toLowerCase().includes(skill.toLowerCase())
+      )
+    );
+    
+    // Calculate score based on various factors
+    let score = 0;
+    
+    // Skill matching (40% of score)
+    const skillMatchPercentage = (matchedSkills.length / assignment.requiredSkills.length) * 100;
+    score += skillMatchPercentage * 0.4;
+    
+    // Experience and rating (30% of score)
+    const experienceYears = parseInt(consultant.experience);
+    const experienceScore = Math.min(experienceYears * 10, 100);
+    const ratingScore = (consultant.rating / 5) * 100;
+    score += (experienceScore * 0.15) + (ratingScore * 0.15);
+    
+    // Availability (15% of score)
+    const availabilityScore = consultant.availability.toLowerCase().includes('available') ? 100 : 50;
+    score += availabilityScore * 0.15;
+    
+    // Cultural fit and human factors (15% of score)
+    const culturalScore = (consultant.culturalFit / 5) * 100;
+    score += culturalScore * 0.15;
+    
+    // Only include consultants with some skill match
+    if (matchedSkills.length > 0 && score > 30) {
+      // Generate AI cover letter
+      const letter = `Subject: Perfect Match for ${assignment.title} at ${assignment.company}
+
+Dear Hiring Manager,
+
+I am excited to present ${consultant.name}, an exceptional ${consultant.roles[0]} with ${consultant.experience} of experience, as the ideal candidate for your ${assignment.title} position.
+
+Key Qualifications:
+${matchedSkills.map(skill => `• Expert in ${skill}`).join('\n')}
+• ${consultant.projects} successfully completed projects
+• ${consultant.rating}/5.0 client satisfaction rating
+• Located in ${consultant.location}
+
+${consultant.name} brings a unique combination of technical expertise and ${consultant.communicationStyle.toLowerCase()} communication style that aligns perfectly with your team culture. Their ${consultant.workStyle.toLowerCase()} approach and proven track record make them an ideal fit for this ${assignment.duration} engagement.
+
+With their ${consultant.values.join(', ')} values and ${consultant.personalityTraits.join(', ')} personality traits, ${consultant.name} will seamlessly integrate into your ${assignment.teamSize} team and contribute to your project's success from day one.
+
+Available ${consultant.availability.toLowerCase()} at ${consultant.rate}, ${consultant.name} is ready to deliver exceptional results for ${assignment.company}.
+
+Best regards,
+MatchWise AI Recruitment Team
+
+P.S. ${consultant.name} has expressed particular interest in ${assignment.industry} projects and is excited about the opportunity to work with ${assignment.company}.`;
+
+      matches.push({
+        consultant,
+        assignment,
+        score: Math.round(score),
+        matchedSkills,
+        humanFactorsScore: Math.round(culturalScore),
+        estimatedSavings: Math.floor(Math.random() * 50000) + 25000,
+        responseTime: Math.floor(Math.random() * 24) + 2,
+        letter
+      });
+    }
+  });
+  
+  // Sort by score (highest first)
+  return matches.sort((a, b) => b.score - a.score);
+};
 
 const Index = () => {
   const navigate = useNavigate();
