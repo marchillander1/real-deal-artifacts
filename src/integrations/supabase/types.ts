@@ -9,7 +9,276 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      assignments: {
+        Row: {
+          budget_currency: string | null
+          budget_max: number | null
+          budget_min: number | null
+          client_logo: string | null
+          company: string
+          created_at: string | null
+          created_by: string | null
+          description: string
+          desired_communication_style: string | null
+          duration: string | null
+          id: string
+          industry: string | null
+          leadership_level: number | null
+          remote_type: string | null
+          required_skills: string[] | null
+          required_values: string[] | null
+          start_date: string | null
+          status: string | null
+          team_culture: string | null
+          team_dynamics: string | null
+          team_size: string | null
+          title: string
+          updated_at: string | null
+          urgency: string | null
+          workload: string | null
+        }
+        Insert: {
+          budget_currency?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          client_logo?: string | null
+          company: string
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          desired_communication_style?: string | null
+          duration?: string | null
+          id?: string
+          industry?: string | null
+          leadership_level?: number | null
+          remote_type?: string | null
+          required_skills?: string[] | null
+          required_values?: string[] | null
+          start_date?: string | null
+          status?: string | null
+          team_culture?: string | null
+          team_dynamics?: string | null
+          team_size?: string | null
+          title: string
+          updated_at?: string | null
+          urgency?: string | null
+          workload?: string | null
+        }
+        Update: {
+          budget_currency?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          client_logo?: string | null
+          company?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          desired_communication_style?: string | null
+          duration?: string | null
+          id?: string
+          industry?: string | null
+          leadership_level?: number | null
+          remote_type?: string | null
+          required_skills?: string[] | null
+          required_values?: string[] | null
+          start_date?: string | null
+          status?: string | null
+          team_culture?: string | null
+          team_dynamics?: string | null
+          team_size?: string | null
+          title?: string
+          updated_at?: string | null
+          urgency?: string | null
+          workload?: string | null
+        }
+        Relationships: []
+      }
+      consultants: {
+        Row: {
+          adaptability: number | null
+          availability: string | null
+          certifications: string[] | null
+          communication_style: string | null
+          created_at: string | null
+          cultural_fit: number | null
+          cv_file_path: string | null
+          email: string
+          experience_years: number | null
+          hourly_rate: number | null
+          id: string
+          languages: string[] | null
+          last_active: string | null
+          leadership: number | null
+          location: string | null
+          name: string
+          personality_traits: string[] | null
+          phone: string | null
+          projects_completed: number | null
+          rating: number | null
+          roles: string[] | null
+          skills: string[] | null
+          team_fit: string | null
+          type: string | null
+          updated_at: string | null
+          values: string[] | null
+          work_style: string | null
+        }
+        Insert: {
+          adaptability?: number | null
+          availability?: string | null
+          certifications?: string[] | null
+          communication_style?: string | null
+          created_at?: string | null
+          cultural_fit?: number | null
+          cv_file_path?: string | null
+          email: string
+          experience_years?: number | null
+          hourly_rate?: number | null
+          id?: string
+          languages?: string[] | null
+          last_active?: string | null
+          leadership?: number | null
+          location?: string | null
+          name: string
+          personality_traits?: string[] | null
+          phone?: string | null
+          projects_completed?: number | null
+          rating?: number | null
+          roles?: string[] | null
+          skills?: string[] | null
+          team_fit?: string | null
+          type?: string | null
+          updated_at?: string | null
+          values?: string[] | null
+          work_style?: string | null
+        }
+        Update: {
+          adaptability?: number | null
+          availability?: string | null
+          certifications?: string[] | null
+          communication_style?: string | null
+          created_at?: string | null
+          cultural_fit?: number | null
+          cv_file_path?: string | null
+          email?: string
+          experience_years?: number | null
+          hourly_rate?: number | null
+          id?: string
+          languages?: string[] | null
+          last_active?: string | null
+          leadership?: number | null
+          location?: string | null
+          name?: string
+          personality_traits?: string[] | null
+          phone?: string | null
+          projects_completed?: number | null
+          rating?: number | null
+          roles?: string[] | null
+          skills?: string[] | null
+          team_fit?: string | null
+          type?: string | null
+          updated_at?: string | null
+          values?: string[] | null
+          work_style?: string | null
+        }
+        Relationships: []
+      }
+      matches: {
+        Row: {
+          assignment_id: string | null
+          communication_match: number | null
+          consultant_id: string | null
+          cover_letter: string | null
+          created_at: string | null
+          cultural_match: number | null
+          estimated_savings: number | null
+          human_factors_score: number | null
+          id: string
+          match_score: number
+          matched_skills: string[] | null
+          response_time_hours: number | null
+          status: string | null
+          values_alignment: number | null
+        }
+        Insert: {
+          assignment_id?: string | null
+          communication_match?: number | null
+          consultant_id?: string | null
+          cover_letter?: string | null
+          created_at?: string | null
+          cultural_match?: number | null
+          estimated_savings?: number | null
+          human_factors_score?: number | null
+          id?: string
+          match_score: number
+          matched_skills?: string[] | null
+          response_time_hours?: number | null
+          status?: string | null
+          values_alignment?: number | null
+        }
+        Update: {
+          assignment_id?: string | null
+          communication_match?: number | null
+          consultant_id?: string | null
+          cover_letter?: string | null
+          created_at?: string | null
+          cultural_match?: number | null
+          estimated_savings?: number | null
+          human_factors_score?: number | null
+          id?: string
+          match_score?: number
+          matched_skills?: string[] | null
+          response_time_hours?: number | null
+          status?: string | null
+          values_alignment?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
