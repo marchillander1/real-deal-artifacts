@@ -520,12 +520,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <ConsultantsTab 
-              existingConsultants={existingConsultants}
-              newConsultants={newConsultants}
-              isMatching={false}
-              onFileUpload={handleFileUpload}
-            />
+            <ConsultantsTab />
           </TabsContent>
 
           <TabsContent value="assignments">
