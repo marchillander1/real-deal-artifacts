@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -137,7 +138,7 @@ const Index = () => {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   MatchWise AI
                 </h1>
-                <p className="text-xs text-gray-600">Human-first konsultmatchning</p>
+                <p className="text-xs text-gray-600">Human-first consultant matching</p>
               </div>
             </div>
             
@@ -163,16 +164,16 @@ const Index = () => {
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-2">MatchWise AI</h2>
             <p className="text-xl text-blue-100 mb-4">
-              AI-baserad konsultmatchning med fokus på human factors
+              AI-powered consultant matching with focus on human factors
             </p>
             <div className="flex justify-center space-x-8 text-sm">
               <div className="flex items-center space-x-2">
                 <Brain className="h-5 w-5" />
-                <span>AI-analys av skills & mjuka faktorer</span>
+                <span>AI analysis of skills & soft factors</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Heart className="h-5 w-5" />
-                <span>Värderingar & kommunikationsstil</span>
+                <span>Values & communication style</span>
               </div>
             </div>
           </div>
@@ -189,11 +190,11 @@ const Index = () => {
             </TabsTrigger>
             <TabsTrigger value="consultants" className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
-              <span>Konsulter</span>
+              <span>Consultants</span>
             </TabsTrigger>
             <TabsTrigger value="assignments" className="flex items-center space-x-2">
               <Target className="h-4 w-4" />
-              <span>Uppdrag</span>
+              <span>Assignments</span>
             </TabsTrigger>
             <TabsTrigger value="matches" className="flex items-center space-x-2">
               <Sparkles className="h-4 w-4" />
@@ -218,15 +219,15 @@ const Index = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Uppdrag</h2>
-                  <p className="text-gray-600">AI-förbättrade projekt</p>
+                  <h2 className="text-2xl font-bold text-gray-900">Assignments</h2>
+                  <p className="text-gray-600">AI-enhanced projects</p>
                 </div>
                 <button
                   onClick={() => setShowCreateForm(true)}
                   className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Lägg till uppdrag</span>
+                  <span>Add Assignment</span>
                 </button>
               </div>
 
@@ -313,7 +314,7 @@ const Index = () => {
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">AI Human-Fit Matches</h2>
                     <p className="text-gray-600">
-                      Matches för "{selectedAssignment?.title}"
+                      Matches for "{selectedAssignment?.title}"
                     </p>
                   </div>
                 </div>
@@ -440,8 +441,8 @@ const Index = () => {
             ) : (
               <div className="text-center py-12">
                 <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Inga matches än</h3>
-                <p className="text-gray-600">Kör AI-matchning på ett uppdrag för att se resultat.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No matches yet</h3>
+                <p className="text-gray-600">Run AI matching on an assignment to see results.</p>
               </div>
             )}
           </TabsContent>
