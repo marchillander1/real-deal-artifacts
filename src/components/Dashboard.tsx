@@ -1,5 +1,4 @@
 
-
 import React, { useState, useRef } from 'react';
 import { Users, Briefcase, TrendingUp, Clock, Target, Plus, Sparkles, Star, DollarSign } from 'lucide-react';
 import StatCard from './StatCard';
@@ -20,6 +19,8 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isMatching, setIsMatching] = useState(false);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
   const stats = {
     totalConsultants: consultants.length,
@@ -40,6 +41,38 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (onFileUpload) {
       onFileUpload(event);
+    }
+  };
+
+  const handleFindMatches = async (assignment: Assignment) => {
+    setIsMatching(true);
+    setSelectedAssignment(assignment);
+    
+    console.log("Finding matches for assignment:", assignment.title);
+    
+    // Simulate AI processing time
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const foundMatches = findMatches(consultants, assignment);
+    setMatches(foundMatches);
+    setIsMatching(false);
+    
+    toast({
+      title: "AI Matching Complete",
+      description: `Found ${foundMatches.length} potential matches for ${assignment.title}`,
+    });
+  };
+
+  const handleSelectMatch = (match: Match) => {
+    if (selectedAssignment) {
+      onMatch(selectedAssignment);
+      setMatches([]);
+      setSelectedAssignment(null);
+      
+      toast({
+        title: "Match Selected",
+        description: `${match.consultant.name} has been matched to ${selectedAssignment.title}`,
+      });
     }
   };
 
@@ -172,6 +205,146 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
         </div>
       </div>
 
+      {/* AI Matching Section */}
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+              <Sparkles className="h-6 w-6 text-purple-600 mr-2" />
+              AI-Powered Matching
+            </h2>
+            <p className="text-gray-600">Find the perfect consultant for your assignments</p>
+          </div>
+        </div>
+
+        {assignments.length === 0 ? (
+          <div className="text-center py-8">
+            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Assignments</h3>
+            <p className="text-gray-600">Create an assignment to start AI matching.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {assignments.map((assignment) => (
+              <div key={assignment.id} className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="text-2xl">{assignment.clientLogo}</div>
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    assignment.urgency === 'High' 
+                      ? 'bg-red-100 text-red-800' 
+                      : assignment.urgency === 'Medium'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}>
+                    {assignment.urgency} Priority
+                  </span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{assignment.title}</h3>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{assignment.description}</p>
+                <div className="text-sm text-gray-500 mb-4">
+                  <div>Budget: {assignment.budget}</div>
+                  <div>Duration: {assignment.duration}</div>
+                </div>
+                <button
+                  onClick={() => handleFindMatches(assignment)}
+                  disabled={isMatching}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isMatching && selectedAssignment?.id === assignment.id ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Finding Matches...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Find AI Matches
+                    </>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* AI Matches Results */}
+      {matches.length > 0 && selectedAssignment && (
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                AI Matches for "{selectedAssignment.title}"
+              </h2>
+              <p className="text-gray-600">Ranked by compatibility and human factors</p>
+            </div>
+            <button
+              onClick={() => {
+                setMatches([]);
+                setSelectedAssignment(null);
+              }}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {matches.slice(0, 5).map((match, index) => (
+              <div key={match.consultant.id} className="border border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-4 flex-1">
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg">
+                      #{index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{match.consultant.name}</h3>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-green-600">{match.score}%</div>
+                          <div className="text-xs text-gray-500">Match Score</div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Skills:</span> {match.consultant.skills.slice(0, 3).join(', ')}</p>
+                          <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Experience:</span> {match.consultant.experience}</p>
+                          <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Rate:</span> {match.consultant.rate}</p>
+                          <p className="text-sm text-gray-600"><span className="font-medium">Location:</span> {match.consultant.location}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Cultural Match:</span> {match.culturalMatch}%</p>
+                          <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Communication:</span> {match.communicationMatch}%</p>
+                          <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Values Alignment:</span> {match.valuesAlignment}%</p>
+                          <p className="text-sm text-gray-600"><span className="font-medium">Response Time:</span> {match.responseTime}h</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap gap-2">
+                          {match.matchedSkills.slice(0, 3).map((skill, skillIndex) => (
+                            <span key={skillIndex} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md">
+                              ✓ {skill}
+                            </span>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => handleSelectMatch(match)}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                        >
+                          Select Match
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <div className="flex items-center justify-between mb-4">
@@ -292,4 +465,3 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
 };
 
 export default Dashboard;
-
