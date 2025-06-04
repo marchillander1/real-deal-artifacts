@@ -3,6 +3,7 @@ import { Upload, FileText, Users, Briefcase, Zap, Star, Download, Plus, Search, 
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from '../components/Dashboard';
 import ConsultantsTab from '../components/ConsultantsTab';
+import CreateAssignmentForm from '../components/CreateAssignmentForm';
 import { useConsultants } from '../hooks/useConsultants';
 import { Assignment, Match, Stats } from '../types/consultant';
 import { calculateMatch, generateMotivationLetter } from '../utils/matching';
@@ -67,6 +68,7 @@ const ConsultantMatcher = () => {
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [isMatching, setIsMatching] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [stats, setStats] = useState<Stats>({
     totalConsultants: 247,
     activeAssignments: 23,
@@ -180,6 +182,11 @@ const ConsultantMatcher = () => {
     setActiveTab('matches');
   };
 
+  const handleCreateAssignment = (newAssignment: Assignment) => {
+    setAssignments(prev => [...prev, newAssignment]);
+    setShowCreateForm(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
@@ -275,38 +282,20 @@ const ConsultantMatcher = () => {
                 <p className="text-gray-600">Active projects seeking qualified consultants</p>
               </div>
               <button
-                onClick={() => {
-                  const title = prompt('Assignment title:');
-                  if (title) {
-                    const newAssignment = {
-                      id: assignments.length + 1,
-                      title,
-                      description: 'New assignment description - seeking qualified professional...',
-                      requiredSkills: ['JavaScript', 'React', 'Problem Solving'],
-                      startDate: '2024-02-01',
-                      duration: '3 months',
-                      workload: '100%',
-                      budget: '45000 SEK/month',
-                      company: 'New Client AB',
-                      industry: 'Technology',
-                      teamSize: '5-10 people',
-                      remote: 'Hybrid',
-                      urgency: 'Medium',
-                      clientLogo: '🚀'
-                    };
-                    setAssignments([...assignments, newAssignment]);
-                    toast({
-                      title: "Assignment Added!",
-                      description: `${title} has been added to the platform.`,
-                    });
-                  }
-                }}
+                onClick={() => setShowCreateForm(true)}
                 className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all"
               >
                 <Plus className="h-4 w-4" />
                 <span>Add Assignment</span>
               </button>
             </div>
+
+            {showCreateForm && (
+              <CreateAssignmentForm
+                onAssignmentCreated={handleCreateAssignment}
+                onCancel={() => setShowCreateForm(false)}
+              />
+            )}
 
             <div className="grid gap-6 lg:grid-cols-2">
               {assignments.map((assignment) => (
