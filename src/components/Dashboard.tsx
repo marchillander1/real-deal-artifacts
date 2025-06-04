@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Users, Briefcase, TrendingUp, Clock, Target, Plus, Sparkles, Star, DollarSign } from 'lucide-react';
 import StatCard from './StatCard';

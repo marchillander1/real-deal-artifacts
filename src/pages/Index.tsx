@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -250,7 +249,7 @@ const Index = () => {
 
                     <div className="grid grid-cols-2 gap-2 text-sm mb-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Längd:</span>
+                        <span className="text-gray-600">Duration:</span>
                         <span className="font-medium">{assignment.duration}</span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -263,7 +262,7 @@ const Index = () => {
                       </div>
                       {assignment.teamCulture && (
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Kultur:</span>
+                          <span className="text-gray-600">Culture:</span>
                           <span className="font-medium text-purple-600">{assignment.teamCulture}</span>
                         </div>
                       )}
@@ -281,7 +280,7 @@ const Index = () => {
                       
                       {assignment.requiredValues && assignment.requiredValues.length > 0 && (
                         <>
-                          <p className="text-sm font-medium text-gray-700 mb-2">Värderingar:</p>
+                          <p className="text-sm font-medium text-gray-700 mb-2">Values:</p>
                           <div className="flex flex-wrap gap-1">
                             {assignment.requiredValues.map((value, index) => (
                               <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-md">
@@ -299,7 +298,7 @@ const Index = () => {
                       className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50"
                     >
                       <Brain className="h-4 w-4" />
-                      <span>{isMatching ? 'AI Analyserar...' : 'AI Human-Match'}</span>
+                      <span>{isMatching ? 'AI Analyzing...' : 'AI Human-Match'}</span>
                     </button>
                   </div>
                 ))}
