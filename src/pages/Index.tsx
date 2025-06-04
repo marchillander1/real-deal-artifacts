@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -318,6 +319,16 @@ const Index = () => {
   };
 
   const handleFindMatches = async (assignment: Assignment) => {
+    // Prevent starting new matches if already matching or if this assignment is already being matched
+    if (isMatching || selectedAssignment) {
+      toast({
+        title: "Matching in Progress",
+        description: "Please wait for the current matching to complete before starting a new one.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsMatching(true);
     setSelectedAssignment(assignment);
     
@@ -448,7 +459,7 @@ const Index = () => {
                     </div>
                     <button
                       onClick={() => handleFindMatches(assignment)}
-                      disabled={isMatching}
+                      disabled={isMatching || selectedAssignment !== null}
                       className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                       {isMatching && selectedAssignment?.id === assignment.id ? (
