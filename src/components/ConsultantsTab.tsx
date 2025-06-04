@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Filter, Plus, MapPin, Star, Clock, Phone, Mail } from "lucide-react";
-import { ConsultantCard } from "./ConsultantCard";
+import ConsultantCard from "./ConsultantCard";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 
 export const ConsultantsTab = () => {

@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { Logo } from './Logo';
+import Logo from './Logo';
 
 export function Navbar() {
   const { user, signOut } = useAuth();

@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { Logo } from '@/components/Logo';
+import Logo from '@/components/Logo';
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
