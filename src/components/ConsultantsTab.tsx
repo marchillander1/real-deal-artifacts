@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Upload, Plus, Users, Award } from 'lucide-react';
+import { Upload, Users, Award } from 'lucide-react';
 import ConsultantCard from './ConsultantCard';
 import { Consultant } from '../types/consultant';
 
@@ -26,13 +26,6 @@ const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           <p className="text-gray-600">AI-powered consultant profiles with automated skill extraction</p>
         </div>
         <div className="flex items-center space-x-3">
-          <a 
-            href="/cv-upload"
-            className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Join Network</span>
-          </a>
           <input
             type="file"
             accept=".pdf"
@@ -59,8 +52,8 @@ const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <Award className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Verified Consultants</h3>
-              <p className="text-sm text-gray-600">Our established network of experienced professionals</p>
+              <h3 className="text-lg font-semibold text-gray-900">Our Consultants</h3>
+              <p className="text-sm text-gray-600">Our established team of experienced professionals</p>
             </div>
             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
               {existingConsultants.length} consultants
@@ -83,11 +76,11 @@ const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <Users className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">New Applicants</h3>
-              <p className="text-sm text-gray-600">Recent consultants who joined through our platform</p>
+              <h3 className="text-lg font-semibold text-gray-900">Network Consultants</h3>
+              <p className="text-sm text-gray-600">External consultants who joined through our platform</p>
             </div>
             <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-              {newConsultants.length} new
+              {newConsultants.length} network
             </span>
           </div>
 
@@ -103,7 +96,7 @@ const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         <div className="text-center py-12">
           <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Consultants Yet</h3>
-          <p className="text-gray-600">Upload CVs or invite consultants to join the network.</p>
+          <p className="text-gray-600">Upload CVs to add consultants to the network.</p>
         </div>
       )}
     </div>
