@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle, Sparkles, User, MapPin, Phone, Mail, Clock, Star } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Sparkles, User, MapPin, Phone, Mail, Clock, Star, Lightbulb } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -264,6 +264,76 @@ const CVUpload = () => {
           </h1>
           <p className="text-xl text-gray-600 mb-4">Upload your CV and let our AI create your profile</p>
           <p className="text-lg text-gray-500">Get matched with premium opportunities automatically</p>
+        </div>
+
+        {/* CV Tips Section */}
+        <div className="mb-8">
+          <div className="bg-white rounded-2xl shadow-lg border p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <Lightbulb className="h-6 w-6 mr-2 text-yellow-500" />
+              CV Tips for Success
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Keep it concise</h3>
+                    <p className="text-sm text-gray-600">Aim for 1-2 pages maximum. Highlight your most relevant experience and skills.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Use keywords</h3>
+                    <p className="text-sm text-gray-600">Include industry-specific keywords and technologies you're proficient in.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Quantify achievements</h3>
+                    <p className="text-sm text-gray-600">Use numbers and metrics to demonstrate your impact and results.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Professional format</h3>
+                    <p className="text-sm text-gray-600">Use a clean, readable font and consistent formatting throughout.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Update regularly</h3>
+                    <p className="text-sm text-gray-600">Keep your CV current with your latest projects and certifications.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-green-600 text-sm font-bold">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Proofread carefully</h3>
+                    <p className="text-sm text-gray-600">Ensure there are no spelling or grammatical errors before submitting.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Upload Form */}
