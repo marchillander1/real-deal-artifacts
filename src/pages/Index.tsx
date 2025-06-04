@@ -279,10 +279,12 @@ P.S. ${consultant.name} has expressed particular interest in ${assignment.indust
 
       matches.push({
         consultant,
-        assignment,
         score: Math.round(score),
         matchedSkills,
         humanFactorsScore: Math.round(culturalScore),
+        culturalMatch: Math.round(culturalScore),
+        communicationMatch: Math.round(culturalScore),
+        valuesAlignment: Math.round(culturalScore),
         estimatedSavings: Math.floor(Math.random() * 50000) + 25000,
         responseTime: Math.floor(Math.random() * 24) + 2,
         letter
