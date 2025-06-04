@@ -355,7 +355,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-4">
-              Simple, Transparent Pricing
+              💰 Pricing Overview
             </h2>
             <p className="text-xl text-gray-300">
               Choose the plan that fits your company's needs
@@ -363,21 +363,32 @@ const Landing = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="border border-gray-700 rounded-xl p-8 bg-gray-800">
-              <h3 className="text-xl font-bold text-white mb-2">Starter</h3>
-              <p className="text-gray-400 mb-6">Perfect for small teams</p>
+            <div className="border border-blue-500 rounded-xl p-8 bg-gray-800">
+              <div className="mb-4">
+                <span className="text-blue-400 text-lg">🟦</span>
+                <h3 className="text-xl font-bold text-white ml-2 inline">Basic Plan</h3>
+              </div>
+              <p className="text-gray-400 mb-6">For 1–3 users</p>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-white">$500</span>
+                <span className="text-4xl font-bold text-white">999 SEK</span>
                 <span className="text-gray-400">/month</span>
               </div>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Up to 10 matches/month</span>
+                  <span className="text-gray-300">Full access to consultant search and filtering</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Basic human analysis</span>
+                  <span className="text-gray-300">View detailed profiles incl. soft skills and CVs</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
+                  <span className="text-gray-300">Save favorites & download CVs</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
+                  <span className="text-gray-300">1 admin + 2 standard users</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
@@ -389,63 +400,86 @@ const Landing = () => {
               </button>
             </div>
             
-            <div className="border-2 border-blue-500 rounded-xl p-8 relative bg-gray-800">
+            <div className="border-2 border-green-500 rounded-xl p-8 relative bg-gray-800">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium">
                   Most Popular
                 </span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
-              <p className="text-gray-400 mb-6">For growing companies</p>
+              <div className="mb-4">
+                <span className="text-green-400 text-lg">🟩</span>
+                <h3 className="text-xl font-bold text-white ml-2 inline">Team Plan</h3>
+              </div>
+              <p className="text-gray-400 mb-6">For 3–10 users</p>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-white">$1,500</span>
+                <span className="text-4xl font-bold text-white">1,999 SEK</span>
                 <span className="text-gray-400">/month</span>
               </div>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Up to 50 matches/month</span>
+                  <span className="text-gray-300">Everything in Basic, plus:</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Advanced human analysis</span>
+                  <span className="text-gray-300">Extended user access</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Priority support</span>
+                  <span className="text-gray-300">Role-based access control</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Custom integrations</span>
+                  <span className="text-gray-300">Priority email support</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
+                  <span className="text-gray-300">Early feature access</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
+                  <span className="text-gray-300">Export consultant lists</span>
                 </li>
               </ul>
-              <button className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
+              <button className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
                 Start Free Trial
               </button>
             </div>
             
-            <div className="border border-gray-700 rounded-xl p-8 bg-gray-800">
-              <h3 className="text-xl font-bold text-white mb-2">Enterprise</h3>
-              <p className="text-gray-400 mb-6">For large organizations</p>
+            <div className="border border-red-500 rounded-xl p-8 bg-gray-800">
+              <div className="mb-4">
+                <span className="text-red-400 text-lg">🟥</span>
+                <h3 className="text-xl font-bold text-white ml-2 inline">Enterprise</h3>
+              </div>
+              <p className="text-gray-400 mb-6">For organizations using Free Talent Pool</p>
               <div className="mb-6">
-                <span className="text-2xl font-bold text-white">Custom</span>
+                <span className="text-4xl font-bold text-white">5,999 SEK</span>
+                <span className="text-gray-400">/month</span>
               </div>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Unlimited matches</span>
+                  <span className="text-gray-300">Unlimited searches in the open consultant database</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Custom human analysis</span>
+                  <span className="text-gray-300">Direct access to incoming freelance CVs</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Dedicated support</span>
+                  <span className="text-gray-300">Premium visibility settings for your jobs</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">White-label solution</span>
+                  <span className="text-gray-300">Integration possibilities (API access upon request)</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
+                  <span className="text-gray-300">Dedicated onboarding</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
+                  <span className="text-gray-300">SLA-backed support</span>
                 </li>
               </ul>
               <button className="w-full border border-gray-600 text-gray-300 py-3 rounded-lg hover:bg-gray-700 transition-colors">
