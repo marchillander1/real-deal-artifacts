@@ -1,5 +1,6 @@
+
 import React, { useRef } from 'react';
-import { Upload, Users, Award } from 'lucide-react';
+import { Upload, Users, Award, Lightbulb } from 'lucide-react';
 import ConsultantCard from './ConsultantCard';
 import { Consultant } from '../types/consultant';
 
@@ -41,6 +42,38 @@ const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             <Upload className="h-4 w-4" />
             <span>{isMatching ? 'Processing...' : 'Upload CV'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* CV Tips Section */}
+      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-6">
+        <div className="flex items-start space-x-3">
+          <div className="bg-yellow-100 p-2 rounded-lg">
+            <Lightbulb className="h-5 w-5 text-yellow-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-3">CV Tips for Better Matching</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-yellow-700">
+              <div>
+                <h4 className="font-medium mb-2">📝 Content Structure</h4>
+                <ul className="space-y-1">
+                  <li>• List all technical skills clearly</li>
+                  <li>• Include years of experience</li>
+                  <li>• Mention relevant certifications</li>
+                  <li>• Add project descriptions</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">🎯 Best Practices</h4>
+                <ul className="space-y-1">
+                  <li>• Use keywords from job descriptions</li>
+                  <li>• Include programming languages</li>
+                  <li>• Mention frameworks & tools</li>
+                  <li>• Add industry experience</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
