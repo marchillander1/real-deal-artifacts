@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, 
   CheckCircle, 
@@ -19,6 +20,8 @@ import {
 import Logo from '../components/Logo';
 
 const Landing = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Navigation */}
@@ -30,8 +33,11 @@ const Landing = () => {
               <a href="#solution" className="text-gray-300 hover:text-white transition-colors">Solution</a>
               <a href="#benefits" className="text-gray-300 hover:text-white transition-colors">Benefits</a>
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
-                Book Demo
+              <button 
+                onClick={() => navigate('/login')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Logga in
               </button>
             </div>
           </div>
@@ -66,9 +72,12 @@ const Landing = () => {
                   <PlayCircle className="h-5 w-5 mr-2" />
                   Watch Demo
                 </button>
-                <button className="border border-gray-600 text-gray-300 px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center">
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Book Meeting
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="border border-gray-600 text-gray-300 px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center"
+                >
+                  <ArrowRight className="h-5 w-5 mr-2" />
+                  Kom igång
                 </button>
               </div>
               
@@ -500,9 +509,12 @@ const Landing = () => {
               <PlayCircle className="h-5 w-5 mr-2" />
               Watch 2-Min Demo
             </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition-colors flex items-center justify-center">
-              <Calendar className="h-5 w-5 mr-2" />
-              Book Meeting
+            <button 
+              onClick={() => navigate('/login')}
+              className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition-colors flex items-center justify-center"
+            >
+              <ArrowRight className="h-5 w-5 mr-2" />
+              Kom igång
             </button>
           </div>
         </div>
