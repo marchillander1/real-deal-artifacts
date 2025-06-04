@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
+import { Upload, FileText, CheckCircle, ArrowLeft, Sparkles, User, MapPin, Phone, Mail, Clock, Star } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -13,6 +13,19 @@ const CVUpload = () => {
   const [motivation, setMotivation] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    skills: '',
+    experience: '',
+    role: '',
+    location: '',
+    rate: '',
+    availability: '',
+    phone: '',
+    email: '',
+    certifications: '',
+    languages: ''
+  });
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -43,22 +56,53 @@ const CVUpload = () => {
     }
 
     setSelectedFile(file);
+    
+    // Simulate AI CV extraction
+    const mockSkills = ['React', 'TypeScript', 'Node.js', 'Python', 'AWS', 'Docker', 'GraphQL', 'MongoDB', 'JavaScript', 'Java', 'C#', 'Angular', 'Vue.js', 'PostgreSQL', 'Redis', 'Kubernetes'];
+    const randomSkills = mockSkills.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 4) + 4);
+    const experienceYears = Math.floor(Math.random() * 10) + 2;
+    
+    const roles = [
+      'Senior Developer', 'Full-Stack Developer', 'Frontend Developer', 
+      'Backend Developer', 'DevOps Engineer', 'Software Architect', 'Tech Lead'
+    ];
+    const locations = ['Stockholm', 'Göteborg', 'Malmö', 'Uppsala', 'Linköping', 'Helsingborg', 'Örebro'];
+    const certifications = [
+      ['AWS Certified', 'React Advanced'],
+      ['GCP Professional', 'Kubernetes Certified'],
+      ['Azure Solutions Architect', 'Java Expert'],
+      ['Google UX Design', 'Adobe Certified'],
+      ['Professional Scrum Master', 'MongoDB Certified']
+    ];
+
+    const extractedData = {
+      name: file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, ' '),
+      skills: randomSkills.join(', '),
+      experience: `${experienceYears} years`,
+      role: roles[Math.floor(Math.random() * roles.length)],
+      location: locations[Math.floor(Math.random() * locations.length)],
+      rate: `${700 + Math.floor(Math.random() * 800)} SEK/hour`,
+      availability: Math.random() > 0.3 ? 'Available' : 'Partially Available',
+      phone: `+46 70 ${Math.floor(Math.random() * 900) + 100} ${Math.floor(Math.random() * 90) + 10}${Math.floor(Math.random() * 90) + 10}`,
+      email: `${file.name.replace(/\.[^/.]+$/, "").toLowerCase().replace(/[^a-z]/g, '')}@email.com`,
+      certifications: certifications[Math.floor(Math.random() * certifications.length)].join(', '),
+      languages: 'Swedish, English'
+    };
+
+    setFormData(extractedData);
+
     toast({
-      title: "CV Uploaded Successfully!",
-      description: `${file.name} has been selected.`,
+      title: "CV Processed Successfully!",
+      description: `Information extracted from ${file.name}. You can edit the fields below.`,
     });
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFile(files[0]);
-    }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const formatFileSize = (bytes) => {
@@ -67,41 +111,6 @@ const CVUpload = () => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const generateConsultantProfile = () => {
-    // Simulate CV parsing and profile generation
-    const mockSkills = ['React', 'TypeScript', 'Node.js', 'Python', 'AWS', 'Docker', 'GraphQL', 'MongoDB'];
-    const randomSkills = mockSkills.sort(() => 0.5 - Math.random()).slice(0, 6);
-    const experienceYears = Math.floor(Math.random() * 10) + 2;
-    const rating = 4.2 + Math.random() * 0.7;
-    const projects = Math.floor(Math.random() * 20) + 5;
-    
-    const roles = [
-      'Senior Developer', 'Full-Stack Developer', 'Frontend Developer', 
-      'Backend Developer', 'DevOps Engineer', 'Software Architect'
-    ];
-    const locations = ['Stockholm', 'Göteborg', 'Malmö', 'Uppsala', 'Linköping'];
-    
-    return {
-      id: Date.now(),
-      name: selectedFile.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, ' '),
-      skills: randomSkills,
-      experience: `${experienceYears} years`,
-      roles: [roles[Math.floor(Math.random() * roles.length)]],
-      location: locations[Math.floor(Math.random() * locations.length)],
-      rate: `${700 + Math.floor(Math.random() * 800)} SEK/hour`,
-      availability: Math.random() > 0.3 ? 'Available' : 'Partially Available',
-      phone: `+46 70 ${Math.floor(Math.random() * 900) + 100} ${Math.floor(Math.random() * 90) + 10}${Math.floor(Math.random() * 90) + 10}`,
-      email: `${selectedFile.name.replace(/\.[^/.]+$/, "").toLowerCase().replace(/[^a-z]/g, '')}@email.com`,
-      projects: projects,
-      rating: Math.round(rating * 10) / 10,
-      lastActive: 'Just now',
-      cv: motivation || 'Experienced professional looking for new opportunities in technology and innovation.',
-      certifications: ['Professional Certified'],
-      languages: ['Swedish', 'English'],
-      type: 'new'
-    };
   };
 
   const handleSubmit = async (e) => {
@@ -116,16 +125,40 @@ const CVUpload = () => {
       return;
     }
 
+    if (!formData.name || !formData.email) {
+      toast({
+        title: "Required Fields Missing",
+        description: "Please fill in at least name and email.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Simulate AI processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Generate consultant profile from CV
-      const newConsultant = generateConsultantProfile();
+      const newConsultant = {
+        id: Date.now(),
+        name: formData.name,
+        skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
+        experience: formData.experience,
+        roles: [formData.role],
+        location: formData.location,
+        rate: formData.rate,
+        availability: formData.availability,
+        phone: formData.phone,
+        email: formData.email,
+        projects: Math.floor(Math.random() * 20) + 5,
+        rating: Math.round((4.2 + Math.random() * 0.7) * 10) / 10,
+        lastActive: 'Just now',
+        cv: motivation || 'Experienced professional looking for new opportunities in technology and innovation.',
+        certifications: formData.certifications.split(',').map(s => s.trim()).filter(s => s),
+        languages: formData.languages.split(',').map(s => s.trim()).filter(s => s),
+        type: 'new'
+      };
 
-      // Store in localStorage
       const existingConsultants = JSON.parse(localStorage.getItem('uploadedConsultants') || '[]');
       existingConsultants.push(newConsultant);
       localStorage.setItem('uploadedConsultants', JSON.stringify(existingConsultants));
@@ -186,6 +219,19 @@ const CVUpload = () => {
                   setIsSubmitted(false);
                   setSelectedFile(null);
                   setMotivation('');
+                  setFormData({
+                    name: '',
+                    skills: '',
+                    experience: '',
+                    role: '',
+                    location: '',
+                    rate: '',
+                    availability: '',
+                    phone: '',
+                    email: '',
+                    certifications: '',
+                    languages: ''
+                  });
                 }}
                 className="inline-flex items-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-all"
               >
@@ -251,8 +297,6 @@ const CVUpload = () => {
                   : 'border-blue-300 bg-blue-50 hover:border-blue-400 hover:bg-blue-100'
               }`}
               onClick={() => fileInputRef.current?.click()}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
             >
               <input
                 type="file"
@@ -266,10 +310,10 @@ const CVUpload = () => {
               </div>
               {selectedFile ? (
                 <div>
-                  <p className="text-lg font-semibold text-green-800 mb-2">CV Uploaded Successfully!</p>
+                  <p className="text-lg font-semibold text-green-800 mb-2">CV Uploaded & Processed!</p>
                   <p className="text-green-700">{selectedFile.name}</p>
                   <p className="text-sm text-green-600">{formatFileSize(selectedFile.size)}</p>
-                  <p className="text-sm text-gray-500 mt-2">Click to replace</p>
+                  <p className="text-sm text-gray-500 mt-2">Information extracted below - you can edit any field</p>
                 </div>
               ) : (
                 <div>
@@ -280,8 +324,153 @@ const CVUpload = () => {
               )}
             </div>
 
-            {/* Simple Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Personal Information */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="john@email.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+46 70 123 4567"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Stockholm"
+                  />
+                </div>
+              </div>
+
+              {/* Professional Information */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Role/Title</label>
+                  <input
+                    type="text"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Senior Developer"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience</label>
+                  <input
+                    type="text"
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="5 years"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Skills (comma separated)</label>
+                <input
+                  type="text"
+                  name="skills"
+                  value={formData.skills}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="React, TypeScript, Node.js"
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Rate</label>
+                  <input
+                    type="text"
+                    name="rate"
+                    value={formData.rate}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="800 SEK/hour"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+                  <select
+                    name="availability"
+                    value={formData.availability}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select availability</option>
+                    <option value="Available">Available</option>
+                    <option value="Partially Available">Partially Available</option>
+                    <option value="Not Available">Not Available</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Certifications (comma separated)</label>
+                  <input
+                    type="text"
+                    name="certifications"
+                    value={formData.certifications}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="AWS Certified, React Advanced"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Languages (comma separated)</label>
+                  <input
+                    type="text"
+                    name="languages"
+                    value={formData.languages}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Swedish, English"
+                  />
+                </div>
+              </div>
+
+              {/* Motivation */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">What motivates you most in your work?</label>
                 <textarea
@@ -291,7 +480,6 @@ const CVUpload = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Tell us what drives your passion for technology and your career goals..."
                 />
-                <p className="text-sm text-gray-500 mt-1">This helps us understand your professional aspirations and match you with suitable opportunities.</p>
               </div>
 
               <button
@@ -302,7 +490,7 @@ const CVUpload = () => {
                 {isSubmitting ? (
                   <span className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Processing CV with AI...
+                    Creating Profile...
                   </span>
                 ) : (
                   '🚀 Join Network & Get Matched'
