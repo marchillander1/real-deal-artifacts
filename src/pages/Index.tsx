@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -214,86 +215,117 @@ const initialAssignments: Assignment[] = [
   }
 ];
 
-// Define findMatches function directly in this file
+// AI Matching function with improved scoring
 const findMatches = (consultants: Consultant[], assignment: Assignment): Match[] => {
-  console.log("Finding matches for:", assignment.title);
-  console.log("With consultants:", consultants);
+  console.log("🤖 AI Matching Started for:", assignment.title);
+  console.log("📊 Analyzing", consultants.length, "consultants...");
   
   const matches: Match[] = [];
   
   consultants.forEach(consultant => {
-    // Calculate skill match
-    const matchedSkills = consultant.skills.filter(skill => 
+    // Calculate exact skill matches
+    const exactMatches = consultant.skills.filter(skill => 
+      assignment.requiredSkills.some(reqSkill => 
+        skill.toLowerCase() === reqSkill.toLowerCase()
+      )
+    );
+    
+    // Calculate partial skill matches
+    const partialMatches = consultant.skills.filter(skill => 
       assignment.requiredSkills.some(reqSkill => 
         skill.toLowerCase().includes(reqSkill.toLowerCase()) || 
         reqSkill.toLowerCase().includes(skill.toLowerCase())
       )
-    );
+    ).filter(skill => !exactMatches.includes(skill));
     
-    // Calculate score based on various factors
+    const totalMatchedSkills = [...exactMatches, ...partialMatches];
+    
+    // Enhanced scoring algorithm
     let score = 0;
     
-    // Skill matching (40% of score)
-    const skillMatchPercentage = (matchedSkills.length / assignment.requiredSkills.length) * 100;
-    score += skillMatchPercentage * 0.4;
+    // 1. Skills matching (50% of total score)
+    const exactMatchWeight = 30; // 30% for exact matches
+    const partialMatchWeight = 20; // 20% for partial matches
     
-    // Experience and rating (30% of score)
-    const experienceYears = parseInt(consultant.experience);
-    const experienceScore = Math.min(experienceYears * 10, 100);
-    const ratingScore = (consultant.rating / 5) * 100;
-    score += (experienceScore * 0.15) + (ratingScore * 0.15);
+    const exactMatchScore = (exactMatches.length / assignment.requiredSkills.length) * exactMatchWeight;
+    const partialMatchScore = (partialMatches.length / assignment.requiredSkills.length) * partialMatchWeight;
+    score += exactMatchScore + partialMatchScore;
     
-    // Availability (15% of score)
-    const availabilityScore = consultant.availability.toLowerCase().includes('available') ? 100 : 50;
-    score += availabilityScore * 0.15;
+    // 2. Experience factor (20% of total score)
+    const experienceYears = parseInt(consultant.experience.replace(/\D/g, '')) || 0;
+    const experienceScore = Math.min((experienceYears / 10) * 20, 20); // Max 20 points
+    score += experienceScore;
     
-    // Cultural fit and human factors (15% of score)
-    const culturalScore = (consultant.culturalFit / 5) * 100;
-    score += culturalScore * 0.15;
+    // 3. Rating factor (15% of total score)
+    const ratingScore = (consultant.rating / 5) * 15;
+    score += ratingScore;
     
-    // Only include consultants with some skill match
-    if (matchedSkills.length > 0 && score > 30) {
-      // Generate AI cover letter
+    // 4. Cultural fit and availability (15% of total score)
+    const culturalScore = (consultant.culturalFit / 5) * 10;
+    const availabilityScore = consultant.availability.toLowerCase().includes('available') ? 5 : 2;
+    score += culturalScore + availabilityScore;
+    
+    // Only include consultants with meaningful matches
+    if (totalMatchedSkills.length > 0) {
+      // Generate personalized cover letter
       const letter = `Subject: Perfect Match for ${assignment.title} at ${assignment.company}
 
 Dear Hiring Manager,
 
-I am excited to present ${consultant.name}, an exceptional ${consultant.roles[0]} with ${consultant.experience} of experience, as the ideal candidate for your ${assignment.title} position.
+I'm ${consultant.name}, a ${consultant.roles[0]} with ${consultant.experience} of hands-on experience. Your ${assignment.title} project perfectly aligns with my expertise and career goals.
 
-Key Qualifications:
-${matchedSkills.map(skill => `• Expert in ${skill}`).join('\n')}
-• ${consultant.projects} successfully completed projects
+🎯 Why I'm Perfect for This Role:
+
+Technical Match (${Math.round(score)}%):
+${exactMatches.map(skill => `✅ Expert in ${skill}`).join('\n')}
+${partialMatches.map(skill => `✅ Expert in ${skill}`).join('\n')}
+
+Track Record:
+• ${consultant.projects} projects delivered on-time and on-budget
 • ${consultant.rating}/5.0 client satisfaction rating
-• Located in ${consultant.location}
+• ${consultant.certifications.slice(0, 2).join(', ')} certified
 
-${consultant.name} brings a unique combination of technical expertise and ${consultant.communicationStyle.toLowerCase()} communication style that aligns perfectly with your team culture. Their ${consultant.workStyle.toLowerCase()} approach and proven track record make them an ideal fit for this ${assignment.duration} engagement.
+Leadership & Team Dynamics:
+• ${consultant.communicationStyle}
+• ${consultant.teamFit}
+• ${consultant.values.join(', ')} values align with your team culture
 
-With their ${consultant.values.join(', ')} values and ${consultant.personalityTraits.join(', ')} personality traits, ${consultant.name} will seamlessly integrate into your ${assignment.teamSize} team and contribute to your project's success from day one.
+💰 Investment: ${consultant.rate} (fits within your ${assignment.budget} budget)
+📅 Start Date: Ready for ${assignment.startDate}
+⚡ Response Time: Active ${consultant.lastActive}
 
-Available ${consultant.availability.toLowerCase()} at ${consultant.rate}, ${consultant.name} is ready to deliver exceptional results for ${assignment.company}.
+I'd love to discuss how my experience can accelerate your project timeline and ensure technical excellence. Available for a call this week!
 
-Best regards,
-MatchWise AI Recruitment Team
+Cheers,
+${consultant.name}
 
-P.S. ${consultant.name} has expressed particular interest in ${assignment.industry} projects and is excited about the opportunity to work with ${assignment.company}.`;
+Contact: ${consultant.email} | ${consultant.phone}
+Portfolio: Available upon request
 
+P.S. - This personalized application was generated by AI but reflects my genuine interest and qualifications! 🤖✨`;
+
+      const humanFactorsScore = Math.round((consultant.culturalFit + consultant.adaptability + consultant.leadership) / 3 * 20);
+      
       matches.push({
         consultant,
-        score: Math.round(score),
-        matchedSkills,
-        humanFactorsScore: Math.round(culturalScore),
-        culturalMatch: Math.round(culturalScore),
-        communicationMatch: Math.round(culturalScore),
-        valuesAlignment: Math.round(culturalScore),
-        estimatedSavings: Math.floor(Math.random() * 50000) + 25000,
-        responseTime: Math.floor(Math.random() * 24) + 2,
+        score: Math.round(Math.min(score, 100)), // Cap at 100%
+        matchedSkills: totalMatchedSkills,
+        humanFactorsScore,
+        culturalMatch: Math.round((consultant.culturalFit / 5) * 100),
+        communicationMatch: Math.round(85 + Math.random() * 15), // Simulated
+        valuesAlignment: Math.round(80 + Math.random() * 20), // Simulated  
+        estimatedSavings: Math.floor(Math.random() * 30000) + 5000,
+        responseTime: Math.floor(Math.random() * 8) + 2,
         letter
       });
     }
   });
   
-  // Sort by score (highest first)
-  return matches.sort((a, b) => b.score - a.score);
+  // Sort by score (highest first) and return top matches
+  const sortedMatches = matches.sort((a, b) => b.score - a.score);
+  console.log("✅ Found", sortedMatches.length, "matches, top score:", sortedMatches[0]?.score + "%");
+  
+  return sortedMatches;
 };
 
 const Index = () => {
@@ -305,7 +337,6 @@ const Index = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [isMatching, setIsMatching] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
-  const [selectedMatchForLetter, setSelectedMatchForLetter] = useState<Match | null>(null);
 
   useEffect(() => {
     console.log("Loading consultants:", consultants.length);
@@ -314,7 +345,6 @@ const Index = () => {
     // Load data from localStorage if it exists, otherwise use initial data
     const storedConsultants = localStorage.getItem("consultants");
     const storedAssignments = localStorage.getItem("assignments");
-    const storedMatches = localStorage.getItem("matches");
 
     if (storedConsultants && JSON.parse(storedConsultants).length > 0) {
       setConsultants(JSON.parse(storedConsultants));
@@ -322,10 +352,6 @@ const Index = () => {
     
     if (storedAssignments && JSON.parse(storedAssignments).length > 0) {
       setAssignments(JSON.parse(storedAssignments));
-    }
-    
-    if (storedMatches) {
-      setMatches(JSON.parse(storedMatches));
     }
   }, []);
 
@@ -337,8 +363,7 @@ const Index = () => {
     if (assignments.length > 0) {
       localStorage.setItem("assignments", JSON.stringify(assignments));
     }
-    localStorage.setItem("matches", JSON.stringify(matches));
-  }, [consultants, assignments, matches]);
+  }, [consultants, assignments]);
 
   const handleMatch = (assignment: Assignment) => {
     setAssignments((prevAssignments) =>
@@ -356,29 +381,29 @@ const Index = () => {
           const newConsultant: Consultant = {
             id: Date.now(),
             name: file.name.replace(/\.[^/.]+$/, ""),
-            skills: [text.substring(0, 200)],
-            experience: Math.floor(Math.random() * 10).toString(),
-            roles: [],
-            location: "Unknown",
-            rate: "TBD",
-            availability: "Full-time",
-            phone: "",
-            email: "",
-            projects: 0,
-            rating: 0,
-            lastActive: new Date().toISOString(),
+            skills: ["JavaScript", "React", "Problem Solving"],
+            experience: "3 years",
+            roles: ["Frontend Developer"],
+            location: "Stockholm",
+            rate: "700 SEK/h",
+            availability: "Available",
+            phone: "+46 70 XXX XXXX",
+            email: "consultant@email.com",
+            projects: Math.floor(Math.random() * 10) + 5,
+            rating: 4.0 + Math.random() * 0.9,
+            lastActive: "CV uploaded",
             cv: text,
-            certifications: [],
-            languages: [],
+            certifications: ["React Certification"],
+            languages: ["Swedish", "English"],
             type: 'new',
-            communicationStyle: "",
-            workStyle: "",
-            values: [],
-            personalityTraits: [],
-            teamFit: "",
-            culturalFit: 0,
-            adaptability: 0,
-            leadership: 0
+            communicationStyle: "Collaborative and learning-focused",
+            workStyle: "Adaptive and detail-oriented",
+            values: ["Quality", "Learning", "Innovation"],
+            personalityTraits: ["Eager", "Collaborative", "Growth-minded"],
+            teamFit: "Adaptable team member with growth potential",
+            culturalFit: 4,
+            adaptability: 4,
+            leadership: 3
           };
 
           setConsultants((prevConsultants) => [...prevConsultants, newConsultant]);
@@ -400,25 +425,20 @@ const Index = () => {
   };
 
   const handleFindMatches = async (assignment: Assignment) => {
-    console.log("Starting AI matching for assignment:", assignment.title);
-    console.log("Available consultants:", consultants.length);
+    console.log("🚀 Starting AI matching for assignment:", assignment.title);
     
     setIsMatching(true);
     setSelectedAssignment(assignment);
-    
-    console.log("Finding matches for assignment:", assignment.title);
-    console.log("Using consultants:", consultants);
     
     // Simulate AI processing time
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     const foundMatches = findMatches(consultants, assignment);
-    console.log("Found matches:", foundMatches);
     setMatches(foundMatches);
     setIsMatching(false);
     
     toast({
-      title: "AI Matching Complete",
+      title: "🤖 AI Matching Complete",
       description: `Found ${foundMatches.length} potential matches for ${assignment.title}`,
     });
   };
@@ -522,7 +542,6 @@ const Index = () => {
                           onClick={() => {
                             setMatches([]);
                             setSelectedAssignment(null);
-                            setSelectedMatchForLetter(null);
                           }}
                           className="text-gray-500 hover:text-gray-700 text-lg"
                         >
@@ -671,7 +690,7 @@ const Index = () => {
                               <span>Generated by AI in 0.3 seconds</span>
                             </div>
                             <div className="text-xs text-gray-500">
-                              1638 characters • Ready to send
+                              {match.letter.length} characters • Ready to send
                             </div>
                           </div>
                         </div>
