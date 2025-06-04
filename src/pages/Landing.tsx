@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -37,7 +38,7 @@ const Landing = () => {
                 onClick={() => navigate('/login')}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
               >
-                Logga in
+                Login
               </button>
             </div>
           </div>
@@ -514,7 +515,7 @@ const Landing = () => {
               className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition-colors flex items-center justify-center"
             >
               <ArrowRight className="h-5 w-5 mr-2" />
-              Kom igång
+              Get Started
             </button>
           </div>
         </div>

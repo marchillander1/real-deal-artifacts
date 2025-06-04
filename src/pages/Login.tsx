@@ -23,14 +23,14 @@ const Login = () => {
       <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader className="space-y-4 text-center">
           <Logo size="lg" className="mx-auto" />
-          <CardTitle className="text-2xl text-white">Logga in</CardTitle>
+          <CardTitle className="text-2xl text-white">Login</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Input
                 type="email"
-                placeholder="E-post"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
@@ -40,7 +40,7 @@ const Login = () => {
             <div>
               <Input
                 type="password"
-                placeholder="Lösenord"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
@@ -48,15 +48,15 @@ const Login = () => {
               />
             </div>
             <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
-              Logga in
+              Login
             </Button>
           </form>
           
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">
-              Har du inget konto?{' '}
+              Don't have an account?{' '}
               <a href="#" className="text-blue-400 hover:text-blue-300">
-                Kontakta oss för åtkomst
+                Contact us for access
               </a>
             </p>
           </div>
@@ -67,7 +67,7 @@ const Login = () => {
               onClick={() => navigate('/')}
               className="text-gray-400 hover:text-white"
             >
-              ← Tillbaka till startsidan
+              ← Back to homepage
             </Button>
           </div>
         </CardContent>

@@ -30,9 +30,9 @@ const DashboardPage = () => {
     {
       id: '1',
       title: 'React Developer',
-      description: 'Frontend utvecklare för e-commerce projekt',
+      description: 'Frontend developer for e-commerce project',
       skills: ['React', 'TypeScript'],
-      duration: '6 månader',
+      duration: '6 months',
       location: 'Stockholm',
       startDate: '2024-07-01',
       client: 'TechCorp AB'
@@ -40,10 +40,10 @@ const DashboardPage = () => {
     {
       id: '2',
       title: 'UX Designer',
-      description: 'Designa användarvänlig mobilapp',
+      description: 'Design user-friendly mobile app',
       skills: ['UX Design', 'Prototyping'],
-      duration: '3 månader',
-      location: 'Göteborg',
+      duration: '3 months',
+      location: 'Gothenburg',
       startDate: '2024-06-15',
       client: 'DesignStudio'
     }
