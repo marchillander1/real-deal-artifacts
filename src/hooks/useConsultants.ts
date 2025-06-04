@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Consultant } from '../types/consultant';
 
 const initialConsultants: Consultant[] = [
@@ -87,8 +87,15 @@ const initialConsultants: Consultant[] = [
 ];
 
 export const useConsultants = () => {
-  const [consultants, setConsultants] = useState<Consultant[]>(initialConsultants);
+  const [consultants, setConsultants] = useState<Consultant[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Load consultants from localStorage and merge with initial consultants
+  useEffect(() => {
+    const uploadedConsultants = JSON.parse(localStorage.getItem('uploadedConsultants') || '[]');
+    const allConsultants = [...initialConsultants, ...uploadedConsultants];
+    setConsultants(allConsultants);
+  }, []);
 
   const uploadCV = async (file: File): Promise<void> => {
     setIsProcessing(true);
@@ -126,7 +133,14 @@ export const useConsultants = () => {
         leadership: 3.8
       };
       
+      // Update both state and localStorage
       setConsultants(prev => [...prev, newConsultant]);
+      
+      // Also save to localStorage so it persists
+      const existingUploaded = JSON.parse(localStorage.getItem('uploadedConsultants') || '[]');
+      existingUploaded.push(newConsultant);
+      localStorage.setItem('uploadedConsultants', JSON.stringify(existingUploaded));
+      
     } finally {
       setIsProcessing(false);
     }
