@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Users, Briefcase, TrendingUp, Clock, Target, Plus, Sparkles, Star, DollarSign } from 'lucide-react';
 import StatCard from './StatCard';
@@ -150,6 +149,51 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
+            <p className="text-gray-600">Streamline your workflow</p>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-4">
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <div className="bg-green-100 p-2 rounded-lg">
+              <Plus className="h-5 w-5 text-green-600" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-medium text-gray-900">Create Assignment</h3>
+              <p className="text-sm text-gray-600">Add new project</p>
+            </div>
+          </button>
+          
+          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <Users className="h-5 w-5 text-blue-600" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-medium text-gray-900">Upload CV</h3>
+              <p className="text-sm text-gray-600">Add consultant</p>
+            </div>
+          </button>
+          
+          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div className="bg-purple-100 p-2 rounded-lg">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-medium text-gray-900">AI Match</h3>
+              <p className="text-sm text-gray-600">Find perfect fits</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* Recent AI Matches */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <div className="flex items-center justify-between mb-6">
@@ -213,51 +257,6 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
-            <p className="text-gray-600">Streamline your workflow</p>
-          </div>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-4">
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <div className="bg-green-100 p-2 rounded-lg">
-              <Plus className="h-5 w-5 text-green-600" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-medium text-gray-900">Create Assignment</h3>
-              <p className="text-sm text-gray-600">Add new project</p>
-            </div>
-          </button>
-          
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <Users className="h-5 w-5 text-blue-600" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-medium text-gray-900">Upload CV</h3>
-              <p className="text-sm text-gray-600">Add consultant</p>
-            </div>
-          </button>
-          
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <Sparkles className="h-5 w-5 text-purple-600" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-medium text-gray-900">AI Match</h3>
-              <p className="text-sm text-gray-600">Find perfect fits</p>
-            </div>
-          </button>
         </div>
       </div>
 
