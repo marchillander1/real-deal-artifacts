@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   ArrowRight, 
@@ -92,49 +91,46 @@ const Landing = () => {
             <div className="relative">
               <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-white">Live Human-First Demo</h3>
+                  <Logo size="lg" />
                   <div className="flex items-center text-green-400">
                     <div className="h-2 w-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
                     Active
                   </div>
                 </div>
                 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                        A
-                      </div>
-                      <div>
-                        <p className="font-medium text-white">Anna Lindqvist</p>
-                        <p className="text-sm text-gray-400">React Developer • Empathetic • Team Player</p>
-                      </div>
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-white mb-2">Platform v2.0</h3>
+                  <p className="text-gray-400">Real-time insights and performance metrics</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-gray-400 text-sm">Active Consultants</span>
+                      <Users className="h-4 w-4 text-blue-400" />
                     </div>
-                    <div className="text-right">
-                      <span className="text-2xl font-bold text-green-400">95%</span>
-                      <p className="text-xs text-gray-500">human match</p>
-                    </div>
+                    <div className="text-2xl font-bold text-white">5</div>
+                    <div className="text-green-400 text-xs">+12 this week</div>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
-                        M
-                      </div>
-                      <div>
-                        <p className="font-medium text-white">Marcus Johansson</p>
-                        <p className="text-sm text-gray-400">UX Designer • Creative • Structured</p>
-                      </div>
+                  <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-gray-400 text-sm">Open Assignments</span>
+                      <Target className="h-4 w-4 text-green-400" />
                     </div>
-                    <div className="text-right">
-                      <span className="text-2xl font-bold text-green-400">92%</span>
-                      <p className="text-xs text-gray-500">human match</p>
-                    </div>
+                    <div className="text-2xl font-bold text-white">3</div>
+                    <div className="text-green-400 text-xs">+5 today</div>
                   </div>
                 </div>
                 
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-400">Analyzed soft factors in 12 seconds</p>
+                <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg p-4 border border-blue-500/30">
+                  <div className="flex items-center space-x-3">
+                    <Brain className="h-6 w-6 text-blue-400" />
+                    <div>
+                      <p className="font-medium text-white">AI Matching Engine</p>
+                      <p className="text-sm text-gray-400">95% accuracy • 12-second analysis</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -243,7 +239,7 @@ const Landing = () => {
               <h3 className="text-2xl font-bold text-white mb-6">How It Works</h3>
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                  <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">
                     1
                   </div>
                   <div>
@@ -253,7 +249,7 @@ const Landing = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                  <div className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">
                     2
                   </div>
                   <div>
@@ -263,7 +259,7 @@ const Landing = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                  <div className="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">
                     3
                   </div>
                   <div>
