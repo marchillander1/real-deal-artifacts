@@ -17,9 +17,9 @@ const App = () => (
     <TooltipProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/matchwiseai" element={<Landing />} />
           <Route path="/cv-upload" element={<CVUpload />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
