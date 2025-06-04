@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -55,12 +56,31 @@ const Index = () => {
           const text = e.target.result;
           // Basic parsing logic - improve this based on your CV format
           const newConsultant: Consultant = {
-            id: Math.random().toString(36).substring(7),
+            id: Date.now(), // Changed to number
             name: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
-            skills: text.substring(0, 200), // Extract first 200 chars as skills
-            experience: Math.floor(Math.random() * 10), // Random experience
+            skills: [text.substring(0, 200)], // Changed to array
+            experience: Math.floor(Math.random() * 10).toString(), // Changed to string
+            roles: [],
+            location: "Unknown",
+            rate: "TBD",
             availability: "Full-time",
-            cvContent: text,
+            phone: "",
+            email: "",
+            projects: 0,
+            rating: 0,
+            lastActive: new Date().toISOString(),
+            cv: text,
+            certifications: [],
+            languages: [],
+            type: 'new',
+            communicationStyle: "",
+            workStyle: "",
+            values: [],
+            personalityTraits: [],
+            teamFit: "",
+            culturalFit: 0,
+            adaptability: 0,
+            leadership: 0
           };
 
           setConsultants((prevConsultants) => [...prevConsultants, newConsultant]);
@@ -80,6 +100,10 @@ const Index = () => {
       reader.readAsText(file);
     }
   };
+
+  // Split consultants by type
+  const existingConsultants = consultants.filter(c => c.type === 'existing');
+  const newConsultants = consultants.filter(c => c.type === 'new');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -119,7 +143,12 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <ConsultantsTab consultants={consultants} />
+            <ConsultantsTab 
+              existingConsultants={existingConsultants}
+              newConsultants={newConsultants}
+              isMatching={false}
+              onFileUpload={handleFileUpload}
+            />
           </TabsContent>
 
           <TabsContent value="assignments">
@@ -130,7 +159,7 @@ const Index = () => {
                   <p className="text-gray-600 mb-4">{assignment.description}</p>
                   <div className="flex items-center space-x-2 text-gray-500">
                     <span>Skills:</span>
-                    <span>{assignment.skills}</span>
+                    <span>{assignment.requiredSkills.join(', ')}</span>
                   </div>
                 </div>
               ))}
