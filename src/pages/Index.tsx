@@ -202,7 +202,12 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <Dashboard consultants={consultants} assignments={assignments} onMatch={handleMatch} />
+            <Dashboard 
+              consultants={consultants} 
+              assignments={assignments} 
+              onMatch={handleMatch}
+              onFileUpload={handleFileUpload}
+            />
           </TabsContent>
 
           <TabsContent value="consultants">

@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import { Users, Briefcase, TrendingUp, Clock, Target, Plus, Sparkles, Star, DollarSign } from 'lucide-react';
 import StatCard from './StatCard';
 import CreateAssignmentForm from './CreateAssignmentForm';
@@ -11,10 +12,12 @@ interface DashboardProps {
   consultants: Consultant[];
   assignments: Assignment[];
   onMatch: (assignment: Assignment) => void;
+  onFileUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch }) => {
+const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch, onFileUpload }) => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isMatching, setIsMatching] = useState(false);
 
@@ -30,8 +33,27 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
     setShowCreateForm(false);
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (onFileUpload) {
+      onFileUpload(event);
+    }
+  };
+
   return (
     <div className="space-y-8">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.doc,.docx"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Platform Overview</h1>
@@ -159,7 +181,7 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
           </div>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <button
             onClick={() => setShowCreateForm(true)}
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -173,23 +195,16 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
             </div>
           </button>
           
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={handleUploadClick}
+            className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             <div className="bg-blue-100 p-2 rounded-lg">
               <Users className="h-5 w-5 text-blue-600" />
             </div>
             <div className="text-left">
               <h3 className="font-medium text-gray-900">Upload CV</h3>
               <p className="text-sm text-gray-600">Add consultant</p>
-            </div>
-          </button>
-          
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <Sparkles className="h-5 w-5 text-purple-600" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-medium text-gray-900">AI Match</h3>
-              <p className="text-sm text-gray-600">Find perfect fits</p>
             </div>
           </button>
         </div>
@@ -277,3 +292,4 @@ const Dashboard: React.FC<DashboardProps> = ({ consultants, assignments, onMatch
 };
 
 export default Dashboard;
+
