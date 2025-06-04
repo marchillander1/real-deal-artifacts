@@ -1,6 +1,5 @@
-
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle, ArrowLeft, Sparkles, User, MapPin, Phone, Mail, Clock, Star } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Sparkles, User, MapPin, Phone, Mail, Clock, Star } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -207,13 +206,6 @@ const CVUpload = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/"
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Platform</span>
-              </Link>
               <button
                 onClick={() => {
                   setIsSubmitted(false);
@@ -233,7 +225,7 @@ const CVUpload = () => {
                     languages: ''
                   });
                 }}
-                className="inline-flex items-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-all"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
               >
                 <Upload className="h-4 w-4" />
                 <span>Upload Another CV</span>
@@ -251,7 +243,7 @@ const CVUpload = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3">
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
@@ -259,14 +251,7 @@ const CVUpload = () => {
                 <h1 className="text-xl font-bold text-gray-900">ConsultMatch AI</h1>
                 <p className="text-sm text-gray-500">Join Our Network</p>
               </div>
-            </Link>
-            <Link 
-              to="/"
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Platform</span>
-            </Link>
+            </div>
           </div>
         </div>
       </div>
