@@ -67,19 +67,19 @@ export const ConsultantsTab = () => {
   }
 
   const existingConsultants = consultants.filter(c => c.type === 'existing');
-  const newConsultants = consultants.filter(c => c.type === 'new');
+  const networkConsultants = consultants.filter(c => c.type === 'new');
 
-  const renderConsultantCard = (consultant: any, isNew = false) => {
-    const borderColor = isNew ? 'border-2 border-green-100' : 'border border-gray-200';
-    const badgeColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-600';
-    const badgeText = isNew ? 'New Member' : 'Verified';
-    const avatarColor = isNew ? 'bg-green-500' : 'bg-blue-500';
-    const skillsColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-600';
+  const renderConsultantCard = (consultant: any, isNetwork = false) => {
+    const borderColor = isNetwork ? 'border-2 border-green-300' : 'border border-gray-200';
+    const badgeColor = isNetwork ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-600';
+    const badgeText = isNetwork ? 'Network Member' : 'Our Team';
+    const avatarColor = isNetwork ? 'bg-green-600' : 'bg-blue-500';
+    const skillsColor = isNetwork ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200';
     const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
     const analysis = linkedInAnalysis[consultant.id];
 
     return (
-      <Card key={consultant.id} className={`${borderColor} hover:shadow-lg transition-all duration-200`}>
+      <Card key={consultant.id} className={`${borderColor} hover:shadow-lg transition-all duration-200 ${isNetwork ? 'bg-green-50/30' : ''}`}>
         <CardContent className="p-6">
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
@@ -272,7 +272,7 @@ export const ConsultantsTab = () => {
             <p className="text-sm font-medium text-gray-700 mb-2">Technical Skills:</p>
             <div className="flex flex-wrap gap-2">
               {consultant.skills.slice(0, 4).map((skill: string, index: number) => (
-                <Badge key={index} className={skillsColor}>
+                <Badge key={index} className={`${skillsColor} border`}>
                   {skill}
                 </Badge>
               ))}
@@ -349,26 +349,41 @@ export const ConsultantsTab = () => {
       </div>
 
       {/* Network Consultants */}
-      {newConsultants.length > 0 && (
-        <div>
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Users className="h-6 w-6 text-green-600" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Network Consultants</h3>
-              <p className="text-gray-600">External consultants with AI-enhanced profiles</p>
-            </div>
-            <Badge className="bg-green-100 text-green-600">
-              {newConsultants.length} network
-            </Badge>
+      <div>
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="p-2 bg-green-100 rounded-lg">
+            <Users className="h-6 w-6 text-green-600" />
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {newConsultants.map((consultant) => renderConsultantCard(consultant, true))}
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">Network Consultants</h3>
+            <p className="text-gray-600">External consultants uploaded via CV-upload with AI-enhanced profiles</p>
           </div>
+          <Badge className="bg-green-100 text-green-600">
+            {networkConsultants.length} network members
+          </Badge>
         </div>
-      )}
+        
+        {networkConsultants.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {networkConsultants.map((consultant) => renderConsultantCard(consultant, true))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-green-50 rounded-lg border-2 border-dashed border-green-200">
+            <Users className="h-12 w-12 text-green-400 mx-auto mb-4" />
+            <h4 className="text-lg font-medium text-gray-900 mb-2">No Network Consultants Yet</h4>
+            <p className="text-gray-600 mb-4">
+              Network consultants will appear here when CVs are uploaded via the CV Upload page.
+            </p>
+            <Button 
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => window.location.href = '/cv-upload'}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Go to CV Upload
+            </Button>
+          </div>
+        )}
+      </div>
 
       {consultants.length === 0 && (
         <div className="text-center py-12">
