@@ -2,6 +2,7 @@
 import React from 'react';
 import { Star, Mail, Award } from 'lucide-react';
 import { Consultant } from '../types/consultant';
+import { Badge } from "@/components/ui/badge";
 
 interface ConsultantCardProps {
   consultant: Consultant;
@@ -12,24 +13,28 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   const borderColor = isNew ? 'border-2 border-green-100' : 'border';
   const badgeColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
   const badgeText = isNew ? 'New Member' : 'Verified';
-  const avatarColor = isNew ? 'from-green-500 to-teal-500' : 'from-blue-500 to-purple-500';
+  const avatarColor = isNew ? 'bg-green-500' : 'bg-blue-500';
   const skillsColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
   const certificationColor = isNew ? 'text-green-500' : 'text-blue-500';
   const certificationTextColor = isNew ? 'text-green-600' : 'text-blue-600';
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
 
   return (
     <div className={`bg-white rounded-xl shadow-sm ${borderColor} p-6 hover:shadow-lg transition-all`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div className={`h-12 w-12 bg-gradient-to-r ${avatarColor} rounded-full flex items-center justify-center`}>
-            <span className="text-white font-semibold">{consultant.name.split(' ').map(n => n[0]).join('')}</span>
+          <div className={`h-12 w-12 ${avatarColor} rounded-full flex items-center justify-center`}>
+            <span className="text-white font-semibold">{getInitials(consultant.name)}</span>
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{consultant.name}</h3>
             <p className="text-sm text-gray-600">{consultant.roles[0]}</p>
-            <span className={`inline-block ${badgeColor} text-xs px-2 py-1 rounded-full mt-1`}>
+            <Badge className={`${badgeColor} mt-1`}>
               {badgeText}
-            </span>
+            </Badge>
           </div>
         </div>
         <div className="flex items-center space-x-1">
@@ -43,15 +48,15 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
       <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Experience:</span>
-          <span className="font-medium">{consultant.experience}</span>
+          <span className="font-medium">{consultant.experience_years || consultant.experience} years</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Projects:</span>
-          <span className="font-medium">{consultant.projects} completed</span>
+          <span className="font-medium">{consultant.projects_completed || consultant.projects} completed</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Rate:</span>
-          <span className="font-medium text-green-600">{consultant.rate}</span>
+          <span className="font-medium text-green-600">{consultant.hourly_rate || consultant.rate} SEK/hour</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Location:</span>
@@ -62,16 +67,16 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
       <div className="mt-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-700">Status:</span>
-          <span className={`px-2 py-1 text-xs rounded-full ${
+          <Badge className={`${
             consultant.availability === 'Available' 
               ? 'bg-green-100 text-green-800' 
               : 'bg-yellow-100 text-yellow-800'
           }`}>
             {consultant.availability}
-          </span>
+          </Badge>
         </div>
         <p className="text-xs text-gray-500">
-          {isNew ? 'Joined:' : 'Last active:'} {consultant.lastActive}
+          {isNew ? 'Joined:' : 'Last active:'} {consultant.last_active || consultant.lastActive}
         </p>
       </div>
 
@@ -79,14 +84,14 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
         <p className="text-sm font-medium text-gray-700 mb-2">Top Skills:</p>
         <div className="flex flex-wrap gap-1">
           {consultant.skills.slice(0, 5).map((skill, index) => (
-            <span key={index} className={`px-2 py-1 ${skillsColor} text-xs rounded-md`}>
+            <Badge key={index} className={skillsColor}>
               {skill}
-            </span>
+            </Badge>
           ))}
           {consultant.skills.length > 5 && (
-            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
+            <Badge className="bg-gray-100 text-gray-600">
               +{consultant.skills.length - 5} more
-            </span>
+            </Badge>
           )}
         </div>
       </div>
