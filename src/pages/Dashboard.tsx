@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -238,41 +236,47 @@ export default function DashboardPage() {
           <TabsContent value="pricing">
             <div className="space-y-8">
               <div className="text-center">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Välj din plan</h2>
-                <p className="text-lg text-gray-600">Uppgradera för att få tillgång till avancerade funktioner</p>
+                <div className="inline-flex items-center mb-4">
+                  <span className="text-2xl mr-2">💰</span>
+                  <h2 className="text-3xl font-bold text-gray-900">Pricing Overview</h2>
+                </div>
+                <p className="text-lg text-gray-600">Choose the plan that fits your company's needs</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 <StripeCheckout
-                  planName="Basic"
-                  price={499}
+                  planName="Basic Plan"
+                  price={999}
                   features={[
-                    'Upp till 10 konsulter',
-                    'Grundläggande AI-matchning',
-                    'Export till PDF',
+                    'Full access to consultant search and filtering',
+                    'View detailed profiles incl. soft skills and CVs',
+                    'Save favorites & download CVs',
+                    '1 admin + 2 standard users',
                     'Email support'
                   ]}
                 />
                 <StripeCheckout
-                  planName="Premium"
-                  price={999}
+                  planName="Team Plan"
+                  price={1999}
                   features={[
-                    'Upp till 50 konsulter',
-                    'Avancerad AI-matchning',
-                    'Kalenderintegration',
-                    'Prioriterat support',
-                    'Analytics dashboard'
+                    'Everything in Basic, plus:',
+                    'Extended user access',
+                    'Role-based access control',
+                    'Priority email support',
+                    'Early feature access',
+                    'Export consultant lists'
                   ]}
                 />
                 <StripeCheckout
                   planName="Enterprise"
-                  price={1999}
+                  price={5999}
                   features={[
-                    'Obegränsat antal konsulter',
-                    'Anpassad AI-matchning',
-                    'API-åtkomst',
-                    'Dedikerat support',
-                    'Custom integrations'
+                    'Unlimited searches in the open consultant database',
+                    'Direct access to incoming freelance CVs',
+                    'Premium visibility settings for your jobs',
+                    'Integration possibilities (API access upon request)',
+                    'Dedicated onboarding',
+                    'SLA-backed support'
                   ]}
                 />
               </div>
