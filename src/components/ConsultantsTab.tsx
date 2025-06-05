@@ -1,14 +1,74 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, Star, Mail, Award, Linkedin, Brain, Users, MessageCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Upload, Star, Mail, Award, Linkedin, Brain, Users, MessageCircle, FileText } from "lucide-react";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
+import { generateMotivationLetter } from "@/utils/matching";
 
 export const ConsultantsTab = () => {
   const { consultants, isLoading, error } = useSupabaseConsultants();
   const [analyzingLinkedIn, setAnalyzingLinkedIn] = useState<number | null>(null);
   const [linkedInAnalysis, setLinkedInAnalysis] = useState<{[key: number]: any}>({});
+
+  // Demo LinkedIn analysis data for existing consultants
+  useEffect(() => {
+    const demoAnalysis = {
+      1: {
+        communicationStyle: "Direct and collaborative",
+        workStyle: "Agile and iterative", 
+        values: ["Innovation", "Quality", "Teamwork", "Learning"],
+        personalityTraits: ["Analytical", "Creative", "Leadership-oriented", "Tech-savvy"],
+        teamFit: "Excellent team player with strong mentoring abilities",
+        culturalFit: 4.5,
+        adaptability: 4.3,
+        leadership: 4.2
+      },
+      2: {
+        communicationStyle: "Empathetic and detail-oriented",
+        workStyle: "Structured and methodical",
+        values: ["Quality", "Reliability", "User-focus", "Continuous improvement"],
+        personalityTraits: ["Detail-focused", "Empathetic", "Problem-solver", "Collaborative"],
+        teamFit: "Strong collaborator focused on user experience",
+        culturalFit: 4.7,
+        adaptability: 4.1,
+        leadership: 3.8
+      },
+      3: {
+        communicationStyle: "Strategic and visionary",
+        workStyle: "Results-driven and scalable",
+        values: ["Scalability", "Performance", "Innovation", "Excellence"],
+        personalityTraits: ["Strategic", "Technical", "Innovative", "Results-oriented"],
+        teamFit: "Technical leader with strong architecture skills",
+        culturalFit: 4.3,
+        adaptability: 4.6,
+        leadership: 4.8
+      },
+      4: {
+        communicationStyle: "Analytical and systematic",
+        workStyle: "Data-driven and security-focused",
+        values: ["Security", "Data integrity", "Precision", "Best practices"],
+        personalityTraits: ["Analytical", "Security-minded", "Systematic", "Reliable"],
+        teamFit: "Backend specialist with strong security awareness",
+        culturalFit: 4.4,
+        adaptability: 4.0,
+        leadership: 3.9
+      },
+      5: {
+        communicationStyle: "Creative and user-centric",
+        workStyle: "Design-thinking and iterative",
+        values: ["User experience", "Creativity", "Accessibility", "Innovation"],
+        personalityTraits: ["Creative", "User-focused", "Intuitive", "Collaborative"],
+        teamFit: "UX-focused developer bridging design and development",
+        culturalFit: 4.6,
+        adaptability: 4.4,
+        leadership: 4.0
+      }
+    };
+    setLinkedInAnalysis(demoAnalysis);
+  }, []);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -45,6 +105,27 @@ export const ConsultantsTab = () => {
     }
   };
 
+  const generateCoverLetter = (consultant: any) => {
+    // Mock assignment data for demo purposes
+    const mockAssignment = {
+      id: 1,
+      title: "Senior React Developer",
+      description: "We are looking for an experienced React developer to join our team",
+      requiredSkills: ["React", "TypeScript", "Node.js"],
+      startDate: "2024-02-01",
+      duration: "6 months",
+      workload: "Full-time",
+      budget: "800-1200 SEK/hour",
+      company: "TechCorp AB",
+      industry: "E-handel",
+      teamSize: "5-10 people",
+      remote: "Hybrid (2 days office)",
+      urgency: "High"
+    };
+
+    return generateMotivationLetter(consultant, mockAssignment, 92);
+  };
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -74,7 +155,7 @@ export const ConsultantsTab = () => {
     const badgeText = isNetwork ? 'Network Member' : 'Our Team';
     const avatarColor = isNetwork ? 'bg-green-600' : 'bg-blue-500';
     const skillsColor = isNetwork ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200';
-    const experienceYears = consultant.experience?.replace(/\D/g, '') || '0';
+    const experienceYears = consultant.experience_years || consultant.experience?.replace(/\D/g, '') || '0';
     const analysis = linkedInAnalysis[consultant.id];
 
     return (
@@ -108,11 +189,11 @@ export const ConsultantsTab = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Projects:</span>
-              <span className="font-medium">{consultant.projects || 0} completed</span>
+              <span className="font-medium">{consultant.projects_completed || consultant.projects || 0} completed</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Rate:</span>
-              <span className="font-medium text-green-600">{consultant.rate || 'N/A'}/hour</span>
+              <span className="font-medium text-green-600">{consultant.hourly_rate || consultant.rate || 'N/A'} SEK/hour</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Location:</span>
@@ -195,7 +276,7 @@ export const ConsultantsTab = () => {
               </div>
             ) : (
               <div className="text-xs text-blue-600">
-                {consultant.linkedinUrl ? 'Click Analyze to extract personality insights' : 'No LinkedIn URL provided'}
+                {existingConsultants.includes(consultant) ? 'Demo data loaded - Click Analyze for real analysis' : 'No LinkedIn URL provided'}
               </div>
             )}
           </div>
@@ -209,27 +290,27 @@ export const ConsultantsTab = () => {
             <div className="space-y-2 text-xs">
               <div>
                 <span className="text-purple-700 font-medium">Communication Style:</span>
-                <p className="text-purple-600">{consultant.communicationStyle}</p>
+                <p className="text-purple-600">{consultant.communication_style || consultant.communicationStyle || analysis?.communicationStyle || 'Collaborative'}</p>
               </div>
               <div>
                 <span className="text-purple-700 font-medium">Work Style:</span>
-                <p className="text-purple-600">{consultant.workStyle}</p>
+                <p className="text-purple-600">{consultant.work_style || consultant.workStyle || analysis?.workStyle || 'Agile'}</p>
               </div>
               <div>
                 <span className="text-purple-700 font-medium">Team Fit:</span>
-                <p className="text-purple-600">{consultant.teamFit}</p>
+                <p className="text-purple-600">{consultant.team_fit || consultant.teamFit || analysis?.teamFit || 'Strong team player'}</p>
               </div>
               <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-purple-200">
                 <div className="text-center">
-                  <div className="text-sm font-bold text-purple-600">{consultant.culturalFit}/5</div>
+                  <div className="text-sm font-bold text-purple-600">{consultant.cultural_fit || consultant.culturalFit || analysis?.culturalFit || 4.5}/5</div>
                   <div className="text-xs text-purple-500">Cultural</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-bold text-purple-600">{consultant.adaptability}/5</div>
+                  <div className="text-sm font-bold text-purple-600">{consultant.adaptability || analysis?.adaptability || 4.3}/5</div>
                   <div className="text-xs text-purple-500">Adaptable</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-bold text-purple-600">{consultant.leadership}/5</div>
+                  <div className="text-sm font-bold text-purple-600">{consultant.leadership || analysis?.leadership || 4.0}/5</div>
                   <div className="text-xs text-purple-500">Leadership</div>
                 </div>
               </div>
@@ -246,7 +327,7 @@ export const ConsultantsTab = () => {
               <div>
                 <span className="text-xs text-gray-600">Core Values:</span>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {consultant.values?.map((value: string, idx: number) => (
+                  {(consultant.values || analysis?.values || ['Quality', 'Innovation']).map((value: string, idx: number) => (
                     <Badge key={idx} className="bg-green-100 text-green-800 text-xs">
                       {value}
                     </Badge>
@@ -256,7 +337,7 @@ export const ConsultantsTab = () => {
               <div>
                 <span className="text-xs text-gray-600">Personality Traits:</span>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {consultant.personalityTraits?.map((trait: string, idx: number) => (
+                  {(consultant.personality_traits || analysis?.personalityTraits || ['Analytical', 'Creative']).map((trait: string, idx: number) => (
                     <Badge key={idx} className="bg-orange-100 text-orange-800 text-xs">
                       {trait}
                     </Badge>
@@ -281,6 +362,36 @@ export const ConsultantsTab = () => {
                 </Badge>
               )}
             </div>
+          </div>
+
+          {/* AI Cover Letter Section */}
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <FileText className="h-4 w-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-900">AI-Generated Cover Letter</span>
+              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline" className="h-6 px-2 text-xs">
+                    🤖 Generate & View
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>AI-Generated Cover Letter for {consultant.name}</DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-4">
+                    <pre className="whitespace-pre-wrap text-sm font-mono bg-gray-50 p-4 rounded-lg border overflow-x-auto">
+                      {generateCoverLetter(consultant)}
+                    </pre>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Advanced AI-generated personalized cover letter based on consultant profile and assignment requirements
+            </p>
           </div>
 
           {/* Footer */}
@@ -311,6 +422,8 @@ export const ConsultantsTab = () => {
             ✅ Values & Personality Analysis - Communication style, work approach, and personal values
             <br />
             ✅ Cultural Fit Scoring - Team dynamics, leadership style, and adaptability matching
+            <br />
+            ✅ AI-Generated Cover Letters - Personalized motivation letters for each assignment
           </p>
         </div>
         <div className="relative">
