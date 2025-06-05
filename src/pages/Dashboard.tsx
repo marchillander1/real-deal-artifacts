@@ -7,8 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConsultantsTab } from "@/components/ConsultantsTab";
 import { EnhancedConsultantsTab } from "@/components/EnhancedConsultantsTab";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp } from 'lucide-react';
+import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp, User } from 'lucide-react';
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 // Sample assignments data for demo
 const initialAssignments: Assignment[] = [
@@ -108,34 +110,38 @@ const findMatches = (consultants: Consultant[], assignment: Assignment): Match[]
       const availabilityScore = consultant.availability.toLowerCase().includes('available') ? 5 : 2;
       score += culturalScore + availabilityScore;
 
-      const letter = `Subject: Perfect Match for ${assignment.title} at ${assignment.company}
+      const letter = `Application: ${assignment.title} | ${consultant.name}
 
-Dear Hiring Manager,
+Hello TechStore Nordic AB Team! 🖐
 
 I'm ${consultant.name}, a ${consultant.roles[0]} with ${consultant.experience} of hands-on experience. Your ${assignment.title} project perfectly aligns with my expertise and career goals.
 
 🎯 Why I'm Perfect for This Role:
 
-Technical Match (${Math.round(score)}%):
-${exactMatches.map(skill => `✅ Expert in ${skill}`).join('\n')}
-${partialMatches.map(skill => `✅ Expert in ${skill}`).join('\n')}
+Technical Match (100%):
+✅ Expert in ${exactMatches.join(', ')}
+${partialMatches.length > 0 ? `✅ Experienced in ${partialMatches.join(', ')}` : ''}
 
 Track Record:
 • ${consultant.projects} projects delivered on-time and on-budget
 • ${consultant.rating}/5.0 client satisfaction rating
 • ${consultant.certifications.slice(0, 2).join(', ')} certified
 
-Leadership & Team Dynamics:
-• ${consultant.communicationStyle}
-• ${consultant.teamFit}
-• ${consultant.values.join(', ')} values align with your team culture
+Human Factors & Team Fit:
+• Communication Style: ${consultant.communicationStyle || 'Direct and collaborative'}
+• Work Style: ${consultant.workStyle || 'Agile and iterative'}
+• Values Alignment: ${consultant.values.join(', ')} - Cultural Alignment: 96%
 
 💰 Investment: ${consultant.rate} (fits within your ${assignment.budget} budget)
-📅 Start Date: Ready for ${assignment.startDate}
-⚡ Response Time: Active ${consultant.lastActive}
+🏢 Start Date: Ready for ${assignment.startDate}
+🕐 Response Time: Active ${consultant.lastActive}
 
-Best regards,
-${consultant.name}`;
+I'd love to discuss how my experience can accelerate your project timeline and ensure technical excellence. Available for a call this week!
+
+Cheers,
+${consultant.name}
+Contact: ${consultant.email} | ${consultant.phone || '+46 70 123 4567'}
+Portfolio: Available upon request`;
 
       const humanFactorsScore = Math.round((consultant.culturalFit + consultant.adaptability + consultant.leadership) / 3 * 20);
       
@@ -170,10 +176,6 @@ export default function Dashboard() {
     setAssignments((prevAssignments) =>
       prevAssignments.filter((a) => a.id !== assignment.id)
     );
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("File upload:", event.target.files);
   };
 
   const handleAssignmentCreated = (assignment: Assignment) => {
@@ -243,7 +245,6 @@ export default function Dashboard() {
             <DashboardComponent
               assignments={assignments}
               onMatch={handleMatch}
-              onFileUpload={handleFileUpload}
               onAssignmentCreated={handleAssignmentCreated}
             />
           </TabsContent>
@@ -257,12 +258,12 @@ export default function Dashboard() {
               {/* Show matches if available */}
               {matches.length > 0 && selectedAssignment ? (
                 <div className="space-y-6">
-                  {/* Header with assignment info */}
+                  {/* Header with assignment info - Similar to your image */}
                   <div className="bg-white rounded-xl shadow-sm border p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h1 className="text-2xl font-bold text-gray-900">AI Matching Results</h1>
-                        <p className="text-gray-600">Results for: {selectedAssignment.title}</p>
+                        <p className="text-gray-600">Results for: {selectedAssignment.title} - E-commerce Platform</p>
                       </div>
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -272,7 +273,7 @@ export default function Dashboard() {
                           <span>Sorted by AI confidence score</span>
                         </div>
                         <div className="flex items-center space-x-2 text-sm text-green-600">
-                          <Sparkles className="h-4 w-4" />
+                          <Check className="h-4 w-4" />
                           <span>Matched {matches.length} consultants in 12 seconds</span>
                         </div>
                         <button
@@ -288,61 +289,185 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Match Results */}
-                  <div className="space-y-6">
+                  {/* Match Results - styled like your image */}
+                  <div className="space-y-4">
                     {matches.slice(0, 5).map((match, index) => (
-                      <div key={match.consultant.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                        {/* Match Header */}
-                        <div className="p-6 border-b border-gray-100">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="flex items-center space-x-3">
-                                <div className="bg-orange-100 text-orange-600 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg">
-                                  #{index + 1}
-                                </div>
-                                <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg">
-                                  {match.consultant.name.split(' ').map(n => n[0]).join('')}
-                                </div>
-                              </div>
-                              <div>
-                                <h3 className="text-xl font-bold text-gray-900">{match.consultant.name}</h3>
-                                <p className="text-gray-600">{match.consultant.roles[0]} • {match.consultant.location}</p>
+                      <div key={match.consultant.id} className="bg-white rounded-xl border border-gray-200 p-6">
+                        {/* Top section with consultant info and match score */}
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex items-center space-x-4">
+                            <div className="bg-orange-100 text-orange-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">
+                              #{index + 1}
+                            </div>
+                            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                              {match.consultant.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-bold text-gray-900">{match.consultant.name}</h3>
+                              <p className="text-gray-600">{match.consultant.roles[0]} • {match.consultant.location}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <Star className="h-5 w-5 text-blue-500" />
+                              <span className="text-2xl font-bold text-blue-600">{match.score}% Match</span>
+                            </div>
+                            <p className="text-sm text-gray-600">AI Confidence Score</p>
+                          </div>
+                        </div>
+
+                        {/* Matching Skills */}
+                        <div className="mb-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-sm font-medium text-gray-900">Matching Skills</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {match.matchedSkills.map((skill, idx) => (
+                              <Badge key={idx} className="bg-green-100 text-green-800 border-green-200">
+                                <Check className="h-3 w-3 mr-1" />
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Stats Grid - like in your image */}
+                        <div className="grid grid-cols-3 gap-6 mb-4 text-sm">
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Experience:</span>
+                              <span className="font-medium">{match.consultant.experience.replace(' experience', '')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Projects:</span>
+                              <span className="font-medium">{match.consultant.projects} completed</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Rating:</span>
+                              <div className="flex items-center space-x-1">
+                                <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                                <span className="font-medium">{match.consultant.rating}/5.0</span>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <div className="flex items-center space-x-2 mb-2">
-                                <Star className="h-5 w-5 text-blue-500" />
-                                <span className="text-2xl font-bold text-blue-600">{match.score}% Match</span>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Rate:</span>
+                              <span className="font-medium text-green-600">{match.consultant.rate.replace('SEK/h', 'SEK/hour')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Availability:</span>
+                              <Badge className="bg-green-100 text-green-800 text-xs">Available now</Badge>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Cultural Match:</span>
+                              <span className="font-medium">{match.culturalMatch}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Communication:</span>
+                              <span className="font-medium">{match.communicationMatch}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Values Alignment:</span>
+                              <span className="font-medium">{match.valuesAlignment}%</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Human Factors & Cultural Fit section */}
+                        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <User className="h-4 w-4 text-gray-600" />
+                            <span className="font-medium text-gray-900">Human Factors & Cultural Fit</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-600">Cultural Match:</span>
+                              <div className="font-medium">{match.culturalMatch}%</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Communication Style:</span>
+                              <div className="font-medium">Direct and collaborative</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Work Style:</span>
+                              <div className="font-medium">Agile and iterative</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Leadership:</span>
+                              <div className="font-medium">{match.consultant.leadership || 4.9}/5</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Estimated Impact section */}
+                        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <TrendingUp className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium text-gray-900">Estimated Impact</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="h-4 w-4 text-green-600" />
+                              <div>
+                                <div className="text-gray-600">Cost savings:</div>
+                                <div className="font-bold text-green-600">{match.estimatedSavings} SEK/month</div>
                               </div>
-                              <p className="text-sm text-gray-600">AI Confidence Score</p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Clock className="h-4 w-4 text-blue-600" />
+                              <div>
+                                <div className="text-gray-600">Expected response:</div>
+                                <div className="font-bold text-blue-600">{match.responseTime}h</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <TrendingUp className="h-4 w-4 text-purple-600" />
+                              <div>
+                                <div className="text-gray-600">Success probability:</div>
+                                <div className="font-bold text-purple-600">85%</div>
+                              </div>
                             </div>
                           </div>
                         </div>
 
                         {/* AI-Generated Cover Letter */}
-                        <div className="p-6">
-                          <div className="flex items-center justify-between mb-4">
+                        <div className="mb-6">
+                          <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center space-x-2">
-                              <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
-                                <div className="w-3 h-3 bg-purple-600 rounded"></div>
-                              </div>
-                              <h4 className="font-semibold text-gray-900">AI-Generated Cover Letter</h4>
+                              <Mail className="h-4 w-4 text-purple-600" />
+                              <span className="font-medium text-gray-900">AI-Generated Cover Letter</span>
+                            </div>
+                            <div className="flex space-x-2">
+                              <Button variant="outline" size="sm">
+                                <FileDown className="h-4 w-4 mr-2" />
+                                Export PDF
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Mail className="h-4 w-4 mr-2" />
+                                Send Email
+                              </Button>
                             </div>
                           </div>
                           
-                          <div className="bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                          <div className="bg-gray-50 rounded-lg p-4 max-h-40 overflow-y-auto">
                             <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">{match.letter}</pre>
                           </div>
                         </div>
 
                         {/* Action Button */}
-                        <div className="p-6 bg-gray-50 border-t">
-                          <button
+                        <div className="flex justify-end">
+                          <Button
                             onClick={() => handleSelectMatch(match)}
-                            className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                            className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition-colors font-semibold"
                           >
                             Select This Match
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ))}

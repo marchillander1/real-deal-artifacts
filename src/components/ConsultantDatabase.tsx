@@ -1,11 +1,10 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, MapPin, Clock, Mail, Award, Users } from 'lucide-react';
+import { Star, MapPin, Clock, Mail, Award, Users, Upload } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 
 export const ConsultantDatabase: React.FC = () => {
@@ -13,6 +12,14 @@ export const ConsultantDatabase: React.FC = () => {
   
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const networkConsultants = consultants.filter(c => c.type === 'new');
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      console.log('CV file uploaded:', files[0].name);
+      // TODO: Implement CV processing
+    }
+  };
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -126,10 +133,18 @@ export const ConsultantDatabase: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900">Consultant Database</h1>
             <p className="text-gray-600 mt-1">AI-powered consultant profiles with automated skill extraction</p>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Users className="h-4 w-4 mr-2" />
-            Upload CV
-          </Button>
+          <div className="relative">
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload CV
+            </Button>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={handleFileUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
         </div>
       </div>
 

@@ -10,18 +10,24 @@ import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 interface DashboardProps {
   assignments: Assignment[];
   onMatch: (assignment: Assignment) => void;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onAssignmentCreated: (assignment: Assignment) => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
   assignments,
   onMatch,
-  onFileUpload,
   onAssignmentCreated,
 }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { consultants } = useSupabaseConsultants();
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      console.log('CV file uploaded:', files[0].name);
+      // TODO: Implement CV processing
+    }
+  };
 
   // Dashboard stats
   const totalConsultants = consultants.length || 5;
@@ -45,10 +51,18 @@ const Dashboard: React.FC<DashboardProps> = ({
               <button className="text-gray-500 hover:text-gray-700 pb-2">Assignments</button>
             </div>
             <div className="flex space-x-3">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Upload CV
-              </Button>
+              <div className="relative">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Upload CV
+                </Button>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
                 onClick={() => setShowCreateForm(true)}
