@@ -206,12 +206,12 @@ export const useSupabaseConsultants = () => {
           }
 
           // Try to fetch again after adding demo data
-          const { data: newData, error: newError } = await supabase
+          const fetchResult = await supabase
             .from('consultants')
             .select('*')
             .order('name');
 
-          if (newError || !newData || newData.length === 0) {
+          if (fetchResult.error || !fetchResult.data || fetchResult.data.length === 0) {
             console.log('Could not fetch from database, using demo data...');
             // Return demo data as fallback
             return demoConsultants.map((consultant: any) => ({
@@ -244,7 +244,7 @@ export const useSupabaseConsultants = () => {
             }));
           }
 
-          data = newData;
+          data = fetchResult.data;
         }
 
         return data.map((consultant: any) => ({

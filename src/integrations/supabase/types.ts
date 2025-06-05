@@ -109,6 +109,7 @@ export type Database = {
           languages: string[] | null
           last_active: string | null
           leadership: number | null
+          linkedin_url: string | null
           location: string | null
           name: string
           personality_traits: string[] | null
@@ -138,6 +139,7 @@ export type Database = {
           languages?: string[] | null
           last_active?: string | null
           leadership?: number | null
+          linkedin_url?: string | null
           location?: string | null
           name: string
           personality_traits?: string[] | null
@@ -167,6 +169,7 @@ export type Database = {
           languages?: string[] | null
           last_active?: string | null
           leadership?: number | null
+          linkedin_url?: string | null
           location?: string | null
           name?: string
           personality_traits?: string[] | null
