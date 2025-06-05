@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -404,7 +405,7 @@ export default function Landing() {
                   <h3 className="text-xl font-bold text-white">Basic Plan</h3>
                 </div>
                 <p className="text-gray-400 mb-6">For 1-3 users</p>
-                <div className="text-3xl font-bold text-white mb-6">999 SEK<span className="text-lg text-gray-400">/month</span></div>
+                <div className="text-3xl font-bold text-white mb-6">€99<span className="text-lg text-gray-400">/month</span></div>
                 
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-gray-300">
@@ -446,7 +447,7 @@ export default function Landing() {
                   <h3 className="text-xl font-bold text-white">Team Plan</h3>
                 </div>
                 <p className="text-gray-400 mb-6">For 3-10 users</p>
-                <div className="text-3xl font-bold text-white mb-6">1,999 SEK<span className="text-lg text-gray-400">/month</span></div>
+                <div className="text-3xl font-bold text-white mb-6">€199<span className="text-lg text-gray-400">/month</span></div>
                 
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-gray-300">
@@ -489,7 +490,7 @@ export default function Landing() {
                   <h3 className="text-xl font-bold text-white">Enterprise</h3>
                 </div>
                 <p className="text-gray-400 mb-6">For organizations using Free Talent Pool</p>
-                <div className="text-3xl font-bold text-white mb-6">5,999 SEK<span className="text-lg text-gray-400">/month</span></div>
+                <div className="text-3xl font-bold text-white mb-6">€599<span className="text-lg text-gray-400">/month</span></div>
                 
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-gray-300">
@@ -591,3 +592,4 @@ export default function Landing() {
     </div>
   );
 }
+
