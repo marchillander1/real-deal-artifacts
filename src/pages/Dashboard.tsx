@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Users, Briefcase, TrendingUp, Clock } from "lucide-react";
+import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { ConsultantsTab } from "../components/ConsultantsTab";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
