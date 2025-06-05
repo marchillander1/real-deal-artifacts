@@ -22,8 +22,8 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Check if this is the most popular plan (Team Plan at 1999 SEK)
-  const isPopular = planName === "Team Plan" && price === 1999;
+  // Check if this is the most popular plan (Team Plan at 199 EUR)
+  const isPopular = planName === "Team Plan" && price === 199;
 
   const handleCheckout = async () => {
     setIsLoading(true);
@@ -42,8 +42,8 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
     } catch (error) {
       console.error('Checkout error:', error);
       toast({
-        title: "Fel vid betalning",
-        description: "Kunde inte starta betalningsprocessen. Försök igen.",
+        title: "Payment Error",
+        description: "Could not start payment process. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -64,7 +64,7 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">{planName}</CardTitle>
           <div className="text-3xl font-bold text-blue-600">
-            {price.toLocaleString()} SEK<span className="text-base font-normal text-gray-600">/månad</span>
+            €{price}<span className="text-base font-normal text-gray-600">/month</span>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -86,12 +86,12 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Behandlar...
+                Processing...
               </>
             ) : (
               <>
                 <CreditCard className="h-4 w-4 mr-2" />
-                Start Free Trial
+                Buy Now
               </>
             )}
           </Button>

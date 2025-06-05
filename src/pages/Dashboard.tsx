@@ -246,7 +246,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 <StripeCheckout
                   planName="Basic Plan"
-                  price={999}
+                  price={99}
                   features={[
                     'Full access to consultant search and filtering',
                     'View detailed profiles incl. soft skills and CVs',
@@ -257,7 +257,7 @@ export default function DashboardPage() {
                 />
                 <StripeCheckout
                   planName="Team Plan"
-                  price={1999}
+                  price={199}
                   features={[
                     'Everything in Basic, plus:',
                     'Extended user access',
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                 />
                 <StripeCheckout
                   planName="Enterprise"
-                  price={5999}
+                  price={599}
                   features={[
                     'Unlimited searches in the open consultant database',
                     'Direct access to incoming freelance CVs',

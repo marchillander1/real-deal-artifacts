@@ -52,12 +52,12 @@ serve(async (req) => {
       line_items: [
         {
           price_data: {
-            currency: "sek",
+            currency: "eur",
             product_data: { 
-              name: `${planName} Plan - MatchWise AI`,
-              description: `${planName} prenumeration för MatchWise AI plattformen`
+              name: `${planName} - MatchWise AI`,
+              description: `${planName} subscription for MatchWise AI platform`
             },
-            unit_amount: price * 100, // Convert to öre
+            unit_amount: price * 100, // Convert to cents
             recurring: { interval: "month" },
           },
           quantity: 1,
