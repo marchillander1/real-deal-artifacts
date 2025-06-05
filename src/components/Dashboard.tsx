@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
-import { Assignment } from "../types/consultant";
+import { Assignment, Consultant } from "../types/consultant";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Users, Briefcase, TrendingUp, Clock } from "lucide-react";
 import CreateAssignmentForm from "./CreateAssignmentForm";
+import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 
 interface DashboardProps {
   assignments: Assignment[];
@@ -22,10 +23,11 @@ const Dashboard: React.FC<DashboardProps> = ({
   onAssignmentCreated,
 }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const { consultants } = useSupabaseConsultants();
 
   // Dashboard stats
-  const totalConsultants = 5;
-  const activeAssignments = 2;
+  const totalConsultants = consultants.length || 5;
+  const activeAssignments = assignments.length || 2;
   const successfulMatches = 156;
   const avgMatchTime = "12 seconds";
 
@@ -49,7 +51,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <Upload className="h-4 w-4" />
                 Upload CV
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+                onClick={() => setShowCreateForm(true)}
+              >
                 <Briefcase className="h-4 w-4" />
                 New Assignment
               </Button>
