@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
-import { ConsultantsTab } from "@/components/ConsultantsTab";
+import { ConsultantDatabase } from "@/components/ConsultantDatabase";
 import { Assignment, Consultant, Match } from "../types/consultant";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
@@ -511,7 +512,6 @@ const Index = () => {
 
           <TabsContent value="dashboard">
             <Dashboard 
-              consultants={consultants} 
               assignments={assignments} 
               onMatch={handleMatch}
               onFileUpload={handleFileUpload}
@@ -520,7 +520,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <ConsultantsTab />
+            <ConsultantDatabase />
           </TabsContent>
 
           <TabsContent value="assignments">

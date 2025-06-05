@@ -139,7 +139,7 @@ export const useSupabaseConsultants = () => {
           adaptability: consultantData.adaptability,
           leadership: consultantData.leadership,
         })
-        .eq('id', consultantData.id)
+        .eq('id', consultantData.id.toString())
         .select()
         .single();
 
