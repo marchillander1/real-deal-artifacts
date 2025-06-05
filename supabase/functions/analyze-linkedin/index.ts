@@ -19,7 +19,7 @@ serve(async (req) => {
     
     console.log('Analyzing LinkedIn profile:', linkedinUrl);
 
-    // Kontrollera att OpenAI API-nyckel finns
+    // Check that OpenAI API key exists
     if (!openAIApiKey) {
       console.error('OpenAI API key is missing');
       return new Response(JSON.stringify({ 
@@ -31,46 +31,46 @@ serve(async (req) => {
       });
     }
 
-    // Simulera LinkedIn data extraction med mer realistisk data
+    // Simulate LinkedIn data extraction with more realistic data
     const mockLinkedInPosts = [
-      "Spännande att se utvecklingen inom AI och mjukvaruutveckling! Arbetar med innovativa lösningar som gör utvecklare mer produktiva.",
-      "Fantastisk teamarbete idag. Älskar att jobba med olika perspektiv för att lösa komplexa problem.",
-      "Precis avslutat ett utmanande projekt med React och TypeScript. Lärandet aldrig slutar inom tech!",
-      "Deltog på en teknikkonferens om hållbara mjukvarumetoder. Alltid lärorikt med nya tillvägagångssätt.",
-      "Att mentora juniora utvecklare är otroligt givande. Att dela kunskap hjälper alla att växa.",
-      "Passionerad för ren kod och bästa praxis. Kvalitetsmjukvara gör verklig skillnad.",
-      "Att arbeta på distans har lärt mig vikten av tydlig kommunikation och dokumentation.",
-      "Innovation sker när vi kliver utanför vår komfortzon och provar ny teknik.",
-      "Teamets framgång kommer från att stötta varandra och fira vinster tillsammans.",
-      "Kontinuerligt lärande är nyckeln i vårt snabbt föränderliga tekniklandskap."
+      "Exciting to see the development in AI and software development! Working with innovative solutions that make developers more productive.",
+      "Amazing teamwork today. Love working with different perspectives to solve complex problems.",
+      "Just finished a challenging project with React and TypeScript. Learning never stops in tech!",
+      "Attended a tech conference about sustainable software methods. Always educational with new approaches.",
+      "Mentoring junior developers is incredibly rewarding. Sharing knowledge helps everyone grow.",
+      "Passionate about clean code and best practices. Quality software makes a real difference.",
+      "Working remotely has taught me the importance of clear communication and documentation.",
+      "Innovation happens when we step outside our comfort zone and try new technology.",
+      "Team success comes from supporting each other and celebrating wins together.",
+      "Continuous learning is the key in our rapidly changing tech landscape."
     ];
 
-    // Mock LinkedIn intro/about section på svenska
-    const mockLinkedInIntro = `Erfaren mjukvaruutvecklare med över 8 års branschexpertis, specialiserad på fullstack-utveckling och teamledning. Jag brinner för att skapa innovativa lösningar som löser verkliga problem och tror på kraften i samarbetsutveckling.
+    // Mock LinkedIn intro/about section in English
+    const mockLinkedInIntro = `Experienced software developer with over 8 years of industry expertise, specializing in fullstack development and team leadership. I'm passionate about creating innovative solutions that solve real problems and believe in the power of collaborative development.
 
-Min arbetsmetod grundar sig i kontinuerligt lärande, öppen kommunikation och ett engagemang för kvalitet. Jag trivs i miljöer där jag kan mentora andra samtidigt som jag själv utmanas att växa. Oavsett om jag leder ett team eller bidrar som individuell medarbetare, fokuserar jag på att bygga hållbara, skalbara lösningar.
+My work approach is based on continuous learning, open communication, and a commitment to quality. I thrive in environments where I can mentor others while being challenged to grow myself. Whether leading a team or contributing as an individual contributor, I focus on building sustainable, scalable solutions.
 
-Utanför kodandet är jag aktiv i teknikgemenskapen, håller regelbundet presentationer på konferenser och bidrar till open source-projekt. Jag tror att teknik ska vara tillgänglig och inkluderande, och arbetar för att främja mångfald inom tech genom mentorskap och samhällsengagemang.
+Outside of coding, I'm active in the tech community, regularly speaking at conferences and contributing to open source projects. I believe technology should be accessible and inclusive, and work to promote diversity in tech through mentorship and community engagement.
 
-Värderingar som driver mig: Innovation, Kvalitet, Teamwork, Kontinuerligt lärande och Integritet.`;
+Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and Integrity.`;
 
-    // Använd OpenAI för att analysera både inlägg och intro för personlighetsdrag
+    // Use OpenAI to analyze both posts and intro for personality traits
     const analysisPrompt = `
-    Analysera följande LinkedIn-profildata (intro/om-sektion + senaste inlägg) och extrahera personlighetsdrag, kommunikationsstil, arbetsvärderingar och teampassningsegenskaper. 
-    Returnera analysen i JSON-format med dessa exakta fält:
-    - communicationStyle: string (t.ex., "Direkt och samarbetsinriktad", "Analytisk och genomtänkt")
-    - workStyle: string (t.ex., "Agil och iterativ", "Strukturerad och metodisk")
-    - values: array av strings (max 4 värderingar som "Innovation", "Kvalitet", "Teamwork")
-    - personalityTraits: array av strings (max 4 egenskaper som "Kreativ", "Analytisk", "Ledarskapsoriented")
-    - teamFit: string (beskrivning av hur de arbetar i team)
-    - culturalFit: nummer mellan 1-5 (övergripande kulturell anpassningsförmåga)
-    - adaptability: nummer mellan 1-5 (flexibilitet för förändring)
-    - leadership: nummer mellan 1-5 (ledarskapspotential)
+    Analyze the following LinkedIn profile data (intro/about section + recent posts) and extract personality traits, communication style, work values, and team fit characteristics. 
+    Return the analysis in JSON format with these exact fields:
+    - communicationStyle: string (e.g., "Direct and collaborative", "Analytical and thoughtful")
+    - workStyle: string (e.g., "Agile and iterative", "Structured and methodical")
+    - values: array of strings (max 4 values like "Innovation", "Quality", "Teamwork")
+    - personalityTraits: array of strings (max 4 traits like "Creative", "Analytical", "Leadership-oriented")
+    - teamFit: string (description of how they work in teams)
+    - culturalFit: number between 1-5 (overall cultural adaptability)
+    - adaptability: number between 1-5 (flexibility for change)
+    - leadership: number between 1-5 (leadership potential)
 
-    LinkedIn Om/Intro-sektion:
+    LinkedIn About/Intro section:
     ${mockLinkedInIntro}
 
-    Senaste LinkedIn-inlägg:
+    Recent LinkedIn posts:
     ${mockLinkedInPosts.join('\n')}
     `;
 
@@ -85,7 +85,7 @@ Värderingar som driver mig: Innovation, Kvalitet, Teamwork, Kontinuerligt lära
         messages: [
           { 
             role: 'system', 
-            content: 'Du är en expert HR-analytiker specialiserad på personlighetsbedömning från sociala medier. Returnera alltid giltig JSON. Analysera både den professionella intron och senaste inläggen för att få en omfattande bild av personen.' 
+            content: 'You are an expert HR analyst specialized in personality assessment from social media. Always return valid JSON. Analyze both the professional intro and recent posts to get a comprehensive picture of the person.' 
           },
           { role: 'user', content: analysisPrompt }
         ],
@@ -95,13 +95,13 @@ Värderingar som driver mig: Innovation, Kvalitet, Teamwork, Kontinuerligt lära
 
     if (!response.ok) {
       console.error('OpenAI API error:', response.status, response.statusText);
-      // Fallback analys om OpenAI misslyckas
+      // Fallback analysis if OpenAI fails
       const fallbackAnalysis = {
-        communicationStyle: "Professionell och engagerande",
-        workStyle: "Samarbetsinriktad och innovativ",
-        values: ["Innovation", "Lärande", "Teamwork", "Kvalitet"],
-        personalityTraits: ["Nyfiken", "Samarbetsinriktad", "Tillväxtinriktad", "Teknisk"],
-        teamFit: "Stark teamspelare med mentorskapsförmåga",
+        communicationStyle: "Professional and engaging",
+        workStyle: "Collaborative and innovative",
+        values: ["Innovation", "Learning", "Teamwork", "Quality"],
+        personalityTraits: ["Curious", "Collaborative", "Growth-oriented", "Technical"],
+        teamFit: "Strong team player with mentorship capabilities",
         culturalFit: 4.2,
         adaptability: 4.3,
         leadership: 4.0
@@ -114,7 +114,7 @@ Värderingar som driver mig: Innovation, Kvalitet, Teamwork, Kontinuerligt lära
         analysis: fallbackAnalysis,
         postsAnalyzed: mockLinkedInPosts.length,
         introAnalyzed: true,
-        note: "Använder fallback-analys"
+        note: "Using fallback analysis"
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -127,13 +127,13 @@ Värderingar som driver mig: Innovation, Kvalitet, Teamwork, Kontinuerligt lära
       analysis = JSON.parse(data.choices[0].message.content);
     } catch (parseError) {
       console.error('Failed to parse OpenAI response:', data.choices[0].message.content);
-      // Fallback analys om parsing misslyckas
+      // Fallback analysis if parsing fails
       analysis = {
-        communicationStyle: "Professionell och engagerande",
-        workStyle: "Samarbetsinriktad och innovativ",
-        values: ["Innovation", "Lärande", "Teamwork", "Kvalitet"],
-        personalityTraits: ["Nyfiken", "Samarbetsinriktad", "Tillväxtinriktad", "Teknisk"],
-        teamFit: "Stark teamspelare med mentorskapsförmåga",
+        communicationStyle: "Professional and engaging",
+        workStyle: "Collaborative and innovative",
+        values: ["Innovation", "Learning", "Teamwork", "Quality"],
+        personalityTraits: ["Curious", "Collaborative", "Growth-oriented", "Technical"],
+        teamFit: "Strong team player with mentorship capabilities",
         culturalFit: 4.2,
         adaptability: 4.3,
         leadership: 4.0
