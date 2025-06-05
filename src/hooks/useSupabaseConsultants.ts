@@ -136,7 +136,7 @@ export const useSupabaseConsultants = () => {
           availability: consultantData.availability,
           phone: consultantData.phone,
           projects_completed: consultantData.projects,
-          rating: Number(consultantData.rating),
+          rating: consultantData.rating,
           certifications: consultantData.certifications,
           languages: consultantData.languages,
           communication_style: consultantData.communicationStyle,
