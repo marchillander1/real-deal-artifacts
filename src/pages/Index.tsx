@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -8,7 +7,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
 import { useNavigate } from "react-router-dom";
 import Logo from '../components/Logo';
-import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp, User, MapPin, Calendar, Briefcase } from 'lucide-react';
+import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp, User, MapPin, Calendar, Briefcase, Plus } from 'lucide-react';
+import CreateAssignmentForm from "../components/CreateAssignmentForm";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // Sample data for demo purposes
 const initialConsultants: Consultant[] = [
@@ -342,6 +345,7 @@ const Index = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [isMatching, setIsMatching] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
     console.log("Loading consultants:", consultants.length);
@@ -479,6 +483,7 @@ const Index = () => {
 
   const handleAssignmentCreated = (newAssignment: Assignment) => {
     setAssignments(prevAssignments => [...prevAssignments, newAssignment]);
+    setShowCreateForm(false);
     toast({
       title: "Assignment Created",
       description: `${newAssignment.title} has been created successfully.`,
@@ -723,80 +728,104 @@ const Index = () => {
                   </div>
                 </div>
               ) : (
-                /* Assignments Grid */
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {assignments.map((assignment) => (
-                    <div key={assignment.id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="text-2xl">{assignment.clientLogo}</div>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          assignment.urgency === 'High' 
-                            ? 'bg-red-100 text-red-800' 
-                            : assignment.urgency === 'Medium'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}>
-                          {assignment.urgency} Priority
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{assignment.title}</h3>
-                      <p className="text-gray-600 mb-4 text-sm line-clamp-2">{assignment.description}</p>
-                      <div className="space-y-2 text-sm mb-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-500">Company:</span>
-                          <span className="font-medium">{assignment.company}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-500">Duration:</span>
-                          <span className="font-medium">{assignment.duration}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-500">Budget:</span>
-                          <span className="font-medium text-green-600">{assignment.budget}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-500">Remote:</span>
-                          <span className="font-medium">{assignment.remote}</span>
-                        </div>
-                      </div>
-                      <div className="mb-4 pt-4 border-t">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Required Skills:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {assignment.requiredSkills.map((skill, index) => (
-                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          console.log("🔍 Find Matches button clicked for:", assignment.title);
-                          handleFindMatches(assignment);
-                        }}
-                        disabled={isMatching}
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                      >
-                        {isMatching && selectedAssignment?.id === assignment.id ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Finding Matches...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            Find AI Matches
-                          </>
-                        )}
-                      </button>
+                /* Assignments Grid with Create Button */
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">Uppdrag</h2>
+                      <p className="text-gray-600 mt-1">Hantera och matcha uppdrag med konsulter</p>
                     </div>
-                  ))}
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+                      onClick={() => setShowCreateForm(true)}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Skapa uppdrag
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {assignments.map((assignment) => (
+                      <div key={assignment.id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="text-2xl">{assignment.clientLogo}</div>
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            assignment.urgency === 'High' 
+                              ? 'bg-red-100 text-red-800' 
+                              : assignment.urgency === 'Medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {assignment.urgency} Priority
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{assignment.title}</h3>
+                        <p className="text-gray-600 mb-4 text-sm line-clamp-2">{assignment.description}</p>
+                        <div className="space-y-2 text-sm mb-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Company:</span>
+                            <span className="font-medium">{assignment.company}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Duration:</span>
+                            <span className="font-medium">{assignment.duration}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Budget:</span>
+                            <span className="font-medium text-green-600">{assignment.budget}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-500">Remote:</span>
+                            <span className="font-medium">{assignment.remote}</span>
+                          </div>
+                        </div>
+                        <div className="mb-4 pt-4 border-t">
+                          <p className="text-sm font-medium text-gray-700 mb-2">Required Skills:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {assignment.requiredSkills.map((skill, index) => (
+                              <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            console.log("🔍 Find Matches button clicked for:", assignment.title);
+                            handleFindMatches(assignment);
+                          }}
+                          disabled={isMatching}
+                          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        >
+                          {isMatching && selectedAssignment?.id === assignment.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Finding Matches...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-4 w-4 mr-2" />
+                              Find AI Matches
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Create Assignment Modal */}
+      {showCreateForm && (
+        <CreateAssignmentForm
+          onAssignmentCreated={handleAssignmentCreated}
+          onCancel={() => setShowCreateForm(false)}
+        />
+      )}
 
       <Toaster />
     </div>
