@@ -11,23 +11,17 @@ interface DashboardProps {
   assignments: Assignment[];
   onMatch: (assignment: Assignment) => void;
   onAssignmentCreated: (assignment: Assignment) => void;
+  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
   assignments,
   onMatch,
   onAssignmentCreated,
+  onFileUpload,
 }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { consultants } = useSupabaseConsultants();
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      console.log('CV file uploaded:', files[0].name);
-      // TODO: Implement CV processing
-    }
-  };
 
   // Dashboard stats
   const totalConsultants = consultants.length || 5;
@@ -59,7 +53,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx"
-                  onChange={handleFileUpload}
+                  onChange={onFileUpload}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>
