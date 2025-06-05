@@ -12,6 +12,9 @@ export const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Logo size="md" variant="full" />
+          <Button asChild>
+            <Link to="/login">Login</Link>
+          </Button>
         </div>
       </div>
     </nav>
