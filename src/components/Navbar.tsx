@@ -10,26 +10,7 @@ export const Navbar = () => {
     <nav className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button 
-                variant={location.pathname === "/" ? "default" : "ghost"}
-                className="text-sm"
-              >
-                Dashboard
-              </Button>
-            </Link>
-            
-            <Link to="/cv-upload">
-              <Button 
-                variant={location.pathname === "/cv-upload" ? "default" : "ghost"}
-                className="text-sm flex items-center gap-2"
-              >
-                <Upload className="h-4 w-4" />
-                CV Upload
-              </Button>
-            </Link>
-          </div>
+          {/* Empty navbar for cleaner look */}
         </div>
       </div>
     </nav>
