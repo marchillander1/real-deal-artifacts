@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -142,7 +143,7 @@ export const useSupabaseConsultants = () => {
       console.log('Fetching consultants from database...');
       
       try {
-        const { data, error } = await supabase
+        let { data, error } = await supabase
           .from('consultants')
           .select('*')
           .order('name');
