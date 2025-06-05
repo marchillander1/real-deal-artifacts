@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +105,7 @@ export const ConsultantsTab = () => {
   };
 
   const generateCoverLetter = (consultant: any) => {
-    // Mock assignment data for demo purposes
+    // Mock assignment data for demo purposes with all required properties
     const mockAssignment = {
       id: 1,
       title: "Senior React Developer",
@@ -120,7 +119,8 @@ export const ConsultantsTab = () => {
       industry: "E-handel",
       teamSize: "5-10 people",
       remote: "Hybrid (2 days office)",
-      urgency: "High"
+      urgency: "High",
+      clientLogo: "" // Adding the missing required property
     };
 
     return generateMotivationLetter(consultant, mockAssignment, 92);

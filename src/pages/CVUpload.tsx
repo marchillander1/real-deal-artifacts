@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, User, Mail, Phone, MapPin, Calendar, Star, Award, Languages, Code, Briefcase } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Consultant } from '@/types/consultant';
 
 export const CVUpload = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -64,16 +64,16 @@ export const CVUpload = () => {
     setIsUploading(true);
     
     try {
-      const consultantData: Partial<Consultant> = {
+      const consultantData = {
         name: extractedData.name,
+        email: extractedData.email,
+        phone: extractedData.phone,
         skills: extractedData.skills,
         experience_years: parseInt(extractedData.experience) || 7,
         roles: extractedData.roles,
         location: extractedData.location,
         hourly_rate: parseInt(extractedData.rate) || 950,
         availability: extractedData.availability,
-        phone: extractedData.phone,
-        email: extractedData.email,
         projects_completed: extractedData.projects,
         rating: extractedData.rating,
         last_active: extractedData.lastActive,
@@ -92,7 +92,7 @@ export const CVUpload = () => {
 
       const { data, error } = await supabase
         .from('consultants')
-        .insert([consultantData])
+        .insert(consultantData)
         .select()
         .single();
 

@@ -11,7 +11,7 @@ import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import CVUpload from "./pages/CVUpload";
+import { CVUpload } from "./pages/CVUpload";
 import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
