@@ -7,11 +7,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
 import { useNavigate } from "react-router-dom";
 import Logo from '../components/Logo';
-import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp, User, MapPin, Calendar, Briefcase, Plus } from 'lucide-react';
+import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp, User, MapPin, Calendar, Briefcase, Plus, Phone, Award, Languages, Heart, Brain, Target, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { findMatches } from "../utils/matching";
 
 // Sample data for demo purposes
 const initialConsultants: Consultant[] = [
@@ -346,6 +347,7 @@ const Index = () => {
   const [isMatching, setIsMatching] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [expandedMatch, setExpandedMatch] = useState<number | null>(null);
 
   useEffect(() => {
     console.log("Loading consultants:", consultants.length);
@@ -471,12 +473,17 @@ const Index = () => {
       handleMatch(selectedAssignment);
       setMatches([]);
       setSelectedAssignment(null);
+      setExpandedMatch(null);
       
       toast({
         title: "Match Selected",
         description: `${match.consultant.name} has been matched to ${selectedAssignment.title}`,
       });
     }
+  };
+
+  const toggleMatchExpansion = (index: number) => {
+    setExpandedMatch(expandedMatch === index ? null : index);
   };
 
   const handleAssignmentCreated = (newAssignment: Assignment) => {
@@ -538,8 +545,8 @@ const Index = () => {
                   <div className="bg-white rounded-xl shadow-sm border p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h1 className="text-2xl font-bold text-gray-900">AI Matching Results</h1>
-                        <p className="text-gray-600">Results for: {selectedAssignment.title}</p>
+                        <h1 className="text-2xl font-bold text-gray-900">🤖 AI Matching Results</h1>
+                        <p className="text-gray-600">Results for: <span className="font-semibold">{selectedAssignment.title}</span></p>
                       </div>
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -550,12 +557,13 @@ const Index = () => {
                         </div>
                         <div className="flex items-center space-x-2 text-sm text-green-600">
                           <Sparkles className="h-4 w-4" />
-                          <span>Matched {matches.length} consultants in 12 seconds</span>
+                          <span>Matched {matches.length} consultants in 2.8 seconds</span>
                         </div>
                         <button
                           onClick={() => {
                             setMatches([]);
                             setSelectedAssignment(null);
+                            setExpandedMatch(null);
                           }}
                           className="text-gray-500 hover:text-gray-700 text-lg"
                         >
@@ -567,7 +575,7 @@ const Index = () => {
 
                   {/* Match Results */}
                   <div className="space-y-6">
-                    {matches.slice(0, 5).map((match, index) => (
+                    {matches.slice(0, 8).map((match, index) => (
                       <div key={match.consultant.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
                         {/* Match Header */}
                         <div className="p-6 border-b border-gray-100">
@@ -584,6 +592,20 @@ const Index = () => {
                               <div>
                                 <h3 className="text-xl font-bold text-gray-900">{match.consultant.name}</h3>
                                 <p className="text-gray-600">{match.consultant.roles[0]} • {match.consultant.location}</p>
+                                <div className="flex items-center space-x-4 mt-2">
+                                  <div className="flex items-center space-x-1 text-sm text-gray-600">
+                                    <Star className="h-4 w-4 text-yellow-500" />
+                                    <span>{match.consultant.rating}/5.0</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1 text-sm text-gray-600">
+                                    <Briefcase className="h-4 w-4" />
+                                    <span>{match.consultant.projects} projects</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1 text-sm text-gray-600">
+                                    <Clock className="h-4 w-4" />
+                                    <span>{match.consultant.lastActive}</span>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                             <div className="text-right">
@@ -592,6 +614,16 @@ const Index = () => {
                                 <span className="text-2xl font-bold text-blue-600">{match.score}% Match</span>
                               </div>
                               <p className="text-sm text-gray-600">AI Confidence Score</p>
+                              <div className="flex items-center space-x-2 mt-2">
+                                <div className="flex items-center space-x-1 text-sm text-green-600">
+                                  <DollarSign className="h-4 w-4" />
+                                  <span>€{match.estimatedSavings.toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center space-x-1 text-sm text-blue-600">
+                                  <Clock className="h-4 w-4" />
+                                  <span>{match.responseTime}h</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -612,13 +644,206 @@ const Index = () => {
                           </div>
                         </div>
 
-                        {/* Action Button */}
-                        <div className="p-6 bg-gray-50 border-t">
+                        {/* Human Factors Quick Overview */}
+                        <div className="p-6 border-b border-gray-100">
+                          <div className="grid grid-cols-4 gap-4">
+                            <div className="text-center">
+                              <div className="flex items-center justify-center space-x-1 mb-1">
+                                <Heart className="h-4 w-4 text-red-500" />
+                                <span className="text-sm font-medium text-gray-700">Cultural</span>
+                              </div>
+                              <div className="text-xl font-bold text-red-600">{match.culturalMatch}%</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="flex items-center justify-center space-x-1 mb-1">
+                                <Brain className="h-4 w-4 text-blue-500" />
+                                <span className="text-sm font-medium text-gray-700">Comm.</span>
+                              </div>
+                              <div className="text-xl font-bold text-blue-600">{match.communicationMatch}%</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="flex items-center justify-center space-x-1 mb-1">
+                                <Target className="h-4 w-4 text-purple-500" />
+                                <span className="text-sm font-medium text-gray-700">Values</span>
+                              </div>
+                              <div className="text-xl font-bold text-purple-600">{match.valuesAlignment}%</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="flex items-center justify-center space-x-1 mb-1">
+                                <Zap className="h-4 w-4 text-yellow-500" />
+                                <span className="text-sm font-medium text-gray-700">Human</span>
+                              </div>
+                              <div className="text-xl font-bold text-yellow-600">{match.humanFactorsScore}%</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expand/Collapse Button */}
+                        <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
+                          <button
+                            onClick={() => toggleMatchExpansion(index)}
+                            className="w-full flex items-center justify-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+                          >
+                            <span className="text-sm font-medium">
+                              {expandedMatch === index ? 'Hide Details' : 'Show Full Analysis'}
+                            </span>
+                            {expandedMatch === index ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Expanded Details */}
+                        {expandedMatch === index && (
+                          <div className="space-y-6 p-6 bg-gray-50">
+                            {/* Detailed Profile */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                              <div className="space-y-4">
+                                <h5 className="font-semibold text-gray-900 flex items-center space-x-2">
+                                  <User className="h-4 w-4" />
+                                  <span>Profile Details</span>
+                                </h5>
+                                <div className="space-y-3 text-sm">
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Experience:</span>
+                                    <span className="font-medium">{match.consultant.experience}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Rate:</span>
+                                    <span className="font-medium text-green-600">{match.consultant.rate}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Availability:</span>
+                                    <span className="font-medium">{match.consultant.availability}</span>
+                                  </div>
+                                  <div className="flex items-start justify-between">
+                                    <span className="text-gray-600">Contact:</span>
+                                    <div className="text-right">
+                                      <div className="font-medium">{match.consultant.email}</div>
+                                      <div className="text-gray-500">{match.consultant.phone}</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-4">
+                                <h5 className="font-semibold text-gray-900 flex items-center space-x-2">
+                                  <Brain className="h-4 w-4" />
+                                  <span>Human Factors</span>
+                                </h5>
+                                <div className="space-y-3 text-sm">
+                                  <div>
+                                    <span className="text-gray-600">Communication Style:</span>
+                                    <p className="font-medium mt-1">{match.consultant.communicationStyle}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">Work Style:</span>
+                                    <p className="font-medium mt-1">{match.consultant.workStyle}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">Team Fit:</span>
+                                    <p className="font-medium mt-1">{match.consultant.teamFit}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Values & Traits */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                              <div>
+                                <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                                  <Heart className="h-4 w-4" />
+                                  <span>Core Values</span>
+                                </h5>
+                                <div className="flex flex-wrap gap-2">
+                                  {match.consultant.values.map((value, idx) => (
+                                    <Badge key={idx} variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                                      {value}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div>
+                                <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                                  <Zap className="h-4 w-4" />
+                                  <span>Personality Traits</span>
+                                </h5>
+                                <div className="flex flex-wrap gap-2">
+                                  {match.consultant.personalityTraits.map((trait, idx) => (
+                                    <Badge key={idx} variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                                      {trait}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Certifications & Languages */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                              <div>
+                                <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                                  <Award className="h-4 w-4" />
+                                  <span>Certifications</span>
+                                </h5>
+                                <div className="space-y-2">
+                                  {match.consultant.certifications.map((cert, idx) => (
+                                    <div key={idx} className="flex items-center space-x-2 text-sm">
+                                      <Check className="h-3 w-3 text-green-500" />
+                                      <span>{cert}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div>
+                                <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                                  <Languages className="h-4 w-4" />
+                                  <span>Languages</span>
+                                </h5>
+                                <div className="flex flex-wrap gap-2">
+                                  {match.consultant.languages.map((lang, idx) => (
+                                    <Badge key={idx} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                      {lang}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* AI Generated Cover Letter Preview */}
+                            <div>
+                              <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                                <Mail className="h-4 w-4" />
+                                <span>AI-Generated Cover Letter Preview</span>
+                              </h5>
+                              <div className="bg-white rounded-lg border p-4 max-h-40 overflow-y-auto">
+                                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+                                  {match.letter.substring(0, 500)}...
+                                </pre>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="p-6 bg-gray-50 border-t flex space-x-4">
                           <button
                             onClick={() => handleSelectMatch(match)}
-                            className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                            className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center space-x-2"
                           >
-                            Select This Match
+                            <Check className="h-4 w-4" />
+                            <span>Select This Match</span>
+                          </button>
+                          <button className="bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center space-x-2">
+                            <Mail className="h-4 w-4" />
+                            <span>Send Message</span>
+                          </button>
+                          <button className="bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center space-x-2">
+                            <FileDown className="h-4 w-4" />
+                            <span>Download CV</span>
                           </button>
                         </div>
                       </div>
