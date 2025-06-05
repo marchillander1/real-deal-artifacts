@@ -630,15 +630,15 @@ const Index = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900">Uppdrag</h2>
-                      <p className="text-gray-600 mt-1">Hantera och matcha uppdrag med konsulter</p>
+                      <h2 className="text-2xl font-bold text-gray-900">Assignments</h2>
+                      <p className="text-gray-600 mt-1">Manage and match assignments with consultants</p>
                     </div>
                     <Button 
                       className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
                       onClick={() => setShowCreateForm(true)}
                     >
                       <Plus className="h-4 w-4" />
-                      Skapa uppdrag
+                      Create Assignment
                     </Button>
                   </div>
 
