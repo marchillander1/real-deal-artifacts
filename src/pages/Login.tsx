@@ -4,18 +4,31 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/hooks/useAuth';
 import Logo from '../components/Logo';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Add real authentication when Supabase is connected
-    // For now, just navigate to dashboard
-    navigate('/dashboard');
+    setLoading(true);
+    setError('');
+
+    const { error } = await signIn(email, password);
+    
+    if (error) {
+      setError(error.message);
+    } else {
+      navigate('/matchwiseai');
+    }
+    setLoading(false);
   };
 
   return (
@@ -47,17 +60,23 @@ const Login = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
-              Login
+            {error && (
+              <Alert className="bg-red-900 border-red-700">
+                <AlertDescription className="text-red-200">{error}</AlertDescription>
+              </Alert>
+            )}
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600"
+              disabled={loading}
+            >
+              {loading ? 'Loggar in...' : 'Login'}
             </Button>
           </form>
           
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">
-              Don't have an account?{' '}
-              <a href="#" className="text-blue-400 hover:text-blue-300">
-                Contact us for access
-              </a>
+              Demo-användare: demo@matchwise.tech / demo1234
             </p>
           </div>
           
@@ -67,7 +86,7 @@ const Login = () => {
               onClick={() => navigate('/')}
               className="text-gray-400 hover:text-white"
             >
-              ← Back to homepage
+              ← Tillbaka till startsidan
             </Button>
           </div>
         </CardContent>
