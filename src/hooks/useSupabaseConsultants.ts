@@ -1,8 +1,137 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+
+const demoConsultants = [
+  {
+    name: 'Erik Andersson',
+    email: 'erik.andersson@techconsult.se',
+    skills: ['React', 'TypeScript', 'Node.js', 'AWS', 'GraphQL'],
+    experience_years: 8,
+    roles: ['Senior Full-Stack Developer', 'Tech Lead'],
+    location: 'Stockholm',
+    hourly_rate: 1200,
+    availability: 'Available now',
+    phone: '+46 70 123 4567',
+    projects_completed: 25,
+    rating: 4.8,
+    certifications: ['AWS Certified Solutions Architect', 'React Developer Certification'],
+    languages: ['Swedish', 'English', 'German'],
+    type: 'existing',
+    linkedin_url: 'https://linkedin.com/in/erik-andersson-dev',
+    communication_style: 'Direct and collaborative',
+    work_style: 'Agile and iterative',
+    values: ['Innovation', 'Quality', 'Teamwork', 'Learning'],
+    personality_traits: ['Analytical', 'Creative', 'Leadership-oriented', 'Tech-savvy'],
+    team_fit: 'Excellent team player with strong mentoring abilities',
+    cultural_fit: 5,
+    adaptability: 4,
+    leadership: 4
+  },
+  {
+    name: 'Anna Lindqvist',
+    email: 'anna.lindqvist@design.se',
+    skills: ['React', 'Vue.js', 'UX/UI Design', 'Figma', 'CSS'],
+    experience_years: 6,
+    roles: ['Frontend Developer', 'UX Designer'],
+    location: 'Göteborg',
+    hourly_rate: 950,
+    availability: 'Available from February',
+    phone: '+46 70 234 5678',
+    projects_completed: 18,
+    rating: 4.9,
+    certifications: ['Google UX Design Certificate', 'Vue.js Developer'],
+    languages: ['Swedish', 'English'],
+    type: 'existing',
+    linkedin_url: 'https://linkedin.com/in/anna-lindqvist-ux',
+    communication_style: 'Empathetic and detail-oriented',
+    work_style: 'User-centered and iterative',
+    values: ['User experience', 'Accessibility', 'Creativity', 'Quality'],
+    personality_traits: ['Empathetic', 'Detail-focused', 'Creative', 'User-oriented'],
+    team_fit: 'Strong collaborator focused on user experience',
+    cultural_fit: 5,
+    adaptability: 4,
+    leadership: 3
+  },
+  {
+    name: 'Marcus Johansson',
+    email: 'marcus.johansson@backend.se',
+    skills: ['Python', 'Django', 'PostgreSQL', 'Docker', 'Kubernetes'],
+    experience_years: 10,
+    roles: ['Senior Backend Developer', 'DevOps Engineer'],
+    location: 'Malmö',
+    hourly_rate: 1350,
+    availability: 'Available now',
+    phone: '+46 70 345 6789',
+    projects_completed: 35,
+    rating: 4.7,
+    certifications: ['AWS DevOps Professional', 'Kubernetes Administrator'],
+    languages: ['Swedish', 'English', 'Danish'],
+    type: 'existing',
+    linkedin_url: 'https://linkedin.com/in/marcus-johansson-devops',
+    communication_style: 'Strategic and technical',
+    work_style: 'Systematic and scalable',
+    values: ['Reliability', 'Performance', 'Security', 'Innovation'],
+    personality_traits: ['Systematic', 'Problem-solver', 'Strategic', 'Technical'],
+    team_fit: 'Backend specialist with strong architecture skills',
+    cultural_fit: 4,
+    adaptability: 5,
+    leadership: 5
+  },
+  {
+    name: 'Sarah Wilson',
+    email: 'sarah.wilson@network.com',
+    skills: ['Angular', 'TypeScript', 'RxJS', 'NgRx', 'Jest'],
+    experience_years: 5,
+    roles: ['Frontend Developer', 'Angular Specialist'],
+    location: 'Remote (EU)',
+    hourly_rate: 850,
+    availability: 'Available now',
+    phone: '+44 20 7946 0958',
+    projects_completed: 12,
+    rating: 4.6,
+    certifications: ['Angular Certified Developer'],
+    languages: ['English', 'French'],
+    type: 'new',
+    linkedin_url: 'https://linkedin.com/in/sarah-wilson-angular',
+    communication_style: 'Clear and methodical',
+    work_style: 'Test-driven and structured',
+    values: ['Code quality', 'Testing', 'Documentation', 'Continuous learning'],
+    personality_traits: ['Methodical', 'Detail-oriented', 'Reliable', 'Growth-minded'],
+    team_fit: 'Reliable team member with strong technical discipline',
+    cultural_fit: 4,
+    adaptability: 4,
+    leadership: 3
+  },
+  {
+    name: 'David Chen',
+    email: 'david.chen@fullstack.com',
+    skills: ['React', 'Node.js', 'MongoDB', 'Express', 'JavaScript'],
+    experience_years: 7,
+    roles: ['Full-Stack Developer', 'MERN Specialist'],
+    location: 'Remote (Global)',
+    hourly_rate: 900,
+    availability: 'Available from March',
+    phone: '+1 555 123 4567',
+    projects_completed: 22,
+    rating: 4.5,
+    certifications: ['MongoDB Developer', 'Node.js Certification'],
+    languages: ['English', 'Mandarin', 'Swedish'],
+    type: 'new',
+    linkedin_url: 'https://linkedin.com/in/david-chen-mern',
+    communication_style: 'Collaborative and adaptive',
+    work_style: 'Full-stack and versatile',
+    values: ['Collaboration', 'Adaptability', 'Efficiency', 'Innovation'],
+    personality_traits: ['Versatile', 'Collaborative', 'Adaptive', 'Solution-oriented'],
+    team_fit: 'Flexible team player with broad technical skills',
+    cultural_fit: 4,
+    adaptability: 5,
+    leadership: 3
+  }
+];
 
 export const useSupabaseConsultants = () => {
   const { user } = useAuth();
@@ -19,6 +148,65 @@ export const useSupabaseConsultants = () => {
       if (error) {
         console.error('Error fetching consultants:', error);
         throw error;
+      }
+
+      // If no consultants exist, add demo data
+      if (!data || data.length === 0) {
+        console.log('No consultants found, adding demo data...');
+        
+        for (const consultant of demoConsultants) {
+          try {
+            const { error: insertError } = await supabase
+              .from('consultants')
+              .insert([consultant]);
+            
+            if (insertError) {
+              console.error('Error inserting demo consultant:', insertError);
+            }
+          } catch (err) {
+            console.error('Error adding demo consultant:', err);
+          }
+        }
+
+        // Fetch again after adding demo data
+        const { data: newData, error: newError } = await supabase
+          .from('consultants')
+          .select('*')
+          .order('name');
+
+        if (newError) {
+          console.error('Error fetching consultants after demo data insert:', newError);
+          throw newError;
+        }
+
+        return (newData || []).map((consultant: any) => ({
+          id: consultant.id,
+          name: consultant.name,
+          skills: consultant.skills || [],
+          experience: `${consultant.experience_years || 0} years experience`,
+          roles: consultant.roles || [],
+          location: consultant.location || 'Stockholm',
+          rate: `${consultant.hourly_rate || 0} SEK/h`,
+          availability: consultant.availability || 'Available',
+          phone: consultant.phone || '',
+          email: consultant.email,
+          projects: consultant.projects_completed || 0,
+          rating: consultant.rating || 5.0,
+          lastActive: consultant.last_active || 'Today',
+          cv: consultant.cv_file_path || '',
+          certifications: consultant.certifications || [],
+          languages: consultant.languages || [],
+          type: consultant.type as 'existing' | 'new',
+          linkedinUrl: consultant.linkedin_url || `https://linkedin.com/in/${consultant.name.toLowerCase().replace(' ', '-')}`,
+          communicationStyle: consultant.communication_style || '',
+          workStyle: consultant.work_style || '',
+          values: consultant.values || [],
+          personalityTraits: consultant.personality_traits || [],
+          teamFit: consultant.team_fit || '',
+          culturalFit: consultant.cultural_fit || 5,
+          adaptability: consultant.adaptability || 5,
+          leadership: consultant.leadership || 3,
+        }));
       }
 
       return data.map((consultant: any) => ({
