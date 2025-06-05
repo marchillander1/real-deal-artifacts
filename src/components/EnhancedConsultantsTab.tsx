@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
-import { ConsultantCard } from '@/components/ConsultantCard';
+import ConsultantCard from '@/components/ConsultantCard';
 import { ConsultantEditDialog } from '@/components/ConsultantEditDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

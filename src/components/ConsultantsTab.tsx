@@ -11,7 +11,7 @@ import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 export const ConsultantsTab = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const { data: consultants = [], isLoading, error } = useSupabaseConsultants();
+  const { consultants, isLoading, error } = useSupabaseConsultants();
 
   if (isLoading) {
     return (
@@ -87,9 +87,9 @@ export const ConsultantsTab = () => {
                 <span className="text-sm font-medium text-gray-700">Filtrera på kompetenser:</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {allSkills.slice(0, 15).map(skill => (
+                {allSkills.slice(0, 15).map((skill, index) => (
                   <Badge
-                    key={skill}
+                    key={`skill-${index}`}
                     variant={selectedSkills.includes(skill) ? "default" : "secondary"}
                     className="cursor-pointer hover:bg-blue-100"
                     onClick={() => toggleSkill(skill)}

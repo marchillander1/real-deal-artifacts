@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Users, Clock, Target, Zap, Star, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Logo } from '@/components/Logo';
+import Logo from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Landing() {
@@ -224,7 +224,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <Logo variant="light" />
+              <Logo />
               <p className="text-gray-400 mt-2">AI-driven konsultmatchning</p>
             </div>
             <div className="text-gray-400 text-sm">

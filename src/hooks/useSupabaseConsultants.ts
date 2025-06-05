@@ -26,13 +26,13 @@ export const useSupabaseConsultants = () => {
       }
 
       return data.map((consultant: any) => ({
-        id: parseInt(consultant.id.replace(/-/g, '').substring(0, 8), 16),
+        id: consultant.id,
         name: consultant.name,
         skills: consultant.skills || [],
-        experience: `${consultant.experience_years} år erfarenhet`,
+        experience: `${consultant.experience_years || 0} år erfarenhet`,
         roles: consultant.roles || [],
         location: consultant.location || 'Stockholm',
-        rate: `${consultant.hourly_rate} SEK/h`,
+        rate: `${consultant.hourly_rate || 0} SEK/h`,
         availability: consultant.availability || 'Available',
         phone: consultant.phone || '',
         email: consultant.email,
@@ -104,7 +104,7 @@ export const useSupabaseConsultants = () => {
   });
 
   const updateConsultantMutation = useMutation({
-    mutationFn: async ({ id, ...consultantData }: Partial<Consultant> & { id: number }) => {
+    mutationFn: async (consultantData: Consultant) => {
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await supabase
@@ -132,7 +132,7 @@ export const useSupabaseConsultants = () => {
           adaptability: consultantData.adaptability,
           leadership: consultantData.leadership,
         })
-        .eq('id', id)
+        .eq('id', consultantData.id)
         .eq('user_id', user.id)
         .select()
         .single();
