@@ -3,11 +3,13 @@ import { Upload, FileText, CheckCircle, Sparkles, User, MapPin, Phone, Mail, Clo
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
 
 const CVUpload = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const { createConsultant, isCreating } = useSupabaseConsultants();
   
   const [selectedFile, setSelectedFile] = useState(null);
   const [motivation, setMotivation] = useState('');
@@ -206,10 +208,7 @@ const CVUpload = () => {
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const newConsultant = {
-        id: Date.now(),
+      const newConsultantData = {
         name: formData.name,
         skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
         experience: formData.experience,
@@ -222,7 +221,6 @@ const CVUpload = () => {
         projects: Math.floor(Math.random() * 20) + 5,
         rating: Math.round((4.2 + Math.random() * 0.7) * 10) / 10,
         lastActive: 'Just now',
-        cv: motivation || 'Experienced professional looking for new opportunities in technology and innovation.',
         certifications: formData.certifications.split(',').map(s => s.trim()).filter(s => s),
         languages: formData.languages.split(',').map(s => s.trim()).filter(s => s),
         type: 'new',
@@ -237,18 +235,18 @@ const CVUpload = () => {
         leadership: linkedinAnalysis.leadership
       };
 
-      const existingConsultants = JSON.parse(localStorage.getItem('uploadedConsultants') || '[]');
-      existingConsultants.push(newConsultant);
-      localStorage.setItem('uploadedConsultants', JSON.stringify(existingConsultants));
+      // Save to Supabase instead of localStorage
+      createConsultant(newConsultantData);
 
       setIsSubmitted(true);
       
       toast({
         title: "Profile Created Successfully!",
-        description: "Your CV has been processed and your LinkedIn personality analysis is complete.",
+        description: "Your CV has been processed and saved to our database.",
       });
 
     } catch (error) {
+      console.error('Error creating consultant:', error);
       toast({
         title: "Processing Failed",
         description: "Something went wrong. Please try again.",
@@ -668,10 +666,10 @@ const CVUpload = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || !linkedinAnalysis}
+                disabled={isSubmitting || isCreating || !linkedinAnalysis}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? (
+                {isSubmitting || isCreating ? (
                   <span className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Creating Profile...

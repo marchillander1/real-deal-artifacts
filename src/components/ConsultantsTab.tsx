@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -75,7 +74,7 @@ export const ConsultantsTab = () => {
     const badgeText = isNetwork ? 'Network Member' : 'Our Team';
     const avatarColor = isNetwork ? 'bg-green-600' : 'bg-blue-500';
     const skillsColor = isNetwork ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200';
-    const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
+    const experienceYears = consultant.experience?.replace(/\D/g, '') || '0';
     const analysis = linkedInAnalysis[consultant.id];
 
     return (
@@ -89,7 +88,7 @@ export const ConsultantsTab = () => {
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-gray-900">{consultant.name}</h4>
-                <p className="text-gray-600">{consultant.roles[0]}</p>
+                <p className="text-gray-600">{consultant.roles?.[0] || 'Consultant'}</p>
                 <Badge className={badgeColor}>
                   {badgeText}
                 </Badge>
@@ -97,7 +96,7 @@ export const ConsultantsTab = () => {
             </div>
             <div className="flex items-center space-x-1">
               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-              <span className="font-semibold">{consultant.rating}</span>
+              <span className="font-semibold">{consultant.rating || 4.5}</span>
             </div>
           </div>
 
@@ -109,20 +108,20 @@ export const ConsultantsTab = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Projects:</span>
-              <span className="font-medium">{consultant.projects} completed</span>
+              <span className="font-medium">{consultant.projects || 0} completed</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Rate:</span>
-              <span className="font-medium text-green-600">{consultant.rate}/hour</span>
+              <span className="font-medium text-green-600">{consultant.rate || 'N/A'}/hour</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Location:</span>
-              <span className="font-medium">{consultant.location}</span>
+              <span className="font-medium">{consultant.location || 'N/A'}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Status:</span>
               <Badge className="bg-green-100 text-green-800">
-                {consultant.availability}
+                {consultant.availability || 'Available'}
               </Badge>
             </div>
           </div>
@@ -271,12 +270,12 @@ export const ConsultantsTab = () => {
           <div className="mb-4">
             <p className="text-sm font-medium text-gray-700 mb-2">Technical Skills:</p>
             <div className="flex flex-wrap gap-2">
-              {consultant.skills.slice(0, 4).map((skill: string, index: number) => (
+              {consultant.skills?.slice(0, 4).map((skill: string, index: number) => (
                 <Badge key={index} className={`${skillsColor} border`}>
                   {skill}
                 </Badge>
               ))}
-              {consultant.skills.length > 4 && (
+              {consultant.skills?.length > 4 && (
                 <Badge className="bg-gray-100 text-gray-600">
                   +{consultant.skills.length - 4} more
                 </Badge>
@@ -292,7 +291,7 @@ export const ConsultantsTab = () => {
             </div>
             <div className="flex items-center space-x-1">
               <Award className="h-3 w-3 text-blue-500" />
-              <span className="text-blue-600 font-medium text-sm">{consultant.certifications[0]}</span>
+              <span className="text-blue-600 font-medium text-sm">{consultant.certifications?.[0] || 'Certified'}</span>
             </div>
           </div>
         </CardContent>
