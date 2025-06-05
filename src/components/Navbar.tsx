@@ -1,41 +1,41 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
-import Logo from './Logo';
 
-export function Navbar() {
-  const { user, signOut } = useAuth();
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      toast.success('Utloggad!');
-    } catch (error: any) {
-      toast.error('Kunde inte logga ut');
-    }
-  };
+export const Navbar = () => {
+  const location = useLocation();
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
-        <Logo />
-        
-        <div className="flex items-center gap-4">
-          {user && (
-            <span className="text-sm text-gray-600">
-              Inloggad som {user.email}
-            </span>
-          )}
-          <Button 
-            variant="outline" 
-            onClick={handleSignOut}
-            size="sm"
-          >
-            Logga ut
-          </Button>
+    <nav className="bg-white shadow-sm border-b">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="text-xl font-bold text-gray-900">
+            ConsultMatch AI
+          </Link>
+          
+          <div className="flex items-center space-x-4">
+            <Link to="/">
+              <Button 
+                variant={location.pathname === "/" ? "default" : "ghost"}
+                className="text-sm"
+              >
+                Dashboard
+              </Button>
+            </Link>
+            
+            <Link to="/cv-upload">
+              <Button 
+                variant={location.pathname === "/cv-upload" ? "default" : "ghost"}
+                className="text-sm flex items-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                CV Upload
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </nav>
   );
-}
+};
