@@ -29,7 +29,7 @@ export const useSupabaseConsultants = () => {
         id: consultant.id,
         name: consultant.name,
         skills: consultant.skills || [],
-        experience: `${consultant.experience_years || 0} år erfarenhet`,
+        experience: `${consultant.experience_years || 0} years experience`,
         roles: consultant.roles || [],
         location: consultant.location || 'Stockholm',
         rate: `${consultant.hourly_rate || 0} SEK/h`,
@@ -60,6 +60,14 @@ export const useSupabaseConsultants = () => {
     mutationFn: async (consultantData: Partial<Consultant>) => {
       if (!user) throw new Error('User not authenticated');
 
+      const experienceYears = consultantData.experience 
+        ? parseInt(consultantData.experience.split(' ')[0]) || 0 
+        : 0;
+      
+      const hourlyRate = consultantData.rate 
+        ? parseInt(consultantData.rate.split(' ')[0]) || 0 
+        : 0;
+
       const { data, error } = await supabase
         .from('consultants')
         .insert([{
@@ -67,10 +75,10 @@ export const useSupabaseConsultants = () => {
           name: consultantData.name,
           email: consultantData.email,
           skills: consultantData.skills || [],
-          experience_years: parseInt(consultantData.experience?.split(' ')[0] || '0'),
+          experience_years: experienceYears,
           roles: consultantData.roles || [],
           location: consultantData.location,
-          hourly_rate: parseInt(consultantData.rate?.split(' ')[0] || '0'),
+          hourly_rate: hourlyRate,
           availability: consultantData.availability,
           phone: consultantData.phone,
           projects_completed: consultantData.projects || 0,
@@ -95,11 +103,11 @@ export const useSupabaseConsultants = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
-      toast.success('Konsult tillagd!');
+      toast.success('Consultant added!');
     },
     onError: (error) => {
       console.error('Error creating consultant:', error);
-      toast.error('Kunde inte lägga till konsult');
+      toast.error('Could not add consultant');
     },
   });
 
@@ -107,16 +115,24 @@ export const useSupabaseConsultants = () => {
     mutationFn: async (consultantData: Consultant) => {
       if (!user) throw new Error('User not authenticated');
 
+      const experienceYears = consultantData.experience 
+        ? parseInt(consultantData.experience.split(' ')[0]) || 0 
+        : 0;
+      
+      const hourlyRate = consultantData.rate 
+        ? parseInt(consultantData.rate.split(' ')[0]) || 0 
+        : 0;
+
       const { data, error } = await supabase
         .from('consultants')
         .update({
           name: consultantData.name,
           email: consultantData.email,
           skills: consultantData.skills,
-          experience_years: parseInt(consultantData.experience?.split(' ')[0] || '0'),
+          experience_years: experienceYears,
           roles: consultantData.roles,
           location: consultantData.location,
-          hourly_rate: parseInt(consultantData.rate?.split(' ')[0] || '0'),
+          hourly_rate: hourlyRate,
           availability: consultantData.availability,
           phone: consultantData.phone,
           projects_completed: consultantData.projects,
@@ -142,11 +158,11 @@ export const useSupabaseConsultants = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
-      toast.success('Konsult uppdaterad!');
+      toast.success('Consultant updated!');
     },
     onError: (error) => {
       console.error('Error updating consultant:', error);
-      toast.error('Kunde inte uppdatera konsult');
+      toast.error('Could not update consultant');
     },
   });
 
