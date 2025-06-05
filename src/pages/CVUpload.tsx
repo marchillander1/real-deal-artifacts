@@ -467,7 +467,7 @@ const CVUpload = () => {
                 LinkedIn Profile Analysis (Required)
               </h3>
               <p className="text-sm text-blue-700 mb-4">
-                Add your LinkedIn profile URL so our AI can analyze your recent posts and create a comprehensive personality profile.
+                Add your LinkedIn profile URL so our AI can analyze and create a personality profile.
               </p>
               
               <div className="flex gap-3">
