@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Users, Briefcase, TrendingUp, Clock } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
+import { ConsultantsTab } from "../components/ConsultantsTab";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 
 interface DashboardProps {
@@ -20,6 +21,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onAssignmentCreated,
   onFileUpload,
 }) => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [matchResults, setMatchResults] = useState<any[]>([]);
   const [showMatchResults, setShowMatchResults] = useState(false);
@@ -115,6 +117,151 @@ const Dashboard: React.FC<DashboardProps> = ({
     onMatch(assignment);
   };
 
+  const renderDashboardContent = () => (
+    <div>
+      {/* Platform Overview Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Platform Overview</h2>
+        <p className="text-gray-600 mb-6">Real-time insights and performance metrics</p>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-white border border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">{totalConsultants}</div>
+              <div className="text-sm font-medium text-gray-900 mb-1">Active Consultants</div>
+              <div className="text-sm text-green-600">↗ +12 this week</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Briefcase className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">{activeAssignments}</div>
+              <div className="text-sm font-medium text-gray-900 mb-1">Open Assignments</div>
+              <div className="text-sm text-green-600">↗ +5 today</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">{successfulMatches}</div>
+              <div className="text-sm font-medium text-gray-900 mb-1">Successful Matches</div>
+              <div className="text-sm text-green-600">↗ +23 this month</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Clock className="h-6 w-6 text-orange-600" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">{avgMatchTime}</div>
+              <div className="text-sm font-medium text-gray-900 mb-1">Avg Match Time</div>
+              <div className="text-sm text-green-600">↗ 67% faster</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Bottom Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <Clock className="h-8 w-8 text-green-100" />
+              </div>
+              <div className="text-3xl font-bold mb-2">850 hours</div>
+              <div className="text-lg font-medium mb-1">Time Saved</div>
+              <div className="text-green-100">≈ 2.1M SEK in cost savings</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <TrendingUp className="h-8 w-8 text-blue-100" />
+              </div>
+              <div className="text-3xl font-bold mb-2">96%</div>
+              <div className="text-lg font-medium mb-1">Client Satisfaction</div>
+              <div className="text-blue-100">+8% vs manual matching</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <Briefcase className="h-8 w-8 text-purple-100" />
+              </div>
+              <div className="text-3xl font-bold mb-2">2.4M SEK</div>
+              <div className="text-lg font-medium mb-1">Platform Revenue</div>
+              <div className="text-purple-100">Monthly recurring</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAssignmentsContent = () => (
+    <div>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Assignment Management</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {assignments.map((assignment) => (
+          <Card key={assignment.id} className="bg-white border border-gray-200">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{assignment.title}</h3>
+              <p className="text-gray-600 text-sm mb-4">{assignment.description}</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Company:</span>
+                  <span className="font-medium">{assignment.company}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Duration:</span>
+                  <span className="font-medium">{assignment.duration}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Budget:</span>
+                  <span className="font-medium">{assignment.budget}</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Button 
+                  onClick={() => handleMatch(assignment)}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  🤖 Find AI Matches
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {assignments.length === 0 && (
+          <div className="col-span-full text-center py-12">
+            <div className="text-gray-500 text-lg">No assignments found</div>
+            <p className="text-gray-400 mt-2">Create a new assignment to get started</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -126,9 +273,24 @@ const Dashboard: React.FC<DashboardProps> = ({
           {/* Navigation */}
           <div className="flex items-center justify-between mt-6">
             <div className="flex space-x-8">
-              <button className="text-blue-600 font-medium border-b-2 border-blue-600 pb-2">Dashboard</button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">Consultants</button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">Assignments</button>
+              <button 
+                className={`font-medium pb-2 ${activeTab === 'dashboard' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('dashboard')}
+              >
+                Dashboard
+              </button>
+              <button 
+                className={`font-medium pb-2 ${activeTab === 'consultants' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('consultants')}
+              >
+                Consultants
+              </button>
+              <button 
+                className={`font-medium pb-2 ${activeTab === 'assignments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('assignments')}
+              >
+                Assignments
+              </button>
             </div>
             <div className="flex space-x-3">
               <div className="relative">
@@ -157,102 +319,9 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Platform Overview Section */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Platform Overview</h2>
-          <p className="text-gray-600 mb-6">Real-time insights and performance metrics</p>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Users className="h-6 w-6 text-blue-600" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{totalConsultants}</div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Active Consultants</div>
-                <div className="text-sm text-green-600">↗ +12 this week</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Briefcase className="h-6 w-6 text-green-600" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{activeAssignments}</div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Open Assignments</div>
-                <div className="text-sm text-green-600">↗ +5 today</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-purple-600" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{successfulMatches}</div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Successful Matches</div>
-                <div className="text-sm text-green-600">↗ +23 this month</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <Clock className="h-6 w-6 text-orange-600" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{avgMatchTime}</div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Avg Match Time</div>
-                <div className="text-sm text-green-600">↗ 67% faster</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Bottom Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Clock className="h-8 w-8 text-green-100" />
-                </div>
-                <div className="text-3xl font-bold mb-2">850 hours</div>
-                <div className="text-lg font-medium mb-1">Time Saved</div>
-                <div className="text-green-100">≈ 2.1M SEK in cost savings</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <TrendingUp className="h-8 w-8 text-blue-100" />
-                </div>
-                <div className="text-3xl font-bold mb-2">96%</div>
-                <div className="text-lg font-medium mb-1">Client Satisfaction</div>
-                <div className="text-blue-100">+8% vs manual matching</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Briefcase className="h-8 w-8 text-purple-100" />
-                </div>
-                <div className="text-3xl font-bold mb-2">2.4M SEK</div>
-                <div className="text-lg font-medium mb-1">Platform Revenue</div>
-                <div className="text-purple-100">Monthly recurring</div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        {activeTab === 'dashboard' && renderDashboardContent()}
+        {activeTab === 'consultants' && <ConsultantsTab />}
+        {activeTab === 'assignments' && renderAssignmentsContent()}
       </div>
 
       {/* AI Match Results Modal */}
