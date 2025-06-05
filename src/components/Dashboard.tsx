@@ -188,10 +188,11 @@ const Dashboard: React.FC<DashboardProps> = ({
       {/* Create Assignment Modal */}
       {showCreateForm && (
         <CreateAssignmentForm
-          onSubmit={(assignment) => {
+          onAssignmentCreated={(assignment) => {
             onAssignmentCreated(assignment);
             setShowCreateForm(false);
           }}
+          onCancel={() => setShowCreateForm(false)}
         />
       )}
     </div>
