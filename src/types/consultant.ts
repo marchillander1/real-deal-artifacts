@@ -1,4 +1,3 @@
-
 export interface Consultant {
   id: number;
   name: string;
@@ -17,6 +16,8 @@ export interface Consultant {
   certifications: string[];
   languages: string[];
   type: 'existing' | 'new';
+  // LinkedIn integration
+  linkedinUrl?: string;
   // Human factors - mjuka egenskaper
   communicationStyle: string;
   workStyle: string;

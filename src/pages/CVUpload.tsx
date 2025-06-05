@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle, Sparkles, User, MapPin, Phone, Mail, Clock, Star, Lightbulb } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Sparkles, User, MapPin, Phone, Mail, Clock, Star, Lightbulb, Linkedin } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const CVUpload = () => {
   const { toast } = useToast();
@@ -10,8 +11,11 @@ const CVUpload = () => {
   
   const [selectedFile, setSelectedFile] = useState(null);
   const [motivation, setMotivation] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isAnalyzingLinkedIn, setIsAnalyzingLinkedIn] = useState(false);
+  const [linkedinAnalysis, setLinkedinAnalysis] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     skills: '',
@@ -56,7 +60,6 @@ const CVUpload = () => {
 
     setSelectedFile(file);
     
-    // Simulate AI CV extraction
     const mockSkills = ['React', 'TypeScript', 'Node.js', 'Python', 'AWS', 'Docker', 'GraphQL', 'MongoDB', 'JavaScript', 'Java', 'C#', 'Angular', 'Vue.js', 'PostgreSQL', 'Redis', 'Kubernetes'];
     const randomSkills = mockSkills.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 4) + 4);
     const experienceYears = Math.floor(Math.random() * 10) + 2;
@@ -96,20 +99,69 @@ const CVUpload = () => {
     });
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const handleLinkedInAnalysis = async () => {
+    if (!linkedinUrl) {
+      toast({
+        title: "LinkedIn URL Required",
+        description: "Please enter your LinkedIn profile URL",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!linkedinUrl.includes('linkedin.com/in/')) {
+      toast({
+        title: "Invalid LinkedIn URL",
+        description: "Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/username)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAnalyzingLinkedIn(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
+        body: { linkedinUrl }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        setLinkedinAnalysis(data.analysis);
+        toast({
+          title: "LinkedIn Analysis Complete!",
+          description: `Analyzed ${data.postsAnalyzed} posts. Personality insights added to your profile.`,
+        });
+      } else {
+        throw new Error(data.error || 'Analysis failed');
+      }
+    } catch (error) {
+      console.error('LinkedIn analysis error:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "Could not analyze LinkedIn profile. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingLinkedIn(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -128,6 +180,24 @@ const CVUpload = () => {
       toast({
         title: "Required Fields Missing",
         description: "Please fill in at least name and email.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!linkedinUrl) {
+      toast({
+        title: "LinkedIn Profile Required",
+        description: "Please enter your LinkedIn profile URL and analyze it.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!linkedinAnalysis) {
+      toast({
+        title: "LinkedIn Analysis Required",
+        description: "Please analyze your LinkedIn profile first.",
         variant: "destructive"
       });
       return;
@@ -155,7 +225,16 @@ const CVUpload = () => {
         cv: motivation || 'Experienced professional looking for new opportunities in technology and innovation.',
         certifications: formData.certifications.split(',').map(s => s.trim()).filter(s => s),
         languages: formData.languages.split(',').map(s => s.trim()).filter(s => s),
-        type: 'new'
+        type: 'new',
+        linkedinUrl: linkedinUrl,
+        communicationStyle: linkedinAnalysis.communicationStyle,
+        workStyle: linkedinAnalysis.workStyle,
+        values: linkedinAnalysis.values,
+        personalityTraits: linkedinAnalysis.personalityTraits,
+        teamFit: linkedinAnalysis.teamFit,
+        culturalFit: linkedinAnalysis.culturalFit,
+        adaptability: linkedinAnalysis.adaptability,
+        leadership: linkedinAnalysis.leadership
       };
 
       const existingConsultants = JSON.parse(localStorage.getItem('uploadedConsultants') || '[]');
@@ -166,7 +245,7 @@ const CVUpload = () => {
       
       toast({
         title: "Profile Created Successfully!",
-        description: "Your CV has been processed and your profile is now in our network.",
+        description: "Your CV has been processed and your LinkedIn personality analysis is complete.",
       });
 
     } catch (error) {
@@ -191,15 +270,15 @@ const CVUpload = () => {
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">🎉 Welcome to Our Network!</h1>
               <p className="text-lg text-gray-600 mb-6">
-                Your CV has been processed and your profile is now active in our consultant network!
+                Your CV has been processed and your LinkedIn personality analysis is complete!
               </p>
             </div>
             
             <div className="bg-blue-50 rounded-lg p-6 mb-6">
               <h3 className="font-semibold text-blue-900 mb-2">What happens next?</h3>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>✅ Your profile is now visible to potential clients</li>
-                <li>🎯 You'll receive notifications about relevant opportunities</li>
+                <li>✅ Your profile with LinkedIn insights is now visible to clients</li>
+                <li>🎯 AI-powered matching based on personality and skills</li>
                 <li>📧 Clients can contact you directly for projects</li>
                 <li>🤝 Start building relationships with premium clients</li>
               </ul>
@@ -211,6 +290,8 @@ const CVUpload = () => {
                   setIsSubmitted(false);
                   setSelectedFile(null);
                   setMotivation('');
+                  setLinkedinUrl('');
+                  setLinkedinAnalysis(null);
                   setFormData({
                     name: '',
                     skills: '',
@@ -341,7 +422,7 @@ const CVUpload = () => {
           <div className="bg-white rounded-2xl shadow-lg border p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <FileText className="h-6 w-6 mr-2 text-blue-600" />
-              Upload Your CV
+              Upload Your CV & LinkedIn Profile
             </h2>
 
             {/* File Upload Zone */}
@@ -375,6 +456,54 @@ const CVUpload = () => {
                   <p className="text-lg font-semibold text-gray-800 mb-2">Drag & drop your CV here</p>
                   <p className="text-gray-600 mb-2">or click to browse</p>
                   <p className="text-sm text-gray-500">Supports PDF, DOC, DOCX (max 10MB)</p>
+                </div>
+              )}
+            </div>
+
+            {/* LinkedIn Profile Section */}
+            <div className="mb-6 p-6 bg-blue-50 rounded-xl border border-blue-200">
+              <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
+                <Linkedin className="h-5 w-5 mr-2" />
+                LinkedIn Profile Analysis (Required)
+              </h3>
+              <p className="text-sm text-blue-700 mb-4">
+                Add your LinkedIn profile URL so our AI can analyze your recent posts and create a comprehensive personality profile.
+              </p>
+              
+              <div className="flex gap-3">
+                <input
+                  type="url"
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                  placeholder="https://linkedin.com/in/your-profile"
+                  className="flex-1 px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={handleLinkedInAnalysis}
+                  disabled={isAnalyzingLinkedIn || !linkedinUrl}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                >
+                  {isAnalyzingLinkedIn ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Analyzing...
+                    </>
+                  ) : (
+                    'Analyze Profile'
+                  )}
+                </button>
+              </div>
+
+              {linkedinAnalysis && (
+                <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                  <h4 className="font-semibold text-green-900 mb-2">✅ LinkedIn Analysis Complete</h4>
+                  <div className="text-sm text-green-800 space-y-1">
+                    <p><strong>Communication Style:</strong> {linkedinAnalysis.communicationStyle}</p>
+                    <p><strong>Work Style:</strong> {linkedinAnalysis.workStyle}</p>
+                    <p><strong>Values:</strong> {linkedinAnalysis.values.join(', ')}</p>
+                    <p><strong>Personality Traits:</strong> {linkedinAnalysis.personalityTraits.join(', ')}</p>
+                  </div>
                 </div>
               )}
             </div>
@@ -539,7 +668,7 @@ const CVUpload = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !linkedinAnalysis}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
@@ -551,6 +680,12 @@ const CVUpload = () => {
                   '🚀 Join Network & Get Matched'
                 )}
               </button>
+
+              {!linkedinAnalysis && (
+                <p className="text-sm text-orange-600 text-center">
+                  Please analyze your LinkedIn profile before submitting
+                </p>
+              )}
             </form>
           </div>
         </div>
