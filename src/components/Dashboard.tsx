@@ -1,10 +1,8 @@
 
 import React, { useState } from "react";
-import { Assignment, Consultant } from "../types/consultant";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Assignment } from "../types/consultant";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Upload, Users, Briefcase, TrendingUp, Clock } from "lucide-react";
 import CreateAssignmentForm from "./CreateAssignmentForm";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";

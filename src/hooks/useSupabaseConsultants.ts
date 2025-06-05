@@ -10,14 +10,11 @@ export const useSupabaseConsultants = () => {
   const queryClient = useQueryClient();
 
   const consultantsQuery = useQuery({
-    queryKey: ['consultants', user?.id],
+    queryKey: ['consultants'],
     queryFn: async (): Promise<Consultant[]> => {
-      if (!user) return [];
-
       const { data, error } = await supabase
         .from('consultants')
         .select('*')
-        .or(`user_id.eq.${user.id},user_id.is.null`)
         .order('name');
 
       if (error) {
@@ -53,13 +50,10 @@ export const useSupabaseConsultants = () => {
         leadership: consultant.leadership || 3,
       }));
     },
-    enabled: !!user,
   });
 
   const createConsultantMutation = useMutation({
     mutationFn: async (consultantData: Partial<Consultant>) => {
-      if (!user) throw new Error('User not authenticated');
-
       const experienceYears = consultantData.experience 
         ? parseInt(consultantData.experience.split(' ')[0]) || 0 
         : 0;
@@ -71,7 +65,6 @@ export const useSupabaseConsultants = () => {
       const { data, error } = await supabase
         .from('consultants')
         .insert([{
-          user_id: user.id,
           name: consultantData.name,
           email: consultantData.email,
           skills: consultantData.skills || [],
@@ -113,8 +106,6 @@ export const useSupabaseConsultants = () => {
 
   const updateConsultantMutation = useMutation({
     mutationFn: async (consultantData: Consultant) => {
-      if (!user) throw new Error('User not authenticated');
-
       const experienceYears = consultantData.experience 
         ? parseInt(consultantData.experience.split(' ')[0]) || 0 
         : 0;
@@ -149,7 +140,6 @@ export const useSupabaseConsultants = () => {
           leadership: consultantData.leadership,
         })
         .eq('id', consultantData.id)
-        .eq('user_id', user.id)
         .select()
         .single();
 
