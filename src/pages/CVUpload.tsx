@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,17 +67,27 @@ export const CVUpload = () => {
         availability: "available",
         certifications: "AWS Certified, React Advanced",
         languages: "Swedish, English",
-        motivation: "Passionate about creating innovative solutions and working with cutting-edge technologies. I love solving complex problems and mentoring junior developers."
+        motivation: "Passionate about creating innovative solutions and working with cutting-edge technologies. I love solving complex problems and mentoring junior developers.",
+        education: "Master's in Computer Science",
+        portfolio: "github.com/anna-dev, portfolio.anna.se",
+        achievements: "Led 5+ successful projects, 98% client satisfaction",
+        interests: "AI/ML, Open Source, Tech Conferences",
+        careerGoals: "Become a tech lead in AI-driven development",
+        preferredWorkType: "Hybrid",
+        salaryExpectation: "800-1000 SEK/hour",
+        noticePeriod: "2 weeks",
+        travelWillingness: "Occasionally",
+        workExperience: "Senior Developer at TechCorp (2019-2024): Led development of microservices architecture"
       });
 
       // Generera CV-tips
       const generatedCvTips = [
-        "💡 Keep it concise - Aim for 1-2 pages maximum. Highlight your most relevant experience and skills.",
-        "✅ Professional format - Use a clean, readable font and consistent formatting throughout.",
-        "🎯 Use keywords - Include industry-specific keywords and technologies you're proficient in.",
-        "📈 Quantify achievements - Use numbers and metrics to demonstrate your impact and results.",
-        "🔄 Update regularly - Keep your CV current with your latest projects and certifications.",
-        "📝 Proofread carefully - Ensure there are no spelling or grammatical errors before submitting."
+        "💡 Håll det koncist - Sikta på 1-2 sidor max. Framhäv din mest relevanta erfarenhet och kompetens.",
+        "✅ Professionellt format - Använd ett rent, läsbart typsnitt och konsekvent formatering.",
+        "🎯 Använd nyckelord - Inkludera branschspecifika nyckelord och teknologier du behärskar.",
+        "📈 Kvantifiera prestationer - Använd siffror och mätvärden för att visa din påverkan och dina resultat.",
+        "🔄 Uppdatera regelbundet - Håll ditt CV aktuellt med dina senaste projekt och certifieringar.",
+        "📝 Korrekturläs noggrant - Se till att det inte finns några stavfel eller grammatiska fel."
       ];
       
       setCvTips(generatedCvTips);
@@ -230,15 +239,19 @@ export const CVUpload = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">ConsultMatch AI</h1>
-            <p className="text-gray-600">Join Our Network</p>
+            <p className="text-gray-600">Bli del av vårt nätverk</p>
           </div>
         </div>
         
         <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Join Our <span className="text-blue-600">Consultant Network</span>
+          Gå med i vårt <span className="text-blue-600">Konsultnätverk</span>
         </h2>
-        <p className="text-xl text-gray-600 mb-2">Upload your CV and let our AI create your profile</p>
-        <p className="text-lg text-gray-500">Get matched with premium opportunities automatically</p>
+        <p className="text-xl text-gray-600 mb-2">
+          <strong>Ladda upp ditt CV och ange din LinkedIn-profil</strong> - låt vår AI skapa din profil
+        </p>
+        <p className="text-lg text-gray-500">
+          Bli automatiskt matchad med premiumuppdrag genom att dela ditt CV och LinkedIn
+        </p>
       </div>
 
       {/* CV Tips Section */}
@@ -246,7 +259,7 @@ export const CVUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-center justify-center">
             <Lightbulb className="h-5 w-5 text-orange-600" />
-            CV Tips for Success
+            CV-tips för framgång
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -254,43 +267,43 @@ export const CVUpload = () => {
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Keep it concise</h4>
-                <p className="text-sm text-gray-600">Aim for 1-2 pages maximum. Highlight your most relevant experience and skills.</p>
+                <h4 className="font-medium text-gray-900">Håll det koncist</h4>
+                <p className="text-sm text-gray-600">Sikta på 1-2 sidor max. Framhäv din mest relevanta erfarenhet och kompetens.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Professional format</h4>
-                <p className="text-sm text-gray-600">Use a clean, readable font and consistent formatting throughout.</p>
+                <h4 className="font-medium text-gray-900">Professionellt format</h4>
+                <p className="text-sm text-gray-600">Använd ett rent, läsbart typsnitt och konsekvent formatering.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Use keywords</h4>
-                <p className="text-sm text-gray-600">Include industry-specific keywords and technologies you're proficient in.</p>
+                <h4 className="font-medium text-gray-900">Använd nyckelord</h4>
+                <p className="text-sm text-gray-600">Inkludera branschspecifika nyckelord och teknologier du behärskar.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Update regularly</h4>
-                <p className="text-sm text-gray-600">Keep your CV current with your latest projects and certifications.</p>
+                <h4 className="font-medium text-gray-900">Kvantifiera prestationer</h4>
+                <p className="text-sm text-gray-600">Använd siffror och mätvärden för att visa din påverkan och dina resultat.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Quantify achievements</h4>
-                <p className="text-sm text-gray-600">Use numbers and metrics to demonstrate your impact and results.</p>
+                <h4 className="font-medium text-gray-900">Uppdatera regelbundet</h4>
+                <p className="text-sm text-gray-600">Håll ditt CV aktuellt med dina senaste projekt och certifieringar.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Proofread carefully</h4>
-                <p className="text-sm text-gray-600">Ensure there are no spelling or grammatical errors before submitting.</p>
+                <h4 className="font-medium text-gray-900">Korrekturläs noggrant</h4>
+                <p className="text-sm text-gray-600">Se till att det inte finns några stavfel eller grammatiska fel.</p>
               </div>
             </div>
           </div>
@@ -302,7 +315,7 @@ export const CVUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
-            Upload CV/Resume (Optional)
+            Ladda upp CV/Resume (Rekommenderas starkt)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -317,10 +330,10 @@ export const CVUpload = () => {
             <label htmlFor="cv-upload" className="cursor-pointer">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-lg font-medium text-gray-700 mb-2">
-                Upload your CV to auto-fill fields
+                <strong>Ladda upp ditt CV för att auto-fylla fälten</strong>
               </p>
               <p className="text-sm text-gray-500">
-                Supports PDF, DOC, DOCX files
+                Stöder PDF, DOC, DOCX filer • Gör processen mycket snabbare
               </p>
             </label>
           </div>
@@ -358,7 +371,7 @@ export const CVUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Profile Information
+            Profilinformation
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -520,20 +533,23 @@ export const CVUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Linkedin className="h-5 w-5 text-blue-600" />
-            LinkedIn Profile Analysis (Optional)
+            LinkedIn-profilanalys (Rekommenderas starkt)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="linkedin-url">LinkedIn Profile URL</Label>
+            <Label htmlFor="linkedin-url">LinkedIn-profil URL</Label>
             <Input
               id="linkedin-url"
               type="url"
-              placeholder="https://linkedin.com/in/your-name"
+              placeholder="https://linkedin.com/in/ditt-namn"
               value={linkedinUrl}
               onChange={(e) => setLinkedinUrl(e.target.value)}
               className="mt-1"
             />
+            <p className="text-sm text-gray-500 mt-1">
+              <strong>Lägg till din LinkedIn-profil för djupare AI-analys av dina mjuka egenskaper</strong>
+            </p>
           </div>
           
           <Button 
@@ -544,12 +560,12 @@ export const CVUpload = () => {
             {isAnalyzingLinkedin ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Analyzing LinkedIn profile...
+                Analyserar LinkedIn-profil...
               </>
             ) : (
               <>
                 <Brain className="h-4 w-4 mr-2" />
-                Analyze LinkedIn Profile
+                Analysera LinkedIn-profil
               </>
             )}
           </Button>
@@ -621,16 +637,19 @@ export const CVUpload = () => {
           {isUploading ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Creating profile...
+              Skapar profil...
             </>
           ) : (
             <>
               <Rocket className="h-5 w-5 mr-2" />
-              🚀 Join Network & Get Matched
+              🚀 Gå med i nätverket & bli matchad
             </>
           )}
         </Button>
-        <p className="text-sm text-gray-500 mt-2">* Required fields</p>
+        <p className="text-sm text-gray-500 mt-2">* Obligatoriska fält</p>
+        <p className="text-sm text-blue-600 mt-1">
+          <strong>Tips: Ladda upp CV och ange LinkedIn för bästa resultat!</strong>
+        </p>
       </div>
     </div>
   );
