@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,9 +26,79 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showMatchResults, setShowMatchResults] = useState(false);
   const { consultants } = useSupabaseConsultants();
 
+  // Sample assignments to demonstrate functionality
+  const sampleAssignments: Assignment[] = [
+    {
+      id: 1,
+      title: "Senior React Developer",
+      description: "Vi söker en senior React-utvecklare för att bygga nästa generation av vår e-handelsplattform. Du kommer att arbeta med modern tech stack och ha stor påverkan på produktens riktning.",
+      requiredSkills: ["React", "TypeScript", "Node.js", "GraphQL"],
+      startDate: "2024-01-15",
+      duration: "6 månader",
+      workload: "100%",
+      budget: "45,000 - 55,000 SEK/månad",
+      company: "TechNova AB",
+      industry: "E-handel",
+      teamSize: "8 utvecklare",
+      remote: "Hybrid",
+      urgency: "Hög",
+      clientLogo: "🚀",
+      desiredCommunicationStyle: "Direkt och strukturerad",
+      teamCulture: "Agil och innovativ",
+      requiredValues: ["Innovation", "Kvalitet", "Samarbete"],
+      leadershipLevel: 3,
+      teamDynamics: "Självorganiserande team med flata hierarkier"
+    },
+    {
+      id: 2,
+      title: "Frontend UX Developer",
+      description: "Skapa användarvänliga gränssnitt för vår fintech-app. Vi värdesätter designkänsla och användarfokus högt.",
+      requiredSkills: ["Vue.js", "CSS", "Figma", "JavaScript"],
+      startDate: "2024-02-01",
+      duration: "4 månader",
+      workload: "75%",
+      budget: "38,000 - 42,000 SEK/månad",
+      company: "FinanceFlow",
+      industry: "Fintech",
+      teamSize: "5 utvecklare",
+      remote: "Remote",
+      urgency: "Medium",
+      clientLogo: "💰",
+      desiredCommunicationStyle: "Diplomatisk och detaljorienterad",
+      teamCulture: "Användarcentrerad och kvalitetsdriven",
+      requiredValues: ["Användarupplevelse", "Detaljer", "Kontinuerligt lärande"],
+      leadershipLevel: 2,
+      teamDynamics: "Nära samarbete med design-team"
+    },
+    {
+      id: 3,
+      title: "Full-Stack Cloud Architect",
+      description: "Designa och implementera skalbar molnarkitektur för vår SaaS-plattform. AWS-expertis krävs.",
+      requiredSkills: ["AWS", "Docker", "Kubernetes", "Python", "React"],
+      startDate: "2024-01-20",
+      duration: "8 månader",
+      workload: "100%",
+      budget: "60,000 - 70,000 SEK/månad",
+      company: "CloudScale Systems",
+      industry: "SaaS",
+      teamSize: "12 utvecklare",
+      remote: "Hybrid",
+      urgency: "Hög",
+      clientLogo: "☁️",
+      desiredCommunicationStyle: "Teknisk och analytisk",
+      teamCulture: "Prestationsorienterad och datadriven",
+      requiredValues: ["Skalbarhet", "Säkerhet", "Prestanda"],
+      leadershipLevel: 4,
+      teamDynamics: "Cross-funktionella team med hög autonomi"
+    }
+  ];
+
+  // Combine sample assignments with any real assignments
+  const allAssignments = [...sampleAssignments, ...assignments];
+
   // Dashboard stats
   const totalConsultants = consultants.length || 5;
-  const activeAssignments = assignments.length || 2;
+  const activeAssignments = allAssignments.length;
   const successfulMatches = 156;
   const avgMatchTime = "12 seconds";
 
@@ -222,42 +291,67 @@ const Dashboard: React.FC<DashboardProps> = ({
     <div>
       <h2 className="text-xl font-bold text-gray-900 mb-6">Assignment Management</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {assignments.map((assignment) => (
-          <Card key={assignment.id} className="bg-white border border-gray-200">
+        {allAssignments.map((assignment) => (
+          <Card key={assignment.id} className="bg-white border border-gray-200 hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-3xl">{assignment.clientLogo}</div>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  assignment.urgency === 'Hög' ? 'bg-red-100 text-red-800' :
+                  assignment.urgency === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {assignment.urgency} prioritet
+                </span>
+              </div>
+              
               <h3 className="text-lg font-semibold text-gray-900 mb-2">{assignment.title}</h3>
-              <p className="text-gray-600 text-sm mb-4">{assignment.description}</p>
-              <div className="space-y-2 text-sm">
+              <p className="text-gray-600 text-sm mb-4 line-clamp-3">{assignment.description}</p>
+              
+              <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Company:</span>
+                  <span className="text-gray-600">Företag:</span>
                   <span className="font-medium">{assignment.company}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Duration:</span>
+                  <span className="text-gray-600">Varaktighet:</span>
                   <span className="font-medium">{assignment.duration}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Budget:</span>
                   <span className="font-medium">{assignment.budget}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Start:</span>
+                  <span className="font-medium">{assignment.startDate}</span>
+                </div>
               </div>
-              <div className="mt-4">
-                <Button 
-                  onClick={() => handleMatch(assignment)}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  🤖 Find AI Matches
-                </Button>
+
+              <div className="mb-4">
+                <div className="text-xs text-gray-600 mb-2">Tekniska färdigheter:</div>
+                <div className="flex flex-wrap gap-1">
+                  {assignment.requiredSkills.slice(0, 3).map((skill, index) => (
+                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                      {skill}
+                    </span>
+                  ))}
+                  {assignment.requiredSkills.length > 3 && (
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                      +{assignment.requiredSkills.length - 3} mer
+                    </span>
+                  )}
+                </div>
               </div>
+              
+              <Button 
+                onClick={() => handleMatch(assignment)}
+                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+              >
+                🤖 Hitta AI-matcher
+              </Button>
             </CardContent>
           </Card>
         ))}
-        {assignments.length === 0 && (
-          <div className="col-span-full text-center py-12">
-            <div className="text-gray-500 text-lg">No assignments found</div>
-            <p className="text-gray-400 mt-2">Create a new assignment to get started</p>
-          </div>
-        )}
       </div>
     </div>
   );
