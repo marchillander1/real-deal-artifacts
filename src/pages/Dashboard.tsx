@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -289,7 +290,16 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const renderAssignmentsContent = () => (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Assignment Management</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Assignment Management</h2>
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+          onClick={() => setShowCreateForm(true)}
+        >
+          <Plus className="h-4 w-4" />
+          New Assignment
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {allAssignments.map((assignment) => (
           <Card key={assignment.id} className="bg-white border border-gray-200 hover:shadow-lg transition-shadow">
