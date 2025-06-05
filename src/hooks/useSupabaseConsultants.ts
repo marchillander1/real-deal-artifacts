@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -40,6 +39,7 @@ export const useSupabaseConsultants = () => {
         certifications: consultant.certifications || [],
         languages: consultant.languages || [],
         type: consultant.type as 'existing' | 'new',
+        linkedinUrl: consultant.linkedin_url || `https://linkedin.com/in/${consultant.name.toLowerCase().replace(' ', '-')}`,
         communicationStyle: consultant.communication_style || '',
         workStyle: consultant.work_style || '',
         values: consultant.values || [],
@@ -79,6 +79,7 @@ export const useSupabaseConsultants = () => {
           certifications: consultantData.certifications || [],
           languages: consultantData.languages || [],
           type: consultantData.type || 'new',
+          linkedin_url: consultantData.linkedinUrl,
           communication_style: consultantData.communicationStyle,
           work_style: consultantData.workStyle,
           values: consultantData.values || [],
@@ -130,6 +131,7 @@ export const useSupabaseConsultants = () => {
           rating: consultantData.rating,
           certifications: consultantData.certifications,
           languages: consultantData.languages,
+          linkedin_url: consultantData.linkedinUrl,
           communication_style: consultantData.communicationStyle,
           work_style: consultantData.workStyle,
           values: consultantData.values,
