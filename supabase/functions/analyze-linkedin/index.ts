@@ -33,9 +33,18 @@ serve(async (req) => {
       "Continuous learning is key in our rapidly evolving tech landscape."
     ];
 
-    // Use OpenAI to analyze the posts and extract personality traits
+    // Mock LinkedIn intro/about section
+    const mockLinkedInIntro = `Experienced software developer with over 8 years in the industry, specializing in full-stack development and team leadership. I'm passionate about creating innovative solutions that solve real-world problems and believe in the power of collaborative development.
+
+My approach to work is grounded in continuous learning, open communication, and a commitment to quality. I thrive in environments where I can mentor others while also being challenged to grow myself. Whether leading a team or contributing as an individual contributor, I focus on building sustainable, scalable solutions.
+
+Outside of coding, I'm active in the tech community, regularly speaking at conferences and contributing to open-source projects. I believe technology should be accessible and inclusive, and I work to promote diversity in tech through mentoring and community involvement.
+
+Values that drive me: Innovation, Quality, Teamwork, Continuous Learning, and Integrity.`;
+
+    // Use OpenAI to analyze both posts and intro for personality traits
     const analysisPrompt = `
-    Analyze the following LinkedIn posts and extract personality traits, communication style, work values, and team fit characteristics. 
+    Analyze the following LinkedIn profile data (intro/about section + recent posts) and extract personality traits, communication style, work values, and team fit characteristics. 
     Return the analysis in JSON format with these exact fields:
     - communicationStyle: string (e.g., "Direct and collaborative", "Analytical and thoughtful")
     - workStyle: string (e.g., "Agile and iterative", "Structured and methodical")
@@ -46,7 +55,10 @@ serve(async (req) => {
     - adaptability: number between 1-5 (flexibility to change)
     - leadership: number between 1-5 (leadership potential)
 
-    LinkedIn Posts to analyze:
+    LinkedIn About/Intro Section:
+    ${mockLinkedInIntro}
+
+    Recent LinkedIn Posts:
     ${mockLinkedInPosts.join('\n')}
     `;
 
@@ -61,7 +73,7 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are an expert HR analyst specializing in personality assessment from social media content. Always return valid JSON.' 
+            content: 'You are an expert HR analyst specializing in personality assessment from social media content. Always return valid JSON. Analyze both the professional intro and recent posts to get a comprehensive view of the person.' 
           },
           { role: 'user', content: analysisPrompt }
         ],
@@ -94,7 +106,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true, 
       analysis,
-      postsAnalyzed: mockLinkedInPosts.length 
+      postsAnalyzed: mockLinkedInPosts.length,
+      introAnalyzed: true
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
