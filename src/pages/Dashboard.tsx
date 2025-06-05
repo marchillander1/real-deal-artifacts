@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import CreateAssignmentForm from "@/components/CreateAssignmentForm";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 import { Navbar } from "@/components/Navbar";
 import { EnhancedConsultantsTab } from "@/components/EnhancedConsultantsTab";
-import { DashboardComponent } from "@/components/Dashboard";
+import Dashboard from "@/components/Dashboard";
 import { useToast } from "@/hooks/use-toast";
 import { usePDFExport } from "@/hooks/usePDFExport";
 import { StripeCheckout } from "@/components/StripeCheckout";
@@ -19,18 +20,18 @@ const initialAssignments: Assignment[] = [
     title: "Senior Frontend Developer",
     company: "Acme Corp",
     description: "We need a skilled frontend developer to join our team.",
-    skills: ["React", "TypeScript", "JavaScript", "HTML", "CSS"],
+    required_skills: ["React", "TypeScript", "JavaScript", "HTML", "CSS"],
   },
   {
     id: "2",
     title: "Backend Engineer",
     company: "Beta Co",
     description: "Looking for a backend engineer with experience in Node.js.",
-    skills: ["Node.js", "Express", "PostgreSQL", "JavaScript"],
+    required_skills: ["Node.js", "Express", "PostgreSQL", "JavaScript"],
   },
 ];
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments);
   const [matches, setMatches] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
@@ -157,7 +158,7 @@ export default function Dashboard() {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <DashboardComponent
+            <Dashboard
               assignments={assignments}
               onMatch={handleMatch}
               onAssignmentCreated={handleAssignmentCreated}
@@ -194,7 +195,7 @@ export default function Dashboard() {
                     <p className="text-gray-600">{assignment.company}</p>
                     <p className="text-sm mt-2">{assignment.description}</p>
                     <div className="flex items-center space-x-2 mt-4">
-                      {assignment.skills.map((skill, index) => (
+                      {assignment.required_skills?.map((skill, index) => (
                         <span
                           key={index}
                           className="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
