@@ -10,6 +10,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('🚀 LinkedIn analysis function called');
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -17,11 +19,11 @@ serve(async (req) => {
   try {
     const { linkedinUrl } = await req.json();
     
-    console.log('Analyzing LinkedIn profile:', linkedinUrl);
+    console.log('📝 Analyzing LinkedIn profile:', linkedinUrl);
 
     // Check that OpenAI API key exists
     if (!openAIApiKey) {
-      console.error('OpenAI API key is missing');
+      console.error('❌ OpenAI API key is missing');
       return new Response(JSON.stringify({ 
         error: 'OpenAI API key not configured',
         success: false 
@@ -31,7 +33,9 @@ serve(async (req) => {
       });
     }
 
-    // Simulate LinkedIn data extraction with more realistic data
+    console.log('✅ OpenAI API key found');
+
+    // Simulate realistic LinkedIn data extraction
     const mockLinkedInPosts = [
       "Exciting to see the development in AI and software development! Working with innovative solutions that make developers more productive.",
       "Amazing teamwork today. Love working with different perspectives to solve complex problems.",
@@ -45,7 +49,7 @@ serve(async (req) => {
       "Continuous learning is the key in our rapidly changing tech landscape."
     ];
 
-    // Mock LinkedIn intro/about section in English
+    // Mock LinkedIn intro/about section
     const mockLinkedInIntro = `Experienced software developer with over 8 years of industry expertise, specializing in fullstack development and team leadership. I'm passionate about creating innovative solutions that solve real problems and believe in the power of collaborative development.
 
 My work approach is based on continuous learning, open communication, and a commitment to quality. I thrive in environments where I can mentor others while being challenged to grow myself. Whether leading a team or contributing as an individual contributor, I focus on building sustainable, scalable solutions.
@@ -54,18 +58,23 @@ Outside of coding, I'm active in the tech community, regularly speaking at confe
 
 Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and Integrity.`;
 
+    console.log('📊 Starting OpenAI analysis...');
+
     // Use OpenAI to analyze both posts and intro for personality traits
     const analysisPrompt = `
     Analyze the following LinkedIn profile data (intro/about section + recent posts) and extract personality traits, communication style, work values, and team fit characteristics. 
-    Return the analysis in JSON format with these exact fields:
-    - communicationStyle: string (e.g., "Direct and collaborative", "Analytical and thoughtful")
-    - workStyle: string (e.g., "Agile and iterative", "Structured and methodical")
-    - values: array of strings (max 4 values like "Innovation", "Quality", "Teamwork")
-    - personalityTraits: array of strings (max 4 traits like "Creative", "Analytical", "Leadership-oriented")
-    - teamFit: string (description of how they work in teams)
-    - culturalFit: number between 1-5 (overall cultural adaptability)
-    - adaptability: number between 1-5 (flexibility for change)
-    - leadership: number between 1-5 (leadership potential)
+    
+    IMPORTANT: Return ONLY a valid JSON object with these exact fields (no additional text before or after):
+    {
+      "communicationStyle": "string (e.g., 'Direct and collaborative', 'Analytical and thoughtful')",
+      "workStyle": "string (e.g., 'Agile and iterative', 'Structured and methodical')",
+      "values": ["array of max 4 strings like 'Innovation', 'Quality', 'Teamwork'"],
+      "personalityTraits": ["array of max 4 strings like 'Creative', 'Analytical', 'Leadership-oriented'"],
+      "teamFit": "string (description of how they work in teams)",
+      "culturalFit": 4.2,
+      "adaptability": 4.3,
+      "leadership": 4.1
+    }
 
     LinkedIn About/Intro section:
     ${mockLinkedInIntro}
@@ -73,6 +82,8 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
     Recent LinkedIn posts:
     ${mockLinkedInPosts.join('\n')}
     `;
+
+    console.log('🤖 Calling OpenAI API...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -85,16 +96,21 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
         messages: [
           { 
             role: 'system', 
-            content: 'You are an expert HR analyst specialized in personality assessment from social media. Always return valid JSON. Analyze both the professional intro and recent posts to get a comprehensive picture of the person.' 
+            content: 'You are an expert HR analyst specialized in personality assessment from social media. You must always return ONLY valid JSON without any additional text. Analyze both the professional intro and recent posts to get a comprehensive picture of the person.' 
           },
           { role: 'user', content: analysisPrompt }
         ],
         temperature: 0.3,
+        max_tokens: 1000,
       }),
     });
 
+    console.log('📡 OpenAI response status:', response.status);
+
     if (!response.ok) {
-      console.error('OpenAI API error:', response.status, response.statusText);
+      const errorText = await response.text();
+      console.error('❌ OpenAI API error:', response.status, response.statusText, errorText);
+      
       // Fallback analysis if OpenAI fails
       const fallbackAnalysis = {
         communicationStyle: "Professional and engaging",
@@ -107,26 +123,48 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
         leadership: 4.0
       };
       
-      console.log('Using fallback analysis:', fallbackAnalysis);
+      console.log('🔄 Using fallback analysis due to OpenAI error');
       
       return new Response(JSON.stringify({ 
         success: true, 
         analysis: fallbackAnalysis,
         postsAnalyzed: mockLinkedInPosts.length,
         introAnalyzed: true,
-        note: "Using fallback analysis"
+        note: "Using fallback analysis due to OpenAI API error"
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const data = await response.json();
+    console.log('📋 OpenAI raw response:', JSON.stringify(data, null, 2));
+    
     let analysis;
     
     try {
-      analysis = JSON.parse(data.choices[0].message.content);
+      const responseContent = data.choices[0].message.content.trim();
+      console.log('🔍 Parsing OpenAI response content:', responseContent);
+      
+      // Clean up the response content - remove any non-JSON text
+      let cleanContent = responseContent;
+      if (cleanContent.includes('{')) {
+        const startIndex = cleanContent.indexOf('{');
+        const endIndex = cleanContent.lastIndexOf('}') + 1;
+        cleanContent = cleanContent.substring(startIndex, endIndex);
+      }
+      
+      analysis = JSON.parse(cleanContent);
+      console.log('✅ Successfully parsed analysis:', analysis);
+      
+      // Validate required fields
+      if (!analysis.communicationStyle || !analysis.workStyle || !analysis.values || !analysis.personalityTraits) {
+        throw new Error('Missing required fields in analysis');
+      }
+      
     } catch (parseError) {
-      console.error('Failed to parse OpenAI response:', data.choices[0].message.content);
+      console.error('❌ Failed to parse OpenAI response:', parseError);
+      console.error('Raw content was:', data.choices[0]?.message?.content);
+      
       // Fallback analysis if parsing fails
       analysis = {
         communicationStyle: "Professional and engaging",
@@ -138,9 +176,10 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
         adaptability: 4.3,
         leadership: 4.0
       };
+      console.log('🔄 Using fallback analysis due to parsing error');
     }
 
-    console.log('LinkedIn analysis completed:', analysis);
+    console.log('🎉 LinkedIn analysis completed successfully');
 
     return new Response(JSON.stringify({ 
       success: true, 
@@ -152,7 +191,7 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
     });
 
   } catch (error) {
-    console.error('Error in analyze-linkedin function:', error);
+    console.error('💥 Error in analyze-linkedin function:', error);
     return new Response(JSON.stringify({ 
       error: error.message,
       success: false 

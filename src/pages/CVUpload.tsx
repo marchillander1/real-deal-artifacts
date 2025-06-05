@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, User, Mail, Phone, MapPin, Briefcase, Code, Star, Award, Languages, Lightbulb, Target, Brain, Linkedin, Users, MessageCircle, Rocket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 export const CVUpload = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -18,6 +18,7 @@ export const CVUpload = () => {
   const [isAnalyzingLinkedin, setIsAnalyzingLinkedin] = useState(false);
   const [linkedinAnalysis, setLinkedinAnalysis] = useState<any>(null);
   const [cvTips, setCvTips] = useState<string[]>([]);
+  const { toast } = useToast();
 
   // Form data
   const [formData, setFormData] = useState({
@@ -108,32 +109,50 @@ export const CVUpload = () => {
 
   const handleLinkedInAnalysis = async () => {
     if (!linkedinUrl) {
-      alert('Please enter a LinkedIn URL first');
+      toast({
+        title: "LinkedIn URL krävs",
+        description: "Vänligen ange en LinkedIn-profil URL först",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsAnalyzingLinkedin(true);
     
     try {
-      const response = await fetch('https://xbliknlrikolcjjfhxqa.supabase.co/functions/v1/analyze-linkedin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ linkedinUrl }),
+      console.log('🔍 Starting LinkedIn analysis for:', linkedinUrl);
+      
+      const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
+        body: { linkedinUrl },
       });
 
-      const data = await response.json();
+      console.log('📊 LinkedIn analysis response:', { data, error });
+
+      if (error) {
+        console.error('❌ Supabase function error:', error);
+        throw new Error(`Function error: ${error.message}`);
+      }
       
-      if (data.success) {
+      if (data?.success) {
         setLinkedinAnalysis(data.analysis);
-        alert('LinkedIn analysis complete! Personality insights have been added to your profile.');
+        console.log('✅ LinkedIn analysis successful:', data.analysis);
+        
+        toast({
+          title: "LinkedIn-analys klar!",
+          description: "Personlighetsinsikter har lagts till i din profil.",
+        });
       } else {
-        alert('LinkedIn analysis failed');
+        console.error('❌ Analysis failed:', data);
+        throw new Error(data?.error || 'LinkedIn analysis failed');
       }
     } catch (error) {
-      console.error('LinkedIn analysis failed:', error);
-      alert('LinkedIn analysis failed');
+      console.error('💥 LinkedIn analysis error:', error);
+      
+      toast({
+        title: "LinkedIn-analys misslyckades",
+        description: error instanceof Error ? error.message : "Ett fel uppstod vid analysen",
+        variant: "destructive",
+      });
     } finally {
       setIsAnalyzingLinkedin(false);
     }
