@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Assignment, Consultant } from "../types/consultant";
 import DashboardComponent from "@/components/Dashboard";
@@ -182,6 +181,18 @@ export default function Dashboard() {
     setAssignments(prev => [...prev, assignment]);
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      console.log('CV file uploaded:', files[0].name);
+      toast({
+        title: "CV Uploaded",
+        description: `${files[0].name} has been uploaded successfully`,
+      });
+      // TODO: Implement CV processing
+    }
+  };
+
   const handleFindMatches = async (assignment: Assignment) => {
     console.log("🚀 Starting AI matching for assignment:", assignment.title);
     
@@ -246,6 +257,7 @@ export default function Dashboard() {
               assignments={assignments}
               onMatch={handleMatch}
               onAssignmentCreated={handleAssignmentCreated}
+              onFileUpload={handleFileUpload}
             />
           </TabsContent>
 
