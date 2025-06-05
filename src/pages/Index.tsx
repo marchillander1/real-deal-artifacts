@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -437,8 +436,6 @@ const Index = () => {
 
   const handleFindMatches = async (assignment: Assignment) => {
     console.log("🚀 Starting AI matching for assignment:", assignment.title);
-    console.log("📋 Assignment details:", assignment);
-    console.log("👥 Available consultants:", consultants.length);
     
     setIsMatching(true);
     setSelectedAssignment(assignment);
@@ -490,9 +487,6 @@ const Index = () => {
       description: `${newAssignment.title} has been created successfully.`,
     });
   };
-
-  const existingConsultants = consultants.filter(c => c.type === 'existing');
-  const newConsultants = consultants.filter(c => c.type === 'new');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -618,103 +612,6 @@ const Index = () => {
                           </div>
                         </div>
 
-                        {/* Consultant Details */}
-                        <div className="p-6 border-b border-gray-100">
-                          <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-3">
-                              <div className="flex items-center justify-between">
-                                <span className="text-gray-600">Experience:</span>
-                                <span className="font-semibold">{match.consultant.experience}</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-gray-600">Projects:</span>
-                                <span className="font-semibold">{match.consultant.projects} completed</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-gray-600">Rating:</span>
-                                <div className="flex items-center space-x-1">
-                                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                                  <span className="font-semibold">{match.consultant.rating}/5.0</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="space-y-3">
-                              <div className="flex items-center justify-between">
-                                <span className="text-gray-600">Rate:</span>
-                                <span className="font-semibold text-green-600">{match.consultant.rate}</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-gray-600">Availability:</span>
-                                <span className="font-semibold text-green-600">{match.consultant.availability}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Estimated Impact */}
-                        <div className="p-6 border-b border-gray-100">
-                          <h4 className="font-semibold text-gray-900 mb-4">Estimated Impact</h4>
-                          <div className="grid md:grid-cols-3 gap-4">
-                            <div className="flex items-center space-x-3">
-                              <DollarSign className="h-5 w-5 text-blue-600" />
-                              <div>
-                                <p className="text-sm text-gray-600">Cost savings:</p>
-                                <p className="font-semibold">{match.estimatedSavings} SEK/month</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <Clock className="h-5 w-5 text-orange-600" />
-                              <div>
-                                <p className="text-sm text-gray-600">Expected response:</p>
-                                <p className="font-semibold">{match.responseTime}h</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <TrendingUp className="h-5 w-5 text-green-600" />
-                              <div>
-                                <p className="text-sm text-gray-600">Success probability:</p>
-                                <p className="font-semibold">{match.humanFactorsScore}%</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* AI-Generated Cover Letter */}
-                        <div className="p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
-                                <div className="w-3 h-3 bg-purple-600 rounded"></div>
-                              </div>
-                              <h4 className="font-semibold text-gray-900">AI-Generated Cover Letter</h4>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <button className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
-                                <FileDown className="h-4 w-4" />
-                                <span>Export PDF</span>
-                              </button>
-                              <button className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                                <Mail className="h-4 w-4" />
-                                <span>Send Email</span>
-                              </button>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto">
-                            <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">{match.letter}</pre>
-                          </div>
-                          
-                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
-                              <Sparkles className="h-3 w-3" />
-                              <span>Generated by AI in 0.3 seconds</span>
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {match.letter.length} characters • Ready to send
-                            </div>
-                          </div>
-                        </div>
-
                         {/* Action Button */}
                         <div className="p-6 bg-gray-50 border-t">
                           <button
@@ -791,10 +688,7 @@ const Index = () => {
                           </div>
                         </div>
                         <button
-                          onClick={() => {
-                            console.log("🔍 Find Matches button clicked for:", assignment.title);
-                            handleFindMatches(assignment);
-                          }}
+                          onClick={() => handleFindMatches(assignment)}
                           disabled={isMatching}
                           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
