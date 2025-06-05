@@ -1,13 +1,11 @@
 
 import React, { useState } from "react";
-import { Assignment, Consultant } from "../types/consultant";
+import { Assignment } from "../types/consultant";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Users, Briefcase, TrendingUp, Clock, Star, ArrowUpRight } from "lucide-react";
+import { Upload, Users, Briefcase, TrendingUp, Clock } from "lucide-react";
 import CreateAssignmentForm from "./CreateAssignmentForm";
 
 interface DashboardProps {
@@ -24,10 +22,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   onAssignmentCreated,
 }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
-
-  const handleMatch = (assignment: Assignment) => {
-    onMatch(assignment);
-  };
 
   // Dummy data for stats
   const totalConsultants = 156;
@@ -194,7 +188,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       {/* Create Assignment Modal */}
       {showCreateForm && (
         <CreateAssignmentForm
-          onClose={() => setShowCreateForm(false)}
           onSubmit={(assignment) => {
             onAssignmentCreated(assignment);
             setShowCreateForm(false);

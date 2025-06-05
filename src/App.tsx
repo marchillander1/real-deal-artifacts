@@ -22,19 +22,12 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/cv-upload" element={<CVUpload />} />
             <Route 
               path="/matchwiseai" 
               element={
                 <AuthGuard>
                   <Dashboard />
-                </AuthGuard>
-              } 
-            />
-            <Route 
-              path="/cv-upload" 
-              element={
-                <AuthGuard>
-                  <CVUpload />
                 </AuthGuard>
               } 
             />
