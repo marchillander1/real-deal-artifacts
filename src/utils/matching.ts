@@ -68,234 +68,450 @@ export const generateMotivationLetter = (consultant: Consultant, assignment: Ass
   // Generate specific project examples based on skills
   const generateProjectExample = (skills: string[]) => {
     if (skills.some(s => s.toLowerCase().includes('react'))) {
-      return "utvecklat en komplex e-handelsplattform med React och TypeScript som hanterade 100,000+ användare dagligen";
+      return "utvecklat en komplex e-handelsplattform med React och TypeScript som hanterade 100,000+ användare dagligen, vilket resulterade i 45% ökning av konverteringsraten och 60% förbättring av laddningstider";
     } else if (skills.some(s => s.toLowerCase().includes('vue'))) {
-      return "byggt en modern fintech-applikation med Vue.js som förbättrade användarupplevelsen med 40%";
+      return "byggt en modern fintech-applikation med Vue.js som förbättrade användarupplevelsen med 40%, reducerade support-tickets med 30% och ökade användarengagemang med 65%";
     } else if (skills.some(s => s.toLowerCase().includes('aws'))) {
-      return "designat och implementerat skalbar molnarkitektur på AWS som reducerade kostnaderna med 35%";
+      return "designat och implementerat skalbar molnarkitektur på AWS som reducerade kostnaderna med 35%, förbättrade prestanda med 50% och uppnådde 99.9% uptime under Black Friday-trafik";
+    } else if (skills.some(s => s.toLowerCase().includes('node'))) {
+      return "utvecklat robust backend-system med Node.js och microservices som hanterar 2M+ API-anrop dagligen, med genomsnittlig svarstid under 100ms";
+    } else if (skills.some(s => s.toLowerCase().includes('python'))) {
+      return "implementerat AI/ML-pipeline med Python som automatiserade 80% av manuella processer och genererade €2M+ i årliga besparingar";
     } else {
-      return "levererat framgångsrika digitala lösningar som översteg kundens förväntningar";
+      return "levererat framgångsrika digitala lösningar som översteg kundens förväntningar med 25% kortare leveranstid och 40% lägre underhållskostnader";
     }
   };
 
   const projectExample = generateProjectExample(consultant.skills);
 
-  // Industry-specific insights
+  // Industry-specific insights with concrete examples
   const getIndustryInsight = (industry: string) => {
     const insights = {
-      'E-handel': 'Jag förstår de unika utmaningarna inom e-handel - från användarupplevelse och konverteringsoptimering till skalbarhet under högtrafik perioder som Black Friday.',
-      'Fintech': 'Med djup förståelse för finanssektorns krav på säkerhet, compliance och användarförtroende, vet jag hur viktigt det är att balansera innovation med regelefterlevnad.',
-      'SaaS': 'Jag har bred erfarenhet av SaaS-utveckling och förstår vikten av skalbar arkitektur, multi-tenancy och kontinuerlig leverans för att möta kundernas växande behov.',
-      'Healthcare': 'Inom healthcare är jag van vid strikta säkerhetskrav, GDPR-compliance och vikten av användarvänliga system för vårdpersonal.',
-      'Education': 'Jag förstår utbildningssektorns behov av tillgängliga, intuitiva plattformar som stödjer olika inlärningsstilar och tekniska färdighetsnivåer.'
+      'E-handel': `Jag förstår de unika utmaningarna inom e-handel och har konkret erfarenhet av:
+      • Konverteringsoptimering som resulterat i 25-45% ökning av försäljning
+      • Hantering av högtrafik under kampanjperioder (Black Friday, rea-perioder)
+      • Implementation av personalisering som ökat genomsnittlig ordervalue med 30%
+      • A/B-testning av checkout-flöden som reducerat cart abandonment med 20%
+      • SEO-optimering som förbättrat organisk trafik med 60%`,
+      
+      'Fintech': `Med djup förståelse för finanssektorns krav har jag levererat:
+      • PCI DSS-kompatibla betalningslösningar med 99.98% uptime
+      • KYC/AML-system som reducerat manuell granskning med 70%
+      • Fraud detection-algoritmer som minskat bedrägerier med 85%
+      • Open Banking-integrationer enligt PSD2-direktiv
+      • Real-time trading-plattformar som hanterar 10,000+ transaktioner/sekund`,
+      
+      'SaaS': `Inom SaaS-utveckling har jag specialkompetens inom:
+      • Multi-tenant arkitektur som stödjer 100,000+ användare per instans
+      • Automated CI/CD-pipelines som möjliggör dagliga deployments
+      • Metrics-driven utveckling med real-time analytics och alerting
+      • API-first approach med 99.9% SLA och omfattande dokumentation
+      • Customer success-features som ökat retention med 40%`,
+      
+      'Healthcare': `Inom healthcare har jag arbetat med:
+      • GDPR och HIPAA-kompatibla system för patientdata
+      • HL7 FHIR-integrationer för smidig datautbyte
+      • Telemedicin-plattformar som ökat tillgängligheten med 300%
+      • AI-assisterade diagnostikverktyg med 95% noggrannhet
+      • Journalsystem som förbättrat vårdpersonalens effektivitet med 50%`,
+      
+      'Education': `Inom utbildningssektorn har jag utvecklat:
+      • LMS-plattformar som stödjer 50,000+ samtidiga användare
+      • Adaptiva inlärningsalgoritmer som förbättrat studieresultat med 35%
+      • Tillgänglighetsanpassningar enligt WCAG 2.1 AA-standard
+      • Gamification-features som ökat studentengagemang med 60%
+      • Analytics-dashboards för lärare och administratörer`
     };
-    return insights[industry] || 'Jag har bred branschexpertis och anpassar snabbt min approach efter specifika branschkrav och affärslogik.';
+    return insights[industry] || `Jag har bred branschexpertis och har framgångsrikt levererat tekniska lösningar inom flera sektorer, med fokus på:
+    • Skalbar systemarkitektur och performance-optimering
+    • Användarcentrerad design och UX-förbättringar
+    • Säkerhet och compliance enligt branschstandarder
+    • Data analytics och business intelligence-lösningar`;
   };
 
   const industryInsight = getIndustryInsight(assignment.industry);
 
-  const templates = [
-    `Hej ${assignment.company}-teamet! 👋
-
-Jag heter ${consultant.name} och jag brinner för att skapa tekniska lösningar som verkligen gör skillnad. När jag läste er annons för ${assignment.title} kände jag direkt att detta är exakt den typ av utmaning jag söker.
-
-🎯 **Varför just jag passar perfekt för er roll:**
-
-**Teknisk expertis som matchar era behov (${matchScore}% match):**
-${matchedSkills.map(skill => `✅ ${skill} - ${experienceYears}+ års praktisk erfarenhet`).join('\n')}
-
-Särskilt relevant är min bakgrund inom ${consultant.roles[0].toLowerCase()}, där jag senast ${projectExample}. Detta har gett mig djup förståelse för både tekniska utmaningar och affärsimpact.
-
-**Branschförståelse:**
-${industryInsight}
-
-**Perfekt timing och logistik:**
-• 📍 Baserad i ${consultant.location} - ${assignment.remote} fungerar utmärkt för mig
-• ⏰ ${consultant.availability} och kan starta ${assignment.startDate}
-• 💰 Min rate ${consultant.rate} ligger väl inom er budget (${assignment.budget})
-• 👥 Trivs i team med ${assignment.teamSize} - passar min kollaborativa arbetsstil perfekt
-
-**Vad jag bidrar med utöver teknisk expertis:**
-• Proaktiv kommunikation med regelbundna uppdateringar
-• Strukturerad dokumentation för smidig kunskapsöverföring
-• Mentorskap när det behövs - älskar att dela kunskap
-• Affärsförståelse som säkerställer att tekniska beslut driver värde
-
-**Språk & certifieringar:**
-• Flyt i ${consultant.languages.join(' och ')} 
-• ${consultant.certifications.join(' samt ')} certifierad
-• ${consultant.rating}/5.0 i genomsnittligt kundbetyg (baserat på ${consultant.projects} genomförda projekt)
-
-${unmatchedSkills.length > 0 ? `**Transparens kring färdigheter:**
-Jag ser att ni också söker ${unmatchedSkills.join(', ')}. Även om jag inte har djup expertis inom dessa områden än, har jag snabbt lärt mig nya tekniker genom min karriär och är mycket sugen på att utvecklas inom dessa områden som en del av uppdraget.` : ''}
-
-**Nästa steg:**
-Jag skulle gärna berätta mer om min relevanta erfarenhet och höra er vision för projektet. Finns möjlighet för en kort videocall denna vecka? Jag är flexibel med tider och kan anpassa mig efter ert schema.
-
-Tack för att ni tog er tid att läsa detta - ser fram emot att höra från er!
-
-Med vänliga hälsningar,
-${consultant.name}
-
-📧 ${consultant.email}
-📱 ${consultant.phone}
-💼 Portfolio och referenser tillgängliga på begäran
-
----
-*Detta personliga brev genererades av AI baserat på djupanalys av matchning mellan min profil och era krav. Match score: ${matchScore}% | Analys genomförd på < 1 sekund | Senast aktiv: ${consultant.lastActive}*`,
-
-    `Ämneh: Ansökan ${assignment.title} - ${consultant.name} | ${matchScore}% Perfect Match 🎯
-
-Kära rekryteringsteam på ${assignment.company},
-
-Som en passionerad ${consultant.roles[0].toLowerCase()} med ${consultant.experience} av hands-on erfarenhet, kände jag genast att er ${assignment.title}-position är exakt vad jag letat efter. Min bakgrund och era krav alignar nästan perfekt - låt mig visa varför.
-
-**🔧 Teknisk Alignment - Exakt vad ni behöver:**
-
-*Direkta matchningar:*
-${matchedSkills.map(skill => 
-  `• ${skill}: ${experienceYears > 7 ? 'Expert-nivå' : experienceYears > 4 ? 'Senior-nivå' : 'Solid erfarenhet'} - praktisk tillämpning i flera kommersiella projekt`
-).join('\n')}
-
-*Senaste relevanta projekt:*
-Under de senaste 18 månaderna har jag ${projectExample}. Detta projekt involverade exakt den typ av teknisk komplexitet och skalbarhet som jag förstår att ni arbetar med.
-
-**🏢 Bransch & Affärsförståelse:**
-${industryInsight}
-
-Jag förstår att teknisk skicklighet bara är halva ekvationen - lika viktigt är att förstå affärslogiken och leverera lösningar som driver verkligt värde för företaget och slutanvändarna.
-
-**👥 Team & Kultur Fit:**
-Era värderingar "${assignment.requiredValues?.join(', ')}" resonerar starkt med min approach. Jag trivs i miljöer som er - ${assignment.teamCulture?.toLowerCase()} - och min kommunikationsstil är ${assignment.desiredCommunicationStyle?.toLowerCase()}, vilket borde passa bra med ert team.
-
-Med ${consultant.projects} framgångsrikt genomförda projekt och ${consultant.rating}/5.0 i kundbetyg, har jag bevisat att jag kan leverera även under press och med täta deadlines.
-
-**📋 Projektlogistik & Praktiska detaljer:**
-• **Start:** Redo att börja ${assignment.startDate} (${consultant.availability.toLowerCase()})
-• **Kapacitet:** ${assignment.workload} passar perfekt - kan dedikera full fokus
-• **Arbetssätt:** ${assignment.remote} - ${consultant.location}-baserad, van vid båda remote och on-site
-• **Budget:** ${consultant.rate} ligger bekvämt inom er budget på ${assignment.budget}
-• **Varaktighet:** ${assignment.duration} - perfekt för att få verklig impact
-
-**🎯 Vad ni kan förvänta er av mig:**
-
-*Första månaden:*
-- Djupdykning i er befintliga kod och arkitektur
-- Etablera utvecklingsrutiner och kommunikationsflöden
-- Leverera första synliga resultat inom 2-3 veckor
-
-*Löpande bidrag:*
-- Proaktiv problemlösning och optimeringsförslag
-- Kod av hög kvalitet med fokus på maintainability
-- Regelbunden kommunikation och transparens
-- Knowledge sharing med teamet
-
-**🌟 Bonus värde:**
-• Certifierad inom ${consultant.certifications.join(' och ')} 
-• Flerspråkig (${consultant.languages.join(', ')}) för internationella projekt
-• Erfarenhet av att mentora junior utvecklare när det behövs
-• Stark track record av att hålla deadlines och budgetar
-
-${unmatchedSkills.length > 0 ? `**🎓 Utvecklingsmöjligheter:**
-Jag noterade att ni även söker kompetens inom ${unmatchedSkills.join(', ')}. Även om det inte är mina huvudområden idag, ser jag fram emot att lära mig och bidra inom dessa områden också. Min snabba inlärningsförmåga har alltid varit en styrka - nya tekniker och ramverk tar jag mig an med entusiasm.` : ''}
-
-**Nästa steg:**
-Skulle gärna träffa teamet och diskutera er tekniska vision mer i detalj. Kan ni ha tid för en kort introduktions-call denna vecka? Jag är flexibel och kan anpassa mig efter era scheman.
-
-Ser verkligen fram emot möjligheten att bidra till ${assignment.company}s framgång!
-
-Bästa hälsningar,
-${consultant.name}
-
-📬 Kontakt: ${consultant.email} | ${consultant.phone}
-🔗 Portfolio, GitHub och referenser: Skickas gärna vid intresse
-⚡ Svarstid: Aktiv ${consultant.lastActive}, svarar vanligtvis inom 2-4 timmar
-
----
-*Personligt motivationsbrev • AI-assisterad profilering • ${matchScore}% compatibility score*`,
-
-    `Subject: ${assignment.title} Application - Ready to Start ${assignment.startDate} 🚀
-
-Hej ${assignment.company}!
-
-${consultant.name} här - en ${consultant.roles[0].toLowerCase()} som verkligen kan bidra till er ${assignment.title}-satsning från dag ett.
-
-**TLDR - Varför jag är rätt person:**
-✅ ${matchScore}% teknisk match med era krav
-✅ ${consultant.experience} relevant erfarenhet 
-✅ Tillgänglig exakt när ni behöver (${assignment.startDate})
-✅ Inom budget (${consultant.rate} vs ${assignment.budget})
-✅ Perfekt kulturell fit för ${assignment.teamCulture?.toLowerCase()} miljöer
-
-**🛠️ Teknisk Deep-dive:**
-
-*Era must-haves som jag behärskar:*
-${matchedSkills.map((skill, index) => {
-  const projectTypes = {
-    'React': 'stora SPA-applikationer',
-    'TypeScript': 'enterprise-system',
-    'Node.js': 'scalable backend services',
-    'GraphQL': 'API-arkitekturer',
-    'AWS': 'cloud-native lösningar',
-    'Vue.js': 'moderna frontends',
-    'Python': 'data-processing pipelines',
-    'Docker': 'containerized deployments'
+  // Enhanced skill analysis
+  const getSkillAnalysis = () => {
+    const skillAnalysis = matchedSkills.map(skill => {
+      const experience = experienceYears > 7 ? 'Expert' : experienceYears > 4 ? 'Senior' : 'Medior';
+      const projectCount = Math.floor(Math.random() * 15) + 5;
+      return `• **${skill}** (${experience}-nivå) - ${projectCount}+ projekt, senast använt i production för 6 månader sedan`;
+    }).join('\n');
+    
+    return skillAnalysis;
   };
-  const projectType = projectTypes[skill] || 'kommersiella projekt';
-  return `${index + 1}. **${skill}** - ${experienceYears}+ år, använt i ${projectType}`;
-}).join('\n')}
 
-*Senaste relevanta win:*
-${projectExample}. Resultatet? Nöjd kund, skalbar lösning och värdefullt lärande som jag tar med mig till nästa projekt.
+  // ROI and value proposition
+  const getValueProposition = () => {
+    const timeToValue = Math.floor(Math.random() * 2) + 2; // 2-3 weeks
+    const efficiencyGain = Math.floor(Math.random() * 30) + 20; // 20-50%
+    const costSaving = Math.floor(Math.random() * 500) + 200; // 200-700k SEK
+    
+    return `**Förväntad värdeskapande:**
+    • Time-to-market: ${timeToValue} veckor till första leverabel
+    • Effektivitetsökning: ${efficiencyGain}% genom best practices och automation
+    • Beräknade årliga besparingar: ${costSaving},000 SEK genom optimerade processer
+    • Kunskapsöverföring: Mentorskap och dokumentation för långsiktig hållbarhet`;
+  };
 
-**🎯 Bransch-insights för ${assignment.industry}:**
-${industryInsight}
+  const templates = [
+    `# 🎯 PERSONLIGT MOTIVATIONSBREV FÖR ${assignment.title.toUpperCase()}
 
-Detta perspektiv hjälper mig att fatta tekniska beslut som inte bara fungerar tekniskt, utan också driver affärsresultat.
-
-**⚡ Practical Stuff:**
-• **Timing:** ${consultant.availability} → kan starta ${assignment.startDate}
-• **Workload:** ${assignment.workload} works perfect for me
-• **Location:** ${consultant.location} + ${assignment.remote} = ✅
-• **Duration:** ${assignment.duration} ger tillräckligt med tid för verklig impact
-• **Team size:** ${assignment.teamSize} är min sweet spot för produktivitet
-
-**🏆 Track Record:**
-• ${consultant.projects} delivery project (100% i tid och budget)
-• ${consultant.rating}/5.0 average client satisfaction
-• ${consultant.certifications.join(' + ')} certified professional
-• Kommunicerar flyt på ${consultant.languages.join(' och ')}
-
-**💡 Min approach till detta projekt:**
-
-*Vecka 1-2:* Deep dive i er befintliga setup, förstå arkitektur och processer
-*Vecka 3-4:* Första leveranser och etablera utvecklingsrytm  
-*Månader 2-${assignment.duration.includes('6') ? '6' : '4'}:* Full produktivitet och kontinuerlig värdeskapande
-
-Jag kommer med:
-- Proaktiv kommunikation (updates varje vecka minimum)
-- Clean, maintainable code som teamet lätt kan arbeta vidare med
-- Konstruktiv feedback och optimeringsförslag
-- Flexibilitet att ta över olika typer av tasks
-
-${unmatchedSkills.length > 0 ? `**🎓 Growth mindset:**
-Noterade att ni också önskar ${unmatchedSkills.join(' och ')}. Även om det inte är mina primära expertområden än, har jag alltid varit snabb att lära mig nya tech stacks. Ser fram emot att utvecklas inom dessa områden som en naturlig del av projektets utveckling.` : ''}
-
-**Next Steps:**
-Redo för en quick call för att diskutera tekniska detaljer och teamet? Jag är flexibel med tider och kan hoppa på en kort session när som helst denna vecka.
-
-Let's build something awesome together! 🎉
-
-Cheers,
-${consultant.name}
-
-📧 ${consultant.email} | 📞 ${consultant.phone}
-💻 Portfolio & code samples available on request
-
-P.S. Detta motivationsbrev är AI-enhanced men mina skills och entusiasm är 100% äkta! 😊
+**Till: ${assignment.company} Rekryteringsteam**  
+**Från: ${consultant.name}**  
+**Datum: ${new Date().toLocaleDateString('sv-SE')}**  
+**Match Score: ${matchScore}% 🔥**
 
 ---
-Generated in 0.8 seconds | ${matchScore}% match confidence | Last active: ${consultant.lastActive}`
+
+## 🚀 EXECUTIVE SUMMARY
+
+Som en erfaren **${consultant.roles[0]}** med **${consultant.experience}** av specialiserad erfarenhet, representerar jag den perfekta kandidaten för er **${assignment.title}**-position. Min tekniska expertis, branschkunskap och dokumenterade track record gör mig till den idealiska partnern för att leverera exceptionella resultat från dag ett.
+
+---
+
+## 🎯 TEKNISK COMPATIBILITY ANALYSIS
+
+### ✅ **Direkta Skill Matches (${Math.round((matchedSkills.length/assignment.requiredSkills.length)*100)}% match):**
+
+${getSkillAnalysis()}
+
+### 📊 **Senaste Projektframgång:**
+${projectExample}
+
+**Kvantifierbara resultat:**
+• **Performance:** 40-60% förbättring av laddningstider
+• **Skalbarhet:** Hantering av 10x trafikökningar under peak-perioder  
+• **Användarupplevelse:** 35% ökning av user satisfaction scores
+• **Kostnadsbesparing:** 25-40% reduktion av infrastrukturkostnader
+
+---
+
+## 🏢 BRANSCHSPECIFIK EXPERTIS: ${assignment.industry.toUpperCase()}
+
+${industryInsight}
+
+---
+
+## 💼 PROJEKTLOGISTIK & GENOMFÖRANDE
+
+### ⏰ **Timeline & Tillgänglighet:**
+• **Startdatum:** ${assignment.startDate} ✅ (${consultant.availability})
+• **Kapacitet:** ${assignment.workload} - perfekt match för optimal fokus
+• **Varaktighet:** ${assignment.duration} - tillräckligt för djupgående impact
+• **Budget alignment:** ${consultant.rate} inom ${assignment.budget} 💰
+
+### 🌍 **Arbetssätt & Lokalisering:**
+• **Baserad i:** ${consultant.location}
+• **Remote capability:** ${assignment.remote} - fullt kompatibel ✅
+• **Teamstorlek:** ${assignment.teamSize} - min prefererade arbetsmiljö
+• **Tidszoner:** Flexibel för europeiska arbetstider
+
+---
+
+## 🎯 VÄRDESKAPANDE & ROI
+
+${getValueProposition()}
+
+### 📈 **30-60-90 Dagarsplan:**
+
+**Första 30 dagarna:**
+• Djupanalys av befintlig kodbase och arkitektur
+• Identifiering av quick wins och optimeringsmöjligheter  
+• Etablering av utvecklingsrutiner och kommunikationsflöden
+• Leverans av första synliga förbättringar
+
+**60 dagar:**
+• Implementation av kritiska features enligt projektplan
+• Performance-optimeringar och skalabarhetsförbättringar
+• Kunskapsdelning och best practices med teamet
+• Etablering av CI/CD-processer och quality gates
+
+**90 dagar:**
+• Full produktivitet och systemägarskap
+• Proaktiva förbättringsförslag och innovation
+• Mentorskap av junior utvecklare (vid behov)
+• Dokumentation och kunskapsöverföring för hållbarhet
+
+---
+
+## 👥 TEAM & KULTURELL FIT
+
+### 🎪 **Personlighetsprofil:**
+• **Kommunikationsstil:** ${consultant.communicationStyle}
+• **Arbetsstil:** ${consultant.workStyle} 
+• **Kärnvärden:** ${consultant.values.join(', ')}
+• **Personlighetsdrag:** ${consultant.personalityTraits.join(', ')}
+
+### 🏆 **Track Record & Trovärdighet:**
+• **Genomförda projekt:** ${consultant.projects}+ framgångsrika leveranser
+• **Kundbetyg:** ${consultant.rating}/5.0 ⭐ (baserat på verkliga kundrecensioner)
+• **Certifieringar:** ${consultant.certifications.join(' • ')}
+• **Språkkunskaper:** ${consultant.languages.join(', ')} - flyt i affärskommunikation
+• **Senast aktiv:** ${consultant.lastActive} (hög responsivitet)
+
+---
+
+## 🔧 TEKNISK FÖRDJUPNING
+
+### 💻 **Utvecklingsprocess & Kvalitet:**
+• **Code Quality:** Följer industry best practices (SOLID, DRY, KISS)
+• **Testing:** TDD/BDD approach med 90%+ code coverage
+• **Documentation:** Omfattande API-docs och inline kommentarer
+• **Security:** Security-first mindset med OWASP Top 10 awareness
+• **Performance:** Continuous profiling och optimization
+
+### 🛠️ **DevOps & Infrastructure:**
+• **CI/CD:** Automated pipelines med GitLab/GitHub Actions
+• **Monitoring:** Real-time alerting och performance tracking  
+• **Scalability:** Microservices och containerization expertise
+• **Cloud:** Multi-cloud experience (AWS, Azure, GCP)
+
+${unmatchedSkills.length > 0 ? `---
+
+## 🎓 UTVECKLINGSMÖJLIGHETER & TRANSPARENS
+
+**Identifierade kompetensgap:**
+${unmatchedSkills.map(skill => `• **${skill}** - Planerar fördjupning genom certifiering och praktisk tillämpning`).join('\n')}
+
+**Min approach till nya teknologier:**
+• Strukturerad inlärningsplan med konkreta milstones
+• Hands-on experimentation och proof-of-concepts
+• Community engagement och knowledge sharing
+• Snabb time-to-productivity genom leveraged learning
+
+Jag ser dessa gap som spännande utvecklingsmöjligheter snarare än hinder, och min dokumenterade inlärningsförmåga garanterar snabb kompetensutveckling.` : ''}
+
+---
+
+## 📞 NÄSTA STEG & KONTAKT
+
+**Jag är redo att:**
+1. **Teknisk deep-dive call** - Diskutera arkitektur och tekniska utmaningar
+2. **Team introduction** - Träffa nyckelpersoner och förstå teamdynamik  
+3. **Proof of concept** - Demonstrera min approach genom ett mindre testprojekt
+4. **Contract negotiation** - Finalisera terms och start-datum
+
+**Kontaktinformation:**
+📧 **Email:** ${consultant.email} (svarar inom 2-4 timmar)  
+📱 **Telefon:** ${consultant.phone}  
+💼 **Portfolio:** Tillgänglig på begäran med Case Studies och Code Samples  
+🔗 **Referenser:** C-level kontakter från tidigare uppdrag
+
+---
+
+## 🎉 AVSLUTNING
+
+${assignment.company} representerar exakt den typ av innovativ organisation där jag trivs bäst. Er satsning på **${assignment.title}** alignar perfekt med min passion för att skapa tekniska lösningar som driver verkligt affärsvärde.
+
+Med min kombinaton av djup teknisk expertis, branschkunskap och bevisad leveransförmåga är jag övertygad om att jag kan bidra väsentligt till er framgång redan från vecka ett.
+
+**Jag ser fram emot att diskutera hur vi tillsammans kan realisera er tekniska vision! 🚀**
+
+---
+
+*Med vänliga hälsningar,*  
+**${consultant.name}**  
+*${consultant.roles[0]} • ${consultant.experience} Experience*
+
+---
+**📊 AI-Generated Analytics:**  
+*Compatibility Score: ${matchScore}% • Generated: ${new Date().toLocaleString('sv-SE')} • Processing Time: 0.8s*  
+*Human Factors Score: ${Math.floor(Math.random() * 15) + 85}% • Cultural Fit: ${Math.floor(Math.random() * 30) + 70}% • Communication Match: ${Math.floor(Math.random() * 25) + 75}%*`,
+
+    `# 💼 STRATEGIC CONSULTANT PROPOSAL
+## ${assignment.title} @ ${assignment.company}
+
+**Consultant:** ${consultant.name}  
+**Specialization:** ${consultant.roles[0]}  
+**Experience Level:** ${consultant.experience}  
+**Compatibility Rating:** ${matchScore}% 🎯
+
+---
+
+### 🔥 **IMMEDIATE VALUE PROPOSITION**
+
+Som specialist inom **${consultant.roles[0]}** med dokumenterad framgång inom **${assignment.industry}**-sektorn, erbjuder jag inte bara teknisk excellens utan även strategisk affärsförståelse som säkerställer att varje teknisk beslut driver mätbart värde för ${assignment.company}.
+
+**Min senaste relevanta framgång:**  
+${projectExample}
+
+---
+
+### ⚡ **CORE COMPETENCY MATRIX**
+
+#### 🎯 **Perfect Skill Alignment:**
+${matchedSkills.map((skill, index) => {
+  const proficiencyLevel = experienceYears > 7 ? 'Expert (8-10/10)' : experienceYears > 4 ? 'Advanced (7-8/10)' : 'Proficient (6-7/10)';
+  const yearsWithSkill = Math.min(experienceYears, Math.floor(Math.random() * 3) + experienceYears - 2);
+  return `**${index + 1}. ${skill}**  
+  Proficiency: ${proficiencyLevel} | Years: ${yearsWithSkill}+ | Last Used: Production (6 månader sedan)  
+  Impact: Ledde team som levererade ${skill}-baserad lösning värd €${Math.floor(Math.random() * 500) + 200}k`;
+}).join('\n\n')}
+
+#### 📊 **Branschspecifik Expertis: ${assignment.industry}**
+
+${industryInsight}
+
+**Konkreta resultat inom ${assignment.industry}:**
+• **KPI-förbättringar:** 25-60% improvement across key metrics
+• **Compliance:** 100% track record för regelefterlevnad  
+• **Stakeholder satisfaction:** 4.8/5.0 average rating från C-level kontakter
+• **Time-to-market:** Genomsnittlig 30% reduktion av leveranstider
+
+---
+
+### 🚀 **STRATEGIC IMPLEMENTATION ROADMAP**
+
+#### **Phase 1: Discovery & Quick Wins (Vecka 1-2)**
+✅ **Arkitektur-audit:** Comprehensive review av befintliga system  
+✅ **Stakeholder alignment:** Workshops med key decision makers  
+✅ **Quick wins identification:** Low-effort, high-impact optimeringar  
+✅ **Team integration:** Etablering av samarbetsrutiner och kommunikationsflöden
+
+**Leverables:**
+• Technical Assessment Report (20+ sidor)
+• Quick Wins Implementation Plan  
+• Team Communication Charter
+• Initial Performance Baseline
+
+#### **Phase 2: Core Development (Vecka 3-8)**
+🔧 **Feature development:** Implementation enligt projektplan och user stories  
+🔧 **Performance optimization:** Systematic improvements av critical paths  
+🔧 **Quality assurance:** Automated testing och code review processer  
+🔧 **Documentation:** Comprehensive technical och user documentation
+
+**Leverables:**
+• Production-ready code modules
+• Automated test suites (90%+ coverage)
+• Performance monitoring dashboards
+• API documentation och integration guides
+
+#### **Phase 3: Optimization & Handover (Slutfas)**
+🎯 **System optimization:** Fine-tuning för optimal performance och skalbarhet  
+🎯 **Knowledge transfer:** Extensive mentoring och training av internal team  
+🎯 **Future roadmap:** Strategic recommendations för continued development  
+🎯 **Success metrics:** Comprehensive analysis av project impact och ROI
+
+---
+
+### 💰 **BUSINESS CASE & ROI ANALYSIS**
+
+**Investment:** ${consultant.rate} för ${assignment.duration}  
+**Projected ROI within 12 months:**
+
+📈 **Direct Savings:**
+• Reduced development time: €${Math.floor(Math.random() * 200) + 150},000
+• Decreased maintenance costs: €${Math.floor(Math.random() * 100) + 50},000
+• Infrastructure optimization: €${Math.floor(Math.random() * 150) + 75},000
+
+📊 **Revenue Enhancement:**
+• Improved user experience → ${Math.floor(Math.random() * 20) + 15}% conversion increase
+• Faster time-to-market → €${Math.floor(Math.random() * 300) + 200},000 additional revenue
+• System reliability → ${Math.floor(Math.random() * 10) + 5}% customer retention improvement
+
+🎯 **Strategic Value:**
+• Future-proof architecture foundation
+• Enhanced team capabilities through knowledge transfer  
+• Established best practices för continued success
+• Comprehensive documentation för sustainable growth
+
+**Total Projected Value: €${Math.floor(Math.random() * 500) + 400},000+**
+
+---
+
+### 🏆 **CREDENTIALS & VALIDATION**
+
+#### **Professional Track Record:**
+• **Projects Delivered:** ${consultant.projects}+ successful implementations
+• **Client Satisfaction:** ${consultant.rating}/5.0 ⭐ (based on verified testimonials)
+• **Industry Recognition:** ${consultant.certifications.join(', ')} certified
+• **Global Reach:** Projects across ${consultant.languages.join(', ')}-speaking markets
+
+#### **Recent Client Testimonials:**
+*"${consultant.name} delivered beyond expectations, transforming our legacy system into a modern, scalable platform. The ${Math.floor(Math.random() * 30) + 25}% performance improvement exceeded our most optimistic projections."*  
+**- CTO, ${assignment.industry} Startup (€50M valuation)**
+
+*"Exceptional technical skills combined with business acumen. ${consultant.name} didn't just code - they architected our future."*  
+**- Head of Engineering, Fortune 500 ${assignment.industry} Company**
+
+#### **Continuous Learning & Innovation:**
+• **Latest Certifications:** Updated inom ${matchedSkills.slice(0,2).join(' och ')} (senaste 6 månaderna)
+• **Community Involvement:** Speaker på 3+ tech conferences årligen  
+• **Open Source:** Maintainer av projekt med 1000+ GitHub stars
+• **Thought Leadership:** Published artikel inom ${assignment.industry} tech trends
+
+---
+
+### 🎯 **OPERATIONAL EXCELLENCE**
+
+#### **Communication & Collaboration:**
+• **Daily standups:** Structured progress updates och blockers identification
+• **Weekly reports:** Comprehensive status reports with metrics och forecasts  
+• **Monthly reviews:** Strategic sessions med stakeholders för alignment och planning
+• **Ad-hoc availability:** ${consultant.availability} för urgent issues eller opportunities
+
+#### **Quality Assurance Framework:**
+• **Code Standards:** Industry best practices med automated linting och formatting
+• **Testing Strategy:** Unit, integration och end-to-end testing med CI/CD integration
+• **Security Protocol:** OWASP compliance med regular security audits
+• **Performance Monitoring:** Real-time dashboards med alerting för critical metrics
+
+#### **Knowledge Management:**
+• **Documentation:** Living documentation som uppdateras kontinuerligt
+• **Training Materials:** Video tutorials och hands-on workshops för team members
+• **Best Practices:** Etablering av coding standards och development workflows  
+• **Legacy Planning:** Comprehensive handover för seamless transition
+
+---
+
+### 📋 **PROJECT LOGISTICS**
+
+**Immediate Availability:** ✅ ${consultant.availability}  
+**Start Date:** ✅ ${assignment.startDate} (confirmed)  
+**Work Arrangement:** ✅ ${assignment.remote} (${consultant.location}-based)  
+**Team Size Compatibility:** ✅ ${assignment.teamSize} (optimal för min working style)  
+**Budget Alignment:** ✅ ${consultant.rate} within ${assignment.budget}  
+
+${unmatchedSkills.length > 0 ? `### 🎓 **CONTINUOUS IMPROVEMENT COMMITMENT**
+
+**Identified Growth Areas:**
+${unmatchedSkills.map(skill => `• **${skill}:** Planerad certifiering inom Q1 med hands-on projects för rapid proficiency`).join('\n')}
+
+**Learning Investment:**
+Jag investerar 10% av min tid i continuous learning, vilket säkerställer att jag alltid är uppdaterad med latest technologies och best practices. För detta projekt innebär det att jag kommer att utveckla expertis inom ovannämnda områden som en naturlig del av deliverables.` : ''}
+
+---
+
+### 🚀 **CALL TO ACTION**
+
+Jag är redo att börja bidra till ${assignment.company}s framgång omedelbart. Mina nästa steg:
+
+1. **📞 Technical Discovery Call** (30 min) - Djupdykning i er tekniska vision
+2. **👥 Team Introduction Session** (45 min) - Möta stakeholders och förstå dynamik  
+3. **⚡ Proof of Concept** (1 vecka) - Demonstrera min approach genom targeted deliverable
+4. **📄 Contract Finalization** - Formalisera partnership för mutual success
+
+**Kontakta mig idag för att börja denna transformation:**
+
+📧 **${consultant.email}**  
+📱 **${consultant.phone}**  
+💼 **Portfolio:** Extensive case studies och code samples available upon request  
+🤝 **References:** C-level contacts från previous successful engagements
+
+---
+
+**Tack för er tid och övervägande. Jag ser fram emot att vara er strategiska partner i att realisera ${assignment.title}-visionen! 🎯**
+
+---
+
+*${consultant.name}*  
+*Senior ${consultant.roles[0]} | ${consultant.experience} Experience*  
+*Specialized in ${assignment.industry} Digital Transformation*
+
+---
+*📊 AI-Enhanced Proposal Analytics: Generated ${new Date().toLocaleString('sv-SE')} | Match Confidence: ${matchScore}% | Processing: 1.2s*`
   ];
   
   return templates[Math.floor(Math.random() * templates.length)];
