@@ -1,9 +1,10 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Users, Briefcase, TrendingUp, Clock } from "lucide-react";
-import CreateAssignmentForm from "./CreateAssignmentForm";
+import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 
 interface DashboardProps {
