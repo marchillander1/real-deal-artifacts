@@ -12,7 +12,6 @@ import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { findMatches } from "../utils/matching";
 
 // Sample data for demo purposes
 const initialConsultants: Consultant[] = [
