@@ -35,55 +35,133 @@ serve(async (req) => {
 
     console.log('✅ OpenAI API key found');
 
-    // Simulate realistic LinkedIn data extraction
+    // Extended mock LinkedIn data - 30 posts plus comprehensive summary
     const mockLinkedInPosts = [
-      "Exciting to see the development in AI and software development! Working with innovative solutions that make developers more productive.",
-      "Amazing teamwork today. Love working with different perspectives to solve complex problems.",
-      "Just finished a challenging project with React and TypeScript. Learning never stops in tech!",
-      "Attended a tech conference about sustainable software methods. Always educational with new approaches.",
-      "Mentoring junior developers is incredibly rewarding. Sharing knowledge helps everyone grow.",
-      "Passionate about clean code and best practices. Quality software makes a real difference.",
-      "Working remotely has taught me the importance of clear communication and documentation.",
-      "Innovation happens when we step outside our comfort zone and try new technology.",
-      "Team success comes from supporting each other and celebrating wins together.",
-      "Continuous learning is the key in our rapidly changing tech landscape."
+      "Excited to share our team's breakthrough in AI-driven software development! Working with cutting-edge technologies that enhance developer productivity by 40%. Innovation happens when we embrace change and push boundaries. #AI #SoftwareDevelopment #Innovation",
+      
+      "Amazing collaborative session today with cross-functional teams. Different perspectives create the best solutions. Love how we can combine technical expertise with creative problem-solving. Together we achieve more! #Teamwork #Collaboration #TechLeadership",
+      
+      "Just completed a challenging 6-month project using React, TypeScript, and microservices architecture. Learning never stops in tech - every project teaches us something new. Grateful for the continuous growth opportunities. #React #TypeScript #Learning",
+      
+      "Attended TechConf 2024 focusing on sustainable software development practices. The sessions on green coding and environmental impact were eye-opening. We have a responsibility to build efficient, sustainable solutions. #Sustainability #GreenTech #Conference",
+      
+      "Mentoring junior developers has been incredibly rewarding this quarter. Sharing knowledge and watching talent grow is one of the best parts of leadership. Investment in people always pays the highest dividends. #Mentorship #Leadership #Growth",
+      
+      "Passionate about writing clean, maintainable code that stands the test of time. Quality over quantity - it's not about how much code you write, but how well you solve problems. Code is communication. #CleanCode #BestPractices #SoftwareQuality",
+      
+      "Remote work has taught me the critical importance of clear communication and comprehensive documentation. Async collaboration requires intentional processes and mutual respect for different working styles. #RemoteWork #Communication #AsyncCollaboration",
+      
+      "Innovation emerges when we step outside our comfort zones and experiment with new technologies. Just implemented GraphQL for the first time - the learning curve was steep but worth it! #Innovation #GraphQL #ContinuousLearning",
+      
+      "Team success is built on trust, open communication, and celebrating both individual and collective wins. Today we celebrated shipping our biggest feature yet - couldn't be prouder of this team! #TeamSuccess #Celebration #Achievement",
+      
+      "Continuous learning is not just a buzzword in our rapidly changing tech landscape - it's survival. Dedicating 20% of my time to learning new technologies and methodologies. Growth mindset is everything. #ContinuousLearning #GrowthMindset #TechEvolution",
+      
+      "Implementing accessibility features shouldn't be an afterthought - it should be built into our development process from day one. Technology should be inclusive and available to everyone. #Accessibility #InclusiveDesign #WebDevelopment",
+      
+      "Code reviews are not about finding faults - they're about collaborative improvement and knowledge sharing. Best part of my day is learning from my colleagues' different approaches to problem-solving. #CodeReview #Collaboration #Learning",
+      
+      "Debugging is like detective work - you follow clues, form hypotheses, and systematically eliminate possibilities. Today's tricky bug taught me a valuable lesson about race conditions in async operations. #Debugging #ProblemSolving #AsyncProgramming",
+      
+      "Open source contribution update: just merged my PR to improve performance in a popular React library. Giving back to the community that has given me so much knowledge and tools. #OpenSource #Community #React",
+      
+      "Architecture decisions made today will impact our codebase for years. Taking time to consider scalability, maintainability, and team dynamics when designing systems. Long-term thinking pays off. #SoftwareArchitecture #SystemDesign #LongTermThinking",
+      
+      "Pair programming session today was incredibly productive. Two minds working together on complex algorithms resulted in elegant solutions neither of us would have reached alone. Collaboration amplifies intelligence. #PairProgramming #Collaboration #Algorithms",
+      
+      "User feedback is gold. Our latest feature update was driven entirely by listening to our users' needs and pain points. Building software is ultimately about solving real human problems. #UserFeedback #ProductDevelopment #HumanCenteredDesign",
+      
+      "Automated testing has transformed how confidently we can refactor and add features. Investing time in comprehensive test suites pays dividends in development velocity and code quality. #Testing #Automation #CodeQuality",
+      
+      "Database optimization project complete! Query performance improved by 75% through proper indexing and query restructuring. Performance work might not be glamorous, but it directly impacts user experience. #DatabaseOptimization #Performance #UserExperience",
+      
+      "Security is everyone's responsibility, not just the security team's. Integrating security practices into our development workflow protects our users and builds trust. Security by design, not as an afterthought. #Security #CyberSecurity #TrustAndSafety",
+      
+      "API design is an art form - balancing simplicity, functionality, and future extensibility. Spent the day designing RESTful endpoints that will serve our mobile and web clients efficiently. #APIDesign #REST #SystemIntegration",
+      
+      "Machine learning integration in our platform is showing promising results. Combining domain expertise with ML capabilities opens up exciting possibilities for user personalization. #MachineLearning #AI #Personalization",
+      
+      "Cross-platform development using React Native allowed us to reach both iOS and Android users with a single codebase. Technology choices should align with business goals and user needs. #ReactNative #CrossPlatform #MobileDevelopment",
+      
+      "DevOps practices have revolutionized our deployment pipeline. From manual deployments to automated CI/CD - the improvement in reliability and speed is remarkable. Infrastructure as code is the way forward. #DevOps #CICD #Infrastructure",
+      
+      "Technical debt is like financial debt - a little is manageable, but left unchecked, it compounds and slows everything down. Regular refactoring sessions keep our codebase healthy and maintainable. #TechnicalDebt #Refactoring #CodeMaintenance",
+      
+      "Microservices architecture brings both opportunities and challenges. Service boundaries must be carefully designed to avoid distributed monolith antipatterns. Clear contracts and monitoring are essential. #Microservices #DistributedSystems #Architecture",
+      
+      "Data visualization project completed using D3.js and React. Transforming complex datasets into intuitive, interactive charts helps users make better decisions. Data tells stories when presented well. #DataVisualization #D3js #DataStorytelling",
+      
+      "Version control best practices saved us today when a critical bug was introduced. Git workflows, meaningful commit messages, and branching strategies are fundamental skills every developer needs. #Git #VersionControl #BestPractices",
+      
+      "Performance monitoring revealed interesting user behavior patterns. Real user metrics provide insights that synthetic tests can't capture. Observability is key to understanding production systems. #PerformanceMonitoring #Observability #UserAnalytics",
+      
+      "Cloud migration project complete! Moving from on-premises to AWS resulted in improved scalability, reduced costs, and better disaster recovery capabilities. Cloud-first thinking enables business agility. #CloudMigration #AWS #Scalability"
     ];
 
-    // Mock LinkedIn intro/about section
-    const mockLinkedInIntro = `Experienced software developer with over 8 years of industry expertise, specializing in fullstack development and team leadership. I'm passionate about creating innovative solutions that solve real problems and believe in the power of collaborative development.
+    // Comprehensive LinkedIn summary/about section
+    const mockLinkedInSummary = `Senior Software Engineer & Technical Leader | 10+ Years Experience | Full-Stack Development Expert
 
-My work approach is based on continuous learning, open communication, and a commitment to quality. I thrive in environments where I can mentor others while being challenged to grow myself. Whether leading a team or contributing as an individual contributor, I focus on building sustainable, scalable solutions.
+    Passionate technologist with over a decade of experience building scalable, user-centric software solutions. I specialize in modern web technologies including React, TypeScript, Node.js, and cloud architectures, with a strong foundation in both frontend and backend development.
 
-Outside of coding, I'm active in the tech community, regularly speaking at conferences and contributing to open source projects. I believe technology should be accessible and inclusive, and work to promote diversity in tech through mentorship and community engagement.
+    🚀 **Technical Expertise:**
+    • Full-stack development with React, TypeScript, Python, and Node.js
+    • Cloud architecture and DevOps practices (AWS, Docker, Kubernetes)
+    • Database design and optimization (PostgreSQL, MongoDB, Redis)
+    • API design and microservices architecture
+    • Machine learning integration and data analytics
+    • Performance optimization and security best practices
 
-Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and Integrity.`;
+    👥 **Leadership & Collaboration:**
+    As a technical lead, I've guided cross-functional teams through complex projects, fostering a culture of continuous learning and innovation. I believe in servant leadership - supporting team members' growth while maintaining high technical standards. My approach combines strategic thinking with hands-on technical involvement.
 
-    console.log('📊 Starting OpenAI analysis...');
+    📚 **Philosophy & Values:**
+    I'm driven by the belief that technology should solve real human problems and be accessible to everyone. Quality, sustainability, and user experience are at the core of my development philosophy. I advocate for clean code, comprehensive testing, and inclusive design practices.
 
-    // Use OpenAI to analyze both posts and intro for personality traits
+    🌱 **Continuous Growth:**
+    Technology evolves rapidly, and I'm committed to staying current through continuous learning, open-source contributions, and community engagement. I regularly speak at tech conferences and mentor junior developers, believing that knowledge sharing strengthens our entire industry.
+
+    🎯 **Current Focus:**
+    Currently exploring the intersection of AI and software development, sustainable coding practices, and building developer tools that enhance productivity while maintaining code quality. Always open to discussing innovative solutions and collaborative opportunities.
+
+    Values: Innovation, Quality, Collaboration, Continuous Learning, Inclusivity, Sustainability
+
+    Interested in: Full-stack development, Technical leadership, AI/ML integration, Developer experience, Team mentoring, Open source contribution`;
+
+    console.log('📊 Starting comprehensive AI personality analysis...');
+
+    // Enhanced analysis prompt for comprehensive personality assessment
     const analysisPrompt = `
-    Analyze the following LinkedIn profile data (intro/about section + recent posts) and extract personality traits, communication style, work values, and team fit characteristics. 
+    Analyze the following comprehensive LinkedIn profile data (professional summary + 30 recent posts) and provide a detailed AI personality analysis. Extract insights about communication style, work approach, values, and team dynamics.
     
     IMPORTANT: Return ONLY a valid JSON object with these exact fields (no additional text before or after):
     {
-      "communicationStyle": "string (e.g., 'Direct and collaborative', 'Analytical and thoughtful')",
-      "workStyle": "string (e.g., 'Agile and iterative', 'Structured and methodical')",
-      "values": ["array of max 4 strings like 'Innovation', 'Quality', 'Teamwork'"],
-      "personalityTraits": ["array of max 4 strings like 'Creative', 'Analytical', 'Leadership-oriented'"],
-      "teamFit": "string (description of how they work in teams)",
+      "communicationStyle": "string (detailed description of how they communicate - e.g., 'Direct and collaborative with technical depth', 'Empathetic and inclusive with clear explanations')",
+      "workStyle": "string (detailed description of their work approach - e.g., 'Systematic and quality-focused with agile methodology', 'Innovative and experimental with structured planning')",
+      "values": ["array of exactly 4 core values like 'Innovation', 'Quality', 'Collaboration', 'Learning'"],
+      "personalityTraits": ["array of exactly 4 key personality traits like 'Analytical', 'Visionary', 'Empathetic', 'Detail-oriented'"],
+      "teamFit": "string (comprehensive description of how they work in teams and leadership style)",
       "culturalFit": 4.2,
       "adaptability": 4.3,
-      "leadership": 4.1
+      "leadership": 4.1,
+      "technicalDepth": 4.5,
+      "communicationClarity": 4.4,
+      "innovationMindset": 4.3,
+      "mentorshipAbility": 4.6,
+      "problemSolvingApproach": "string (how they approach and solve complex problems)",
+      "learningOrientation": "string (their approach to continuous learning and skill development)",
+      "collaborationPreference": "string (preferred collaboration and teamwork style)"
     }
 
-    LinkedIn About/Intro section:
-    ${mockLinkedInIntro}
+    Professional Summary:
+    ${mockLinkedInSummary}
 
-    Recent LinkedIn posts:
-    ${mockLinkedInPosts.join('\n')}
+    Recent LinkedIn Posts (30 posts):
+    ${mockLinkedInPosts.join('\n\n')}
+    
+    Focus on extracting deep personality insights, communication patterns, leadership style, technical approach, and team collaboration preferences from this comprehensive data.
     `;
 
-    console.log('🤖 Calling OpenAI API...');
+    console.log('🤖 Calling OpenAI API for comprehensive analysis...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -96,12 +174,12 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
         messages: [
           { 
             role: 'system', 
-            content: 'You are an expert HR analyst specialized in personality assessment from social media. You must always return ONLY valid JSON without any additional text. Analyze both the professional intro and recent posts to get a comprehensive picture of the person.' 
+            content: 'You are an expert HR and personality analyst specialized in comprehensive professional assessment from LinkedIn data. You analyze communication patterns, work styles, values, and team dynamics from professional posts and summaries. Always return ONLY valid JSON without any additional text. Base your analysis on concrete evidence from the provided content.' 
           },
           { role: 'user', content: analysisPrompt }
         ],
-        temperature: 0.3,
-        max_tokens: 1000,
+        temperature: 0.2,
+        max_tokens: 1500,
       }),
     });
 
@@ -111,26 +189,34 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
       const errorText = await response.text();
       console.error('❌ OpenAI API error:', response.status, response.statusText, errorText);
       
-      // Fallback analysis if OpenAI fails
+      // Enhanced fallback analysis with all required fields
       const fallbackAnalysis = {
-        communicationStyle: "Professional and engaging",
-        workStyle: "Collaborative and innovative",
-        values: ["Innovation", "Learning", "Teamwork", "Quality"],
-        personalityTraits: ["Curious", "Collaborative", "Growth-oriented", "Technical"],
-        teamFit: "Strong team player with mentorship capabilities",
-        culturalFit: 4.2,
-        adaptability: 4.3,
-        leadership: 4.0
+        communicationStyle: "Technical and collaborative with strong mentorship focus",
+        workStyle: "Systematic and quality-driven with continuous learning emphasis",
+        values: ["Innovation", "Quality", "Learning", "Collaboration"],
+        personalityTraits: ["Analytical", "Mentoring-oriented", "Growth-focused", "Technical-expert"],
+        teamFit: "Strong technical leader with excellent mentorship capabilities and collaborative approach",
+        culturalFit: 4.3,
+        adaptability: 4.4,
+        leadership: 4.2,
+        technicalDepth: 4.6,
+        communicationClarity: 4.3,
+        innovationMindset: 4.4,
+        mentorshipAbility: 4.7,
+        problemSolvingApproach: "Systematic analysis with creative solution exploration and collaborative validation",
+        learningOrientation: "Continuous learning advocate with focus on emerging technologies and best practices",
+        collaborationPreference: "Cross-functional teamwork with emphasis on knowledge sharing and inclusive decision-making"
       };
       
-      console.log('🔄 Using fallback analysis due to OpenAI error');
+      console.log('🔄 Using enhanced fallback analysis due to OpenAI error');
       
       return new Response(JSON.stringify({ 
         success: true, 
         analysis: fallbackAnalysis,
-        postsAnalyzed: mockLinkedInPosts.length,
-        introAnalyzed: true,
-        note: "Using fallback analysis due to OpenAI API error"
+        postsAnalyzed: 30,
+        summaryAnalyzed: true,
+        analysisType: "comprehensive_ai_personality",
+        note: "Using enhanced fallback analysis due to OpenAI API error"
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -143,7 +229,7 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
     
     try {
       const responseContent = data.choices[0].message.content.trim();
-      console.log('🔍 Parsing OpenAI response content:', responseContent);
+      console.log('🔍 Parsing comprehensive analysis response:', responseContent);
       
       // Clean up the response content - remove any non-JSON text
       let cleanContent = responseContent;
@@ -154,44 +240,70 @@ Values that drive me: Innovation, Quality, Teamwork, Continuous learning, and In
       }
       
       analysis = JSON.parse(cleanContent);
-      console.log('✅ Successfully parsed analysis:', analysis);
+      console.log('✅ Successfully parsed comprehensive analysis:', analysis);
       
-      // Validate required fields
-      if (!analysis.communicationStyle || !analysis.workStyle || !analysis.values || !analysis.personalityTraits) {
-        throw new Error('Missing required fields in analysis');
+      // Validate required fields for comprehensive analysis
+      const requiredFields = [
+        'communicationStyle', 'workStyle', 'values', 'personalityTraits', 
+        'teamFit', 'culturalFit', 'adaptability', 'leadership',
+        'problemSolvingApproach', 'learningOrientation', 'collaborationPreference'
+      ];
+      
+      for (const field of requiredFields) {
+        if (!analysis[field]) {
+          throw new Error(`Missing required field: ${field}`);
+        }
       }
       
     } catch (parseError) {
       console.error('❌ Failed to parse OpenAI response:', parseError);
       console.error('Raw content was:', data.choices[0]?.message?.content);
       
-      // Fallback analysis if parsing fails
+      // Enhanced fallback analysis if parsing fails
       analysis = {
-        communicationStyle: "Professional and engaging",
-        workStyle: "Collaborative and innovative",
-        values: ["Innovation", "Learning", "Teamwork", "Quality"],
-        personalityTraits: ["Curious", "Collaborative", "Growth-oriented", "Technical"],
-        teamFit: "Strong team player with mentorship capabilities",
-        culturalFit: 4.2,
-        adaptability: 4.3,
-        leadership: 4.0
+        communicationStyle: "Technical and collaborative with strong mentorship focus",
+        workStyle: "Systematic and quality-driven with continuous learning emphasis",
+        values: ["Innovation", "Quality", "Learning", "Collaboration"],
+        personalityTraits: ["Analytical", "Mentoring-oriented", "Growth-focused", "Technical-expert"],
+        teamFit: "Strong technical leader with excellent mentorship capabilities and collaborative approach",
+        culturalFit: 4.3,
+        adaptability: 4.4,
+        leadership: 4.2,
+        technicalDepth: 4.6,
+        communicationClarity: 4.3,
+        innovationMindset: 4.4,
+        mentorshipAbility: 4.7,
+        problemSolvingApproach: "Systematic analysis with creative solution exploration and collaborative validation",
+        learningOrientation: "Continuous learning advocate with focus on emerging technologies and best practices",
+        collaborationPreference: "Cross-functional teamwork with emphasis on knowledge sharing and inclusive decision-making"
       };
-      console.log('🔄 Using fallback analysis due to parsing error');
+      console.log('🔄 Using enhanced fallback analysis due to parsing error');
     }
 
-    console.log('🎉 LinkedIn analysis completed successfully');
+    console.log('🎉 Comprehensive LinkedIn AI personality analysis completed successfully');
 
     return new Response(JSON.stringify({ 
       success: true, 
       analysis,
-      postsAnalyzed: mockLinkedInPosts.length,
-      introAnalyzed: true
+      postsAnalyzed: 30,
+      summaryAnalyzed: true,
+      analysisType: "comprehensive_ai_personality",
+      metrics: {
+        communicationStyle: analysis.communicationStyle,
+        workStyle: analysis.workStyle,
+        values: analysis.values,
+        personalityTraits: analysis.personalityTraits,
+        teamFit: analysis.teamFit,
+        culturalFit: analysis.culturalFit,
+        adaptability: analysis.adaptability,
+        leadership: analysis.leadership
+      }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('💥 Error in analyze-linkedin function:', error);
+    console.error('💥 Error in comprehensive LinkedIn analysis function:', error);
     return new Response(JSON.stringify({ 
       error: error.message,
       success: false 
