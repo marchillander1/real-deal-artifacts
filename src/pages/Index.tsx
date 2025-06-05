@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
-import { ConsultantDatabase } from "@/components/ConsultantDatabase";
+import { ConsultantsTab } from "@/components/ConsultantsTab";
 import { Assignment, Consultant, Match } from "../types/consultant";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
@@ -37,7 +37,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Excellent mentor, works well in cross-functional teams",
     culturalFit: 5,
     adaptability: 4,
-    leadership: 5
+    leadership: 5,
+    linkedinUrl: "https://linkedin.com/in/anna-lindqvist"
   },
   {
     id: 2,
@@ -64,7 +65,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Strong technical contributor, prefers smaller teams",
     culturalFit: 4,
     adaptability: 5,
-    leadership: 3
+    leadership: 3,
+    linkedinUrl: "https://linkedin.com/in/marcus-johansson"
   },
   {
     id: 3,
@@ -91,7 +93,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Natural leader, excellent at aligning teams around vision",
     culturalFit: 5,
     adaptability: 5,
-    leadership: 5
+    leadership: 5,
+    linkedinUrl: "https://linkedin.com/in/sofia-andersson"
   },
   {
     id: 4,
@@ -118,7 +121,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Great collaborator on technical challenges",
     culturalFit: 4,
     adaptability: 4,
-    leadership: 3
+    leadership: 3,
+    linkedinUrl: "https://linkedin.com/in/erik-nilsson"
   },
   {
     id: 5,
@@ -145,7 +149,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Bridges gap between design and development teams",
     culturalFit: 5,
     adaptability: 4,
-    leadership: 4
+    leadership: 4,
+    linkedinUrl: "https://linkedin.com/in/lisa-bergstrom"
   }
 ];
 
@@ -403,7 +408,8 @@ const Index = () => {
             teamFit: "Adaptable team member with growth potential",
             culturalFit: 4,
             adaptability: 4,
-            leadership: 3
+            leadership: 3,
+            linkedinUrl: `https://linkedin.com/in/${file.name.toLowerCase().replace(' ', '-')}`
           };
 
           setConsultants((prevConsultants) => [...prevConsultants, newConsultant]);
@@ -520,7 +526,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <ConsultantDatabase />
+            <ConsultantsTab />
           </TabsContent>
 
           <TabsContent value="assignments">
