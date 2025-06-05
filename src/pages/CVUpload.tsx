@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +32,17 @@ export const CVUpload = () => {
     availability: '',
     certifications: '',
     languages: '',
-    motivation: ''
+    motivation: '',
+    education: '',
+    portfolio: '',
+    achievements: '',
+    interests: '',
+    careerGoals: '',
+    preferredWorkType: '',
+    salaryExpectation: '',
+    noticePeriod: '',
+    travelWillingness: '',
+    workExperience: ''
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -52,7 +63,7 @@ export const CVUpload = () => {
   const processCV = async (file: File) => {
     setIsProcessing(true);
     
-    // Simulera AI CV-analys
+    // Simulate AI CV analysis
     setTimeout(() => {
       // Auto-fill form with extracted data
       setFormData({
@@ -80,14 +91,14 @@ export const CVUpload = () => {
         workExperience: "Senior Developer at TechCorp (2019-2024): Led development of microservices architecture"
       });
 
-      // Generera CV-tips
+      // Generate CV tips
       const generatedCvTips = [
-        "💡 Håll det koncist - Sikta på 1-2 sidor max. Framhäv din mest relevanta erfarenhet och kompetens.",
-        "✅ Professionellt format - Använd ett rent, läsbart typsnitt och konsekvent formatering.",
-        "🎯 Använd nyckelord - Inkludera branschspecifika nyckelord och teknologier du behärskar.",
-        "📈 Kvantifiera prestationer - Använd siffror och mätvärden för att visa din påverkan och dina resultat.",
-        "🔄 Uppdatera regelbundet - Håll ditt CV aktuellt med dina senaste projekt och certifieringar.",
-        "📝 Korrekturläs noggrant - Se till att det inte finns några stavfel eller grammatiska fel."
+        "💡 Keep it concise - Aim for 1-2 pages max. Highlight your most relevant experience and skills.",
+        "✅ Professional format - Use a clean, readable font and consistent formatting.",
+        "🎯 Use keywords - Include industry-specific keywords and technologies you master.",
+        "📈 Quantify achievements - Use numbers and metrics to show your impact and results.",
+        "🔄 Update regularly - Keep your CV current with your latest projects and certifications.",
+        "📝 Proofread carefully - Ensure there are no spelling or grammatical errors."
       ];
       
       setCvTips(generatedCvTips);
@@ -97,7 +108,7 @@ export const CVUpload = () => {
 
   const handleLinkedInAnalysis = async () => {
     if (!linkedinUrl) {
-      alert('Vänligen ange en LinkedIn URL först');
+      alert('Please enter a LinkedIn URL first');
       return;
     }
 
@@ -116,22 +127,22 @@ export const CVUpload = () => {
       
       if (data.success) {
         setLinkedinAnalysis(data.analysis);
-        alert('LinkedIn-analys komplett! Personlighetsinsikter har lagts till din profil.');
+        alert('LinkedIn analysis complete! Personality insights have been added to your profile.');
       } else {
-        alert('LinkedIn analys misslyckades');
+        alert('LinkedIn analysis failed');
       }
     } catch (error) {
       console.error('LinkedIn analysis failed:', error);
-      alert('LinkedIn analys misslyckades');
+      alert('LinkedIn analysis failed');
     } finally {
       setIsAnalyzingLinkedin(false);
     }
   };
 
   const handleSaveConsultant = async () => {
-    // Validera obligatoriska fält
+    // Validate required fields
     if (!formData.name || !formData.email || !formData.phone) {
-      alert('Vänligen fyll i alla obligatoriska fält (namn, email, telefon)');
+      alert('Please fill in all required fields (name, email, phone)');
       return;
     }
     
@@ -155,7 +166,7 @@ export const CVUpload = () => {
         languages: formData.languages.split(',').map(l => l.trim()).filter(l => l),
         type: 'new' as const,
         
-        // LinkedIn och AI-analys data
+        // LinkedIn and AI analysis data
         communication_style: linkedinAnalysis?.communicationStyle || "Professional and collaborative",
         work_style: linkedinAnalysis?.workStyle || "Agile and results-oriented",
         values: linkedinAnalysis?.values || ["Quality", "Innovation", "Teamwork"],
@@ -163,28 +174,7 @@ export const CVUpload = () => {
         team_fit: linkedinAnalysis?.teamFit || "Strong team player with excellent communication skills",
         cultural_fit: linkedinAnalysis?.culturalFit || 4.5,
         adaptability: linkedinAnalysis?.adaptability || 4.3,
-        leadership: linkedinAnalysis?.leadership || 4.1,
-        
-        // Ytterligare fält
-        education: ["Master's in Computer Science"],
-        work_experience: [{
-          company: "TechCorp AB",
-          position: formData.role,
-          duration: `${formData.experience}`,
-          description: "Developed innovative solutions using modern technologies"
-        }],
-        portfolio: ["Portfolio project examples"],
-        achievements: ["Led successful project implementations"],
-        interests: ["Technology", "Innovation", "Problem Solving"],
-        career_goals: formData.motivation,
-        linkedin_url: linkedinUrl || null,
-        github_url: null,
-        portfolio_url: null,
-        preferred_work_type: formData.availability === 'remote' ? 'Remote' : 'Hybrid',
-        salary_expectation: formData.rate,
-        notice_period: "2 weeks",
-        travel_willingness: "Occasionally",
-        professional_summary: formData.motivation || "Experienced professional with strong technical skills and passion for innovation."
+        leadership: linkedinAnalysis?.leadership || 4.1
       };
 
       const { data, error } = await supabase
@@ -195,12 +185,12 @@ export const CVUpload = () => {
 
       if (error) {
         console.error('Error saving consultant:', error);
-        alert('Fel vid sparande av konsult');
+        alert('Error saving consultant');
         return;
       }
 
       console.log('Consultant saved successfully:', data);
-      alert('🚀 Profil skapad framgångsrikt! Du är nu del av vårt konsultnätverk.');
+      alert('🚀 Profile created successfully! You are now part of our consultant network.');
       
       // Reset form
       setFormData({
@@ -215,7 +205,17 @@ export const CVUpload = () => {
         availability: '',
         certifications: '',
         languages: '',
-        motivation: ''
+        motivation: '',
+        education: '',
+        portfolio: '',
+        achievements: '',
+        interests: '',
+        careerGoals: '',
+        preferredWorkType: '',
+        salaryExpectation: '',
+        noticePeriod: '',
+        travelWillingness: '',
+        workExperience: ''
       });
       setUploadedFile(null);
       setCvTips([]);
@@ -223,7 +223,7 @@ export const CVUpload = () => {
       setLinkedinAnalysis(null);
     } catch (error) {
       console.error('Error:', error);
-      alert('Ett fel uppstod');
+      alert('An error occurred');
     } finally {
       setIsUploading(false);
     }
@@ -239,18 +239,18 @@ export const CVUpload = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">ConsultMatch AI</h1>
-            <p className="text-gray-600">Bli del av vårt nätverk</p>
+            <p className="text-gray-600">Join our network</p>
           </div>
         </div>
         
         <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Gå med i vårt <span className="text-blue-600">Konsultnätverk</span>
+          Join our <span className="text-blue-600">Consultant Network</span>
         </h2>
         <p className="text-xl text-gray-600 mb-2">
-          <strong>Ladda upp ditt CV och ange din LinkedIn-profil</strong> - låt vår AI skapa din profil
+          <strong>Upload your CV and provide your LinkedIn profile</strong> - let our AI create your profile
         </p>
         <p className="text-lg text-gray-500">
-          Bli automatiskt matchad med premiumuppdrag genom att dela ditt CV och LinkedIn
+          Get automatically matched with premium assignments by sharing your CV and LinkedIn
         </p>
       </div>
 
@@ -259,7 +259,7 @@ export const CVUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-center justify-center">
             <Lightbulb className="h-5 w-5 text-orange-600" />
-            CV-tips för framgång
+            CV Tips for Success
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -267,43 +267,43 @@ export const CVUpload = () => {
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Håll det koncist</h4>
-                <p className="text-sm text-gray-600">Sikta på 1-2 sidor max. Framhäv din mest relevanta erfarenhet och kompetens.</p>
+                <h4 className="font-medium text-gray-900">Keep it concise</h4>
+                <p className="text-sm text-gray-600">Aim for 1-2 pages max. Highlight your most relevant experience and skills.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Professionellt format</h4>
-                <p className="text-sm text-gray-600">Använd ett rent, läsbart typsnitt och konsekvent formatering.</p>
+                <h4 className="font-medium text-gray-900">Professional format</h4>
+                <p className="text-sm text-gray-600">Use a clean, readable font and consistent formatting.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Använd nyckelord</h4>
-                <p className="text-sm text-gray-600">Inkludera branschspecifika nyckelord och teknologier du behärskar.</p>
+                <h4 className="font-medium text-gray-900">Use keywords</h4>
+                <p className="text-sm text-gray-600">Include industry-specific keywords and technologies you master.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Kvantifiera prestationer</h4>
-                <p className="text-sm text-gray-600">Använd siffror och mätvärden för att visa din påverkan och dina resultat.</p>
+                <h4 className="font-medium text-gray-900">Quantify achievements</h4>
+                <p className="text-sm text-gray-600">Use numbers and metrics to show your impact and results.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Uppdatera regelbundet</h4>
-                <p className="text-sm text-gray-600">Håll ditt CV aktuellt med dina senaste projekt och certifieringar.</p>
+                <h4 className="font-medium text-gray-900">Update regularly</h4>
+                <p className="text-sm text-gray-600">Keep your CV current with your latest projects and certifications.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900">Korrekturläs noggrant</h4>
-                <p className="text-sm text-gray-600">Se till att det inte finns några stavfel eller grammatiska fel.</p>
+                <h4 className="font-medium text-gray-900">Proofread carefully</h4>
+                <p className="text-sm text-gray-600">Ensure there are no spelling or grammatical errors.</p>
               </div>
             </div>
           </div>
@@ -315,7 +315,7 @@ export const CVUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
-            Ladda upp CV/Resume (Rekommenderas starkt)
+            Upload CV/Resume (Required)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -330,10 +330,10 @@ export const CVUpload = () => {
             <label htmlFor="cv-upload" className="cursor-pointer">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-lg font-medium text-gray-700 mb-2">
-                <strong>Ladda upp ditt CV för att auto-fylla fälten</strong>
+                <strong>Upload your CV to auto-fill the fields</strong>
               </p>
               <p className="text-sm text-gray-500">
-                Stöder PDF, DOC, DOCX filer • Gör processen mycket snabbare
+                Supports PDF, DOC, DOCX files • Makes the process much faster
               </p>
             </label>
           </div>
@@ -357,8 +357,82 @@ export const CVUpload = () => {
               <div className="flex items-center gap-3">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-yellow-600"></div>
                 <div>
-                  <p className="text-yellow-800 font-medium">🤖 AI analyserar CV:et...</p>
-                  <p className="text-yellow-700 text-sm">Extraherar data och fyller i formulärfälten automatiskt</p>
+                  <p className="text-yellow-800 font-medium">🤖 AI analyzing CV...</p>
+                  <p className="text-yellow-700 text-sm">Extracting data and auto-filling form fields</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* LinkedIn Analysis Section */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Linkedin className="h-5 w-5 text-blue-600" />
+            LinkedIn Profile Analysis (Required)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="linkedin-url">LinkedIn Profile URL</Label>
+            <Input
+              id="linkedin-url"
+              type="url"
+              placeholder="https://linkedin.com/in/your-name"
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              className="mt-1"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              <strong>Add your LinkedIn profile for deeper AI analysis of your soft skills</strong>
+            </p>
+          </div>
+          
+          <Button 
+            onClick={handleLinkedInAnalysis}
+            disabled={isAnalyzingLinkedin || !linkedinUrl}
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            {isAnalyzingLinkedin ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Analyzing LinkedIn profile...
+              </>
+            ) : (
+              <>
+                <Brain className="h-4 w-4 mr-2" />
+                Analyze LinkedIn Profile
+              </>
+            )}
+          </Button>
+
+          {linkedinAnalysis && (
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="font-medium text-blue-900 mb-3">✅ LinkedIn Analysis Complete</h4>
+              <div className="space-y-2 text-sm">
+                <div>
+                  <span className="font-medium text-blue-800">Communication Style:</span>
+                  <p className="text-blue-700">{linkedinAnalysis.communicationStyle}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-blue-800">Work Style:</span>
+                  <p className="text-blue-700">{linkedinAnalysis.workStyle}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-blue-200">
+                  <div className="text-center">
+                    <div className="font-bold text-blue-600">{linkedinAnalysis.culturalFit}/5</div>
+                    <div className="text-xs text-blue-500">Cultural Fit</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-blue-600">{linkedinAnalysis.adaptability}/5</div>
+                    <div className="text-xs text-blue-500">Adaptability</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-blue-600">{linkedinAnalysis.leadership}/5</div>
+                    <div className="text-xs text-blue-500">Leadership</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -371,7 +445,7 @@ export const CVUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Profilinformation
+            Profile Information
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -436,7 +510,7 @@ export const CVUpload = () => {
               />
             </div>
             <div>
-              <Label htmlFor="experience">Experience</Label>
+              <Label htmlFor="experience">Years of Experience</Label>
               <Input
                 id="experience"
                 placeholder="5 years"
@@ -459,10 +533,35 @@ export const CVUpload = () => {
             />
           </div>
 
+          {/* Education */}
+          <div>
+            <Label htmlFor="education">Education</Label>
+            <Input
+              id="education"
+              placeholder="Master's in Computer Science"
+              value={formData.education}
+              onChange={(e) => handleInputChange('education', e.target.value)}
+              className="mt-1"
+            />
+          </div>
+
+          {/* Work Experience */}
+          <div>
+            <Label htmlFor="workExperience">Work Experience</Label>
+            <Textarea
+              id="workExperience"
+              placeholder="Senior Developer at TechCorp (2019-2024): Led development of microservices architecture..."
+              value={formData.workExperience}
+              onChange={(e) => handleInputChange('workExperience', e.target.value)}
+              className="mt-1"
+              rows={3}
+            />
+          </div>
+
           {/* Rate and Availability */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="rate">Rate</Label>
+              <Label htmlFor="rate">Hourly Rate</Label>
               <Input
                 id="rate"
                 placeholder="800 SEK/hour"
@@ -489,7 +588,7 @@ export const CVUpload = () => {
             </div>
           </div>
 
-          {/* Certifications and Languages */}
+          {/* Additional Professional Info */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="certifications">Certifications (comma separated)</Label>
@@ -513,6 +612,95 @@ export const CVUpload = () => {
             </div>
           </div>
 
+          {/* Portfolio and Achievements */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="portfolio">Portfolio/GitHub</Label>
+              <Input
+                id="portfolio"
+                placeholder="github.com/your-username"
+                value={formData.portfolio}
+                onChange={(e) => handleInputChange('portfolio', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="achievements">Key Achievements</Label>
+              <Input
+                id="achievements"
+                placeholder="Led 5+ successful projects, 98% client satisfaction"
+                value={formData.achievements}
+                onChange={(e) => handleInputChange('achievements', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          {/* Career Goals and Interests */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="careerGoals">Career Goals</Label>
+              <Input
+                id="careerGoals"
+                placeholder="Become a tech lead in AI-driven development"
+                value={formData.careerGoals}
+                onChange={(e) => handleInputChange('careerGoals', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="interests">Professional Interests</Label>
+              <Input
+                id="interests"
+                placeholder="AI/ML, Open Source, Tech Conferences"
+                value={formData.interests}
+                onChange={(e) => handleInputChange('interests', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          {/* Work Preferences */}
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="preferredWorkType">Preferred Work Type</Label>
+              <Select value={formData.preferredWorkType} onValueChange={(value) => handleInputChange('preferredWorkType', value)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select work type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="remote">Remote</SelectItem>
+                  <SelectItem value="hybrid">Hybrid</SelectItem>
+                  <SelectItem value="onsite">On-site</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="noticePeriod">Notice Period</Label>
+              <Input
+                id="noticePeriod"
+                placeholder="2 weeks"
+                value={formData.noticePeriod}
+                onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="travelWillingness">Travel Willingness</Label>
+              <Select value={formData.travelWillingness} onValueChange={(value) => handleInputChange('travelWillingness', value)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select travel preference" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="never">Never</SelectItem>
+                  <SelectItem value="occasionally">Occasionally</SelectItem>
+                  <SelectItem value="frequently">Frequently</SelectItem>
+                  <SelectItem value="always">Always willing</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {/* Motivation */}
           <div>
             <Label htmlFor="motivation">What motivates you most in your work?</Label>
@@ -525,80 +713,6 @@ export const CVUpload = () => {
               rows={4}
             />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* LinkedIn Analysis Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Linkedin className="h-5 w-5 text-blue-600" />
-            LinkedIn-profilanalys (Rekommenderas starkt)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="linkedin-url">LinkedIn-profil URL</Label>
-            <Input
-              id="linkedin-url"
-              type="url"
-              placeholder="https://linkedin.com/in/ditt-namn"
-              value={linkedinUrl}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
-              className="mt-1"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              <strong>Lägg till din LinkedIn-profil för djupare AI-analys av dina mjuka egenskaper</strong>
-            </p>
-          </div>
-          
-          <Button 
-            onClick={handleLinkedInAnalysis}
-            disabled={isAnalyzingLinkedin || !linkedinUrl}
-            className="w-full bg-blue-600 hover:bg-blue-700"
-          >
-            {isAnalyzingLinkedin ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Analyserar LinkedIn-profil...
-              </>
-            ) : (
-              <>
-                <Brain className="h-4 w-4 mr-2" />
-                Analysera LinkedIn-profil
-              </>
-            )}
-          </Button>
-
-          {linkedinAnalysis && (
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h4 className="font-medium text-blue-900 mb-3">✅ LinkedIn Analysis Complete</h4>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <span className="font-medium text-blue-800">Communication Style:</span>
-                  <p className="text-blue-700">{linkedinAnalysis.communicationStyle}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-blue-800">Work Style:</span>
-                  <p className="text-blue-700">{linkedinAnalysis.workStyle}</p>
-                </div>
-                <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-blue-200">
-                  <div className="text-center">
-                    <div className="font-bold text-blue-600">{linkedinAnalysis.culturalFit}/5</div>
-                    <div className="text-xs text-blue-500">Cultural Fit</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-blue-600">{linkedinAnalysis.adaptability}/5</div>
-                    <div className="text-xs text-blue-500">Adaptability</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-blue-600">{linkedinAnalysis.leadership}/5</div>
-                    <div className="text-xs text-blue-500">Leadership</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -637,18 +751,18 @@ export const CVUpload = () => {
           {isUploading ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Skapar profil...
+              Creating profile...
             </>
           ) : (
             <>
               <Rocket className="h-5 w-5 mr-2" />
-              🚀 Gå med i nätverket & bli matchad
+              🚀 Join the network & get matched
             </>
           )}
         </Button>
-        <p className="text-sm text-gray-500 mt-2">* Obligatoriska fält</p>
+        <p className="text-sm text-gray-500 mt-2">* Required fields</p>
         <p className="text-sm text-blue-600 mt-1">
-          <strong>Tips: Ladda upp CV och ange LinkedIn för bästa resultat!</strong>
+          <strong>Tip: Upload CV and provide LinkedIn for best results!</strong>
         </p>
       </div>
     </div>
