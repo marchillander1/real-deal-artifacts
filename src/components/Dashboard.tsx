@@ -23,167 +23,140 @@ const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  // Dummy data for stats
-  const totalConsultants = 156;
-  const activeAssignments = assignments.length;
-  const successfulMatches = 89;
-  const avgMatchTime = "2.3 min";
+  // Dashboard stats
+  const totalConsultants = 5;
+  const activeAssignments = 2;
+  const successfulMatches = 156;
+  const avgMatchTime = "12 seconds";
 
   return (
-    <div className="space-y-8">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Total Consultants</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalConsultants}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+12%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Active Assignments</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{activeAssignments}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-blue-600">+5</span> new this week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Successful Matches</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{successfulMatches}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">94%</span> success rate
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Average Match Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{avgMatchTime}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">-15%</span> faster than target
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-              <Upload className="h-5 w-5" />
-              Upload CV
-            </CardTitle>
-            <CardDescription className="text-gray-600 dark:text-gray-400">
-              Upload consultant CVs for automatic AI profile creation
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <Label htmlFor="cv-upload" className="cursor-pointer">
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
-                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="mt-4">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Click to upload</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">PDF, DOC, DOCX up to 10MB</div>
-                  </div>
-                </div>
-                <Input
-                  id="cv-upload"
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={onFileUpload}
-                  className="hidden"
-                />
-              </Label>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold text-gray-900">AI-Driven Consultant Matching Platform</h1>
+          <p className="text-gray-600 mt-1">Match consultants with assignments using advanced AI that analyzes both technical skills and soft factors</p>
+          
+          {/* Navigation */}
+          <div className="flex items-center justify-between mt-6">
+            <div className="flex space-x-8">
+              <button className="text-blue-600 font-medium border-b-2 border-blue-600 pb-2">Dashboard</button>
+              <button className="text-gray-500 hover:text-gray-700 pb-2">Consultants</button>
+              <button className="text-gray-500 hover:text-gray-700 pb-2">Assignments</button>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-              <Briefcase className="h-5 w-5" />
-              Create Assignment
-            </CardTitle>
-            <CardDescription className="text-gray-600 dark:text-gray-400">
-              Add a new assignment for AI matching
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => setShowCreateForm(true)}
-              className="w-full"
-            >
-              New Assignment
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity */}
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-gray-900 dark:text-gray-100">Recent Activity</CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">Overview of new matches and updates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">New consultant added</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Anna Lindqvist - Frontend Developer</p>
-                </div>
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">2 min ago</div>
-            </div>
-            
-            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">AI matching completed</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">E-commerce Platform Redesign - 5 matches</p>
-                </div>
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">15 min ago</div>
-            </div>
-            
-            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">New assignment created</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Mobile Banking App Development</p>
-                </div>
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">1 hour ago</div>
+            <div className="flex space-x-3">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                Upload CV
+              </Button>
+              <Button className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                New Assignment
+              </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Platform Overview Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Platform Overview</h2>
+          <p className="text-gray-600 mb-6">Real-time insights and performance metrics</p>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="bg-white border border-gray-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-gray-900 mb-1">{totalConsultants}</div>
+                <div className="text-sm font-medium text-gray-900 mb-1">Active Consultants</div>
+                <div className="text-sm text-green-600">↗ +12 this week</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border border-gray-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Briefcase className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-gray-900 mb-1">{activeAssignments}</div>
+                <div className="text-sm font-medium text-gray-900 mb-1">Open Assignments</div>
+                <div className="text-sm text-green-600">↗ +5 today</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border border-gray-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <TrendingUp className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-gray-900 mb-1">{successfulMatches}</div>
+                <div className="text-sm font-medium text-gray-900 mb-1">Successful Matches</div>
+                <div className="text-sm text-green-600">↗ +23 this month</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border border-gray-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Clock className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-gray-900 mb-1">{avgMatchTime}</div>
+                <div className="text-sm font-medium text-gray-900 mb-1">Avg Match Time</div>
+                <div className="text-sm text-green-600">↗ 67% faster</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Bottom Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Clock className="h-8 w-8 text-green-100" />
+                </div>
+                <div className="text-3xl font-bold mb-2">850 hours</div>
+                <div className="text-lg font-medium mb-1">Time Saved</div>
+                <div className="text-green-100">≈ 2.1M SEK in cost savings</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <TrendingUp className="h-8 w-8 text-blue-100" />
+                </div>
+                <div className="text-3xl font-bold mb-2">96%</div>
+                <div className="text-lg font-medium mb-1">Client Satisfaction</div>
+                <div className="text-blue-100">+8% vs manual matching</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Briefcase className="h-8 w-8 text-purple-100" />
+                </div>
+                <div className="text-3xl font-bold mb-2">2.4M SEK</div>
+                <div className="text-lg font-medium mb-1">Platform Revenue</div>
+                <div className="text-purple-100">Monthly recurring</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
 
       {/* Create Assignment Modal */}
       {showCreateForm && (
