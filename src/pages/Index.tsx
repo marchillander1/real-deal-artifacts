@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
@@ -535,7 +536,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="assignments">
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Show matches if available */}
               {matches.length > 0 && selectedAssignment ? (
                 <div className="space-y-6">
