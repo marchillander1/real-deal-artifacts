@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import Logo from "./Logo";
 
 export const Navbar = () => {
   const location = useLocation();
@@ -11,10 +10,6 @@ export const Navbar = () => {
     <nav className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center">
-            <Logo size="md" variant="full" />
-          </Link>
-          
           <div className="flex items-center space-x-4">
             <Link to="/">
               <Button 
