@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CVUpload from "./pages/CVUpload";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/cv-upload" element={<CVUpload />} />
+            <Route path="/pricing" element={<Pricing />} />
             <Route 
               path="/matchwiseai" 
               element={

@@ -10,6 +10,8 @@ import { Sparkles, Star, Check, Mail, FileDown, Clock, DollarSign, TrendingUp, U
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { usePDFExport } from "@/hooks/usePDFExport";
+import Pricing from "./Pricing";
 
 // Sample assignments data for demo
 const initialAssignments: Assignment[] = [
@@ -170,6 +172,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { toast } = useToast();
   const { consultants } = useSupabaseConsultants();
+  
+  const { exportMatchesToPDF, exportConsultantListToPDF } = usePDFExport();
 
   const handleMatch = (assignment: Assignment) => {
     setAssignments((prevAssignments) =>
@@ -191,6 +195,24 @@ export default function Dashboard() {
       });
       // TODO: Implement CV processing
     }
+  };
+
+  const handleExportMatches = () => {
+    if (matches.length > 0 && selectedAssignment) {
+      exportMatchesToPDF(matches, selectedAssignment);
+      toast({
+        title: "PDF Exporterad",
+        description: "Matchningsresultaten har exporterats till PDF",
+      });
+    }
+  };
+
+  const handleExportConsultants = () => {
+    exportConsultantListToPDF(consultants);
+    toast({
+      title: "PDF Exporterad", 
+      description: "Konsultdatabasen har exporterats till PDF",
+    });
   };
 
   const handleFindMatches = async (assignment: Assignment) => {
@@ -242,7 +264,7 @@ export default function Dashboard() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="consultants">
               Consultants ({consultants.length})
@@ -250,6 +272,7 @@ export default function Dashboard() {
             <TabsTrigger value="assignments">
               Assignments ({assignments.length})
             </TabsTrigger>
+            <TabsTrigger value="pricing">Prenumeration</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -262,7 +285,16 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <EnhancedConsultantsTab />
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Konsulter</h2>
+                <Button onClick={handleExportConsultants} variant="outline">
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Exportera PDF
+                </Button>
+              </div>
+              <EnhancedConsultantsTab />
+            </div>
           </TabsContent>
 
           <TabsContent value="assignments">
@@ -270,14 +302,18 @@ export default function Dashboard() {
               {/* Show matches if available */}
               {matches.length > 0 && selectedAssignment ? (
                 <div className="space-y-6">
-                  {/* Header with assignment info - Similar to your image */}
+                  {/* Header with assignment info and export button */}
                   <div className="bg-white rounded-xl shadow-sm border p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h1 className="text-2xl font-bold text-gray-900">AI Matching Results</h1>
-                        <p className="text-gray-600">Results for: {selectedAssignment.title} - E-commerce Platform</p>
+                        <p className="text-gray-600">Results for: {selectedAssignment.title}</p>
                       </div>
                       <div className="flex items-center space-x-4">
+                        <Button onClick={handleExportMatches} variant="outline">
+                          <FileDown className="h-4 w-4 mr-2" />
+                          Exportera PDF
+                        </Button>
                         <div className="flex items-center space-x-2 text-sm text-gray-600">
                           <div className="w-3 h-3 bg-blue-100 rounded-full flex items-center justify-center">
                             <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
@@ -552,6 +588,50 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="pricing">
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Välj din plan</h2>
+                <p className="text-lg text-gray-600">Uppgradera för att få tillgång till avancerade funktioner</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <StripeCheckout
+                  planName="Basic"
+                  price={499}
+                  features={[
+                    'Upp till 10 konsulter',
+                    'Grundläggande AI-matchning',
+                    'Export till PDF',
+                    'Email support'
+                  ]}
+                />
+                <StripeCheckout
+                  planName="Premium"
+                  price={999}
+                  features={[
+                    'Upp till 50 konsulter',
+                    'Avancerad AI-matchning',
+                    'Kalenderintegration',
+                    'Prioriterat support',
+                    'Analytics dashboard'
+                  ]}
+                />
+                <StripeCheckout
+                  planName="Enterprise"
+                  price={1999}
+                  features={[
+                    'Obegränsat antal konsulter',
+                    'Anpassad AI-matchning',
+                    'API-åtkomst',
+                    'Dedikerat support',
+                    'Custom integrations'
+                  ]}
+                />
+              </div>
             </div>
           </TabsContent>
         </Tabs>
