@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -371,7 +370,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900">AI-Driven Consultant Matching Platform</h1>
+          <h1 className="text-2xl font-bold text-gray-900">MatchWise AI Platform</h1>
           <p className="text-gray-600 mt-1">Match consultants with assignments using advanced AI that analyzes both technical skills and soft factors</p>
           
           {/* Navigation */}
