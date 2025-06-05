@@ -22,6 +22,8 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
+  const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
+
   return (
     <div className={`bg-white rounded-xl shadow-sm ${borderColor} p-6 hover:shadow-lg transition-all`}>
       <div className="flex items-start justify-between mb-4">
@@ -48,15 +50,15 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
       <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Experience:</span>
-          <span className="font-medium">{consultant.experience_years || consultant.experience} years</span>
+          <span className="font-medium">{experienceYears} years</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Projects:</span>
-          <span className="font-medium">{consultant.projects_completed || consultant.projects} completed</span>
+          <span className="font-medium">{consultant.projects} completed</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Rate:</span>
-          <span className="font-medium text-green-600">{consultant.hourly_rate || consultant.rate} SEK/hour</span>
+          <span className="font-medium text-green-600">{consultant.rate}/hour</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Location:</span>
@@ -76,7 +78,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           </Badge>
         </div>
         <p className="text-xs text-gray-500">
-          {isNew ? 'Joined:' : 'Last active:'} {consultant.last_active || consultant.lastActive}
+          {isNew ? 'Joined:' : 'Last active:'} {consultant.lastActive}
         </p>
       </div>
 
