@@ -1,7 +1,6 @@
 
 import { useCallback } from 'react';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { Assignment, Consultant } from '../types/consultant';
 
 interface Match {
@@ -45,11 +44,11 @@ export const usePDFExport = () => {
       
       pdf.setFontSize(10);
       pdf.text(`Match Score: ${match.score}%`, 20, yPosition);
-      pdf.text(`Rate: ${match.consultant.hourly_rate || 'N/A'} SEK/h`, 100, yPosition);
+      pdf.text(`Rate: N/A SEK/h`, 100, yPosition);
       yPosition += 8;
       
       pdf.text(`Location: ${match.consultant.location}`, 20, yPosition);
-      pdf.text(`Experience: ${match.consultant.experience_years || 'N/A'} years`, 100, yPosition);
+      pdf.text(`Experience: N/A years`, 100, yPosition);
       yPosition += 8;
       
       pdf.text(`Skills: ${match.matchedSkills.slice(0, 5).join(', ')}`, 20, yPosition);
@@ -94,7 +93,7 @@ export const usePDFExport = () => {
       pdf.text(`Skills: ${consultant.skills.slice(0, 6).join(', ')}`, 25, yPosition);
       yPosition += 6;
       
-      pdf.text(`Rate: ${consultant.hourly_rate || 'N/A'} SEK/h`, 25, yPosition);
+      pdf.text(`Rate: N/A SEK/h`, 25, yPosition);
       pdf.text(`Location: ${consultant.location}`, 100, yPosition);
       yPosition += 10;
     });
