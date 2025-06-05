@@ -1,14 +1,17 @@
 
 import React, { useState, useRef } from 'react';
-import { Users, Briefcase, TrendingUp, Clock, Target, Plus, Sparkles, Star, DollarSign } from 'lucide-react';
+import { Users, Briefcase, TrendingUp, Clock, Target, Plus, Sparkles, Star, DollarSign, LogOut } from 'lucide-react';
 import StatCard from './StatCard';
 import CreateAssignmentForm from './CreateAssignmentForm';
 import { Consultant, Assignment } from '../types/consultant';
 import { useToast } from "@/hooks/use-toast";
-import { ConsultantsTab } from './ConsultantsTab';
+import { EnhancedConsultantsTab } from './EnhancedConsultantsTab';
+import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface DashboardProps {
-  consultants?: Consultant[];
   assignments?: Assignment[];
   onMatch?: (assignment: Assignment) => void;
   onFileUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -16,13 +19,13 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ 
-  consultants = [], 
   assignments = [], 
   onMatch, 
   onFileUpload,
   onAssignmentCreated 
 }) => {
-  const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const { consultants } = useSupabaseConsultants();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -39,6 +42,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       onAssignmentCreated(newAssignment);
     }
     setShowCreateForm(false);
+    toast.success('Uppdrag skapat!');
   };
 
   const handleUploadClick = () => {
@@ -62,6 +66,18 @@ const Dashboard: React.FC<DashboardProps> = ({
         className="hidden"
       />
 
+      {/* Header with User Info */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Välkommen, {user?.email}</h1>
+          <p className="text-gray-600">Översikt av din MatchWise AI-plattform</p>
+        </div>
+        <Button variant="outline" onClick={signOut}>
+          <LogOut className="h-4 w-4 mr-2" />
+          Logga ut
+        </Button>
+      </div>
+
       {/* Navigation Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
@@ -73,7 +89,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Overview
+            Översikt
           </button>
           <button
             onClick={() => setActiveTab('consultants')}
@@ -83,7 +99,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Consultants
+            Konsulter
           </button>
         </nav>
       </div>
@@ -91,22 +107,16 @@ const Dashboard: React.FC<DashboardProps> = ({
       {/* Content based on active tab */}
       {activeTab === 'overview' && (
         <>
-          {/* Header */}
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Platform Overview</h1>
-            <p className="text-gray-600">Real-time insights and performance metrics</p>
-          </div>
-
           {/* Top Stats Cards */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Active Consultants</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Aktiva konsulter</p>
                   <p className="text-3xl font-bold text-gray-900 mb-2">{stats.totalConsultants}</p>
                   <p className="text-sm text-green-600 flex items-center">
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    +12 this week
+                    +{Math.floor(stats.totalConsultants * 0.1)} denna vecka
                   </p>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-full">
@@ -118,11 +128,11 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Open Assignments</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Öppna uppdrag</p>
                   <p className="text-3xl font-bold text-gray-900 mb-2">{stats.activeAssignments}</p>
                   <p className="text-sm text-green-600 flex items-center">
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    +5 today
+                    +5 idag
                   </p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-full">
@@ -134,11 +144,11 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Successful Matches</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Lyckade matchningar</p>
                   <p className="text-3xl font-bold text-gray-900 mb-2">{stats.successfulMatches}</p>
                   <p className="text-sm text-green-600 flex items-center">
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    +23 this month
+                    +23 denna månad
                   </p>
                 </div>
                 <div className="bg-purple-100 p-3 rounded-full">
@@ -150,11 +160,11 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Avg Match Time</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Genomsnittlig matchtid</p>
                   <p className="text-3xl font-bold text-gray-900 mb-2">{stats.avgMatchTime}</p>
                   <p className="text-sm text-green-600 flex items-center">
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    67% faster
+                    67% snabbare
                   </p>
                 </div>
                 <div className="bg-orange-100 p-3 rounded-full">
@@ -330,7 +340,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         </>
       )}
 
-      {activeTab === 'consultants' && <ConsultantsTab />}
+      {activeTab === 'consultants' && <EnhancedConsultantsTab />}
 
       {/* Create Assignment Form Modal */}
       {showCreateForm && (

@@ -1,574 +1,238 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowRight, 
-  CheckCircle, 
-  Clock, 
-  Target, 
-  TrendingUp, 
-  Users, 
-  Star,
-  Zap,
-  Shield,
-  BarChart3,
-  PlayCircle,
-  Calendar,
-  Heart,
-  Brain,
-  MessageSquare
-} from 'lucide-react';
-import Logo from '../components/Logo';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, Sparkles, Users, Clock, Target, Zap, Star, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Logo } from '@/components/Logo';
+import { useAuth } from '@/hooks/useAuth';
 
-const Landing = () => {
-  const navigate = useNavigate();
+export default function Landing() {
+  const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Navigation */}
-      <nav className="bg-gray-900 border-b border-gray-800 fixed w-full top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Logo size="md" />
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#solution" className="text-gray-300 hover:text-white transition-colors">Solution</a>
-              <a href="#benefits" className="text-gray-300 hover:text-white transition-colors">Benefits</a>
-              <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-              <button 
-                onClick={() => navigate('/login')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
-              >
-                Login
-              </button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <Logo />
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <Link to="/matchwiseai">
+                <Button>
+                  Gå till Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="outline">Logga in</Button>
+                </Link>
+                <Link to="/auth">
+                  <Button>
+                    Kom igång
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="pt-20 pb-16 bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center bg-blue-900/50 text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-blue-800">
-                <Heart className="h-4 w-4 mr-2" />
-                Human-First AI Matching
-              </div>
-              
-              <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Match the
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent block">
-                  Whole Person
-                </span>
-                not just the CV
-              </h1>
-              
-              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                MatchWise AI revolutionizes consultant matching by analyzing both technical skills 
-                AND soft factors like values, communication style, and personal fit.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center justify-center">
-                  <PlayCircle className="h-5 w-5 mr-2" />
-                  Watch Demo
-                </button>
-                <button 
-                  onClick={() => navigate('/login')}
-                  className="border border-gray-600 text-gray-300 px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center"
-                >
-                  <ArrowRight className="h-5 w-5 mr-2" />
-                  Get Started
-                </button>
-              </div>
-              
-              <div className="flex items-center space-x-8 text-sm text-gray-400">
-                <div className="flex items-center">
-                  <Heart className="h-5 w-5 text-pink-400 mr-2" />
-                  Human-First Matching
-                </div>
-                <div className="flex items-center">
-                  <Clock className="h-5 w-5 text-blue-400 mr-2" />
-                  12-Second Analysis
-                </div>
-                <div className="flex items-center">
-                  <Shield className="h-5 w-5 text-purple-400 mr-2" />
-                  GDPR Secure
-                </div>
-              </div>
+      <section className="py-20">
+        <div className="container mx-auto px-4 text-center">
+          <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">
+            <Sparkles className="w-3 h-3 mr-1" />
+            AI-driven matchmaking
+          </Badge>
+          
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            Revolutionera din
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 block">
+              konsultmatchning
+            </span>
+          </h1>
+          
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            MatchWise AI använder avancerad artificiell intelligens för att matcha rätt konsult 
+            med rätt uppdrag på sekunder. Spara tid, minska kostnader och öka nöjdheten.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            {!user && (
+              <Link to="/auth">
+                <Button size="lg" className="px-8 py-3 text-lg">
+                  Starta gratis
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            )}
+            <Button variant="outline" size="lg" className="px-8 py-3 text-lg">
+              Se demo
+            </Button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">12s</div>
+              <div className="text-gray-600">Genomsnittlig matchtid</div>
             </div>
-            
-            <div className="relative">
-              <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
-                <div className="flex items-center justify-between mb-6">
-                  <Logo size="lg" />
-                  <div className="flex items-center text-green-400">
-                    <div className="h-2 w-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                    Active
-                  </div>
-                </div>
-                
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">Platform v2.0</h3>
-                  <p className="text-gray-400">Real-time insights and performance metrics</p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-400 text-sm">Active Consultants</span>
-                      <Users className="h-4 w-4 text-blue-400" />
-                    </div>
-                    <div className="text-2xl font-bold text-white">5</div>
-                    <div className="text-green-400 text-xs">+12 this week</div>
-                  </div>
-                  
-                  <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-400 text-sm">Open Assignments</span>
-                      <Target className="h-4 w-4 text-green-400" />
-                    </div>
-                    <div className="text-2xl font-bold text-white">3</div>
-                    <div className="text-green-400 text-xs">+5 today</div>
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg p-4 border border-blue-500/30">
-                  <div className="flex items-center space-x-3">
-                    <Brain className="h-6 w-6 text-blue-400" />
-                    <div>
-                      <p className="font-medium text-white">AI Matching Engine</p>
-                      <p className="text-sm text-gray-400">95% accuracy • 12-second analysis</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600 mb-2">96%</div>
+              <div className="text-gray-600">Kundnöjdhet</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600 mb-2">850h</div>
+              <div className="text-gray-600">Sparad tid/månad</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600 mb-2">2.4M</div>
+              <div className="text-gray-600">SEK i besparingar</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Problem Section */}
-      <section className="py-16 bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              CV-Based Matching Misses the Big Picture
+      {/* Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Varför välja MatchWise AI?
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Traditional methods focus only on technical skills and miss the soft factors that determine project success
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Vår plattform kombinerar AI-teknik med djup förståelse för konsultbranschen
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-red-900/30 border border-red-800 rounded-xl p-6">
-              <div className="text-red-400 mb-4">
-                <Brain className="h-8 w-8" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Only Technical Skills</h3>
-              <p className="text-gray-300">Misses values, communication style, and personal fit that are crucial</p>
-            </div>
-            
-            <div className="bg-orange-900/30 border border-orange-800 rounded-xl p-6">
-              <div className="text-orange-400 mb-4">
-                <MessageSquare className="h-8 w-8" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Poor Team Chemistry</h3>
-              <p className="text-gray-300">60% of project issues stem from poor personal fit, not technical shortcomings</p>
-            </div>
-            
-            <div className="bg-yellow-900/30 border border-yellow-800 rounded-xl p-6">
-              <div className="text-yellow-400 mb-4">
-                <BarChart3 className="h-8 w-8" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">High Costs</h3>
-              <p className="text-gray-300">Poor human fit costs $250K annually in restarts and delays</p>
-            </div>
-          </div>
-        </div>
-      </section>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <Zap className="h-6 w-6 text-blue-600" />
+                </div>
+                <CardTitle>Blixtsnabb matchning</CardTitle>
+                <CardDescription>
+                  AI analyserar tusentals faktorer på sekunder för att hitta den perfekta matchen
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Tekniska kompetenser
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Mjuka egenskaper
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Kulturell passform
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-      {/* Solution Section */}
-      <section id="solution" className="py-16 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Human-First AI That Truly Understands
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              MatchWise AI analyzes the whole person - both technical skills and soft factors for perfect fit
-            </p>
-          </div>
-          
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="flex items-start space-x-4">
-                <div className="bg-pink-900/50 p-3 rounded-lg border border-pink-800">
-                  <Heart className="h-6 w-6 text-pink-400" />
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-green-600" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    Values & Personality
-                  </h3>
-                  <p className="text-gray-300">
-                    AI analyzes communication style, work approach, and personal values for deep compatibility
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4">
-                <div className="bg-blue-900/50 p-3 rounded-lg border border-blue-800">
-                  <Brain className="h-6 w-6 text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    Cultural Fit
-                  </h3>
-                  <p className="text-gray-300">
-                    Advanced algorithms match team dynamics, leadership style, and adaptability
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4">
-                <div className="bg-purple-900/50 p-3 rounded-lg border border-purple-800">
-                  <MessageSquare className="h-6 w-6 text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    Communication Style
-                  </h3>
-                  <p className="text-gray-300">
-                    Identifies and matches communication types for optimal team harmony and productivity
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-br from-gray-800 to-purple-900/50 rounded-2xl p-8 border border-gray-700">
-              <h3 className="text-2xl font-bold text-white mb-6">How It Works</h3>
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">
-                    1
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-white">Upload CV & Requirements</h4>
-                    <p className="text-sm text-gray-300">Define both technical and soft requirements for the project</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">
-                    2
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-white">Human-First AI Analysis</h4>
-                    <p className="text-sm text-gray-300">AI analyzes values, communication, and personality</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-white">Perfect Human Match</h4>
-                    <p className="text-sm text-gray-300">Get ranked candidates based on holistic fit</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+                <CardTitle>Holistisk analys</CardTitle>
+                <CardDescription>
+                  Går bortom CV:t och analyserar kommunikationsstil, värderingar och teamdynamik
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Personlighetsanalys
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Arbetsstil
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Adaptabilitet
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-      {/* Benefits Section */}
-      <section id="benefits" className="py-16 bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Proven ROI That Speaks for Itself
-            </h2>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-xl p-8 text-white text-center">
-              <Heart className="h-12 w-12 mx-auto mb-4 opacity-80" />
-              <h3 className="text-4xl font-bold mb-2">850+</h3>
-              <p className="text-green-100 mb-1">Hours Saved Annually</p>
-              <p className="text-sm text-green-200">≈ $210K in cost savings</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-xl p-8 text-white text-center">
-              <Star className="h-12 w-12 mx-auto mb-4 opacity-80" />
-              <h3 className="text-4xl font-bold mb-2">96%</h3>
-              <p className="text-blue-100 mb-1">Customer Satisfaction</p>
-              <p className="text-sm text-blue-200">+36% vs manual matching</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-600 to-pink-700 rounded-xl p-8 text-white text-center">
-              <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-80" />
-              <h3 className="text-4xl font-bold mb-2">75x</h3>
-              <p className="text-purple-100 mb-1">Faster Matching</p>
-              <p className="text-sm text-purple-200">12 seconds vs 15 hours</p>
-            </div>
-          </div>
-
-          <div className="bg-gray-900 rounded-2xl shadow-lg p-8 border border-gray-700">
-            <h3 className="text-2xl font-bold text-white mb-6 text-center">
-              What Our Customers Say
-            </h3>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="border-l-4 border-blue-500 pl-6">
-                <p className="text-gray-300 mb-4 italic">
-                  "MatchWise AI understands not just technical skills but also if the person fits our team. 
-                  Team chemistry improved to 95% compared to previous 60%."
-                </p>
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                    E
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">Erik Svensson</p>
-                    <p className="text-sm text-gray-400">CTO, TechCorp AB</p>
-                  </div>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                  <Target className="h-6 w-6 text-purple-600" />
                 </div>
-              </div>
-              
-              <div className="border-l-4 border-purple-500 pl-6">
-                <p className="text-gray-300 mb-4 italic">
-                  "The ROI is incredible. We saved $210K the first year through better human fit 
-                  and reduced project delays."
-                </p>
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                    M
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">Maria Lundberg</p>
-                    <p className="text-sm text-gray-400">HR Manager, Innovation Labs</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-16 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              💰 Pricing Overview
-            </h2>
-            <p className="text-xl text-gray-300">
-              Choose the plan that fits your company's needs
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="border border-blue-500 rounded-xl p-8 bg-gray-800">
-              <div className="mb-4">
-                <span className="text-blue-400 text-lg">🟦</span>
-                <h3 className="text-xl font-bold text-white ml-2 inline">Basic Plan</h3>
-              </div>
-              <p className="text-gray-400 mb-6">For 1–3 users</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-white">999 SEK</span>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Full access to consultant search and filtering</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">View detailed profiles incl. soft skills and CVs</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Save favorites & download CVs</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">1 admin + 2 standard users</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Email support</span>
-                </li>
-              </ul>
-              <button className="w-full border border-gray-600 text-gray-300 py-3 rounded-lg hover:bg-gray-700 transition-colors">
-                Start Free Trial
-              </button>
-            </div>
-            
-            <div className="border-2 border-green-500 rounded-xl p-8 relative bg-gray-800">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                  Most Popular
-                </span>
-              </div>
-              <div className="mb-4">
-                <span className="text-green-400 text-lg">🟩</span>
-                <h3 className="text-xl font-bold text-white ml-2 inline">Team Plan</h3>
-              </div>
-              <p className="text-gray-400 mb-6">For 3–10 users</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-white">1,999 SEK</span>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Everything in Basic, plus:</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Extended user access</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Role-based access control</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Priority email support</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Early feature access</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Export consultant lists</span>
-                </li>
-              </ul>
-              <button className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
-                Start Free Trial
-              </button>
-            </div>
-            
-            <div className="border border-red-500 rounded-xl p-8 bg-gray-800">
-              <div className="mb-4">
-                <span className="text-red-400 text-lg">🟥</span>
-                <h3 className="text-xl font-bold text-white ml-2 inline">Enterprise</h3>
-              </div>
-              <p className="text-gray-400 mb-6">For organizations using Free Talent Pool</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-white">5,999 SEK</span>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Unlimited searches in the open consultant database</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Direct access to incoming freelance CVs</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Premium visibility settings for your jobs</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Integration possibilities (API access upon request)</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">Dedicated onboarding</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
-                  <span className="text-gray-300">SLA-backed support</span>
-                </li>
-              </ul>
-              <button className="w-full border border-gray-600 text-gray-300 py-3 rounded-lg hover:bg-gray-700 transition-colors">
-                Contact Sales
-              </button>
-            </div>
+                <CardTitle>Kontinuerlig lärning</CardTitle>
+                <CardDescription>
+                  AI:n blir bättre för varje matchning och lär sig av framgångar och utmaningar
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Feedback-loop
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Prediktiv analys
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    Optimering
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-700 to-purple-700">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Transform Your Consultant Matching?
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-6">
+            Redo att revolutionera din konsultverksamhet?
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join leading companies saving $210K annually with 95% human fit
+          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+            Gå med idag och upplev kraften med AI-driven konsultmatchning
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center">
-              <PlayCircle className="h-5 w-5 mr-2" />
-              Watch 2-Min Demo
-            </button>
-            <button 
-              onClick={() => navigate('/login')}
-              className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition-colors flex items-center justify-center"
-            >
-              <ArrowRight className="h-5 w-5 mr-2" />
-              Get Started
-            </button>
-          </div>
+          
+          {!user && (
+            <Link to="/auth">
+              <Button size="lg" variant="secondary" className="px-8 py-3 text-lg">
+                Kom igång gratis
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          )}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 py-12 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <Logo size="md" className="mb-4" />
-              <p className="text-gray-400 mb-4">
-                Human-first AI matching that delivers 95% fit in 12 seconds.
-              </p>
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <Logo variant="light" />
+              <p className="text-gray-400 mt-2">AI-driven konsultmatchning</p>
             </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
-              </ul>
+            <div className="text-gray-400 text-sm">
+              © 2024 MatchWise AI. Alla rättigheter förbehållna.
             </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">GDPR</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-            <p className="text-gray-400">
-              © 2024 MatchWise AI. All rights reserved.
-            </p>
           </div>
         </div>
       </footer>
     </div>
   );
-};
-
-export default Landing;
+}

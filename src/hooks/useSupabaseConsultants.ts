@@ -1,15 +1,23 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 export const useSupabaseConsultants = () => {
-  return useQuery({
-    queryKey: ['consultants'],
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const consultantsQuery = useQuery({
+    queryKey: ['consultants', user?.id],
     queryFn: async (): Promise<Consultant[]> => {
+      if (!user) return [];
+
       const { data, error } = await supabase
         .from('consultants')
         .select('*')
+        .or(`user_id.eq.${user.id},user_id.is.null`)
         .order('name');
 
       if (error) {
@@ -17,7 +25,6 @@ export const useSupabaseConsultants = () => {
         throw error;
       }
 
-      // Transform Supabase data to match our Consultant interface
       return data.map((consultant: any) => ({
         id: parseInt(consultant.id.replace(/-/g, '').substring(0, 8), 16),
         name: consultant.name,
@@ -46,5 +53,110 @@ export const useSupabaseConsultants = () => {
         leadership: consultant.leadership || 3,
       }));
     },
+    enabled: !!user,
   });
+
+  const createConsultantMutation = useMutation({
+    mutationFn: async (consultantData: Partial<Consultant>) => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('consultants')
+        .insert([{
+          user_id: user.id,
+          name: consultantData.name,
+          email: consultantData.email,
+          skills: consultantData.skills || [],
+          experience_years: parseInt(consultantData.experience?.split(' ')[0] || '0'),
+          roles: consultantData.roles || [],
+          location: consultantData.location,
+          hourly_rate: parseInt(consultantData.rate?.split(' ')[0] || '0'),
+          availability: consultantData.availability,
+          phone: consultantData.phone,
+          projects_completed: consultantData.projects || 0,
+          rating: consultantData.rating || 5.0,
+          certifications: consultantData.certifications || [],
+          languages: consultantData.languages || [],
+          type: consultantData.type || 'new',
+          communication_style: consultantData.communicationStyle,
+          work_style: consultantData.workStyle,
+          values: consultantData.values || [],
+          personality_traits: consultantData.personalityTraits || [],
+          team_fit: consultantData.teamFit,
+          cultural_fit: consultantData.culturalFit || 5,
+          adaptability: consultantData.adaptability || 5,
+          leadership: consultantData.leadership || 3,
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+      toast.success('Konsult tillagd!');
+    },
+    onError: (error) => {
+      console.error('Error creating consultant:', error);
+      toast.error('Kunde inte lägga till konsult');
+    },
+  });
+
+  const updateConsultantMutation = useMutation({
+    mutationFn: async ({ id, ...consultantData }: Partial<Consultant> & { id: number }) => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('consultants')
+        .update({
+          name: consultantData.name,
+          email: consultantData.email,
+          skills: consultantData.skills,
+          experience_years: parseInt(consultantData.experience?.split(' ')[0] || '0'),
+          roles: consultantData.roles,
+          location: consultantData.location,
+          hourly_rate: parseInt(consultantData.rate?.split(' ')[0] || '0'),
+          availability: consultantData.availability,
+          phone: consultantData.phone,
+          projects_completed: consultantData.projects,
+          rating: consultantData.rating,
+          certifications: consultantData.certifications,
+          languages: consultantData.languages,
+          communication_style: consultantData.communicationStyle,
+          work_style: consultantData.workStyle,
+          values: consultantData.values,
+          personality_traits: consultantData.personalityTraits,
+          team_fit: consultantData.teamFit,
+          cultural_fit: consultantData.culturalFit,
+          adaptability: consultantData.adaptability,
+          leadership: consultantData.leadership,
+        })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+      toast.success('Konsult uppdaterad!');
+    },
+    onError: (error) => {
+      console.error('Error updating consultant:', error);
+      toast.error('Kunde inte uppdatera konsult');
+    },
+  });
+
+  return {
+    consultants: consultantsQuery.data || [],
+    isLoading: consultantsQuery.isLoading,
+    error: consultantsQuery.error,
+    createConsultant: createConsultantMutation.mutate,
+    updateConsultant: updateConsultantMutation.mutate,
+    isCreating: createConsultantMutation.isPending,
+    isUpdating: updateConsultantMutation.isPending,
+  };
 };

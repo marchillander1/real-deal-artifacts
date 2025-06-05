@@ -8,7 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { AuthGuard } from "@/components/AuthGuard";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CVUpload from "./pages/CVUpload";
 
@@ -21,7 +21,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/auth" element={<Auth />} />
             <Route 
               path="/matchwiseai" 
               element={
