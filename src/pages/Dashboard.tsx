@@ -1,4 +1,5 @@
 
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,18 +17,36 @@ import { StripeCheckout } from "@/components/StripeCheckout";
 
 const initialAssignments: Assignment[] = [
   {
-    id: "1",
+    id: 1,
     title: "Senior Frontend Developer",
     company: "Acme Corp",
     description: "We need a skilled frontend developer to join our team.",
-    required_skills: ["React", "TypeScript", "JavaScript", "HTML", "CSS"],
+    requiredSkills: ["React", "TypeScript", "JavaScript", "HTML", "CSS"],
+    startDate: "2024-01-15",
+    duration: "6 months",
+    workload: "Full-time",
+    budget: "50000-70000 SEK",
+    industry: "Tech",
+    teamSize: "5-10",
+    remote: "Hybrid",
+    urgency: "High",
+    clientLogo: "🏢"
   },
   {
-    id: "2",
+    id: 2,
     title: "Backend Engineer",
     company: "Beta Co",
     description: "Looking for a backend engineer with experience in Node.js.",
-    required_skills: ["Node.js", "Express", "PostgreSQL", "JavaScript"],
+    requiredSkills: ["Node.js", "Express", "PostgreSQL", "JavaScript"],
+    startDate: "2024-02-01",
+    duration: "3 months",
+    workload: "Full-time",
+    budget: "40000-60000 SEK",
+    industry: "Finance",
+    teamSize: "3-5",
+    remote: "Remote",
+    urgency: "Medium",
+    clientLogo: "🏦"
   },
 ];
 
@@ -195,7 +214,7 @@ export default function DashboardPage() {
                     <p className="text-gray-600">{assignment.company}</p>
                     <p className="text-sm mt-2">{assignment.description}</p>
                     <div className="flex items-center space-x-2 mt-4">
-                      {assignment.required_skills?.map((skill, index) => (
+                      {assignment.requiredSkills?.map((skill, index) => (
                         <span
                           key={index}
                           className="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
