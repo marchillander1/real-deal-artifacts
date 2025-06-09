@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -163,7 +164,11 @@ export const CVUpload = () => {
   const handleSaveConsultant = async () => {
     // Validate required fields
     if (!formData.name || !formData.email || !formData.phone) {
-      alert('Please fill in all required fields (name, email, phone)');
+      toast({
+        title: "Obligatoriska fält saknas",
+        description: "Vänligen fyll i namn, e-post och telefon.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -180,33 +185,41 @@ export const CVUpload = () => {
     setIsUploading(true);
     
     try {
+      console.log('🚀 Starting consultant save process...');
+      
+      // Clean and prepare data
+      const experienceYears = parseInt(formData.experience.replace(/\D/g, '')) || 0;
+      const hourlyRate = parseInt(formData.rate.replace(/\D/g, '')) || 0;
+      
       const consultantData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        location: formData.location,
-        skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
-        experience_years: parseInt(formData.experience.replace(/\D/g, '')) || 0,
-        roles: [formData.role].filter(r => r),
-        hourly_rate: parseInt(formData.rate.replace(/\D/g, '')) || 0,
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        location: formData.location.trim() || 'Stockholm',
+        skills: formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(s => s.length > 0) : [],
+        experience_years: experienceYears,
+        roles: formData.role ? [formData.role.trim()] : [],
+        hourly_rate: hourlyRate,
         availability: formData.availability || 'Available',
         projects_completed: 0,
         rating: 5.0,
-        last_active: 'Today',
-        certifications: formData.certifications.split(',').map(c => c.trim()).filter(c => c),
-        languages: formData.languages.split(',').map(l => l.trim()).filter(l => l),
-        type: 'new' as const,
+        certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()).filter(c => c.length > 0) : [],
+        languages: formData.languages ? formData.languages.split(',').map(l => l.trim()).filter(l => l.length > 0) : [],
+        type: 'new',
+        linkedin_url: linkedinUrl.trim() || null,
         
-        // LinkedIn and AI analysis data
+        // LinkedIn and AI analysis data with fallbacks
         communication_style: linkedinAnalysis?.communicationStyle || "Professional and collaborative",
         work_style: linkedinAnalysis?.workStyle || "Agile and results-oriented",
         values: linkedinAnalysis?.values || ["Quality", "Innovation", "Teamwork"],
         personality_traits: linkedinAnalysis?.personalityTraits || ["Analytical", "Creative", "Leadership-oriented"],
         team_fit: linkedinAnalysis?.teamFit || "Strong team player with excellent communication skills",
-        cultural_fit: linkedinAnalysis?.culturalFit || 4.5,
-        adaptability: linkedinAnalysis?.adaptability || 4.3,
-        leadership: linkedinAnalysis?.leadership || 4.1
+        cultural_fit: linkedinAnalysis?.culturalFit || 4,
+        adaptability: linkedinAnalysis?.adaptability || 4,
+        leadership: linkedinAnalysis?.leadership || 3
       };
+
+      console.log('📝 Consultant data prepared:', consultantData);
 
       const { data, error } = await supabase
         .from('consultants')
@@ -215,13 +228,16 @@ export const CVUpload = () => {
         .single();
 
       if (error) {
-        console.error('Error saving consultant:', error);
-        alert('Error saving consultant');
-        return;
+        console.error('❌ Database error:', error);
+        throw new Error(`Database error: ${error.message}`);
       }
 
-      console.log('Consultant saved successfully:', data);
-      alert('🚀 Profile created successfully! You are now part of our consultant network.');
+      console.log('✅ Consultant saved successfully:', data);
+      
+      toast({
+        title: "Profil skapad!",
+        description: "🚀 Du är nu del av vårt konsultnätverk och kan få matchningar.",
+      });
       
       // Reset form
       setFormData({
@@ -252,9 +268,16 @@ export const CVUpload = () => {
       setCvTips([]);
       setLinkedinUrl('');
       setLinkedinAnalysis(null);
+      setDataProcessingConsent(false);
+      
     } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred');
+      console.error('💥 Save consultant error:', error);
+      
+      toast({
+        title: "Fel vid sparande",
+        description: error instanceof Error ? error.message : "Ett oväntat fel inträffade. Försök igen.",
+        variant: "destructive",
+      });
     } finally {
       setIsUploading(false);
     }
