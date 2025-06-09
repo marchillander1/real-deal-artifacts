@@ -9,7 +9,7 @@ import Index from "./pages/Index";
 import { CVUpload } from "./pages/CVUpload";
 import Landing from "./pages/Landing";
 import Pricing from "./pages/Pricing";
-import Login from "./pages/Login";
+import Auth from "./pages/Auth";
 import { AuthProvider } from "./hooks/useAuth";
 
 const queryClient = new QueryClient();
@@ -28,7 +28,7 @@ const App = () => (
               <Route path="/matchwiseai" element={<Index />} />
               <Route path="/cv-upload" element={<CVUpload />} />
               <Route path="/pricing" element={<Pricing />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/auth" element={<Auth />} />
             </Routes>
           </div>
         </BrowserRouter>

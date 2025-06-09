@@ -13,7 +13,7 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <Logo size="md" variant="full" />
           <Button asChild>
-            <Link to="/login">Login</Link>
+            <Link to="/auth">Login</Link>
           </Button>
         </div>
       </div>
