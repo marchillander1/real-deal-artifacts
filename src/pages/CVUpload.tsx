@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, User, Mail, Phone, MapPin, Briefcase, Code, Star, Award, Languages, Lightbulb, Target, Brain, Linkedin, Users, MessageCircle, Rocket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
 
 export const CVUpload = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -22,6 +22,7 @@ export const CVUpload = () => {
   const [cvTips, setCvTips] = useState<string[]>([]);
   const [dataProcessingConsent, setDataProcessingConsent] = useState(false);
   const { toast } = useToast();
+  const { createConsultant, isCreating } = useSupabaseConsultants();
 
   // Form data
   const [formData, setFormData] = useState({
@@ -182,14 +183,8 @@ export const CVUpload = () => {
       return;
     }
     
-    setIsUploading(true);
-    
     try {
       console.log('🚀 Starting consultant save process...');
-      
-      // Clean and prepare data
-      const experienceYears = parseInt(formData.experience.replace(/\D/g, '')) || 0;
-      const hourlyRate = parseInt(formData.rate.replace(/\D/g, '')) || 0;
       
       // Convert LinkedIn analysis scores to integers, ensuring they're within 1-5 range
       const culturalFitScore = linkedinAnalysis?.culturalFit 
@@ -202,68 +197,40 @@ export const CVUpload = () => {
         ? Math.round(Math.max(1, Math.min(5, parseFloat(linkedinAnalysis.leadership.toString())))) 
         : 3;
 
-      console.log('📊 LinkedIn scores converted:', {
-        original: {
-          culturalFit: linkedinAnalysis?.culturalFit,
-          adaptability: linkedinAnalysis?.adaptability,
-          leadership: linkedinAnalysis?.leadership
-        },
-        converted: {
-          culturalFitScore,
-          adaptabilityScore,
-          leadershipScore
-        }
-      });
-
       const consultantData = {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         phone: formData.phone.trim(),
         location: formData.location.trim() || 'Stockholm',
         skills: formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(s => s.length > 0) : [],
-        experience_years: experienceYears,
+        experience: formData.experience || '0 years',
         roles: formData.role ? [formData.role.trim()] : [],
-        hourly_rate: hourlyRate,
+        rate: formData.rate || '0 SEK/h',
         availability: formData.availability || 'Available',
-        projects_completed: 0,
+        projects: 0,
         rating: 5.0,
         certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()).filter(c => c.length > 0) : [],
         languages: formData.languages ? formData.languages.split(',').map(l => l.trim()).filter(l => l.length > 0) : [],
-        type: 'new',
-        linkedin_url: linkedinUrl.trim() || null,
+        type: 'new' as const,
+        linkedinUrl: linkedinUrl.trim() || undefined,
         
-        // LinkedIn and AI analysis data with fallbacks - all as integers
-        communication_style: linkedinAnalysis?.communicationStyle || "Professional and collaborative",
-        work_style: linkedinAnalysis?.workStyle || "Agile and results-oriented",
+        // LinkedIn and AI analysis data with fallbacks
+        communicationStyle: linkedinAnalysis?.communicationStyle || "Professional and collaborative",
+        workStyle: linkedinAnalysis?.workStyle || "Agile and results-oriented",
         values: linkedinAnalysis?.values || ["Quality", "Innovation", "Teamwork"],
-        personality_traits: linkedinAnalysis?.personalityTraits || ["Analytical", "Creative", "Leadership-oriented"],
-        team_fit: linkedinAnalysis?.teamFit || "Strong team player with excellent communication skills",
-        cultural_fit: culturalFitScore,
+        personalityTraits: linkedinAnalysis?.personalityTraits || ["Analytical", "Creative", "Leadership-oriented"],
+        teamFit: linkedinAnalysis?.teamFit || "Strong team player with excellent communication skills",
+        culturalFit: culturalFitScore,
         adaptability: adaptabilityScore,
         leadership: leadershipScore
       };
 
-      console.log('📝 Final consultant data:', consultantData);
+      console.log('📝 Final consultant data for hook:', consultantData);
 
-      const { data, error } = await supabase
-        .from('consultants')
-        .insert(consultantData)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('❌ Database error:', error);
-        throw new Error(`Database error: ${error.message}`);
-      }
-
-      console.log('✅ Consultant saved successfully:', data);
+      // Use the mutation from the hook
+      createConsultant(consultantData);
       
-      toast({
-        title: "Profil skapad!",
-        description: "🚀 Du är nu del av vårt konsultnätverk och kan få matchningar.",
-      });
-      
-      // Reset form
+      // Reset form on success
       setFormData({
         name: '',
         email: '',
@@ -302,8 +269,6 @@ export const CVUpload = () => {
         description: error instanceof Error ? error.message : "Ett oväntat fel inträffade. Försök igen.",
         variant: "destructive",
       });
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -845,10 +810,10 @@ export const CVUpload = () => {
         <Button 
           onClick={handleSaveConsultant} 
           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
-          disabled={isUploading || !dataProcessingConsent}
+          disabled={isCreating || !dataProcessingConsent}
           size="lg"
         >
-          {isUploading ? (
+          {isCreating ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
               Creating profile...
