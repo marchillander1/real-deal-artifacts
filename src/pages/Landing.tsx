@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,7 +32,7 @@ export default function Landing() {
             ) : (
               <>
                 <Link to="/cv-upload">
-                  <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-800">
+                  <Button>
                     <Upload className="mr-2 h-4 w-4" />
                     CV Upload
                   </Button>
