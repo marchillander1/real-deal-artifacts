@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, User, Mail, Phone, MapPin, Briefcase, Code, Star, Award, Languages, Lightbulb, Target, Brain, Linkedin, Users, MessageCircle, Rocket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +19,7 @@ export const CVUpload = () => {
   const [isAnalyzingLinkedin, setIsAnalyzingLinkedin] = useState(false);
   const [linkedinAnalysis, setLinkedinAnalysis] = useState<any>(null);
   const [cvTips, setCvTips] = useState<string[]>([]);
+  const [dataProcessingConsent, setDataProcessingConsent] = useState(false);
   const { toast } = useToast();
 
   // Form data
@@ -162,6 +164,16 @@ export const CVUpload = () => {
     // Validate required fields
     if (!formData.name || !formData.email || !formData.phone) {
       alert('Please fill in all required fields (name, email, phone)');
+      return;
+    }
+
+    // Validate data processing consent
+    if (!dataProcessingConsent) {
+      toast({
+        title: "Samtycke krävs",
+        description: "Du måste godkänna databehandling för att fortsätta.",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -759,12 +771,34 @@ export const CVUpload = () => {
         </Card>
       )}
 
+      {/* Data Processing Consent */}
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <div className="flex items-start space-x-3">
+            <Checkbox
+              id="data-consent"
+              checked={dataProcessingConsent}
+              onCheckedChange={(checked) => setDataProcessingConsent(checked as boolean)}
+              className="mt-1"
+            />
+            <div className="grid gap-1.5 leading-none">
+              <Label
+                htmlFor="data-consent"
+                className="text-sm font-medium leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                I agree that Matchwise may process my personal data in accordance with the Privacy Policy for the purpose of matching me with relevant projects. I understand that I can request data deletion at any time by contacting info@matchwise.tech. *
+              </Label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Submit Button */}
       <div className="text-center">
         <Button 
           onClick={handleSaveConsultant} 
           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
-          disabled={isUploading}
+          disabled={isUploading || !dataProcessingConsent}
           size="lg"
         >
           {isUploading ? (
