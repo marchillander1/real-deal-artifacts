@@ -15,7 +15,7 @@ export const Navbar = () => {
           <Logo size="md" variant="full" />
           {user ? (
             <Button onClick={signOut} variant="outline">
-              Logga ut
+              Sign Out
             </Button>
           ) : (
             <Button asChild>

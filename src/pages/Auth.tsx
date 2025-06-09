@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Logo from '@/components/Logo';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Auth() {
   const { signIn, signUp } = useAuth();
@@ -18,11 +19,30 @@ export default function Auth() {
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const sendRegistrationNotification = async (userEmail: string, userName?: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-registration-notification', {
+        body: {
+          userEmail,
+          userName,
+        },
+      });
+      
+      if (error) {
+        console.error('Error sending registration notification:', error);
+      }
+    } catch (error) {
+      console.error('Error invoking registration notification function:', error);
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setMessage('');
 
     const { error } = await signIn(email, password);
     
@@ -38,13 +58,16 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setMessage('');
 
     const { error } = await signUp(email, password, fullName);
     
     if (error) {
       setError(error.message);
     } else {
-      setError('Konto skapat! Kolla din email för att bekräfta.');
+      // Send registration notification
+      await sendRegistrationNotification(email, fullName);
+      setMessage('Account created! Check your email to confirm your account.');
     }
     setLoading(false);
   };
@@ -56,16 +79,16 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <Logo />
           </div>
-          <CardTitle>Välkommen till MatchWise AI</CardTitle>
+          <CardTitle>Welcome to MatchWise AI</CardTitle>
           <CardDescription>
-            Logga in eller skapa ett konto för att komma igång
+            Sign in or create an account to get started
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Logga in</TabsTrigger>
-              <TabsTrigger value="signup">Registrera</TabsTrigger>
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin">
@@ -75,14 +98,14 @@ export default function Auth() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="din@email.com"
+                    placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Lösenord</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -97,7 +120,7 @@ export default function Auth() {
                   </Alert>
                 )}
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Loggar in...' : 'Logga in'}
+                  {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
             </TabsContent>
@@ -105,11 +128,11 @@ export default function Auth() {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Fullständigt namn</Label>
+                  <Label htmlFor="fullName">Full Name</Label>
                   <Input
                     id="fullName"
                     type="text"
-                    placeholder="Ditt namn"
+                    placeholder="Your name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                   />
@@ -119,14 +142,14 @@ export default function Auth() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="din@email.com"
+                    placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Lösenord</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -140,8 +163,13 @@ export default function Auth() {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
+                {message && (
+                  <Alert>
+                    <AlertDescription>{message}</AlertDescription>
+                  </Alert>
+                )}
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Skapar konto...' : 'Skapa konto'}
+                  {loading ? 'Creating account...' : 'Create Account'}
                 </Button>
               </form>
             </TabsContent>
