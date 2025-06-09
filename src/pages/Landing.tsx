@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,17 +22,11 @@ export default function Landing() {
             <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
           </nav>
           <div className="flex items-center space-x-4">
-            {user ? (
+            {user && (
               <Link to="/matchwiseai">
                 <Button>
                   Go to Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Login
                 </Button>
               </Link>
             )}
@@ -592,4 +584,3 @@ export default function Landing() {
     </div>
   );
 }
-
