@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Play, Heart, Clock, Shield, Star, TrendingUp } from 'lucide-react';
+import { ArrowRight, Play, Heart, Clock, Shield, Star, TrendingUp, LogIn, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,13 +23,28 @@ export default function Landing() {
             <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
           </nav>
           <div className="flex items-center space-x-4">
-            {user && (
+            {user ? (
               <Link to="/matchwiseai">
                 <Button>
                   Go to Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
+            ) : (
+              <>
+                <Link to="/cv-upload">
+                  <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-800">
+                    <Upload className="mr-2 h-4 w-4" />
+                    CV Upload
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Login
+                  </Button>
+                </Link>
+              </>
             )}
           </div>
         </div>
