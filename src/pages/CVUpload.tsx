@@ -191,6 +191,30 @@ export const CVUpload = () => {
       const experienceYears = parseInt(formData.experience.replace(/\D/g, '')) || 0;
       const hourlyRate = parseInt(formData.rate.replace(/\D/g, '')) || 0;
       
+      // Convert LinkedIn analysis scores to integers, ensuring they're within 1-5 range
+      const culturalFitScore = linkedinAnalysis?.culturalFit 
+        ? Math.round(Math.max(1, Math.min(5, parseFloat(linkedinAnalysis.culturalFit.toString())))) 
+        : 4;
+      const adaptabilityScore = linkedinAnalysis?.adaptability 
+        ? Math.round(Math.max(1, Math.min(5, parseFloat(linkedinAnalysis.adaptability.toString())))) 
+        : 4;
+      const leadershipScore = linkedinAnalysis?.leadership 
+        ? Math.round(Math.max(1, Math.min(5, parseFloat(linkedinAnalysis.leadership.toString())))) 
+        : 3;
+
+      console.log('📊 LinkedIn scores converted:', {
+        original: {
+          culturalFit: linkedinAnalysis?.culturalFit,
+          adaptability: linkedinAnalysis?.adaptability,
+          leadership: linkedinAnalysis?.leadership
+        },
+        converted: {
+          culturalFitScore,
+          adaptabilityScore,
+          leadershipScore
+        }
+      });
+
       const consultantData = {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
@@ -208,18 +232,18 @@ export const CVUpload = () => {
         type: 'new',
         linkedin_url: linkedinUrl.trim() || null,
         
-        // LinkedIn and AI analysis data with fallbacks
+        // LinkedIn and AI analysis data with fallbacks - all as integers
         communication_style: linkedinAnalysis?.communicationStyle || "Professional and collaborative",
         work_style: linkedinAnalysis?.workStyle || "Agile and results-oriented",
         values: linkedinAnalysis?.values || ["Quality", "Innovation", "Teamwork"],
         personality_traits: linkedinAnalysis?.personalityTraits || ["Analytical", "Creative", "Leadership-oriented"],
         team_fit: linkedinAnalysis?.teamFit || "Strong team player with excellent communication skills",
-        cultural_fit: linkedinAnalysis?.culturalFit || 4,
-        adaptability: linkedinAnalysis?.adaptability || 4,
-        leadership: linkedinAnalysis?.leadership || 3
+        cultural_fit: culturalFitScore,
+        adaptability: adaptabilityScore,
+        leadership: leadershipScore
       };
 
-      console.log('📝 Consultant data prepared:', consultantData);
+      console.log('📝 Final consultant data:', consultantData);
 
       const { data, error } = await supabase
         .from('consultants')
