@@ -63,7 +63,14 @@ export default function Landing() {
                   <Play className="mr-2 h-5 w-5" />
                   Watch Demo
                 </Button>
-                {!user && (
+                {user ? (
+                  <Link to="/matchwiseai">
+                    <Button variant="outline" size="lg" className="px-8 py-3 text-lg border-gray-600 text-white hover:bg-gray-800">
+                      Go to Dashboard
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                ) : (
                   <Link to="/auth">
                     <Button variant="outline" size="lg" className="px-8 py-3 text-lg border-gray-600 text-white hover:bg-gray-800">
                       Get Started
@@ -533,6 +540,14 @@ export default function Landing() {
               <Play className="mr-2 h-5 w-5" />
               Watch 2-Min Demo
             </Button>
+            {!user && (
+              <Link to="/auth">
+                <Button size="lg" className="px-8 py-3 text-lg bg-white text-blue-600 hover:bg-gray-100">
+                  Login
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </section>
