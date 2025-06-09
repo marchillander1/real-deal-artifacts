@@ -533,10 +533,6 @@ export default function Landing() {
               <Play className="mr-2 h-5 w-5" />
               Watch 2-Min Demo
             </Button>
-            <Button size="lg" className="px-8 py-3 text-lg bg-white text-blue-600 hover:bg-gray-100">
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
           </div>
         </div>
       </section>
