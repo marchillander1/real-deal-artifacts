@@ -15,16 +15,54 @@ interface WelcomeEmailRequest {
 
 const handler = async (req: Request): Promise<Response> => {
   console.log("🚀 Welcome email function started");
+  console.log("📋 Request method:", req.method);
   
   if (req.method === "OPTIONS") {
     console.log("✅ Handling CORS preflight request");
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    console.error("❌ Invalid method:", req.method);
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      {
+        status: 405,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
+  }
+
   try {
-    const { userEmail, userName }: WelcomeEmailRequest = await req.json();
+    // Parse request body
+    const body = await req.text();
+    console.log("📦 Raw request body received");
+    
+    if (!body) {
+      throw new Error("Request body is empty");
+    }
+
+    let requestData: WelcomeEmailRequest;
+    try {
+      requestData = JSON.parse(body);
+    } catch (parseError) {
+      console.error("❌ JSON parse error:", parseError);
+      throw new Error("Invalid JSON in request body");
+    }
+
+    const { userEmail, userName } = requestData;
 
     console.log("📧 Sending welcome email to:", userEmail, "with name:", userName);
+
+    // Validate email
+    if (!userEmail) {
+      throw new Error("userEmail is required");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userEmail)) {
+      throw new Error("Invalid email format");
+    }
 
     // Check if API key exists
     const apiKey = Deno.env.get("RESEND_API_KEY");
@@ -32,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("❌ RESEND_API_KEY not found in environment");
       throw new Error("RESEND_API_KEY not configured");
     }
-    console.log("🔑 RESEND_API_KEY found");
+    console.log("🔑 RESEND_API_KEY found (length:", apiKey.length, ")");
 
     // Extract first name from full name or use email
     const firstName = userName ? userName.split(' ')[0] : userEmail.split('@')[0];
