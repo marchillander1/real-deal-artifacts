@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, FileText, CheckCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Brain, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,8 +20,11 @@ export const CVUpload = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [analyzingLinkedIn, setAnalyzingLinkedIn] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -41,6 +44,47 @@ export const CVUpload = () => {
       }
     } catch (error) {
       console.error('Error invoking welcome email function:', error);
+    }
+  };
+
+  const analyzeLinkedInProfile = async (url: string) => {
+    if (!url.trim()) return null;
+    
+    setAnalyzingLinkedIn(true);
+    try {
+      console.log('Starting LinkedIn analysis for:', url);
+      
+      const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
+        body: { linkedinUrl: url }
+      });
+
+      if (error) {
+        console.error('LinkedIn analysis error:', error);
+        throw error;
+      }
+
+      console.log('LinkedIn analysis result:', data);
+      
+      if (data?.success && data?.analysis) {
+        setAiAnalysis(data.analysis);
+        toast({
+          title: "AI-analys slutförd! 🧠",
+          description: "Din LinkedIn-profil har analyserats framgångsrikt.",
+        });
+        return data.analysis;
+      } else {
+        throw new Error('Ingen analys mottagen från servern');
+      }
+    } catch (error: any) {
+      console.error('LinkedIn analysis failed:', error);
+      toast({
+        title: "AI-analys misslyckades",
+        description: error.message || "Kunde inte analysera LinkedIn-profilen. Försök igen.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setAnalyzingLinkedIn(false);
     }
   };
 
@@ -74,6 +118,13 @@ export const CVUpload = () => {
     setLoading(true);
 
     try {
+      let analysis = aiAnalysis;
+      
+      // Analyze LinkedIn if URL provided and not already analyzed
+      if (linkedinUrl && !analysis) {
+        analysis = await analyzeLinkedInProfile(linkedinUrl);
+      }
+
       // Upload CV file to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${name.replace(/\s+/g, '-')}.${fileExt}`;
@@ -86,17 +137,40 @@ export const CVUpload = () => {
         throw uploadError;
       }
 
+      // Prepare consultant data with AI analysis
+      const consultantData: any = {
+        name,
+        email,
+        phone,
+        cv_file_path: uploadData.path,
+        type: 'new',
+        status: 'pending_review',
+        linkedin_url: linkedinUrl || null,
+      };
+
+      // Add AI analysis data if available
+      if (analysis) {
+        consultantData.communication_style = analysis.communicationStyle;
+        consultantData.work_style = analysis.workStyle;
+        consultantData.values = analysis.values;
+        consultantData.personality_traits = analysis.personalityTraits;
+        consultantData.team_fit = analysis.teamFit;
+        consultantData.cultural_fit = analysis.culturalFit;
+        consultantData.adaptability = analysis.adaptability;
+        consultantData.leadership = analysis.leadership;
+        consultantData.technical_depth = analysis.technicalDepth;
+        consultantData.communication_clarity = analysis.communicationClarity;
+        consultantData.innovation_mindset = analysis.innovationMindset;
+        consultantData.mentorship_ability = analysis.mentorshipAbility;
+        consultantData.problem_solving_approach = analysis.problemSolvingApproach;
+        consultantData.learning_orientation = analysis.learningOrientation;
+        consultantData.collaboration_preference = analysis.collaborationPreference;
+      }
+
       // Save consultant data to database
-      const { data: consultantData, error: dbError } = await supabase
+      const { data: dbData, error: dbError } = await supabase
         .from('consultants')
-        .insert({
-          name,
-          email,
-          phone,
-          cv_file_path: uploadData.path,
-          type: 'new',
-          status: 'pending_review'
-        })
+        .insert(consultantData)
         .select()
         .single();
 
@@ -115,6 +189,8 @@ export const CVUpload = () => {
       setName('');
       setEmail('');
       setPhone('');
+      setLinkedinUrl('');
+      setAiAnalysis(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -179,6 +255,51 @@ export const CVUpload = () => {
                 onChange={(e) => setPhone(e.target.value)}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkedin" className="flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                LinkedIn-profil (för AI-analys)
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="linkedin"
+                  type="url"
+                  placeholder="https://linkedin.com/in/dinprofil"
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => analyzeLinkedInProfile(linkedinUrl)}
+                  disabled={!linkedinUrl || analyzingLinkedIn}
+                  className="px-3"
+                >
+                  {analyzingLinkedIn ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Brain className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Valfritt: Låt vår AI analysera din profil för bättre matchning
+              </p>
+              {aiAnalysis && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                  <div className="flex items-center gap-2 text-green-800">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">AI-analys slutförd!</span>
+                  </div>
+                  <p className="text-sm text-green-700 mt-1">
+                    Din personlighetsprofil har skapats för förbättrad matchning
+                  </p>
+                </div>
+              )}
+            </div>
             
             <div className="space-y-2">
               <Label htmlFor="cv">CV-fil *</Label>
@@ -223,6 +344,11 @@ export const CVUpload = () => {
             </DialogTitle>
             <DialogDescription className="text-center space-y-2">
               <p>Ditt CV har skickats in framgångsrikt.</p>
+              {aiAnalysis && (
+                <p className="font-medium text-blue-600">
+                  Din AI-personlighetsprofil har också skapats för förbättrad matchning!
+                </p>
+              )}
               <p className="font-medium text-green-600">
                 Du kommer att få ett välkomstmail med mer information om nästa steg.
               </p>
