@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -188,14 +187,28 @@ export const CVUpload = () => {
 
       const experienceYears = analysisResult.experience.match(/\d+/)?.[0] || '0';
       
+      // Safely combine skills from both analyses
+      const combinedSkills = [
+        ...(analysisResult.skills || []),
+        ...(cvAnalysis?.skills || [])
+      ];
+      const uniqueSkills = [...new Set(combinedSkills)];
+      
+      // Safely combine roles from both analyses
+      const combinedRoles = [
+        ...(analysisResult.roles || []),
+        ...(cvAnalysis?.roles || [])
+      ];
+      const uniqueRoles = [...new Set(combinedRoles)];
+      
       const consultantData = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || '',
         location: formData.location || 'Stockholm',
-        skills: [...new Set([...analysisResult.skills, ...(cvAnalysis?.skills || [])])],
+        skills: uniqueSkills,
         experience_years: parseInt(experienceYears),
-        roles: [...new Set([...analysisResult.roles, ...(cvAnalysis?.roles || [])])],
+        roles: uniqueRoles,
         hourly_rate: 800,
         availability: formData.availability,
         projects_completed: 0,
@@ -207,7 +220,7 @@ export const CVUpload = () => {
         communication_style: analysisResult.communicationStyle,
         work_style: analysisResult.workStyle,
         values: ['Quality', 'Innovation', 'Teamwork'],
-        personality_traits: analysisResult.personalityTraits,
+        personality_traits: analysisResult.personalityTraits || [],
         team_fit: 'Strong collaborative skills',
         cultural_fit: analysisResult.culturalFit,
         adaptability: analysisResult.adaptability,
@@ -527,7 +540,7 @@ export const CVUpload = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Skills from CV</h4>
                     <div className="flex flex-wrap gap-2">
-                      {cvAnalysis.skills.map((skill, index) => (
+                      {(cvAnalysis.skills || []).map((skill, index) => (
                         <span key={index} className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
                           {skill}
                         </span>
@@ -556,7 +569,10 @@ export const CVUpload = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Combined Skills</h4>
                     <div className="flex flex-wrap gap-2">
-                      {[...new Set([...analysisResult.skills, ...(cvAnalysis?.skills || [])])].map((skill, index) => (
+                      {[
+                        ...(analysisResult.skills || []),
+                        ...(cvAnalysis?.skills || [])
+                      ].filter((skill, index, arr) => arr.indexOf(skill) === index).map((skill, index) => (
                         <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                           {skill}
                         </span>
@@ -567,7 +583,7 @@ export const CVUpload = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Suitable Roles</h4>
                     <div className="flex flex-wrap gap-2">
-                      {analysisResult.roles.map((role, index) => (
+                      {(analysisResult.roles || []).map((role, index) => (
                         <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
                           {role}
                         </span>
