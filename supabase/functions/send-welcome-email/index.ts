@@ -107,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
         <p><strong>Välkommen till framtiden för konsultmatchning!</strong></p>
         
         <p>Bästa hälsningar,<br>
-        MatchWise-teamet<br>
+        Marc & MatchWise-teamet<br>
         <a href="https://www.matchwise.tech">www.matchwise.tech</a></p>
       </div>
     `;
