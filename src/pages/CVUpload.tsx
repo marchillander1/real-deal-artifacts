@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, FileText, CheckCircle, Brain, Loader2, Star, Users, Target, Lightbulb, TrendingUp, Award, AlertCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Brain, Loader2, Star, Users, Target, Lightbulb, TrendingUp, Award, AlertCircle, Sparkles, Zap } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -348,8 +347,10 @@ export const CVUpload = () => {
     if (!name.trim()) errors.push("Name is required");
     if (!email.trim()) errors.push("Email is required");
     if (!email.includes('@')) errors.push("Valid email is required");
-    // Remove LinkedIn requirement for basic submission
+    if (!linkedinUrl.trim()) errors.push("LinkedIn profile URL is required");
+    if (!linkedinUrl.includes('linkedin.com')) errors.push("Valid LinkedIn URL is required");
     if (!cvAnalysis) errors.push("CV must be analyzed before submission");
+    if (!linkedInAnalysis) errors.push("LinkedIn profile must be analyzed before submission");
     
     setValidationErrors(errors);
     return errors.length === 0;
@@ -385,7 +386,7 @@ export const CVUpload = () => {
     if (!validateForm()) {
       toast({
         title: "Missing Information",
-        description: "Please complete all required fields and ensure CV is analyzed.",
+        description: "Please complete all required fields and ensure both CV and LinkedIn are analyzed.",
         variant: "destructive",
       });
       return;
@@ -397,13 +398,11 @@ export const CVUpload = () => {
     try {
       let linkedInData = linkedInAnalysis;
       
-      // Analyze LinkedIn if URL provided and not already analyzed (optional)
+      // Analyze LinkedIn if URL provided and not already analyzed
       if (linkedinUrl && !linkedInData) {
-        try {
-          linkedInData = await analyzeLinkedInProfile(linkedinUrl);
-        } catch (error) {
-          console.warn('LinkedIn analysis failed, continuing without it:', error);
-          // Continue with submission even if LinkedIn fails
+        linkedInData = await analyzeLinkedInProfile(linkedinUrl);
+        if (!linkedInData) {
+          throw new Error('LinkedIn analysis is required but failed');
         }
       }
 
@@ -554,16 +553,50 @@ export const CVUpload = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-7xl mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <Sparkles className="h-4 w-4" />
+            AI-Powered Career Analysis
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Upload Your CV & LinkedIn Profile
+          </h1>
+          <p className="text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
+            Get instant AI analysis of your skills, personality, and career potential. 
+            Upload your CV and add your LinkedIn profile to receive comprehensive insights 
+            and join our exclusive consultant network.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4 text-blue-500" />
+              AI Skills Analysis
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-green-500" />
+              Personality Profiling
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-purple-500" />
+              Career Insights
+            </div>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-orange-500" />
+              Instant Results
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Main Upload Form */}
           <Card className="w-full">
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center gap-2">
                 <Upload className="h-6 w-6" />
-                Upload Your CV
+                Start Your Analysis
               </CardTitle>
               <CardDescription>
-                Join MatchWise and find your next consulting assignment
+                Both CV and LinkedIn profile are required for complete analysis
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -641,7 +674,7 @@ export const CVUpload = () => {
                 <div className="space-y-2">
                   <Label htmlFor="linkedin" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    LinkedIn Profile (Optional for Enhanced Analysis)
+                    LinkedIn Profile URL *
                   </Label>
                   <div className="flex gap-2">
                     <Input
@@ -651,13 +684,14 @@ export const CVUpload = () => {
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
                       className="flex-1"
+                      required
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => analyzeLinkedInProfile(linkedinUrl)}
-                      disabled={!linkedinUrl || analyzingLinkedIn}
+                      disabled={!linkedinUrl || analyzingLinkedIn || !linkedinUrl.includes('linkedin.com')}
                       className="px-3"
                     >
                       {analyzingLinkedIn ? (
@@ -668,7 +702,7 @@ export const CVUpload = () => {
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Optional: Add LinkedIn for enhanced personality and communication analysis
+                    Required: LinkedIn profile for enhanced personality and communication analysis
                   </p>
                   {analyzingLinkedIn && (
                     <div className="p-3 bg-purple-50 border border-purple-200 rounded-md">
@@ -726,15 +760,18 @@ export const CVUpload = () => {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={loading || !cvAnalysis}
+                  disabled={loading || !cvAnalysis || !linkedInAnalysis}
                 >
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
+                      Submitting Application...
                     </>
                   ) : (
-                    'Submit Application'
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Submit & Join Network
+                    </>
                   )}
                 </Button>
               </form>
@@ -1133,31 +1170,32 @@ export const CVUpload = () => {
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
               <DialogTitle className="text-xl font-semibold">
-                Thank you for your registration!
+                Welcome to Our Consultant Network! 🎉
               </DialogTitle>
               <DialogDescription className="text-center space-y-2">
-                <p>Your CV has been successfully submitted and you've been added to our network consultants.</p>
+                <p className="font-medium text-green-700">Your application has been successfully submitted!</p>
                 {cvAnalysis && (
-                  <p className="font-medium text-blue-600">
-                    Your AI competency analysis and personality profile have been created for enhanced matching!
+                  <p className="text-blue-600">
+                    ✅ Your CV analysis is complete with {cvAnalysis.skills.length} skills identified
                   </p>
                 )}
                 {linkedInAnalysis && (
-                  <p className="font-medium text-purple-600">
-                    Your LinkedIn analysis has also been completed!
+                  <p className="text-purple-600">
+                    ✅ Your LinkedIn profile analysis is complete
                   </p>
                 )}
                 <p className="font-medium text-green-600">
-                  You will receive a welcome email with more information about next steps.
+                  📧 You will receive a welcome email with next steps within a few minutes.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  You can now view your profile in the Network Consultants section at /matchwiseai
+                  Your profile is now visible under "Network Consultants" at /matchwiseai
                 </p>
               </DialogDescription>
             </DialogHeader>
             <div className="flex justify-center mt-4">
               <Button onClick={() => setShowSuccessDialog(false)} className="w-full">
-                Close
+                <Sparkles className="mr-2 h-4 w-4" />
+                Continue to Dashboard
               </Button>
             </div>
           </DialogContent>
