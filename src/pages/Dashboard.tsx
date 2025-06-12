@@ -4,8 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
-import { ConsultantsTab } from "../components/ConsultantsTab";
-import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
+import { EnhancedConsultantsTabDedup } from "../components/EnhancedConsultantsTabDedup";
+import { useSupabaseConsultantsDedup } from "@/hooks/useSupabaseConsultantsDedup";
 
 interface DashboardProps {
   assignments: Assignment[];
@@ -24,7 +24,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [matchResults, setMatchResults] = useState<any[]>([]);
   const [showMatchResults, setShowMatchResults] = useState(false);
-  const { consultants } = useSupabaseConsultants();
+  const { consultants } = useSupabaseConsultantsDedup();
 
   // Sample assignments to demonstrate functionality
   const sampleAssignments: Assignment[] = [
@@ -423,7 +423,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'dashboard' && renderDashboardContent()}
-        {activeTab === 'consultants' && <ConsultantsTab />}
+        {activeTab === 'consultants' && <EnhancedConsultantsTabDedup />}
         {activeTab === 'assignments' && renderAssignmentsContent()}
       </div>
 
