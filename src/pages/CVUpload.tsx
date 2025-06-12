@@ -308,18 +308,18 @@ export const CVUpload = () => {
         ...(cvAnalysis?.technicalSkills?.tools || [])
       ];
 
-      // Convert certifications object to array
-      const certificationsArray = cvAnalysis?.certifications ? 
+      // Convert certifications to string array with proper type safety
+      const certificationsArray: string[] = cvAnalysis?.certifications ? 
         Array.isArray(cvAnalysis.certifications) ? 
-          cvAnalysis.certifications : 
-          Object.values(cvAnalysis.certifications).flat() 
+          cvAnalysis.certifications.filter((cert): cert is string => typeof cert === 'string') : 
+          Object.values(cvAnalysis.certifications).flat().filter((cert): cert is string => typeof cert === 'string')
         : [];
 
-      // Convert languages object to array  
-      const languagesArray = cvAnalysis?.languages ?
+      // Convert languages to string array with proper type safety
+      const languagesArray: string[] = cvAnalysis?.languages ?
         Array.isArray(cvAnalysis.languages) ?
-          cvAnalysis.languages :
-          Object.values(cvAnalysis.languages).flat()
+          cvAnalysis.languages.filter((lang): lang is string => typeof lang === 'string') :
+          Object.values(cvAnalysis.languages).flat().filter((lang): lang is string => typeof lang === 'string')
         : ['Swedish', 'English'];
       
       const consultantData = {
