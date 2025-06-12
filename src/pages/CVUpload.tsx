@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -306,6 +307,20 @@ export const CVUpload = () => {
         ...(cvAnalysis?.technicalSkills?.cloud || []),
         ...(cvAnalysis?.technicalSkills?.tools || [])
       ];
+
+      // Convert certifications object to array
+      const certificationsArray = cvAnalysis?.certifications ? 
+        Array.isArray(cvAnalysis.certifications) ? 
+          cvAnalysis.certifications : 
+          Object.values(cvAnalysis.certifications).flat() 
+        : [];
+
+      // Convert languages object to array  
+      const languagesArray = cvAnalysis?.languages ?
+        Array.isArray(cvAnalysis.languages) ?
+          cvAnalysis.languages :
+          Object.values(cvAnalysis.languages).flat()
+        : ['Swedish', 'English'];
       
       const consultantData = {
         name: formData.name,
@@ -319,8 +334,8 @@ export const CVUpload = () => {
         availability: 'Available now',
         projects_completed: cvAnalysis?.projects?.length || 0,
         rating: 4.5,
-        certifications: cvAnalysis?.certifications || [],
-        languages: cvAnalysis?.languages || ['Swedish', 'English'],
+        certifications: certificationsArray,
+        languages: languagesArray,
         type: 'new',
         linkedin_url: formData.linkedinUrl,
         communication_style: linkedinAnalysis?.communicationStyle || '',
