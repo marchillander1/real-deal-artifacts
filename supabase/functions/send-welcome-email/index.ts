@@ -14,7 +14,10 @@ interface WelcomeEmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("🚀 Welcome email function started");
+  
   if (req.method === "OPTIONS") {
+    console.log("✅ Handling CORS preflight request");
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -23,13 +26,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("📧 Sending welcome email to:", userEmail, "with name:", userName);
 
+    // Check if API key exists
+    const apiKey = Deno.env.get("RESEND_API_KEY");
+    if (!apiKey) {
+      console.error("❌ RESEND_API_KEY not found in environment");
+      throw new Error("RESEND_API_KEY not configured");
+    }
+    console.log("🔑 RESEND_API_KEY found");
+
     // Extract first name from full name or use email
     const firstName = userName ? userName.split(' ')[0] : userEmail.split('@')[0];
 
     console.log("👤 First name extracted:", firstName);
 
     // Initialize Resend with API key
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+    const resend = new Resend(apiKey);
 
     console.log("🔧 Resend client configured");
 
@@ -84,9 +95,14 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("❌ Error sending welcome email:", error);
+    console.error("❌ Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, details: error.toString() }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
