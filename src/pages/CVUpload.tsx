@@ -1,875 +1,641 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, CheckCircle, Brain, User, Star, Target, Trophy, BookOpen, Code, Users, TrendingUp, Lightbulb, Award, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { Upload, FileText, User, Mail, Phone, MapPin, Calendar, Download, ExternalLink, Sparkles, TrendingUp, Target, Award, Brain, Building, Users, MessageCircle, Lightbulb, BarChart3, CheckCircle, AlertCircle, Plus, X, Star, Zap, Shield, Compass } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-
-interface Strength {
-  category: string;
-  description: string;
-  evidence: string[];
-  impact: string;
-}
-
-interface ImprovementArea {
-  area: string;
-  tips: string[];
-}
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 
 interface EnhancedCVAnalysis {
-  personalInfo: {
-    name: string;
-    email: string;
-    phone: string;
-    location: string;
-  };
-  technicalSkills: {
-    programming: string[];
-    frameworks: string[];
-    databases: string[];
-    cloud: string[];
-    tools: string[];
-  };
-  experience: {
-    totalYears: string;
-    roles: string[];
-    industries: string[];
-    keyAchievements: string[];
-  };
-  projects: Array<{
-    name: string;
-    description: string;
-    technologies: string[];
-    impact: string;
-    role?: string;
-    teamSize?: string;
-  }>;
-  education: Array<{
-    degree: string;
-    institution: string;
-    year: string;
-    relevantCourses?: string[];
-  }>;
-  certifications: string[];
-  languages: string[];
-  softSkills: string[];
-  careerGoals: string[];
-  workPreferences: {
-    workStyle: string;
-    teamSize: string;
-    projectType: string;
-    remotePreference: string;
-    travelWillingness: string;
-  };
-  strengths: Strength[];
-  improvementAreas: ImprovementArea[];
-  competitiveAdvantages: string[];
+  technicalStrengths: string[];
+  improvementAreas: string[];
+  cvScore: number;
+  careerSummary: string;
   marketPositioning: {
     suitableRoles: string[];
     salaryRange: string;
     competitiveness: string;
     uniqueValue: string;
   };
+  // CV-specific detailed analysis
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  marketValue: {
+    targetRoles: string[];
+    salaryBenchmarks: string;
+    uniqueValueProposition: string;
+  };
 }
 
 interface LinkedInAnalysis {
-  communicationStyle: string;
-  workStyle: string;
-  values: string[];
-  personalityTraits: string[];
-  teamFit: string;
-  culturalFit: number;
-  adaptability: number;
+  networkStrength: number;
+  contentQuality: number;
+  professionalBranding: number;
+  industryPresence: number;
+  overallScore: number;
+  recommendations: string[];
+  insights: string;
+  // Enhanced properties
   leadership: number;
-  technicalDepth: number;
-  communicationClarity: number;
-  innovationMindset: number;
-  mentorshipAbility: number;
-  problemSolvingApproach: string;
-  learningOrientation: string;
-  collaborationPreference: string;
-  profileStrengths?: string[];
-  improvementSuggestions?: string[];
-  networkingTips?: string[];
-  contentStrategy?: string[];
+  innovation: number;
+  business: number;
+  strategic: number;
+  decisionMaking: string;
+  growthAreas: string[];
+  thoughtLeadership: number;
 }
 
-export const CVUpload = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isParsing, setIsParsing] = useState(false);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [linkedinAnalysis, setLinkedinAnalysis] = useState<LinkedInAnalysis | null>(null);
+interface ConsultantProfile {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  skills: string[];
+  experienceYears: number;
+  hourlyRate: number;
+  availability: string;
+  cvFilePath: string;
+  communicationStyle: string;
+}
+
+const CVUpload: React.FC = () => {
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [linkedinProfileUrl, setLinkedinProfileUrl] = useState('');
   const [cvAnalysis, setCvAnalysis] = useState<EnhancedCVAnalysis | null>(null);
-  const [formData, setFormData] = useState({
+  const [linkedinAnalysis, setLinkedinAnalysis] = useState<LinkedInAnalysis | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [profileData, setProfileData] = useState<ConsultantProfile>({
     name: '',
     email: '',
     phone: '',
-    linkedinUrl: ''
+    location: '',
+    skills: [],
+    experienceYears: 0,
+    hourlyRate: 0,
+    availability: 'Available',
+    cvFilePath: '',
+    communicationStyle: '',
   });
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const selectedFile = files[0];
-      setFile(selectedFile);
-      console.log('CV file selected:', selectedFile.name);
-      toast.success(`CV file "${selectedFile.name}" selected`);
-      
-      await parseCV(selectedFile);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setCvFile(event.target.files[0]);
     }
   };
 
-  const parseCV = async (file: File) => {
-    setIsParsing(true);
-    try {
-      console.log('Starting enhanced CV parsing...');
-      
-      const formData = new FormData();
-      formData.append('file', file);
+  const handleLinkedinUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLinkedinProfileUrl(event.target.value);
+  };
 
-      const { data, error } = await supabase.functions.invoke('parse-cv', {
-        body: formData
+  const handleUpload = async () => {
+    if (!cvFile) {
+      toast({
+        title: "Fel",
+        description: "Välj en CV-fil att ladda upp.",
+        variant: "destructive",
       });
-
-      if (error) {
-        console.error('CV parsing error:', error);
-        throw new Error(error.message || 'CV parsing failed');
-      }
-
-      console.log('Enhanced CV parsing result:', data);
-
-      if (data?.success && data?.analysis) {
-        setCvAnalysis(data.analysis);
-        
-        setFormData(prev => ({
-          ...prev,
-          name: data.analysis.personalInfo.name || prev.name,
-          email: data.analysis.personalInfo.email || prev.email,
-          phone: data.analysis.personalInfo.phone || prev.phone
-        }));
-
-        toast.success('CV parsed successfully with comprehensive analysis!');
-      }
-
-    } catch (error: any) {
-      console.error('CV parsing error:', error);
-      toast.error(error.message || 'Failed to parse CV');
-    } finally {
-      setIsParsing(false);
-    }
-  };
-
-  const analyzeLinkedIn = async () => {
-    if (!formData.linkedinUrl) {
-      toast.error('Please enter your LinkedIn URL first');
       return;
     }
 
-    setIsAnalyzing(true);
-    try {
-      console.log('Starting LinkedIn analysis...');
-      
-      const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
-        body: { linkedinUrl: formData.linkedinUrl }
-      });
-
-      if (error) {
-        console.error('Analysis error:', error);
-        throw new Error(error.message || 'Analysis failed');
-      }
-
-      console.log('Analysis result:', data);
-      
-      // Enhanced LinkedIn analysis with more detailed insights
-      const enhancedAnalysis = {
-        ...data?.analysis,
-        profileStrengths: [
-          'Strong professional headline optimization',
-          'Comprehensive skills section with endorsements',
-          'Regular content sharing shows thought leadership',
-          'Diverse network across multiple industries'
-        ],
-        improvementSuggestions: [
-          'Add more specific metrics to experience descriptions',
-          'Include industry keywords for better discoverability',
-          'Share more original content to build thought leadership',
-          'Request recommendations from recent colleagues',
-          'Update profile photo to a more professional headshot'
-        ],
-        networkingTips: [
-          'Connect with industry leaders in your field',
-          'Join relevant professional groups and participate actively',
-          'Comment thoughtfully on posts in your network',
-          'Share insights from your project experiences',
-          'Attend virtual events and connect with speakers'
-        ],
-        contentStrategy: [
-          'Share technical insights from your recent projects',
-          'Write about lessons learned from team leadership',
-          'Comment on industry trends and technology developments',
-          'Post about problem-solving approaches you\'ve used',
-          'Share career growth tips for other developers'
-        ]
-      };
-      
-      setLinkedinAnalysis(enhancedAnalysis);
-      toast.success('LinkedIn analysis completed successfully!');
-
-    } catch (error: any) {
-      console.error('LinkedIn analysis error:', error);
-      toast.error(error.message || 'Failed to analyze LinkedIn profile');
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!file) {
-      toast.error('Please upload your CV first');
-      return;
-    }
-    
-    if (!linkedinAnalysis) {
-      toast.error('Please analyze your LinkedIn profile first');
-      return;
-    }
-
-    setIsUploading(true);
+    setIsLoading(true);
+    setCvAnalysis(null); // Clear previous analysis
 
     try {
-      console.log('Creating consultant profile...');
-
-      if (!formData.name || !formData.email || !formData.linkedinUrl) {
-        toast.error('Name, email and LinkedIn URL are required');
-        return;
-      }
-
-      const experienceYears = cvAnalysis?.experience.totalYears.match(/\d+/)?.[0] || '0';
-      
-      const allTechnicalSkills = [
-        ...(cvAnalysis?.technicalSkills.programming || []),
-        ...(cvAnalysis?.technicalSkills.frameworks || []),
-        ...(cvAnalysis?.technicalSkills.databases || []),
-        ...(cvAnalysis?.technicalSkills.cloud || []),
-        ...(cvAnalysis?.technicalSkills.tools || [])
-      ];
-      
-      const consultantData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || '',
-        location: cvAnalysis?.personalInfo.location || 'Stockholm',
-        skills: [...new Set(allTechnicalSkills)],
-        experience_years: parseInt(experienceYears),
-        roles: cvAnalysis?.experience.roles || [],
-        hourly_rate: 800,
-        availability: 'Available now',
-        projects_completed: cvAnalysis?.projects?.length || 0,
-        rating: 4.5,
-        certifications: cvAnalysis?.certifications || [],
-        languages: cvAnalysis?.languages || ['Swedish', 'English'],
-        type: 'new',
-        linkedin_url: formData.linkedinUrl,
-        communication_style: linkedinAnalysis?.communicationStyle || '',
-        work_style: linkedinAnalysis?.workStyle || '',
-        values: linkedinAnalysis?.values || [],
-        personality_traits: linkedinAnalysis?.personalityTraits || [],
-        team_fit: linkedinAnalysis?.teamFit || '',
-        cultural_fit: Math.round(linkedinAnalysis?.culturalFit || 4),
-        adaptability: Math.round(linkedinAnalysis?.adaptability || 4),
-        leadership: Math.round(linkedinAnalysis?.leadership || 3)
-      };
-
-      console.log('Inserting consultant data:', consultantData);
-
-      const { data: insertedConsultant, error: insertError } = await supabase
-        .from('consultants')
-        .insert([consultantData])
-        .select()
-        .single();
-
-      if (insertError) {
-        console.error('Database insert error:', insertError);
-        throw new Error(`Database error: ${insertError.message}`);
-      }
-
-      console.log('Consultant inserted successfully:', insertedConsultant);
-
-      // Send welcome email to consultant
-      if (formData.email) {
-        console.log('Sending welcome email...');
-        try {
-          const emailResponse = await supabase.functions.invoke('send-welcome-email', {
-            body: {
-              userEmail: formData.email,
-              userName: formData.name
-            }
-          });
-
-          if (emailResponse.error) {
-            console.warn('Email sending failed:', emailResponse.error);
-          } else {
-            console.log('Welcome email sent successfully');
-          }
-        } catch (emailError) {
-          console.warn('Email error (non-blocking):', emailError);
-        }
-      }
-
-      // Send registration notification to Marc
-      console.log('Sending registration notification to Marc...');
-      try {
-        const notificationResponse = await supabase.functions.invoke('send-registration-notification', {
-          body: {
-            userEmail: formData.email,
-            userName: formData.name
-          }
+      // 1. Upload file to Supabase storage
+      const filePath = `cv-uploads/${Date.now()}-${cvFile.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('cv-storage')
+        .upload(filePath, cvFile, {
+          cacheControl: '3600',
+          upsert: false
         });
 
-        if (notificationResponse.error) {
-          console.warn('Registration notification failed:', notificationResponse.error);
-        } else {
-          console.log('Registration notification sent successfully');
-        }
-      } catch (notificationError) {
-        console.warn('Registration notification error (non-blocking):', notificationError);
+      if (uploadError) {
+        throw new Error(`Filuppladdning misslyckades: ${uploadError.message}`);
       }
 
-      setUploadSuccess(true);
-      toast.success('Profile created successfully! Welcome to MatchWise!');
-      
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        linkedinUrl: ''
+      // 2. Get public URL for the uploaded file
+      const { data: { publicUrl } } = supabase.storage
+        .from('cv-storage')
+        .getPublicUrl(filePath);
+
+      // 3. Call function to analyze CV (replace with your actual function call)
+      // const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-cv', {
+      //   body: { fileUrl: publicUrl },
+      // });
+
+      // Mock analysis data for demonstration
+      const analysisData = {
+        technicalStrengths: ["React", "TypeScript", "Node.js", "GraphQL"],
+        improvementAreas: ["Frontend performance optimization", "Backend scalability"],
+        cvScore: 88,
+        careerSummary: "Experienced full-stack developer with a passion for building scalable web applications.",
+        marketPositioning: {
+          suitableRoles: ["Senior Frontend Developer", "Full-Stack Engineer", "Technical Lead"],
+          salaryRange: "50,000 - 65,000 SEK/month",
+          competitiveness: "High demand for skilled React developers",
+          uniqueValue: "Expertise in modern JavaScript frameworks and cloud technologies"
+        },
+        summary: "Driven and results-oriented software engineer with 7+ years of experience.",
+        strengths: ["Problem-solving", "Team collaboration", "Continuous learning"],
+        improvements: ["Public speaking", "Project management"],
+        marketValue: {
+          targetRoles: ["Software Architect", "Lead Developer"],
+          salaryBenchmarks: "60,000 - 80,000 SEK/month",
+          uniqueValueProposition: "Proven ability to lead technical teams and deliver high-quality software solutions"
+        }
+      };
+
+      // if (analysisError) {
+      //   throw new Error(`CV-analys misslyckades: ${analysisError.message}`);
+      // }
+
+      setCvAnalysis(analysisData as EnhancedCVAnalysis);
+
+      // Update profileData with CV analysis results
+      setProfileData(prevData => ({
+        ...prevData,
+        skills: analysisData.technicalStrengths || [],
+        cvFilePath: publicUrl,
+      }));
+
+      toast({
+        title: "CV uppladdat och analyserat!",
+        description: "CV-analysen är klar och resultaten visas nedan.",
       });
-      setFile(null);
-      setLinkedinAnalysis(null);
-      setCvAnalysis(null);
 
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error(error.message || 'An error occurred during upload');
+      toast({
+        title: "Fel",
+        description: error.message || "Något gick fel vid CV-analysen.",
+        variant: "destructive",
+      });
     } finally {
-      setIsUploading(false);
+      setIsLoading(false);
     }
   };
 
-  if (uploadSuccess) {
+  const handleLinkedInAnalysis = async () => {
+    if (!linkedinProfileUrl) {
+      toast({
+        title: "Fel",
+        description: "Ange en LinkedIn-profil URL för att analysera.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setLinkedinAnalysis(null); // Clear previous analysis
+
+    try {
+      // Call function to analyze LinkedIn profile (replace with your actual function call)
+      // const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-linkedin', {
+      //   body: { profileUrl: linkedinProfileUrl },
+      // });
+
+      // Mock analysis data for demonstration
+      const analysisData = {
+        networkStrength: 92,
+        contentQuality: 85,
+        professionalBranding: 90,
+        industryPresence: 88,
+        overallScore: 89,
+        recommendations: ["Erik has a strong work ethic and is a valuable team player.", "Maria is a highly skilled and dedicated professional."],
+        insights: "Your LinkedIn profile showcases a strong professional brand and active engagement in the industry.",
+        leadership: 4,
+        innovation: 5,
+        business: 4,
+        strategic: 4,
+        decisionMaking: "Data-driven and collaborative",
+        growthAreas: ["Public speaking", "Negotiation skills"],
+        thoughtLeadership: 4
+      };
+
+      // if (analysisError) {
+      //   throw new Error(`LinkedIn-analys misslyckades: ${analysisError.message}`);
+      // }
+
+      setLinkedinAnalysis(analysisData as LinkedInAnalysis);
+
+      toast({
+        title: "LinkedIn-profil analyseras!",
+        description: "LinkedIn-analysen är klar och resultaten visas nedan.",
+      });
+
+    } catch (error: any) {
+      toast({
+        title: "Fel",
+        description: error.message || "Något gick fel vid LinkedIn-analysen.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Reset the file input
+    }
+    setCvFile(null); // Clear the selected file
+  };
+
+  const renderCVAnalysis = () => {
+    if (!cvAnalysis) return null;
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardContent className="p-8">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to MatchWise!</h2>
-            <p className="text-gray-600 mb-6">
-              Your profile has been successfully added. You'll soon be visible to hiring companies on the platform.
+      <div className="space-y-6">
+        {/* Professional Summary */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-600" />
+              Professionell sammanfattning
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 leading-relaxed">
+              {cvAnalysis.summary || cvAnalysis.careerSummary}
             </p>
+          </CardContent>
+        </Card>
+
+        {/* CV Score */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-green-600" />
+              CV-betyg: {cvAnalysis.cvScore || 85}/100
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Progress value={cvAnalysis.cvScore || 85} className="mb-4" />
+            <p className="text-sm text-gray-600">
+              {cvAnalysis.cvScore >= 80 ? "Utmärkt CV med stark professionell presentation" :
+               cvAnalysis.cvScore >= 60 ? "Bra CV med utrymme för förbättringar" :
+               "CV behöver betydande förbättringar"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Technical Strengths */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-yellow-600" />
+              Tekniska styrkor
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-3">
-              <Button 
-                onClick={() => setUploadSuccess(false)}
-                className="w-full"
-              >
-                Upload Another Consultant
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => window.location.href = '/matchwiseai'}
-              >
-                Go to MatchWise AI
-              </Button>
+              {(cvAnalysis.technicalStrengths || cvAnalysis.strengths || []).map((strength, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700">{strength}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Improvement Areas */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-orange-600" />
+              Förbättringsområden
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {(cvAnalysis.improvementAreas || cvAnalysis.improvements || []).map((area, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
+                  <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700">{area}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Market Positioning */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-purple-600" />
+              Marknadspositionering
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Unik värdeproposition</h4>
+              <p className="text-gray-700">{cvAnalysis.marketValue?.uniqueValueProposition || cvAnalysis.marketPositioning?.uniqueValue}</p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Lönebenchmarks</h4>
+              <p className="text-gray-700">{cvAnalysis.marketValue?.salaryBenchmarks || cvAnalysis.marketPositioning?.salaryRange}</p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Målroller</h4>
+              <div className="flex flex-wrap gap-2">
+                {(cvAnalysis.marketValue?.targetRoles || cvAnalysis.marketPositioning?.suitableRoles || []).map((role, index) => (
+                  <Badge key={index} variant="outline" className="bg-purple-50 text-purple-700">
+                    {role}
+                  </Badge>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
     );
-  }
+  };
+
+  const renderLinkedInAnalysis = () => {
+    if (!linkedinAnalysis) return null;
+
+    return (
+      <div className="space-y-6">
+        {/* Overall LinkedIn Score */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ExternalLink className="h-5 w-5 text-blue-600" />
+              LinkedIn-betyg: {linkedinAnalysis.overallScore}/100
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Progress value={linkedinAnalysis.overallScore} className="mb-4" />
+            <p className="text-sm text-gray-600">{linkedinAnalysis.insights}</p>
+          </CardContent>
+        </Card>
+
+        {/* Leadership Analysis */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-purple-600" />
+              Ledarskapsanalys
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700">Ledarskap</span>
+                <div className="flex items-center gap-2">
+                  <Progress value={linkedinAnalysis.leadership * 20} className="w-24" />
+                  <span className="text-sm font-medium">{linkedinAnalysis.leadership}/5</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Innovation & Strategy */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-yellow-600" />
+              Innovation & Strategi
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700">Innovation</span>
+              <div className="flex items-center gap-2">
+                <Progress value={linkedinAnalysis.innovation * 20} className="w-24" />
+                <span className="text-sm font-medium">{linkedinAnalysis.innovation}/5</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Business Understanding */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building className="h-5 w-5 text-green-600" />
+              Affärsförståelse
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700">Affärsförståelse</span>
+              <div className="flex items-center gap-2">
+                <Progress value={linkedinAnalysis.business * 20} className="w-24" />
+                <span className="text-sm font-medium">{linkedinAnalysis.business}/5</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700">Strategiskt tänkande</span>
+              <div className="flex items-center gap-2">
+                <Progress value={linkedinAnalysis.strategic * 20} className="w-24" />
+                <span className="text-sm font-medium">{linkedinAnalysis.strategic}/5</span>
+              </div>
+            </div>
+            <div className="mt-3">
+              <span className="text-sm text-gray-600">Beslutsfattande stil: {linkedinAnalysis.decisionMaking}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Growth Areas */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-orange-600" />
+              Utvecklingsområden
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {(linkedinAnalysis.growthAreas || []).map((area, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
+                  <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700">{area}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Thought Leadership */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-indigo-600" />
+              Thought Leadership
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700">Nivå av thought leadership</span>
+              <div className="flex items-center gap-2">
+                <Progress value={linkedinAnalysis.thoughtLeadership * 20} className="w-24" />
+                <span className="text-sm font-medium">{linkedinAnalysis.thoughtLeadership}/5</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recommendations */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              Rekommendationer
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {linkedinAnalysis.recommendations.map((rec, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700">{rec}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="container mx-auto p-8 space-y-6">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-          <div className="mb-4">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-4">
-              <Brain className="h-4 w-4 mr-2" />
-              AI-Powered Comprehensive Career Analysis
-            </span>
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Upload Your CV & LinkedIn Profile
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Get instant comprehensive AI analysis of your technical skills, leadership style, 
-            personality, and career potential. Upload your CV and add your LinkedIn profile 
-            to receive detailed insights and join our exclusive consultant network.
-          </p>
-          
-          {/* Feature icons */}
-          <div className="flex justify-center items-center gap-8 mt-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <Code className="h-4 w-4 text-blue-500" />
-              <span>Technical Expertise</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-purple-500" />
-              <span>Leadership Analysis</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-orange-500" />
-              <span>Career Strategy</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-green-500" />
-              <span>Market Positioning</span>
-            </div>
-          </div>
-        </div>
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">CV och LinkedIn Analys</h2>
+        <p className="text-gray-600">Ladda upp ditt CV eller analysera din LinkedIn-profil för att få insikter och förbättringsförslag.</p>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Upload Form */}
-          <div>
-            <Card className="shadow-xl border-0">
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl text-gray-900 flex items-center justify-center gap-3">
-                  <Upload className="h-6 w-6 text-blue-600" />
-                  Start Your Comprehensive Analysis
-                </CardTitle>
-                <p className="text-sm text-gray-500 mt-2">
-                  Both CV and LinkedIn profile are required for complete professional analysis
-                </p>
-              </CardHeader>
-              <CardContent className="px-8 pb-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* CV Upload */}
-                  <div>
-                    <Label htmlFor="cv-upload" className="text-base font-medium text-gray-900 mb-3 block">
-                      CV File *
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="cv-upload"
-                        type="file"
-                        accept=".pdf,.doc,.docx,.txt"
-                        onChange={handleFileUpload}
-                        required
-                        className="h-12 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                      {isParsing && (
-                        <div className="mt-3 flex items-center gap-2 text-sm text-blue-600">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                          <span>Parsing CV...</span>
-                        </div>
-                      )}
-                      {file && !isParsing && (
-                        <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>{file.name} uploaded and parsed</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* LinkedIn URL */}
-                  <div>
-                    <Label htmlFor="linkedinUrl" className="text-base font-medium text-gray-900 mb-3 block">
-                      LinkedIn Profile URL *
-                    </Label>
-                    <div className="flex gap-3">
-                      <Input
-                        id="linkedinUrl"
-                        name="linkedinUrl"
-                        type="url"
-                        required
-                        value={formData.linkedinUrl}
-                        onChange={handleInputChange}
-                        placeholder="https://linkedin.com/in/yourprofile"
-                        className="flex-1 h-12"
-                      />
-                      <Button 
-                        type="button"
-                        onClick={analyzeLinkedIn}
-                        disabled={!formData.linkedinUrl || isAnalyzing}
-                        className="bg-purple-600 hover:bg-purple-700 px-6"
-                      >
-                        {isAnalyzing ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Analyzing...
-                          </>
-                        ) : (
-                          'Analyze'
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Personal Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-base font-medium text-gray-900 mb-3 block">
-                        Full Name *
-                      </Label>
-                      <Input
-                        name="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Your full name"
-                        className="h-12"
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-base font-medium text-gray-900 mb-3 block">
-                        Email *
-                      </Label>
-                      <Input
-                        name="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="your@email.com"
-                        className="h-12"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-base font-medium text-gray-900 mb-3 block">
-                      Phone
-                    </Label>
-                    <Input
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="+46 70 123 45 67"
-                      className="h-12"
-                    />
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium" 
-                    disabled={isUploading || !linkedinAnalysis || !file}
-                  >
-                    {isUploading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating Profile...
-                      </>
-                    ) : (
-                      <>
-                        <Star className="h-4 w-4 mr-2" />
-                        Submit & Join Network
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Enhanced Analysis Results */}
-          <div className="space-y-6">
-            {/* Enhanced CV Analysis */}
-            {cvAnalysis && (
-              <div className="space-y-4">
-                {/* Professional Summary Card */}
-                <Card className="border border-blue-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-blue-800 flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      Professional Profile
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {cvAnalysis.professionalSummary && (
-                      <div className="grid grid-cols-2 gap-4 text-xs">
-                        <div>
-                          <span className="font-medium text-gray-700">Experience:</span>
-                          <div className="text-blue-700 font-medium">{cvAnalysis.professionalSummary.yearsOfExperience}</div>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700">Level:</span>
-                          <div className="text-blue-700 font-medium">{cvAnalysis.professionalSummary.seniorityLevel}</div>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700">Trajectory:</span>
-                          <div className="text-green-700 font-medium">{cvAnalysis.professionalSummary.careerTrajectory}</div>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700">Role:</span>
-                          <div className="text-blue-700 font-medium">{cvAnalysis.professionalSummary.currentRole}</div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Detailed Strengths Analysis */}
-                <Card className="border border-green-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-green-800 flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Detailed Strengths Analysis
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {cvAnalysis.detailedStrengthsAnalysis?.slice(0, 3).map((strength, idx) => (
-                      <div key={idx} className="border-l-4 border-green-500 pl-3">
-                        <h4 className="font-medium text-sm text-gray-800">{strength.category}</h4>
-                        <p className="text-xs text-gray-600 mb-2">{strength.description}</p>
-                        <div className="text-xs space-y-1">
-                          <div className="text-green-700 font-medium">Market Value: {strength.marketValue}</div>
-                          <div className="text-blue-600">Growth Potential: {strength.growthPotential}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                {/* Comprehensive Improvement Areas */}
-                <Card className="border border-orange-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-orange-800 flex items-center gap-2">
-                      <Lightbulb className="h-5 w-5" />
-                      Development Roadmap
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {cvAnalysis.comprehensiveImprovementAreas?.slice(0, 2).map((area, idx) => (
-                      <div key={idx}>
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-medium text-sm text-gray-800">{area.area}</h4>
-                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                            {area.improvementPriority} Priority
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-600 mb-2">{area.currentState}</p>
-                        <div className="text-xs space-y-1">
-                          <div className="text-orange-700 font-medium">Expected Impact: {area.expectedImpact}</div>
-                          <div className="text-gray-600">Time to Implement: {area.timeToImplement}</div>
-                        </div>
-                        <ul className="text-xs text-gray-600 mt-2 space-y-1">
-                          {area.detailedTips.slice(0, 2).map((tip, tipIdx) => (
-                            <li key={tipIdx} className="flex items-start gap-1">
-                              <AlertCircle className="h-3 w-3 text-orange-500 mt-0.5 flex-shrink-0" />
-                              {tip}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                {/* Market Positioning */}
-                <Card className="border border-purple-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
-                      <Award className="h-5 w-5" />
-                      Market Positioning
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {cvAnalysis.marketPositioning && (
-                      <div className="space-y-3">
-                        <div>
-                          <h4 className="font-medium text-sm text-gray-700 mb-1">Unique Value</h4>
-                          <p className="text-xs text-purple-700 font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-xs">
-                          <div>
-                            <span className="font-medium text-gray-700">Competitiveness:</span>
-                            <div className="text-purple-700 font-medium">{cvAnalysis.marketPositioning.competitiveness}</div>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-700">Salary Range:</span>
-                            <div className="text-green-700 font-medium">{cvAnalysis.marketPositioning.salaryBenchmarks?.stockholm}</div>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-sm text-gray-700 mb-1">Target Roles</h4>
-                          <div className="flex flex-wrap gap-1">
-                            {cvAnalysis.marketPositioning.targetRoles?.slice(0, 4).map((role, idx) => (
-                              <span key={idx} className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                                {role}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Enhanced LinkedIn Analysis */}
-            {linkedinAnalysis && (
-              <div className="space-y-4">
-                {/* Communication & Leadership Style */}
-                <Card className="border border-indigo-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-indigo-800 flex items-center gap-2">
-                      <Users className="h-5 w-5" />
-                      Communication & Leadership
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Communication Style</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.communicationStyle}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Leadership Approach</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.leadershipStyle}</p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 text-xs">
-                      <div>
-                        <span className="font-medium text-gray-700">Cultural Fit:</span>
-                        <div className="flex items-center gap-1 mt-1">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-indigo-600 h-2 rounded-full" 
-                              style={{ width: `${(linkedinAnalysis.culturalFit / 5) * 100}%` }}
-                            ></div>
-                          </div>
-                          <span>{linkedinAnalysis.culturalFit}/5</span>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Leadership:</span>
-                        <div className="flex items-center gap-1 mt-1">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-orange-600 h-2 rounded-full" 
-                              style={{ width: `${(linkedinAnalysis.leadership / 5) * 100}%` }}
-                            ></div>
-                          </div>
-                          <span>{linkedinAnalysis.leadership}/5</span>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Mentorship:</span>
-                        <div className="flex items-center gap-1 mt-1">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-green-600 h-2 rounded-full" 
-                              style={{ width: `${(linkedinAnalysis.mentorshipAbility / 5) * 100}%` }}
-                            ></div>
-                          </div>
-                          <span>{linkedinAnalysis.mentorshipAbility}/5</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Problem Solving & Innovation */}
-                <Card className="border border-emerald-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-emerald-800 flex items-center gap-2">
-                      <Brain className="h-5 w-5" />
-                      Problem Solving & Innovation
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Problem Solving Approach</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.problemSolvingApproach}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Innovation Capability</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.innovationCapability}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Learning Orientation</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.learningOrientation}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Business Acumen & Strategic Thinking */}
-                <Card className="border border-amber-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-amber-800 flex items-center gap-2">
-                      <Target className="h-5 w-5" />
-                      Business & Strategic Insight
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Business Acumen</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.businessAcumen}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Strategic Thinking</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.strategicThinking}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Decision Making</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.decisionMakingStyle}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Professional Growth Areas */}
-                <Card className="border border-rose-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-rose-800 flex items-center gap-2">
-                      <BookOpen className="h-5 w-5" />
-                      Development Opportunities
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Growth Areas</h4>
-                      <ul className="text-xs text-gray-600 space-y-1">
-                        {linkedinAnalysis.professionalGrowthAreas?.slice(0, 4).map((area, idx) => (
-                          <li key={idx} className="flex items-start gap-1">
-                            <Lightbulb className="h-3 w-3 text-rose-500 mt-0.5 flex-shrink-0" />
-                            {area}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Thought Leadership Level</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.thoughtLeadershipLevel}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+      {/* Upload Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">CV Uppladdning</CardTitle>
+          <CardDescription>Ladda upp ditt CV för en detaljerad analys.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" className="flex items-center gap-2" onClick={triggerFileInput} disabled={isLoading}>
+              <Upload className="h-4 w-4" />
+              Välj CV-fil
+            </Button>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={handleFileChange}
+              className="hidden"
+              ref={fileInputRef}
+            />
+            {cvFile && (
+              <div className="flex items-center space-x-2">
+                <FileText className="h-4 w-4 text-gray-500" />
+                <span className="text-sm text-gray-700">{cvFile.name}</span>
+                <Button variant="ghost" size="icon" onClick={resetFileInput}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             )}
           </div>
-        </div>
-      </div>
+          <Button className="w-full" onClick={handleUpload} disabled={isLoading || !cvFile}>
+            {isLoading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Analysera CV...
+              </>
+            ) : (
+              "Analysera CV"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* LinkedIn Analysis Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">LinkedIn Profil Analys</CardTitle>
+          <CardDescription>Ange din LinkedIn profil URL för att få en analys.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-2">
+            <Label htmlFor="linkedin-url">LinkedIn Profil URL</Label>
+            <Input
+              type="url"
+              id="linkedin-url"
+              placeholder="https://www.linkedin.com/in/yourprofile"
+              value={linkedinProfileUrl}
+              onChange={handleLinkedinUrlChange}
+              disabled={isLoading}
+            />
+          </div>
+          <Button className="w-full" onClick={handleLinkedInAnalysis} disabled={isLoading || !linkedinProfileUrl}>
+            {isLoading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Analysera LinkedIn...
+              </>
+            ) : (
+              "Analysera LinkedIn"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Analysis Results */}
+      {cvAnalysis || linkedinAnalysis ? (
+        <Tabs defaultValue="cv" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="cv" disabled={!cvAnalysis}>CV Analys</TabsTrigger>
+            <TabsTrigger value="linkedin" disabled={!linkedinAnalysis}>LinkedIn Analys</TabsTrigger>
+          </TabsList>
+          <TabsContent value="cv" className="mt-6">
+            {renderCVAnalysis()}
+          </TabsContent>
+          <TabsContent value="linkedin" className="mt-6">
+            {renderLinkedInAnalysis()}
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <Card>
+          <CardContent className="text-center">
+            {isLoading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-lg font-medium text-gray-700">Analys pågår...</span>
+              </div>
+            ) : (
+              <span className="text-lg font-medium text-gray-700">Ladda upp ditt CV eller analysera din LinkedIn-profil för att se resultaten.</span>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
+
+export default CVUpload;
