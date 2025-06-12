@@ -229,6 +229,40 @@ export const CVUpload = () => {
 
       // Use the mutation from the hook
       createConsultant(consultantData);
+
+      // Send welcome email after successful consultant creation
+      try {
+        console.log('📧 Sending welcome email to:', formData.email);
+        
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+          body: { 
+            userEmail: formData.email.trim().toLowerCase(),
+            userName: formData.name.trim()
+          },
+        });
+
+        if (emailError) {
+          console.error('❌ Email sending error:', emailError);
+          // Don't fail the whole process if email fails
+          toast({
+            title: "Profil skapad!",
+            description: "Din profil har skapats men välkomstmailet kunde inte skickas. Vi kontaktar dig snart!",
+          });
+        } else {
+          console.log('✅ Welcome email sent successfully:', emailData);
+          toast({
+            title: "Välkommen till MatchWise! 🚀",
+            description: "Din profil har skapats och ett välkomstmail har skickats till dig.",
+          });
+        }
+      } catch (emailError) {
+        console.error('💥 Email sending error:', emailError);
+        // Don't fail the whole process if email fails
+        toast({
+          title: "Profil skapad!",
+          description: "Din profil har skapats men välkomstmailet kunde inte skickas. Vi kontaktar dig snart!",
+        });
+      }
       
       // Reset form on success
       setFormData({
