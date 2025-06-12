@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,68 +28,54 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("👤 First name extracted:", firstName);
 
-    // Configure Simply.com SMTP client
-    const client = new SMTPClient({
-      connection: {
-        hostname: "smtp.simply.com",
-        port: 587, // Simply.com recommended port
-        tls: true,
-        auth: {
-          username: Deno.env.get("SMTP_USERNAME")!,
-          password: Deno.env.get("SMTP_PASSWORD")!,
-        },
-      },
-    });
+    // Initialize Resend with API key
+    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-    console.log("🔧 Simply.com SMTP client configured");
+    console.log("🔧 Resend client configured");
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-        <h2 style="color: #2563eb;">Hi ${firstName},</h2>
+        <h2 style="color: #2563eb;">Hej ${firstName}!</h2>
         
-        <p>Thanks for uploading your CV and joining MatchWise!</p>
+        <p>Tack för att du laddade upp ditt CV och gick med i MatchWise!</p>
         
-        <p>You've just taken a big step toward exciting new consulting opportunities.</p>
+        <p>Du har precis tagit ett stort steg mot spännande nya konsultmöjligheter.</p>
         
-        <p>Our AI-powered platform analyzes both your experience and soft skills to match you with the right projects – not just based on skills, but also on personality and culture fit.</p>
+        <p>Vår AI-drivna plattform analyserar både din erfarenhet och dina mjuka färdigheter för att matcha dig med rätt projekt – inte bara baserat på kompetens, utan också på personlighet och kulturell passform.</p>
         
-        <h3 style="color: #2563eb;">🔍 What happens next?</h3>
+        <h3 style="color: #2563eb;">🔍 Vad händer nu?</h3>
         <ul>
-          <li>Your profile is being reviewed by our team</li>
-          <li>You'll soon be visible to hiring companies on the platform</li>
-          <li>We'll reach out if a particularly good match appears</li>
+          <li>Din profil granskas av vårt team</li>
+          <li>Du kommer snart att synas för anställande företag på plattformen</li>
+          <li>Vi hör av oss om en särskilt bra matchning dyker upp</li>
         </ul>
         
-        <h3 style="color: #2563eb;">💡 Tip:</h3>
-        <p>Make sure to keep your profile up to date and respond quickly to any offers – it increases your chances of landing great assignments.</p>
+        <h3 style="color: #2563eb;">💡 Tips:</h3>
+        <p>Se till att hålla din profil uppdaterad och svara snabbt på eventuella erbjudanden – det ökar dina chanser att landa fantastiska uppdrag.</p>
         
-        <p>If you have any questions, don't hesitate to reach out at <a href="mailto:marc@matchwise.tech">marc@matchwise.tech</a>.</p>
+        <p>Om du har några frågor, tveka inte att höra av dig på <a href="mailto:marc@matchwise.tech">marc@matchwise.tech</a>.</p>
         
-        <p><strong>Welcome to the future of consultant matchmaking!</strong></p>
+        <p><strong>Välkommen till framtiden för konsultmatchning!</strong></p>
         
-        <p>Best regards,<br>
-        The MatchWise Team<br>
+        <p>Bästa hälsningar,<br>
+        MatchWise-teamet<br>
         <a href="https://www.matchwise.tech">www.matchwise.tech</a></p>
       </div>
     `;
 
     console.log("📝 Email HTML prepared");
 
-    // Send welcome email via Simply.com SMTP
-    await client.send({
-      from: "Marc <marc@matchwise.tech>",
-      to: userEmail,
-      subject: "Welcome to MatchWise – You're One Step Closer to Your Next Mission 🚀",
+    // Send welcome email via Resend
+    const emailResponse = await resend.emails.send({
+      from: "Marc från MatchWise <marc@matchwise.tech>",
+      to: [userEmail],
+      subject: "Välkommen till MatchWise – Du är ett steg närmare ditt nästa uppdrag 🚀",
       html: emailHtml,
     });
 
-    console.log("📤 Email sent successfully via Simply.com SMTP");
+    console.log("📤 Email sent successfully via Resend:", emailResponse);
 
-    await client.close();
-
-    console.log("✅ SMTP client closed");
-
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
