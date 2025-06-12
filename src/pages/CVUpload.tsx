@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -189,9 +188,9 @@ export const CVUpload = () => {
         
         setFormData(prev => ({
           ...prev,
-          name: data.analysis.personalInfo.name || prev.name,
-          email: data.analysis.personalInfo.email || prev.email,
-          phone: data.analysis.personalInfo.phone || prev.phone
+          name: data.analysis.personalInfo?.name || prev.name,
+          email: data.analysis.personalInfo?.email || prev.email,
+          phone: data.analysis.personalInfo?.phone || prev.phone
         }));
 
         toast.success('CV parsed successfully with comprehensive analysis!');
@@ -282,6 +281,11 @@ export const CVUpload = () => {
       return;
     }
 
+    if (!cvAnalysis) {
+      toast.error('Please wait for CV analysis to complete before submitting');
+      return;
+    }
+
     setIsUploading(true);
 
     try {
@@ -292,24 +296,25 @@ export const CVUpload = () => {
         return;
       }
 
-      const experienceYears = cvAnalysis?.experience.totalYears.match(/\d+/)?.[0] || '0';
+      // Safe access to CV analysis data with fallbacks
+      const experienceYears = cvAnalysis?.experience?.totalYears?.match(/\d+/)?.[0] || '0';
       
       const allTechnicalSkills = [
-        ...(cvAnalysis?.technicalSkills.programming || []),
-        ...(cvAnalysis?.technicalSkills.frameworks || []),
-        ...(cvAnalysis?.technicalSkills.databases || []),
-        ...(cvAnalysis?.technicalSkills.cloud || []),
-        ...(cvAnalysis?.technicalSkills.tools || [])
+        ...(cvAnalysis?.technicalSkills?.programming || []),
+        ...(cvAnalysis?.technicalSkills?.frameworks || []),
+        ...(cvAnalysis?.technicalSkills?.databases || []),
+        ...(cvAnalysis?.technicalSkills?.cloud || []),
+        ...(cvAnalysis?.technicalSkills?.tools || [])
       ];
       
       const consultantData = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || '',
-        location: cvAnalysis?.personalInfo.location || 'Stockholm',
+        location: cvAnalysis?.personalInfo?.location || 'Stockholm',
         skills: [...new Set(allTechnicalSkills)],
         experience_years: parseInt(experienceYears),
-        roles: cvAnalysis?.experience.roles || [],
+        roles: cvAnalysis?.experience?.roles || [],
         hourly_rate: 800,
         availability: 'Available now',
         projects_completed: cvAnalysis?.projects?.length || 0,
@@ -514,10 +519,16 @@ export const CVUpload = () => {
                           <span>Parsing CV...</span>
                         </div>
                       )}
-                      {file && !isParsing && (
+                      {file && !isParsing && cvAnalysis && (
                         <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
                           <CheckCircle className="h-4 w-4" />
-                          <span>{file.name} uploaded and parsed</span>
+                          <span>{file.name} uploaded and analyzed</span>
+                        </div>
+                      )}
+                      {file && !isParsing && !cvAnalysis && (
+                        <div className="mt-3 flex items-center gap-2 text-sm text-orange-600">
+                          <AlertCircle className="h-4 w-4" />
+                          <span>CV uploaded but analysis incomplete. Please try uploading again.</span>
                         </div>
                       )}
                     </div>
@@ -607,7 +618,7 @@ export const CVUpload = () => {
                   <Button 
                     type="submit" 
                     className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium" 
-                    disabled={isUploading || !linkedinAnalysis || !file}
+                    disabled={isUploading || !linkedinAnalysis || !file || !cvAnalysis}
                   >
                     {isUploading ? (
                       <>
