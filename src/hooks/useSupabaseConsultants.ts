@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -146,11 +145,10 @@ export const useSupabaseConsultants = () => {
         let { data, error } = await supabase
           .from('consultants')
           .select('*')
-          .order('name');
+          .order('created_at', { ascending: false }); // Show newest first
 
         if (error) {
           console.error('Error fetching consultants:', error);
-          // Instead of throwing, let's return demo data
           console.log('Using demo data instead...');
           return demoConsultants.map((consultant: any) => ({
             id: consultant.name.replace(' ', '').toLowerCase(),
@@ -184,11 +182,40 @@ export const useSupabaseConsultants = () => {
 
         console.log('Database query successful, data length:', data?.length || 0);
 
-        // If no consultants exist, try to add demo data
-        if (!data || data.length === 0) {
-          console.log('No consultants found, attempting to add demo data...');
+        // Combine demo data with real data from database
+        const realConsultants = data.map((consultant: any) => ({
+          id: consultant.id,
+          name: consultant.name,
+          skills: consultant.skills || [],
+          experience: `${consultant.experience_years || 0} years experience`,
+          roles: consultant.roles || [],
+          location: consultant.location || 'Stockholm',
+          rate: `${consultant.hourly_rate || 0} SEK/h`,
+          availability: consultant.availability || 'Available',
+          phone: consultant.phone || '',
+          email: consultant.email,
+          projects: consultant.projects_completed || 0,
+          rating: consultant.rating || 5.0,
+          lastActive: consultant.last_active || 'Recently',
+          cv: consultant.cv_file_path || '',
+          certifications: consultant.certifications || [],
+          languages: consultant.languages || [],
+          type: consultant.type as 'existing' | 'new',
+          linkedinUrl: consultant.linkedin_url || '',
+          communicationStyle: consultant.communication_style || '',
+          workStyle: consultant.work_style || '',
+          values: consultant.values || [],
+          personalityTraits: consultant.personality_traits || [],
+          teamFit: consultant.team_fit || '',
+          culturalFit: consultant.cultural_fit || 5,
+          adaptability: consultant.adaptability || 5,
+          leadership: consultant.leadership || 3,
+        }));
+
+        // If no real consultants, add demo data
+        if (realConsultants.length === 0) {
+          console.log('No real consultants found, adding demo data...');
           
-          // Try to insert demo data one by one and handle errors gracefully
           for (const consultant of demoConsultants) {
             try {
               const { error: insertError } = await supabase
@@ -205,79 +232,41 @@ export const useSupabaseConsultants = () => {
             }
           }
 
-          // Try to fetch again after adding demo data
-          const fetchResult = await supabase
-            .from('consultants')
-            .select('*')
-            .order('name');
-
-          if (fetchResult.error || !fetchResult.data || fetchResult.data.length === 0) {
-            console.log('Could not fetch from database, using demo data...');
-            // Return demo data as fallback
-            return demoConsultants.map((consultant: any) => ({
-              id: consultant.name.replace(' ', '').toLowerCase(),
-              name: consultant.name,
-              skills: consultant.skills || [],
-              experience: `${consultant.experience_years || 0} years experience`,
-              roles: consultant.roles || [],
-              location: consultant.location || 'Stockholm',
-              rate: `${consultant.hourly_rate || 0} SEK/h`,
-              availability: consultant.availability || 'Available',
-              phone: consultant.phone || '',
-              email: consultant.email,
-              projects: consultant.projects_completed || 0,
-              rating: consultant.rating || 5.0,
-              lastActive: 'Today',
-              cv: '',
-              certifications: consultant.certifications || [],
-              languages: consultant.languages || [],
-              type: consultant.type as 'existing' | 'new',
-              linkedinUrl: consultant.linkedin_url || '',
-              communicationStyle: consultant.communication_style || '',
-              workStyle: consultant.work_style || '',
-              values: consultant.values || [],
-              personalityTraits: consultant.personality_traits || [],
-              teamFit: consultant.team_fit || '',
-              culturalFit: consultant.cultural_fit || 5,
-              adaptability: consultant.adaptability || 5,
-              leadership: consultant.leadership || 3,
-            }));
-          }
-
-          data = fetchResult.data;
+          // Return demo data as formatted consultants
+          return demoConsultants.map((consultant: any) => ({
+            id: consultant.name.replace(' ', '').toLowerCase(),
+            name: consultant.name,
+            skills: consultant.skills || [],
+            experience: `${consultant.experience_years || 0} years experience`,
+            roles: consultant.roles || [],
+            location: consultant.location || 'Stockholm',
+            rate: `${consultant.hourly_rate || 0} SEK/h`,
+            availability: consultant.availability || 'Available',
+            phone: consultant.phone || '',
+            email: consultant.email,
+            projects: consultant.projects_completed || 0,
+            rating: consultant.rating || 5.0,
+            lastActive: 'Today',
+            cv: '',
+            certifications: consultant.certifications || [],
+            languages: consultant.languages || [],
+            type: consultant.type as 'existing' | 'new',
+            linkedinUrl: consultant.linkedin_url || '',
+            communicationStyle: consultant.communication_style || '',
+            workStyle: consultant.work_style || '',
+            values: consultant.values || [],
+            personalityTraits: consultant.personality_traits || [],
+            teamFit: consultant.team_fit || '',
+            culturalFit: consultant.cultural_fit || 5,
+            adaptability: consultant.adaptability || 5,
+            leadership: consultant.leadership || 3,
+          }));
         }
 
-        return data.map((consultant: any) => ({
-          id: consultant.id,
-          name: consultant.name,
-          skills: consultant.skills || [],
-          experience: `${consultant.experience_years || 0} years experience`,
-          roles: consultant.roles || [],
-          location: consultant.location || 'Stockholm',
-          rate: `${consultant.hourly_rate || 0} SEK/h`,
-          availability: consultant.availability || 'Available',
-          phone: consultant.phone || '',
-          email: consultant.email,
-          projects: consultant.projects_completed || 0,
-          rating: consultant.rating || 5.0,
-          lastActive: consultant.last_active || 'Today',
-          cv: consultant.cv_file_path || '',
-          certifications: consultant.certifications || [],
-          languages: consultant.languages || [],
-          type: consultant.type as 'existing' | 'new',
-          linkedinUrl: consultant.linkedin_url || '',
-          communicationStyle: consultant.communication_style || '',
-          workStyle: consultant.work_style || '',
-          values: consultant.values || [],
-          personalityTraits: consultant.personality_traits || [],
-          teamFit: consultant.team_fit || '',
-          culturalFit: consultant.cultural_fit || 5,
-          adaptability: consultant.adaptability || 5,
-          leadership: consultant.leadership || 3,
-        }));
+        return realConsultants;
+
       } catch (error) {
         console.error('Unexpected error in consultants query:', error);
-        // Return demo data as final fallback
         return demoConsultants.map((consultant: any) => ({
           id: consultant.name.replace(' ', '').toLowerCase(),
           name: consultant.name,
