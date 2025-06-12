@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, MapPin, Briefcase, Brain, Star, Linkedin } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, MapPin, Briefcase, Brain, Star, Linkedin, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,12 +23,28 @@ interface AnalysisResult {
   leadership: number;
 }
 
+interface CVAnalysis {
+  personalInfo: {
+    name: string;
+    email: string;
+    phone: string;
+    location: string;
+  };
+  skills: string[];
+  experience: string;
+  roles: string[];
+  education: string[];
+  languages: string[];
+}
+
 export const CVUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [cvAnalysis, setCvAnalysis] = useState<CVAnalysis | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,13 +62,58 @@ export const CVUpload = () => {
     }));
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const selectedFile = files[0];
       setFile(selectedFile);
       console.log('CV file selected:', selectedFile.name);
       toast.success(`CV file "${selectedFile.name}" selected`);
+      
+      // Auto-parse CV when selected
+      await parseCV(selectedFile);
+    }
+  };
+
+  const parseCV = async (file: File) => {
+    setIsParsing(true);
+    try {
+      console.log('Starting CV parsing...');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const { data, error } = await supabase.functions.invoke('parse-cv', {
+        body: formData
+      });
+
+      if (error) {
+        console.error('CV parsing error:', error);
+        throw new Error(error.message || 'CV parsing failed');
+      }
+
+      console.log('CV parsing result:', data);
+
+      if (data?.success && data?.analysis) {
+        setCvAnalysis(data.analysis);
+        
+        // Auto-fill form with CV data
+        setFormData(prev => ({
+          ...prev,
+          name: data.analysis.personalInfo.name || prev.name,
+          email: data.analysis.personalInfo.email || prev.email,
+          phone: data.analysis.personalInfo.phone || prev.phone,
+          location: data.analysis.personalInfo.location || prev.location
+        }));
+
+        toast.success('CV parsed successfully and form auto-filled!');
+      }
+
+    } catch (error: any) {
+      console.error('CV parsing error:', error);
+      toast.error(error.message || 'Failed to parse CV');
+    } finally {
+      setIsParsing(false);
     }
   };
 
@@ -66,7 +127,6 @@ export const CVUpload = () => {
     try {
       console.log('Starting LinkedIn analysis...');
       
-      // Call analysis function
       const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
         body: { linkedinUrl: formData.linkedinUrl }
       });
@@ -78,11 +138,10 @@ export const CVUpload = () => {
 
       console.log('Analysis result:', data);
 
-      // Use the analysis result from the API or fallback to mock data
       const analysis: AnalysisResult = data?.analysis || {
-        skills: ['React', 'TypeScript', 'Node.js', 'Python', 'AWS'],
-        experience: '5+ years in software development',
-        roles: ['Full-Stack Developer', 'Software Engineer'],
+        skills: cvAnalysis?.skills || ['React', 'TypeScript', 'Node.js'],
+        experience: cvAnalysis?.experience || '5+ years in software development',
+        roles: cvAnalysis?.roles || ['Full-Stack Developer'],
         strengths: ['Problem-solving', 'Team collaboration', 'Technical leadership'],
         recommendations: ['Consider cloud certifications', 'Expand mobile development skills'],
         personalityTraits: ['Analytical', 'Creative', 'Detail-oriented'],
@@ -107,6 +166,11 @@ export const CVUpload = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!file) {
+      toast.error('Please upload your CV first');
+      return;
+    }
+    
     if (!analysisResult) {
       toast.error('Please analyze your LinkedIn profile first');
       return;
@@ -117,30 +181,27 @@ export const CVUpload = () => {
     try {
       console.log('Creating consultant profile...');
 
-      // Validate required fields
       if (!formData.name || !formData.email || !formData.linkedinUrl) {
         toast.error('Name, email and LinkedIn URL are required');
         return;
       }
 
-      // Parse experience years from analysis
       const experienceYears = analysisResult.experience.match(/\d+/)?.[0] || '0';
       
-      // Prepare consultant data
       const consultantData = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || '',
         location: formData.location || 'Stockholm',
-        skills: analysisResult.skills,
+        skills: [...new Set([...analysisResult.skills, ...(cvAnalysis?.skills || [])])],
         experience_years: parseInt(experienceYears),
-        roles: analysisResult.roles,
-        hourly_rate: 800, // Default rate
+        roles: [...new Set([...analysisResult.roles, ...(cvAnalysis?.roles || [])])],
+        hourly_rate: 800,
         availability: formData.availability,
         projects_completed: 0,
         rating: 4.5,
         certifications: [],
-        languages: ['Swedish', 'English'],
+        languages: cvAnalysis?.languages || ['Swedish', 'English'],
         type: 'new',
         linkedin_url: formData.linkedinUrl,
         communication_style: analysisResult.communicationStyle,
@@ -155,7 +216,6 @@ export const CVUpload = () => {
 
       console.log('Inserting consultant data:', consultantData);
 
-      // Insert consultant into database
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
         .insert([consultantData])
@@ -169,7 +229,6 @@ export const CVUpload = () => {
 
       console.log('Consultant inserted successfully:', insertedConsultant);
 
-      // Send welcome email
       if (formData.email) {
         console.log('Sending welcome email...');
         try {
@@ -193,7 +252,6 @@ export const CVUpload = () => {
       setUploadSuccess(true);
       toast.success('Profile created successfully! Welcome to MatchWise!');
       
-      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -204,6 +262,7 @@ export const CVUpload = () => {
       });
       setFile(null);
       setAnalysisResult(null);
+      setCvAnalysis(null);
 
     } catch (error: any) {
       console.error('Upload error:', error);
@@ -254,7 +313,7 @@ export const CVUpload = () => {
               Join the MatchWise Consultant Network
             </h1>
             <p className="text-lg text-gray-600">
-              Enter your LinkedIn profile to get AI-powered analysis and join our exclusive network
+              Upload your CV and LinkedIn profile for AI-powered analysis
             </p>
           </div>
         </div>
@@ -268,12 +327,42 @@ export const CVUpload = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Linkedin className="h-5 w-5 text-blue-600" />
-                  LinkedIn Analysis & CV Upload
+                  <FileText className="h-5 w-5 text-green-600" />
+                  CV Upload & LinkedIn Analysis
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* CV Upload Section */}
+                  <div>
+                    <Label htmlFor="cv-upload" className="flex items-center gap-2">
+                      <Upload className="h-4 w-4" />
+                      Upload CV (Required) *
+                    </Label>
+                    <div className="mt-2">
+                      <Input
+                        id="cv-upload"
+                        type="file"
+                        accept=".pdf,.doc,.docx,.txt"
+                        onChange={handleFileUpload}
+                        required
+                        className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                      />
+                      {isParsing && (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-blue-600">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <span>Parsing CV...</span>
+                        </div>
+                      )}
+                      {file && !isParsing && (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                          <CheckCircle className="h-4 w-4" />
+                          <span>{file.name} uploaded and parsed</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {/* LinkedIn URL */}
                   <div>
                     <Label htmlFor="linkedinUrl" className="flex items-center gap-2">
@@ -309,29 +398,6 @@ export const CVUpload = () => {
                           </>
                         )}
                       </Button>
-                    </div>
-                  </div>
-
-                  {/* CV Upload Section */}
-                  <div>
-                    <Label htmlFor="cv-upload" className="flex items-center gap-2">
-                      <Upload className="h-4 w-4" />
-                      Upload CV (Optional)
-                    </Label>
-                    <div className="mt-2">
-                      <Input
-                        id="cv-upload"
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileUpload}
-                        className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                      {file && (
-                        <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>{file.name} selected</span>
-                        </div>
-                      )}
                     </div>
                   </div>
 
@@ -418,7 +484,7 @@ export const CVUpload = () => {
                     type="submit" 
                     className="w-full bg-blue-600 hover:bg-blue-700" 
                     size="lg"
-                    disabled={isUploading || !analysisResult}
+                    disabled={isUploading || !analysisResult || !file}
                   >
                     {isUploading ? (
                       <>
@@ -439,20 +505,58 @@ export const CVUpload = () => {
 
           {/* Right Column - Analysis Results & Info */}
           <div className="space-y-6">
-            {/* Analysis Results */}
-            {analysisResult && (
+            {/* CV Analysis Results */}
+            {cvAnalysis && (
               <Card className="border-green-200 bg-green-50">
                 <CardHeader>
                   <CardTitle className="text-lg text-green-800 flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5" />
+                    <FileText className="h-5 w-5" />
+                    CV Analysis Complete
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Extracted Information</h4>
+                    <div className="text-sm space-y-1">
+                      <p><strong>Name:</strong> {cvAnalysis.personalInfo.name || 'Not found'}</p>
+                      <p><strong>Email:</strong> {cvAnalysis.personalInfo.email || 'Not found'}</p>
+                      <p><strong>Location:</strong> {cvAnalysis.personalInfo.location || 'Not found'}</p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Skills from CV</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {cvAnalysis.skills.map((skill, index) => (
+                        <span key={index} className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Experience</h4>
+                    <p className="text-gray-700">{cvAnalysis.experience}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* LinkedIn Analysis Results */}
+            {analysisResult && (
+              <Card className="border-purple-200 bg-purple-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                    <Linkedin className="h-5 w-5" />
                     LinkedIn Analysis Complete
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Key Skills Identified</h4>
+                    <h4 className="font-semibold text-gray-900 mb-2">Combined Skills</h4>
                     <div className="flex flex-wrap gap-2">
-                      {analysisResult.skills.map((skill, index) => (
+                      {[...new Set([...analysisResult.skills, ...(cvAnalysis?.skills || [])])].map((skill, index) => (
                         <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                           {skill}
                         </span>
@@ -460,11 +564,6 @@ export const CVUpload = () => {
                     </div>
                   </div>
                   
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Experience Level</h4>
-                    <p className="text-gray-700">{analysisResult.experience}</p>
-                  </div>
-
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Suitable Roles</h4>
                     <div className="flex flex-wrap gap-2">
@@ -556,7 +655,6 @@ export const CVUpload = () => {
               </CardContent>
             </Card>
 
-            {/* Process Card */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl text-purple-600">
@@ -569,8 +667,8 @@ export const CVUpload = () => {
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold">LinkedIn Analysis</h4>
-                    <p className="text-sm text-gray-600">Enter your LinkedIn URL for AI analysis (required)</p>
+                    <h4 className="font-semibold">Upload CV</h4>
+                    <p className="text-sm text-gray-600">Upload your CV for automatic parsing and analysis</p>
                   </div>
                 </div>
                 
@@ -579,8 +677,8 @@ export const CVUpload = () => {
                     2
                   </div>
                   <div>
-                    <h4 className="font-semibold">Profile Creation</h4>
-                    <p className="text-sm text-gray-600">Complete your consultant profile</p>
+                    <h4 className="font-semibold">LinkedIn Analysis</h4>
+                    <p className="text-sm text-gray-600">Add LinkedIn URL for comprehensive AI analysis</p>
                   </div>
                 </div>
                 
@@ -589,8 +687,8 @@ export const CVUpload = () => {
                     3
                   </div>
                   <div>
-                    <h4 className="font-semibold">AI Matching</h4>
-                    <p className="text-sm text-gray-600">Get matched with perfect projects</p>
+                    <h4 className="font-semibold">Profile Creation</h4>
+                    <p className="text-sm text-gray-600">Complete your auto-filled consultant profile</p>
                   </div>
                 </div>
                 
@@ -600,13 +698,12 @@ export const CVUpload = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold">Start Working</h4>
-                    <p className="text-sm text-gray-600">Begin your new consulting assignment</p>
+                    <p className="text-sm text-gray-600">Get matched and begin your consulting assignments</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* AI Analysis Info */}
             <Card className="border-purple-200 bg-purple-50">
               <CardHeader>
                 <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
@@ -616,9 +713,9 @@ export const CVUpload = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-purple-700 text-sm">
-                  Our advanced AI analyzes your LinkedIn profile to identify skills, experience level, 
-                  personality traits, and cultural fit. This ensures better project matches 
-                  and higher success rates for both consultants and clients.
+                  Our advanced AI analyzes both your CV and LinkedIn profile to identify skills, 
+                  experience level, personality traits, and cultural fit. This dual-source analysis 
+                  ensures the most accurate profile creation and better project matches.
                 </p>
               </CardContent>
             </Card>
