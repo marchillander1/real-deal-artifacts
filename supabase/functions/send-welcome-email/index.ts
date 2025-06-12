@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +27,21 @@ const handler = async (req: Request): Promise<Response> => {
     const firstName = userName ? userName.split(' ')[0] : userEmail.split('@')[0];
 
     console.log("👤 First name extracted:", firstName);
+
+    // Configure Simply.com SMTP client
+    const client = new SMTPClient({
+      connection: {
+        hostname: "smtp.simply.com",
+        port: 587, // Simply.com recommended port
+        tls: true,
+        auth: {
+          username: Deno.env.get("SMTP_USERNAME")!,
+          password: Deno.env.get("SMTP_PASSWORD")!,
+        },
+      },
+    });
+
+    console.log("🔧 Simply.com SMTP client configured");
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
@@ -59,29 +75,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("📝 Email HTML prepared");
 
-    // Use Deno's built-in email sending with SMTP
-    const emailData = {
+    // Send welcome email via Simply.com SMTP
+    await client.send({
       from: "Marc <marc@matchwise.tech>",
       to: userEmail,
       subject: "Welcome to MatchWise – You're One Step Closer to Your Next Mission 🚀",
       html: emailHtml,
-    };
-
-    // Send email using fetch to SMTP service
-    const smtpResponse = await fetch(`smtp://${Deno.env.get("SMTP_HOST")}:${Deno.env.get("SMTP_PORT")}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Basic ${btoa(`${Deno.env.get("SMTP_USERNAME")}:${Deno.env.get("SMTP_PASSWORD")}`)}`,
-      },
-      body: JSON.stringify(emailData),
     });
 
-    if (!smtpResponse.ok) {
-      throw new Error(`SMTP error: ${smtpResponse.status} ${smtpResponse.statusText}`);
-    }
+    console.log("📤 Email sent successfully via Simply.com SMTP");
 
-    console.log("📤 Email sent successfully via SMTP");
+    await client.close();
+
+    console.log("✅ SMTP client closed");
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -93,18 +99,13 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("❌ Error sending welcome email:", error);
     
-    // For now, return success even if email fails so the profile creation doesn't fail
-    // We can improve this later
-    return new Response(JSON.stringify({ 
-      success: true, 
-      note: "Profile created successfully. Email sending temporarily disabled." 
-    }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json", 
-        ...corsHeaders 
-      },
-    });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
   }
 };
 
