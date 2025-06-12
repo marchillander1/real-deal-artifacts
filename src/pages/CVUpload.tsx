@@ -136,7 +136,7 @@ export const CVUpload = () => {
   const parseCV = async (file: File) => {
     setIsParsing(true);
     try {
-      console.log('Starting CV parsing...');
+      console.log('Starting enhanced CV parsing...');
       
       const formData = new FormData();
       formData.append('file', file);
@@ -150,7 +150,7 @@ export const CVUpload = () => {
         throw new Error(error.message || 'CV parsing failed');
       }
 
-      console.log('CV parsing result:', data);
+      console.log('Enhanced CV parsing result:', data);
 
       if (data?.success && data?.analysis) {
         setCvAnalysis(data.analysis);
@@ -162,7 +162,7 @@ export const CVUpload = () => {
           phone: data.analysis.personalInfo.phone || prev.phone
         }));
 
-        toast.success('CV parsed successfully and form auto-filled!');
+        toast.success('CV parsed successfully with comprehensive analysis!');
       }
 
     } catch (error: any) {
@@ -411,35 +411,35 @@ export const CVUpload = () => {
           <div className="mb-4">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-4">
               <Brain className="h-4 w-4 mr-2" />
-              AI-Powered Career Analysis
+              AI-Powered Comprehensive Career Analysis
             </span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Upload Your CV & LinkedIn Profile
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Get instant AI analysis of your skills, personality, and career potential. Upload 
-            your CV and add your LinkedIn profile to receive comprehensive insights and join 
-            our exclusive consultant network.
+            Get instant comprehensive AI analysis of your technical skills, leadership style, 
+            personality, and career potential. Upload your CV and add your LinkedIn profile 
+            to receive detailed insights and join our exclusive consultant network.
           </p>
           
           {/* Feature icons */}
           <div className="flex justify-center items-center gap-8 mt-8 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <Code className="h-4 w-4 text-blue-500" />
-              <span>Technical Skills</span>
+              <span>Technical Expertise</span>
             </div>
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-purple-500" />
-              <span>Personality Analysis</span>
+              <span>Leadership Analysis</span>
             </div>
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-orange-500" />
-              <span>Career Goals</span>
+              <span>Career Strategy</span>
             </div>
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 text-green-500" />
-              <span>Achievements</span>
+              <span>Market Positioning</span>
             </div>
           </div>
         </div>
@@ -454,10 +454,10 @@ export const CVUpload = () => {
               <CardHeader className="text-center pb-8">
                 <CardTitle className="text-2xl text-gray-900 flex items-center justify-center gap-3">
                   <Upload className="h-6 w-6 text-blue-600" />
-                  Start Your Analysis
+                  Start Your Comprehensive Analysis
                 </CardTitle>
                 <p className="text-sm text-gray-500 mt-2">
-                  Both CV and LinkedIn profile are required for complete analysis
+                  Both CV and LinkedIn profile are required for complete professional analysis
                 </p>
               </CardHeader>
               <CardContent className="px-8 pb-8">
@@ -596,56 +596,87 @@ export const CVUpload = () => {
 
           {/* Enhanced Analysis Results */}
           <div className="space-y-6">
-            {/* CV Analysis */}
+            {/* Enhanced CV Analysis */}
             {cvAnalysis && (
               <div className="space-y-4">
-                {/* Strengths Card */}
+                {/* Professional Summary Card */}
+                <Card className="border border-blue-200">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg text-blue-800 flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Professional Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {cvAnalysis.professionalSummary && (
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                          <span className="font-medium text-gray-700">Experience:</span>
+                          <div className="text-blue-700 font-medium">{cvAnalysis.professionalSummary.yearsOfExperience}</div>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Level:</span>
+                          <div className="text-blue-700 font-medium">{cvAnalysis.professionalSummary.seniorityLevel}</div>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Trajectory:</span>
+                          <div className="text-green-700 font-medium">{cvAnalysis.professionalSummary.careerTrajectory}</div>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Role:</span>
+                          <div className="text-blue-700 font-medium">{cvAnalysis.professionalSummary.currentRole}</div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Detailed Strengths Analysis */}
                 <Card className="border border-green-200">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg text-green-800 flex items-center gap-2">
                       <TrendingUp className="h-5 w-5" />
-                      Your Key Strengths
+                      Detailed Strengths Analysis
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    {cvAnalysis.strengths.slice(0, 2).map((strength, idx) => (
+                  <CardContent className="space-y-4">
+                    {cvAnalysis.detailedStrengthsAnalysis?.slice(0, 3).map((strength, idx) => (
                       <div key={idx} className="border-l-4 border-green-500 pl-3">
                         <h4 className="font-medium text-sm text-gray-800">{strength.category}</h4>
-                        <p className="text-xs text-gray-600 mb-1">{strength.description}</p>
-                        <div className="text-xs text-green-700 font-medium">{strength.impact}</div>
+                        <p className="text-xs text-gray-600 mb-2">{strength.description}</p>
+                        <div className="text-xs space-y-1">
+                          <div className="text-green-700 font-medium">Market Value: {strength.marketValue}</div>
+                          <div className="text-blue-600">Growth Potential: {strength.growthPotential}</div>
+                        </div>
                       </div>
                     ))}
-                    
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Market Positioning</h4>
-                      <div className="text-xs space-y-1">
-                        <div className="flex justify-between">
-                          <span>Competitiveness:</span>
-                          <span className="font-medium text-green-600">{cvAnalysis.marketPositioning.competitiveness}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Salary Range:</span>
-                          <span className="font-medium">{cvAnalysis.marketPositioning.salaryRange}</span>
-                        </div>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
 
-                {/* Improvement Tips Card */}
+                {/* Comprehensive Improvement Areas */}
                 <Card className="border border-orange-200">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg text-orange-800 flex items-center gap-2">
                       <Lightbulb className="h-5 w-5" />
-                      CV Improvement Tips
+                      Development Roadmap
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {cvAnalysis.improvementAreas.slice(0, 2).map((area, idx) => (
+                    {cvAnalysis.comprehensiveImprovementAreas?.slice(0, 2).map((area, idx) => (
                       <div key={idx}>
-                        <h4 className="font-medium text-sm text-gray-800 mb-1">{area.area}</h4>
-                        <ul className="text-xs text-gray-600 space-y-1">
-                          {area.tips.slice(0, 2).map((tip, tipIdx) => (
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-medium text-sm text-gray-800">{area.area}</h4>
+                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                            {area.improvementPriority} Priority
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-2">{area.currentState}</p>
+                        <div className="text-xs space-y-1">
+                          <div className="text-orange-700 font-medium">Expected Impact: {area.expectedImpact}</div>
+                          <div className="text-gray-600">Time to Implement: {area.timeToImplement}</div>
+                        </div>
+                        <ul className="text-xs text-gray-600 mt-2 space-y-1">
+                          {area.detailedTips.slice(0, 2).map((tip, tipIdx) => (
                             <li key={tipIdx} className="flex items-start gap-1">
                               <AlertCircle className="h-3 w-3 text-orange-500 mt-0.5 flex-shrink-0" />
                               {tip}
@@ -657,66 +688,81 @@ export const CVUpload = () => {
                   </CardContent>
                 </Card>
 
-                {/* Competitive Advantages */}
-                <Card className="border border-blue-200">
+                {/* Market Positioning */}
+                <Card className="border border-purple-200">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-blue-800 flex items-center gap-2">
+                    <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
                       <Award className="h-5 w-5" />
-                      Competitive Advantages
+                      Market Positioning
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="text-xs text-gray-600 space-y-1">
-                      {cvAnalysis.competitiveAdvantages.slice(0, 3).map((advantage, idx) => (
-                        <li key={idx} className="flex items-start gap-1">
-                          <Trophy className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
-                          {advantage}
-                        </li>
-                      ))}
-                    </ul>
+                  <CardContent className="space-y-3">
+                    {cvAnalysis.marketPositioning && (
+                      <div className="space-y-3">
+                        <div>
+                          <h4 className="font-medium text-sm text-gray-700 mb-1">Unique Value</h4>
+                          <p className="text-xs text-purple-700 font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <span className="font-medium text-gray-700">Competitiveness:</span>
+                            <div className="text-purple-700 font-medium">{cvAnalysis.marketPositioning.competitiveness}</div>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Salary Range:</span>
+                            <div className="text-green-700 font-medium">{cvAnalysis.marketPositioning.salaryBenchmarks?.stockholm}</div>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-sm text-gray-700 mb-1">Target Roles</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {cvAnalysis.marketPositioning.targetRoles?.slice(0, 4).map((role, idx) => (
+                              <span key={idx} className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                                {role}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
             )}
 
-            {/* LinkedIn Analysis */}
+            {/* Enhanced LinkedIn Analysis */}
             {linkedinAnalysis && (
               <div className="space-y-4">
-                {/* LinkedIn Strengths */}
-                <Card className="border border-purple-200">
+                {/* Communication & Leadership Style */}
+                <Card className="border border-indigo-200">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                    <CardTitle className="text-lg text-indigo-800 flex items-center gap-2">
                       <Users className="h-5 w-5" />
-                      LinkedIn Profile Strengths
+                      Communication & Leadership
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Current Strengths</h4>
-                      <ul className="text-xs text-gray-600 space-y-1">
-                        {linkedinAnalysis.profileStrengths?.slice(0, 3).map((strength, idx) => (
-                          <li key={idx} className="flex items-start gap-1">
-                            <CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
-                            {strength}
-                          </li>
-                        ))}
-                      </ul>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Communication Style</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.communicationStyle}</p>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Leadership Approach</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.leadershipStyle}</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-xs">
                       <div>
                         <span className="font-medium text-gray-700">Cultural Fit:</span>
                         <div className="flex items-center gap-1 mt-1">
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div 
-                              className="bg-purple-600 h-2 rounded-full" 
+                              className="bg-indigo-600 h-2 rounded-full" 
                               style={{ width: `${(linkedinAnalysis.culturalFit / 5) * 100}%` }}
                             ></div>
                           </div>
                           <span>{linkedinAnalysis.culturalFit}/5</span>
                         </div>
                       </div>
-                      
                       <div>
                         <span className="font-medium text-gray-700">Leadership:</span>
                         <div className="flex items-center gap-1 mt-1">
@@ -729,41 +775,93 @@ export const CVUpload = () => {
                           <span>{linkedinAnalysis.leadership}/5</span>
                         </div>
                       </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Mentorship:</span>
+                        <div className="flex items-center gap-1 mt-1">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-600 h-2 rounded-full" 
+                              style={{ width: `${(linkedinAnalysis.mentorshipAbility / 5) * 100}%` }}
+                            ></div>
+                          </div>
+                          <span>{linkedinAnalysis.mentorshipAbility}/5</span>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* LinkedIn Improvement Tips */}
-                <Card className="border border-indigo-200">
+                {/* Problem Solving & Innovation */}
+                <Card className="border border-emerald-200">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-indigo-800 flex items-center gap-2">
-                      <Target className="h-5 w-5" />
-                      LinkedIn Enhancement Tips
+                    <CardTitle className="text-lg text-emerald-800 flex items-center gap-2">
+                      <Brain className="h-5 w-5" />
+                      Problem Solving & Innovation
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Profile Improvements</h4>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Problem Solving Approach</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.problemSolvingApproach}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Innovation Capability</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.innovationCapability}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Learning Orientation</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.learningOrientation}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Business Acumen & Strategic Thinking */}
+                <Card className="border border-amber-200">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg text-amber-800 flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Business & Strategic Insight
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Business Acumen</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.businessAcumen}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Strategic Thinking</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.strategicThinking}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Decision Making</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.decisionMakingStyle}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Professional Growth Areas */}
+                <Card className="border border-rose-200">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg text-rose-800 flex items-center gap-2">
+                      <BookOpen className="h-5 w-5" />
+                      Development Opportunities
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Growth Areas</h4>
                       <ul className="text-xs text-gray-600 space-y-1">
-                        {linkedinAnalysis.improvementSuggestions?.slice(0, 3).map((suggestion, idx) => (
+                        {linkedinAnalysis.professionalGrowthAreas?.slice(0, 4).map((area, idx) => (
                           <li key={idx} className="flex items-start gap-1">
-                            <Lightbulb className="h-3 w-3 text-indigo-500 mt-0.5 flex-shrink-0" />
-                            {suggestion}
+                            <Lightbulb className="h-3 w-3 text-rose-500 mt-0.5 flex-shrink-0" />
+                            {area}
                           </li>
                         ))}
                       </ul>
                     </div>
-
                     <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Content Strategy</h4>
-                      <ul className="text-xs text-gray-600 space-y-1">
-                        {linkedinAnalysis.contentStrategy?.slice(0, 2).map((strategy, idx) => (
-                          <li key={idx} className="flex items-start gap-1">
-                            <Brain className="h-3 w-3 text-indigo-500 mt-0.5 flex-shrink-0" />
-                            {strategy}
-                          </li>
-                        ))}
-                      </ul>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Thought Leadership Level</h4>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.thoughtLeadershipLevel}</p>
                     </div>
                   </CardContent>
                 </Card>
