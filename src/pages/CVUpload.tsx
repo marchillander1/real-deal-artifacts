@@ -118,8 +118,8 @@ export const CVUpload = () => {
       console.log('Creating consultant profile...');
 
       // Validate required fields
-      if (!formData.name || !formData.email) {
-        toast.error('Name and email are required');
+      if (!formData.name || !formData.email || !formData.linkedinUrl) {
+        toast.error('Name, email and LinkedIn URL are required');
         return;
       }
 
@@ -142,7 +142,7 @@ export const CVUpload = () => {
         certifications: [],
         languages: ['Swedish', 'English'],
         type: 'new',
-        linkedin_url: formData.linkedinUrl || '',
+        linkedin_url: formData.linkedinUrl,
         communication_style: analysisResult.communicationStyle,
         work_style: analysisResult.workStyle,
         values: ['Quality', 'Innovation', 'Teamwork'],
@@ -254,7 +254,7 @@ export const CVUpload = () => {
               Join the MatchWise Consultant Network
             </h1>
             <p className="text-lg text-gray-600">
-              Upload your CV or enter your LinkedIn profile to get AI-powered analysis and join our exclusive network
+              Enter your LinkedIn profile to get AI-powered analysis and join our exclusive network
             </p>
           </div>
         </div>
@@ -274,29 +274,6 @@ export const CVUpload = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* CV Upload Section */}
-                  <div>
-                    <Label htmlFor="cv-upload" className="flex items-center gap-2">
-                      <Upload className="h-4 w-4" />
-                      Upload CV (Optional)
-                    </Label>
-                    <div className="mt-2">
-                      <Input
-                        id="cv-upload"
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileUpload}
-                        className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                      {file && (
-                        <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>{file.name} selected</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
                   {/* LinkedIn URL */}
                   <div>
                     <Label htmlFor="linkedinUrl" className="flex items-center gap-2">
@@ -332,6 +309,29 @@ export const CVUpload = () => {
                           </>
                         )}
                       </Button>
+                    </div>
+                  </div>
+
+                  {/* CV Upload Section */}
+                  <div>
+                    <Label htmlFor="cv-upload" className="flex items-center gap-2">
+                      <Upload className="h-4 w-4" />
+                      Upload CV (Optional)
+                    </Label>
+                    <div className="mt-2">
+                      <Input
+                        id="cv-upload"
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleFileUpload}
+                        className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      {file && (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                          <CheckCircle className="h-4 w-4" />
+                          <span>{file.name} selected</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -569,8 +569,8 @@ export const CVUpload = () => {
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold">Upload CV or LinkedIn</h4>
-                    <p className="text-sm text-gray-600">Upload your CV or enter LinkedIn URL for AI analysis</p>
+                    <h4 className="font-semibold">LinkedIn Analysis</h4>
+                    <p className="text-sm text-gray-600">Enter your LinkedIn URL for AI analysis (required)</p>
                   </div>
                 </div>
                 
@@ -616,7 +616,7 @@ export const CVUpload = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-purple-700 text-sm">
-                  Our advanced AI analyzes your CV or LinkedIn profile to identify skills, experience level, 
+                  Our advanced AI analyzes your LinkedIn profile to identify skills, experience level, 
                   personality traits, and cultural fit. This ensures better project matches 
                   and higher success rates for both consultants and clients.
                 </p>
