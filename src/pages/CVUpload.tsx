@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -461,7 +462,7 @@ export const CVUpload = () => {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim() || null,
-        type: 'new', // This ensures they appear under "Network Consultants"
+        type: 'new', // EXPLICITLY set to 'new' for RLS policy
         linkedin_url: linkedinUrl.trim() || null,
         location: 'Sweden', // Default location
         availability: 'Available',
@@ -494,16 +495,18 @@ export const CVUpload = () => {
       }
 
       console.log('Saving consultant data:', consultantData);
+      console.log('Type field value:', consultantData.type); // Debug log
 
-      // Save consultant data to database
+      // Save consultant data to database with explicit type checking
       const { data: dbData, error: dbError } = await supabase
         .from('consultants')
-        .insert(consultantData)
+        .insert([consultantData]) // Wrap in array to be explicit
         .select()
         .single();
 
       if (dbError) {
         console.error('Database error:', dbError);
+        console.error('Consultant data that failed:', consultantData);
         throw new Error(`Failed to save consultant data: ${dbError.message}`);
       }
 
