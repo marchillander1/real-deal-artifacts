@@ -251,6 +251,7 @@ export const CVUpload = () => {
 
       console.log('Consultant inserted successfully:', insertedConsultant);
 
+      // Send welcome email to consultant
       if (formData.email) {
         console.log('Sending welcome email...');
         try {
@@ -269,6 +270,25 @@ export const CVUpload = () => {
         } catch (emailError) {
           console.warn('Email error (non-blocking):', emailError);
         }
+      }
+
+      // Send registration notification to Marc
+      console.log('Sending registration notification to Marc...');
+      try {
+        const notificationResponse = await supabase.functions.invoke('send-registration-notification', {
+          body: {
+            userEmail: formData.email,
+            userName: formData.name
+          }
+        });
+
+        if (notificationResponse.error) {
+          console.warn('Registration notification failed:', notificationResponse.error);
+        } else {
+          console.log('Registration notification sent successfully');
+        }
+      } catch (notificationError) {
+        console.warn('Registration notification error (non-blocking):', notificationError);
       }
 
       setUploadSuccess(true);
