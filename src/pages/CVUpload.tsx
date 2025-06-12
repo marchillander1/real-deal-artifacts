@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -290,9 +291,9 @@ export const CVUpload = () => {
         values: linkedinAnalysis?.values || [],
         personality_traits: linkedinAnalysis?.personalityTraits || [],
         team_fit: linkedinAnalysis?.teamFit || '',
-        cultural_fit: linkedinAnalysis?.culturalFit || 4,
-        adaptability: linkedinAnalysis?.adaptability || 4,
-        leadership: linkedinAnalysis?.leadership || 3
+        cultural_fit: Math.round(linkedinAnalysis?.culturalFit || 4),
+        adaptability: Math.round(linkedinAnalysis?.adaptability || 4),
+        leadership: Math.round(linkedinAnalysis?.leadership || 3)
       };
 
       console.log('Inserting consultant data:', consultantData);
