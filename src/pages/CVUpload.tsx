@@ -27,6 +27,12 @@ interface EnhancedCVAnalysis {
     phone: string;
     location: string;
   };
+  professionalSummary?: {
+    yearsOfExperience: string;
+    seniorityLevel: string;
+    careerTrajectory: string;
+    currentRole: string;
+  };
   technicalSkills: {
     programming: string[];
     frameworks: string[];
@@ -66,13 +72,32 @@ interface EnhancedCVAnalysis {
     travelWillingness: string;
   };
   strengths: Strength[];
+  detailedStrengthsAnalysis?: Array<{
+    category: string;
+    description: string;
+    marketValue: string;
+    growthPotential: string;
+  }>;
   improvementAreas: ImprovementArea[];
+  comprehensiveImprovementAreas?: Array<{
+    area: string;
+    currentState: string;
+    improvementPriority: string;
+    expectedImpact: string;
+    timeToImplement: string;
+    detailedTips: string[];
+  }>;
   competitiveAdvantages: string[];
   marketPositioning: {
     suitableRoles: string[];
     salaryRange: string;
     competitiveness: string;
     uniqueValue: string;
+    uniqueValueProposition?: string;
+    salaryBenchmarks?: {
+      stockholm: string;
+    };
+    targetRoles?: string[];
   };
 }
 
@@ -85,13 +110,20 @@ interface LinkedInAnalysis {
   culturalFit: number;
   adaptability: number;
   leadership: number;
+  leadershipStyle?: string;
   technicalDepth: number;
   communicationClarity: number;
   innovationMindset: number;
+  innovationCapability?: string;
   mentorshipAbility: number;
   problemSolvingApproach: string;
   learningOrientation: string;
   collaborationPreference: string;
+  businessAcumen?: string;
+  strategicThinking?: string;
+  decisionMakingStyle?: string;
+  thoughtLeadershipLevel?: string;
+  professionalGrowthAreas?: string[];
   profileStrengths?: string[];
   improvementSuggestions?: string[];
   networkingTips?: string[];
@@ -701,7 +733,9 @@ export const CVUpload = () => {
                       <div className="space-y-3">
                         <div>
                           <h4 className="font-medium text-sm text-gray-700 mb-1">Unique Value</h4>
-                          <p className="text-xs text-purple-700 font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
+                          <p className="text-xs text-purple-700 font-medium">
+                            {cvAnalysis.marketPositioning.uniqueValueProposition || cvAnalysis.marketPositioning.uniqueValue}
+                          </p>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-xs">
                           <div>
@@ -710,13 +744,15 @@ export const CVUpload = () => {
                           </div>
                           <div>
                             <span className="font-medium text-gray-700">Salary Range:</span>
-                            <div className="text-green-700 font-medium">{cvAnalysis.marketPositioning.salaryBenchmarks?.stockholm}</div>
+                            <div className="text-green-700 font-medium">
+                              {cvAnalysis.marketPositioning.salaryBenchmarks?.stockholm || cvAnalysis.marketPositioning.salaryRange}
+                            </div>
                           </div>
                         </div>
                         <div>
                           <h4 className="font-medium text-sm text-gray-700 mb-1">Target Roles</h4>
                           <div className="flex flex-wrap gap-1">
-                            {cvAnalysis.marketPositioning.targetRoles?.slice(0, 4).map((role, idx) => (
+                            {(cvAnalysis.marketPositioning.targetRoles || cvAnalysis.marketPositioning.suitableRoles)?.slice(0, 4).map((role, idx) => (
                               <span key={idx} className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
                                 {role}
                               </span>
@@ -748,7 +784,7 @@ export const CVUpload = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-2">Leadership Approach</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.leadershipStyle}</p>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.leadershipStyle || 'Leadership style analysis available'}</p>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-xs">
                       <div>
@@ -806,7 +842,7 @@ export const CVUpload = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-2">Innovation Capability</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.innovationCapability}</p>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.innovationCapability || 'Innovation analysis available'}</p>
                     </div>
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-2">Learning Orientation</h4>
@@ -826,15 +862,15 @@ export const CVUpload = () => {
                   <CardContent className="space-y-3">
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-2">Business Acumen</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.businessAcumen}</p>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.businessAcumen || 'Business analysis available'}</p>
                     </div>
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-2">Strategic Thinking</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.strategicThinking}</p>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.strategicThinking || 'Strategic thinking analysis available'}</p>
                     </div>
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-2">Decision Making</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.decisionMakingStyle}</p>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.decisionMakingStyle || 'Decision making style analysis available'}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -861,7 +897,7 @@ export const CVUpload = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-2">Thought Leadership Level</h4>
-                      <p className="text-xs text-gray-600">{linkedinAnalysis.thoughtLeadershipLevel}</p>
+                      <p className="text-xs text-gray-600">{linkedinAnalysis.thoughtLeadershipLevel || 'Thought leadership analysis available'}</p>
                     </div>
                   </CardContent>
                 </Card>
