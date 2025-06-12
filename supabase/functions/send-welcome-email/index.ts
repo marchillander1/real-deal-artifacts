@@ -84,30 +84,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-        <h2 style="color: #2563eb;">Hej ${firstName}!</h2>
+        <h2 style="color: #2563eb;">Hello ${firstName}!</h2>
         
-        <p>Tack för att du laddade upp ditt CV och gick med i MatchWise!</p>
+        <p>Thank you for uploading your CV and joining MatchWise!</p>
         
-        <p>Du har precis tagit ett stort steg mot spännande nya konsultmöjligheter.</p>
+        <p>You've just taken a big step toward exciting new consulting opportunities.</p>
         
-        <p>Vår AI-drivna plattform analyserar både din erfarenhet och dina mjuka färdigheter för att matcha dig med rätt projekt – inte bara baserat på kompetens, utan också på personlighet och kulturell passform.</p>
+        <p>Our AI-driven platform analyzes both your experience and soft skills to match you with the right projects – not just based on competence, but also on personality and cultural fit.</p>
         
-        <h3 style="color: #2563eb;">🔍 Vad händer nu?</h3>
+        <h3 style="color: #2563eb;">🔍 What happens next?</h3>
         <ul>
-          <li>Din profil granskas av vårt team</li>
-          <li>Du kommer snart att synas för anställande företag på plattformen</li>
-          <li>Vi hör av oss om en särskilt bra matchning dyker upp</li>
+          <li>Your profile will be reviewed by our team</li>
+          <li>You'll soon be visible to hiring companies on the platform</li>
+          <li>We'll reach out if a particularly good match comes up</li>
         </ul>
         
         <h3 style="color: #2563eb;">💡 Tips:</h3>
-        <p>Se till att hålla din profil uppdaterad och svara snabbt på eventuella erbjudanden – det ökar dina chanser att landa fantastiska uppdrag.</p>
+        <p>Make sure to keep your profile updated and respond quickly to any offers – this increases your chances of landing fantastic assignments.</p>
         
-        <p>Om du har några frågor, tveka inte att höra av dig på <a href="mailto:marc@matchwise.tech">marc@matchwise.tech</a>.</p>
+        <p>If you have any questions, don't hesitate to reach out at <a href="mailto:marc@matchwise.tech">marc@matchwise.tech</a>.</p>
         
-        <p><strong>Välkommen till framtiden för konsultmatchning!</strong></p>
+        <p><strong>Welcome to the future of consultant matching!</strong></p>
         
-        <p>Bästa hälsningar,<br>
-        MatchWise-teamet<br>
+        <p>Best regards,<br>
+        The MatchWise Team<br>
         <a href="https://www.matchwise.tech">www.matchwise.tech</a></p>
       </div>
     `;
@@ -116,9 +116,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send welcome email via Resend
     const emailResponse = await resend.emails.send({
-      from: "Marc från MatchWise <marc@matchwise.tech>",
+      from: "Marc from MatchWise <marc@matchwise.tech>",
       to: [userEmail],
-      subject: "Välkommen till MatchWise – Du är ett steg närmare ditt nästa uppdrag 🚀",
+      subject: "Welcome to MatchWise – You're one step closer to your next assignment 🚀",
       html: emailHtml,
     });
 
