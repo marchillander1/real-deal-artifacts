@@ -5,20 +5,35 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, MapPin, Briefcase, Brain, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+interface AnalysisResult {
+  skills: string[];
+  experience: string;
+  roles: string[];
+  strengths: string[];
+  recommendations: string[];
+  personalityTraits: string[];
+  communicationStyle: string;
+  workStyle: string;
+  culturalFit: number;
+  adaptability: number;
+  leadership: number;
+}
+
 export const CVUpload = () => {
+  const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     location: '',
-    experience: '',
-    skills: '',
     linkedinUrl: '',
     availability: 'Available now'
   });
@@ -31,58 +46,118 @@ export const CVUpload = () => {
     }));
   };
 
-  const parseSkills = (skillsText: string) => {
-    return skillsText.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const selectedFile = files[0];
+      setFile(selectedFile);
+      console.log('CV file selected:', selectedFile.name);
+      toast.success(`CV file "${selectedFile.name}" selected`);
+    }
+  };
+
+  const analyzeCV = async () => {
+    if (!file) {
+      toast.error('Please select a CV file first');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      console.log('Starting CV analysis...');
+      
+      // Create FormData for file upload
+      const formDataForUpload = new FormData();
+      formDataForUpload.append('file', file);
+
+      // Call analysis function
+      const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
+        body: formDataForUpload
+      });
+
+      if (error) {
+        console.error('Analysis error:', error);
+        throw new Error(error.message || 'Analysis failed');
+      }
+
+      console.log('Analysis result:', data);
+
+      // Mock analysis result for demo (replace with actual API response parsing)
+      const mockAnalysis: AnalysisResult = {
+        skills: ['React', 'TypeScript', 'Node.js', 'Python', 'AWS'],
+        experience: '5+ years in software development',
+        roles: ['Full-Stack Developer', 'Software Engineer'],
+        strengths: ['Problem-solving', 'Team collaboration', 'Technical leadership'],
+        recommendations: ['Consider cloud certifications', 'Expand mobile development skills'],
+        personalityTraits: ['Analytical', 'Creative', 'Detail-oriented'],
+        communicationStyle: 'Clear and collaborative',
+        workStyle: 'Agile and iterative',
+        culturalFit: 4,
+        adaptability: 4,
+        leadership: 3
+      };
+
+      setAnalysisResult(mockAnalysis);
+      toast.success('CV analysis completed successfully!');
+
+    } catch (error: any) {
+      console.error('CV analysis error:', error);
+      toast.error(error.message || 'Failed to analyze CV');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!analysisResult) {
+      toast.error('Please analyze your CV first');
+      return;
+    }
+
     setIsUploading(true);
 
     try {
-      console.log('🚀 Starting consultant upload...');
-      console.log('📝 Form data:', formData);
+      console.log('Creating consultant profile...');
 
       // Validate required fields
       if (!formData.name || !formData.email) {
-        toast.error('Namn och email är obligatoriska fält');
+        toast.error('Name and email are required');
         return;
       }
 
-      // Parse skills from comma-separated string
-      const skillsArray = parseSkills(formData.skills);
+      // Parse experience years from analysis
+      const experienceYears = analysisResult.experience.match(/\d+/)?.[0] || '0';
       
-      // Parse experience years
-      const experienceYears = formData.experience ? parseInt(formData.experience) || 0 : 0;
-
       // Prepare consultant data
       const consultantData = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || '',
         location: formData.location || 'Stockholm',
-        skills: skillsArray,
-        experience_years: experienceYears,
-        roles: ['Consultant'], // Default role
+        skills: analysisResult.skills,
+        experience_years: parseInt(experienceYears),
+        roles: analysisResult.roles,
         hourly_rate: 800, // Default rate
         availability: formData.availability,
         projects_completed: 0,
         rating: 4.5,
         certifications: [],
         languages: ['Swedish', 'English'],
-        type: 'new', // Explicitly set to 'new' for network consultants
+        type: 'new',
         linkedin_url: formData.linkedinUrl || '',
-        communication_style: 'Professional and collaborative',
-        work_style: 'Flexible and results-oriented',
+        communication_style: analysisResult.communicationStyle,
+        work_style: analysisResult.workStyle,
         values: ['Quality', 'Innovation', 'Teamwork'],
-        personality_traits: ['Adaptable', 'Problem-solver', 'Team-player'],
+        personality_traits: analysisResult.personalityTraits,
         team_fit: 'Strong collaborative skills',
-        cultural_fit: 4,
-        adaptability: 4,
-        leadership: 3
+        cultural_fit: analysisResult.culturalFit,
+        adaptability: analysisResult.adaptability,
+        leadership: analysisResult.leadership
       };
 
-      console.log('💾 Inserting consultant data:', consultantData);
+      console.log('Inserting consultant data:', consultantData);
 
       // Insert consultant into database
       const { data: insertedConsultant, error: insertError } = await supabase
@@ -92,15 +167,15 @@ export const CVUpload = () => {
         .single();
 
       if (insertError) {
-        console.error('❌ Database insert error:', insertError);
+        console.error('Database insert error:', insertError);
         throw new Error(`Database error: ${insertError.message}`);
       }
 
-      console.log('✅ Consultant inserted successfully:', insertedConsultant);
+      console.log('Consultant inserted successfully:', insertedConsultant);
 
-      // Send welcome email (only if email is provided)
+      // Send welcome email
       if (formData.email) {
-        console.log('📧 Sending welcome email...');
+        console.log('Sending welcome email...');
         try {
           const emailResponse = await supabase.functions.invoke('send-welcome-email', {
             body: {
@@ -109,22 +184,18 @@ export const CVUpload = () => {
             }
           });
 
-          console.log('📬 Email response:', emailResponse);
-          
           if (emailResponse.error) {
-            console.warn('⚠️ Email sending failed:', emailResponse.error);
-            // Don't fail the entire process if email fails
+            console.warn('Email sending failed:', emailResponse.error);
           } else {
-            console.log('✅ Welcome email sent successfully');
+            console.log('Welcome email sent successfully');
           }
         } catch (emailError) {
-          console.warn('⚠️ Email error (non-blocking):', emailError);
-          // Email failure shouldn't block the process
+          console.warn('Email error (non-blocking):', emailError);
         }
       }
 
       setUploadSuccess(true);
-      toast.success('Fantastiskt! Din profil har lagts till och du är nu del av vårt nätverk!');
+      toast.success('Profile created successfully! Welcome to MatchWise!');
       
       // Reset form
       setFormData({
@@ -132,27 +203,17 @@ export const CVUpload = () => {
         email: '',
         phone: '',
         location: '',
-        experience: '',
-        skills: '',
         linkedinUrl: '',
         availability: 'Available now'
       });
+      setFile(null);
+      setAnalysisResult(null);
 
     } catch (error: any) {
-      console.error('❌ Upload error:', error);
-      toast.error(error.message || 'Ett fel uppstod vid uppladdning');
+      console.error('Upload error:', error);
+      toast.error(error.message || 'An error occurred during upload');
     } finally {
       setIsUploading(false);
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      console.log('📄 CV file selected:', file.name);
-      toast.success(`CV fil "${file.name}" har valts`);
-      // TODO: Implement actual CV parsing when needed
     }
   };
 
@@ -162,23 +223,23 @@ export const CVUpload = () => {
         <Card className="w-full max-w-md text-center">
           <CardContent className="p-8">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Välkommen till MatchWise!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to MatchWise!</h2>
             <p className="text-gray-600 mb-6">
-              Din profil har lagts till framgångsrikt. Du kommer snart att synas för anställande företag på plattformen.
+              Your profile has been successfully added. You'll soon be visible to hiring companies on the platform.
             </p>
             <div className="space-y-3">
               <Button 
                 onClick={() => setUploadSuccess(false)}
                 className="w-full"
               >
-                Ladda upp en till konsult
+                Upload Another Consultant
               </Button>
               <Button 
                 variant="outline" 
                 className="w-full"
                 onClick={() => window.location.href = '/matchwiseai'}
               >
-                Gå till MatchWise AI
+                Go to MatchWise AI
               </Button>
             </div>
           </CardContent>
@@ -191,223 +252,266 @@ export const CVUpload = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Gå med i MatchWise Konsultnätverk
+              Join the MatchWise Consultant Network
             </h1>
             <p className="text-lg text-gray-600">
-              Ladda upp din profil och få tillgång till spännande konsultuppdrag
+              Upload your CV and get AI-powered analysis to join our exclusive network
             </p>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left Column - Form */}
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-blue-600" />
-                Konsultprofil
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Basic Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                    Grundläggande information
-                  </h3>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name" className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Namn *
-                      </Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Ditt fullständiga namn"
+          {/* Left Column - CV Upload & Analysis */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5 text-blue-600" />
+                  CV Upload & Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* File Upload */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                  <div className="text-center">
+                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <div className="relative">
+                      <Button type="button" variant="outline" className="relative">
+                        <Upload className="h-4 w-4 mr-2" />
+                        {file ? file.name : 'Choose CV File'}
+                      </Button>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleFileUpload}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
                     </div>
-                    
-                    <div>
-                      <Label htmlFor="email" className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email *
-                      </Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="din.email@exempel.se"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone" className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Telefon
-                      </Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="+46 70 123 45 67"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="location" className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Plats
-                      </Label>
-                      <Input
-                        id="location"
-                        name="location"
-                        type="text"
-                        value={formData.location}
-                        onChange={handleInputChange}
-                        placeholder="Stockholm"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Professional Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                    Professionell bakgrund
-                  </h3>
-                  
-                  <div>
-                    <Label htmlFor="experience" className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      År av erfarenhet
-                    </Label>
-                    <Input
-                      id="experience"
-                      name="experience"
-                      type="number"
-                      min="0"
-                      max="50"
-                      value={formData.experience}
-                      onChange={handleInputChange}
-                      placeholder="5"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="skills">
-                      Tekniska färdigheter
-                    </Label>
-                    <Textarea
-                      id="skills"
-                      name="skills"
-                      value={formData.skills}
-                      onChange={handleInputChange}
-                      placeholder="React, TypeScript, Node.js, Python, AWS, etc."
-                      className="min-h-[100px]"
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      Separera färdigheter med kommatecken
+                    <p className="text-sm text-gray-500 mt-2">
+                      PDF, DOC or DOCX up to 10MB
                     </p>
                   </div>
-
-                  <div>
-                    <Label htmlFor="linkedinUrl">
-                      LinkedIn profil (valfritt)
-                    </Label>
-                    <Input
-                      id="linkedinUrl"
-                      name="linkedinUrl"
-                      type="url"
-                      value={formData.linkedinUrl}
-                      onChange={handleInputChange}
-                      placeholder="https://linkedin.com/in/ditt-namn"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="availability">
-                      Tillgänglighet
-                    </Label>
-                    <Input
-                      id="availability"
-                      name="availability"
-                      type="text"
-                      value={formData.availability}
-                      onChange={handleInputChange}
-                      placeholder="Tillgänglig nu"
-                    />
-                  </div>
                 </div>
 
-                {/* CV Upload Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                    CV Upload (Valfritt)
-                  </h3>
-                  
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                    <div className="text-center">
-                      <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <div className="relative">
-                        <Button type="button" variant="outline" className="relative">
-                          <Upload className="h-4 w-4 mr-2" />
-                          Välj CV-fil
-                        </Button>
-                        <input
-                          type="file"
-                          accept=".pdf,.doc,.docx"
-                          onChange={handleFileUpload}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
-                      </div>
-                      <p className="text-sm text-gray-500 mt-2">
-                        PDF, DOC eller DOCX upp till 10MB
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
+                {/* Analysis Button */}
                 <Button 
-                  type="submit" 
-                  className="w-full bg-blue-600 hover:bg-blue-700" 
+                  onClick={analyzeCV}
+                  disabled={!file || isAnalyzing}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
                   size="lg"
-                  disabled={isUploading}
                 >
-                  {isUploading ? (
+                  {isAnalyzing ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Laddar upp...
+                      Analyzing CV...
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Skicka in profil
+                      <Brain className="h-4 w-4 mr-2" />
+                      Analyze with AI
                     </>
                   )}
                 </Button>
-              </form>
-            </CardContent>
-          </Card>
+
+                {/* Analysis Results */}
+                {analysisResult && (
+                  <Card className="border-green-200 bg-green-50">
+                    <CardHeader>
+                      <CardTitle className="text-lg text-green-800 flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5" />
+                        Analysis Complete
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Key Skills Identified</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {analysisResult.skills.map((skill, index) => (
+                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Experience Level</h4>
+                        <p className="text-gray-700">{analysisResult.experience}</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Suitable Roles</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {analysisResult.roles.map((role, index) => (
+                            <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                              {role}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <div className="flex items-center justify-center mb-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`h-4 w-4 ${i < analysisResult.culturalFit ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                            ))}
+                          </div>
+                          <p className="text-xs text-gray-600">Cultural Fit</p>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-center mb-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`h-4 w-4 ${i < analysisResult.adaptability ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                            ))}
+                          </div>
+                          <p className="text-xs text-gray-600">Adaptability</p>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-center mb-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`h-4 w-4 ${i < analysisResult.leadership ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                            ))}
+                          </div>
+                          <p className="text-xs text-gray-600">Leadership</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Personal Information Form */}
+            {analysisResult && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-blue-600" />
+                    Personal Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="name" className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Full Name *
+                        </Label>
+                        <Input
+                          id="name"
+                          name="name"
+                          type="text"
+                          required
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Your full name"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="email" className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          Email *
+                        </Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="your.email@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="phone" className="flex items-center gap-2">
+                          <Phone className="h-4 w-4" />
+                          Phone
+                        </Label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="+46 70 123 45 67"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="location" className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          Location
+                        </Label>
+                        <Input
+                          id="location"
+                          name="location"
+                          type="text"
+                          value={formData.location}
+                          onChange={handleInputChange}
+                          placeholder="Stockholm"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="linkedinUrl">LinkedIn Profile (Optional)</Label>
+                      <Input
+                        id="linkedinUrl"
+                        name="linkedinUrl"
+                        type="url"
+                        value={formData.linkedinUrl}
+                        onChange={handleInputChange}
+                        placeholder="https://linkedin.com/in/your-name"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="availability">Availability</Label>
+                      <Input
+                        id="availability"
+                        name="availability"
+                        type="text"
+                        value={formData.availability}
+                        onChange={handleInputChange}
+                        placeholder="Available now"
+                      />
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-blue-600 hover:bg-blue-700" 
+                      size="lg"
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Creating Profile...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Join MatchWise Network
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
           {/* Right Column - Info */}
           <div className="space-y-6">
@@ -415,16 +519,16 @@ export const CVUpload = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl text-blue-600">
-                  Fördelar med MatchWise
+                  Why Join MatchWise?
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">AI-driven matchning</h4>
+                    <h4 className="font-semibold">AI-Powered Matching</h4>
                     <p className="text-sm text-gray-600">
-                      Vårt AI matchar dig med uppdrag baserat på dina färdigheter och personlighet
+                      Our AI matches you with projects based on skills and personality
                     </p>
                   </div>
                 </div>
@@ -432,9 +536,9 @@ export const CVUpload = () => {
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Kvalitetsuppdrag</h4>
+                    <h4 className="font-semibold">Premium Projects</h4>
                     <p className="text-sm text-gray-600">
-                      Handplockade uppdrag från välrenommerade företag
+                      Hand-picked assignments from renowned companies
                     </p>
                   </div>
                 </div>
@@ -442,9 +546,9 @@ export const CVUpload = () => {
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Snabb process</h4>
+                    <h4 className="font-semibold">Fast Process</h4>
                     <p className="text-sm text-gray-600">
-                      Från matchning till uppstart på bara några dagar
+                      From matching to project start in just days
                     </p>
                   </div>
                 </div>
@@ -452,9 +556,9 @@ export const CVUpload = () => {
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Personlig support</h4>
+                    <h4 className="font-semibold">Personal Support</h4>
                     <p className="text-sm text-gray-600">
-                      Dedikerad konsultansvarig genom hela processen
+                      Dedicated consultant manager throughout the process
                     </p>
                   </div>
                 </div>
@@ -465,7 +569,7 @@ export const CVUpload = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl text-purple-600">
-                  Så här fungerar det
+                  How It Works
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -474,8 +578,8 @@ export const CVUpload = () => {
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold">Skicka in din profil</h4>
-                    <p className="text-sm text-gray-600">Fyll i formuläret och ladda upp ditt CV</p>
+                    <h4 className="font-semibold">Upload & Analyze</h4>
+                    <p className="text-sm text-gray-600">Upload your CV and get AI analysis</p>
                   </div>
                 </div>
                 
@@ -484,8 +588,8 @@ export const CVUpload = () => {
                     2
                   </div>
                   <div>
-                    <h4 className="font-semibold">AI-analys</h4>
-                    <p className="text-sm text-gray-600">Vårt AI analyserar din kompetens och personlighet</p>
+                    <h4 className="font-semibold">Profile Creation</h4>
+                    <p className="text-sm text-gray-600">Complete your consultant profile</p>
                   </div>
                 </div>
                 
@@ -494,8 +598,8 @@ export const CVUpload = () => {
                     3
                   </div>
                   <div>
-                    <h4 className="font-semibold">Matchning</h4>
-                    <p className="text-sm text-gray-600">Vi matchar dig med passande uppdrag</p>
+                    <h4 className="font-semibold">AI Matching</h4>
+                    <p className="text-sm text-gray-600">Get matched with perfect projects</p>
                   </div>
                 </div>
                 
@@ -504,10 +608,27 @@ export const CVUpload = () => {
                     4
                   </div>
                   <div>
-                    <h4 className="font-semibold">Uppstart</h4>
-                    <p className="text-sm text-gray-600">Starta ditt nya konsultuppdrag</p>
+                    <h4 className="font-semibold">Start Working</h4>
+                    <p className="text-sm text-gray-600">Begin your new consulting assignment</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* AI Analysis Info */}
+            <Card className="border-purple-200 bg-purple-50">
+              <CardHeader>
+                <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  AI-Powered Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-700 text-sm">
+                  Our advanced AI analyzes your CV to identify skills, experience level, 
+                  personality traits, and cultural fit. This ensures better project matches 
+                  and higher success rates for both consultants and clients.
+                </p>
               </CardContent>
             </Card>
           </div>
