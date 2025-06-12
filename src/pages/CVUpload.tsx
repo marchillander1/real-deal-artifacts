@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, MapPin, Briefcase, Brain, Star } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, MapPin, Briefcase, Brain, Star, Linkedin } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -56,23 +56,19 @@ export const CVUpload = () => {
     }
   };
 
-  const analyzeCV = async () => {
-    if (!file) {
-      toast.error('Please select a CV file first');
+  const analyzeLinkedIn = async () => {
+    if (!formData.linkedinUrl) {
+      toast.error('Please enter your LinkedIn URL first');
       return;
     }
 
     setIsAnalyzing(true);
     try {
-      console.log('Starting CV analysis...');
+      console.log('Starting LinkedIn analysis...');
       
-      // Create FormData for file upload
-      const formDataForUpload = new FormData();
-      formDataForUpload.append('file', file);
-
       // Call analysis function
       const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
-        body: formDataForUpload
+        body: { linkedinUrl: formData.linkedinUrl }
       });
 
       if (error) {
@@ -82,8 +78,8 @@ export const CVUpload = () => {
 
       console.log('Analysis result:', data);
 
-      // Mock analysis result for demo (replace with actual API response parsing)
-      const mockAnalysis: AnalysisResult = {
+      // Use the analysis result from the API or fallback to mock data
+      const analysis: AnalysisResult = data?.analysis || {
         skills: ['React', 'TypeScript', 'Node.js', 'Python', 'AWS'],
         experience: '5+ years in software development',
         roles: ['Full-Stack Developer', 'Software Engineer'],
@@ -97,12 +93,12 @@ export const CVUpload = () => {
         leadership: 3
       };
 
-      setAnalysisResult(mockAnalysis);
-      toast.success('CV analysis completed successfully!');
+      setAnalysisResult(analysis);
+      toast.success('LinkedIn analysis completed successfully!');
 
     } catch (error: any) {
-      console.error('CV analysis error:', error);
-      toast.error(error.message || 'Failed to analyze CV');
+      console.error('LinkedIn analysis error:', error);
+      toast.error(error.message || 'Failed to analyze LinkedIn profile');
     } finally {
       setIsAnalyzing(false);
     }
@@ -112,7 +108,7 @@ export const CVUpload = () => {
     e.preventDefault();
     
     if (!analysisResult) {
-      toast.error('Please analyze your CV first');
+      toast.error('Please analyze your LinkedIn profile first');
       return;
     }
 
@@ -258,7 +254,7 @@ export const CVUpload = () => {
               Join the MatchWise Consultant Network
             </h1>
             <p className="text-lg text-gray-600">
-              Upload your CV and get AI-powered analysis to join our exclusive network
+              Enter your LinkedIn profile to get AI-powered analysis and join our exclusive network
             </p>
           </div>
         </div>
@@ -267,254 +263,226 @@ export const CVUpload = () => {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left Column - CV Upload & Analysis */}
+          {/* Left Column - Form */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Upload className="h-5 w-5 text-blue-600" />
-                  CV Upload & Analysis
+                  <Linkedin className="h-5 w-5 text-blue-600" />
+                  LinkedIn Analysis & Profile Creation
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* File Upload */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                  <div className="text-center">
-                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <div className="relative">
-                      <Button type="button" variant="outline" className="relative">
-                        <Upload className="h-4 w-4 mr-2" />
-                        {file ? file.name : 'Choose CV File'}
-                      </Button>
-                      <input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileUpload}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      />
-                    </div>
-                    <p className="text-sm text-gray-500 mt-2">
-                      PDF, DOC or DOCX up to 10MB
-                    </p>
-                  </div>
-                </div>
-
-                {/* Analysis Button */}
-                <Button 
-                  onClick={analyzeCV}
-                  disabled={!file || isAnalyzing}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
-                  size="lg"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Analyzing CV...
-                    </>
-                  ) : (
-                    <>
-                      <Brain className="h-4 w-4 mr-2" />
-                      Analyze with AI
-                    </>
-                  )}
-                </Button>
-
-                {/* Analysis Results */}
-                {analysisResult && (
-                  <Card className="border-green-200 bg-green-50">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-green-800 flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5" />
-                        Analysis Complete
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Key Skills Identified</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {analysisResult.skills.map((skill, index) => (
-                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Experience Level</h4>
-                        <p className="text-gray-700">{analysisResult.experience}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Suitable Roles</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {analysisResult.roles.map((role, index) => (
-                            <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
-                              {role}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                          <div className="flex items-center justify-center mb-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`h-4 w-4 ${i < analysisResult.culturalFit ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-                            ))}
-                          </div>
-                          <p className="text-xs text-gray-600">Cultural Fit</p>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-center mb-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`h-4 w-4 ${i < analysisResult.adaptability ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-                            ))}
-                          </div>
-                          <p className="text-xs text-gray-600">Adaptability</p>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-center mb-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`h-4 w-4 ${i < analysisResult.leadership ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-                            ))}
-                          </div>
-                          <p className="text-xs text-gray-600">Leadership</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Personal Information Form */}
-            {analysisResult && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5 text-blue-600" />
-                    Personal Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="name" className="flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          Full Name *
-                        </Label>
-                        <Input
-                          id="name"
-                          name="name"
-                          type="text"
-                          required
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          placeholder="Your full name"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="email" className="flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
-                          Email *
-                        </Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          required
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="your.email@example.com"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="phone" className="flex items-center gap-2">
-                          <Phone className="h-4 w-4" />
-                          Phone
-                        </Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          placeholder="+46 70 123 45 67"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="location" className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          Location
-                        </Label>
-                        <Input
-                          id="location"
-                          name="location"
-                          type="text"
-                          value={formData.location}
-                          onChange={handleInputChange}
-                          placeholder="Stockholm"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="linkedinUrl">LinkedIn Profile (Optional)</Label>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* LinkedIn URL */}
+                  <div>
+                    <Label htmlFor="linkedinUrl" className="flex items-center gap-2">
+                      <Linkedin className="h-4 w-4" />
+                      LinkedIn Profile URL *
+                    </Label>
+                    <div className="flex gap-2">
                       <Input
                         id="linkedinUrl"
                         name="linkedinUrl"
                         type="url"
+                        required
                         value={formData.linkedinUrl}
                         onChange={handleInputChange}
                         placeholder="https://linkedin.com/in/your-name"
+                        className="flex-1"
                       />
+                      <Button 
+                        type="button"
+                        onClick={analyzeLinkedIn}
+                        disabled={!formData.linkedinUrl || isAnalyzing}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Brain className="h-4 w-4 mr-2" />
+                            Analyze
+                          </>
+                        )}
+                      </Button>
                     </div>
+                  </div>
 
+                  {/* Personal Information */}
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="availability">Availability</Label>
+                      <Label htmlFor="name" className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        Full Name *
+                      </Label>
                       <Input
-                        id="availability"
-                        name="availability"
+                        id="name"
+                        name="name"
                         type="text"
-                        value={formData.availability}
+                        required
+                        value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="Available now"
+                        placeholder="Your full name"
                       />
                     </div>
+                    
+                    <div>
+                      <Label htmlFor="email" className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Email *
+                      </Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="your.email@example.com"
+                      />
+                    </div>
+                  </div>
 
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-blue-600 hover:bg-blue-700" 
-                      size="lg"
-                      disabled={isUploading}
-                    >
-                      {isUploading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Creating Profile...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Join MatchWise Network
-                        </>
-                      )}
-                    </Button>
-                  </form>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="phone" className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        Phone
+                      </Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+46 70 123 45 67"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="location" className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Location
+                      </Label>
+                      <Input
+                        id="location"
+                        name="location"
+                        type="text"
+                        value={formData.location}
+                        onChange={handleInputChange}
+                        placeholder="Stockholm"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="availability">Availability</Label>
+                    <Input
+                      id="availability"
+                      name="availability"
+                      type="text"
+                      value={formData.availability}
+                      onChange={handleInputChange}
+                      placeholder="Available now"
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-blue-600 hover:bg-blue-700" 
+                    size="lg"
+                    disabled={isUploading || !analysisResult}
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Creating Profile...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Join MatchWise Network
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Analysis Results & Info */}
+          <div className="space-y-6">
+            {/* Analysis Results */}
+            {analysisResult && (
+              <Card className="border-green-200 bg-green-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-green-800 flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5" />
+                    LinkedIn Analysis Complete
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Key Skills Identified</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {analysisResult.skills.map((skill, index) => (
+                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Experience Level</h4>
+                    <p className="text-gray-700">{analysisResult.experience}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Suitable Roles</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {analysisResult.roles.map((role, index) => (
+                        <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                          {role}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="flex items-center justify-center mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < analysisResult.culturalFit ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-600">Cultural Fit</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-center mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < analysisResult.adaptability ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-600">Adaptability</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-center mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < analysisResult.leadership ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-600">Leadership</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
-          </div>
 
-          {/* Right Column - Info */}
-          <div className="space-y-6">
             {/* Benefits Card */}
             <Card>
               <CardHeader>
@@ -578,8 +546,8 @@ export const CVUpload = () => {
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold">Upload & Analyze</h4>
-                    <p className="text-sm text-gray-600">Upload your CV and get AI analysis</p>
+                    <h4 className="font-semibold">LinkedIn Analysis</h4>
+                    <p className="text-sm text-gray-600">Enter your LinkedIn URL and get AI analysis</p>
                   </div>
                 </div>
                 
@@ -625,7 +593,7 @@ export const CVUpload = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-purple-700 text-sm">
-                  Our advanced AI analyzes your CV to identify skills, experience level, 
+                  Our advanced AI analyzes your LinkedIn profile to identify skills, experience level, 
                   personality traits, and cultural fit. This ensures better project matches 
                   and higher success rates for both consultants and clients.
                 </p>
