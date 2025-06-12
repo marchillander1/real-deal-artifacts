@@ -347,7 +347,8 @@ export const CVUpload = () => {
     if (!file) errors.push("CV file is required");
     if (!name.trim()) errors.push("Name is required");
     if (!email.trim()) errors.push("Email is required");
-    if (!linkedinUrl.trim()) errors.push("LinkedIn profile is required for comprehensive analysis");
+    if (!email.includes('@')) errors.push("Valid email is required");
+    // Remove LinkedIn requirement for basic submission
     if (!cvAnalysis) errors.push("CV must be analyzed before submission");
     
     setValidationErrors(errors);
@@ -357,16 +358,23 @@ export const CVUpload = () => {
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.type === 'application/pdf' || selectedFile.type.includes('word')) {
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      
+      if (validTypes.includes(selectedFile.type) || selectedFile.name.toLowerCase().endsWith('.pdf') || selectedFile.name.toLowerCase().endsWith('.doc') || selectedFile.name.toLowerCase().endsWith('.docx')) {
         setFile(selectedFile);
+        setValidationErrors([]); // Clear errors when valid file is selected
         // Automatically analyze CV when uploaded
         await analyzeCV(selectedFile);
       } else {
         toast({
           title: "Invalid File Format",
-          description: "Please upload a PDF or Word document.",
+          description: "Please upload a PDF or Word document (.pdf, .doc, .docx).",
           variant: "destructive",
         });
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
     }
   };
@@ -384,40 +392,78 @@ export const CVUpload = () => {
     }
 
     setLoading(true);
+    console.log('Starting CV submission...');
 
     try {
       let linkedInData = linkedInAnalysis;
       
-      // Analyze LinkedIn if URL provided and not already analyzed
+      // Analyze LinkedIn if URL provided and not already analyzed (optional)
       if (linkedinUrl && !linkedInData) {
-        linkedInData = await analyzeLinkedInProfile(linkedinUrl);
+        try {
+          linkedInData = await analyzeLinkedInProfile(linkedinUrl);
+        } catch (error) {
+          console.warn('LinkedIn analysis failed, continuing without it:', error);
+          // Continue with submission even if LinkedIn fails
+        }
       }
 
       // Upload CV file to Supabase Storage first
       let cvFilePath = null;
       if (file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${name.replace(/\s+/g, '-')}.${fileExt}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('cv-uploads')
-          .upload(fileName, file);
+        try {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${name.replace(/\s+/g, '-')}.${fileExt}`;
+          
+          console.log('Uploading file:', fileName);
+          
+          // Check if bucket exists, create if it doesn't
+          const { data: buckets } = await supabase.storage.listBuckets();
+          const bucketExists = buckets?.some(bucket => bucket.name === 'cv-uploads');
+          
+          if (!bucketExists) {
+            console.log('Creating cv-uploads bucket...');
+            const { error: bucketError } = await supabase.storage.createBucket('cv-uploads', {
+              public: false,
+              allowedMimeTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+              fileSizeLimit: 10485760 // 10MB
+            });
+            
+            if (bucketError) {
+              console.error('Bucket creation error:', bucketError);
+            }
+          }
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('cv-uploads')
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
-        if (uploadError) {
-          console.error('File upload error:', uploadError);
-          // Continue without file upload for now
-        } else {
-          cvFilePath = uploadData.path;
+          if (uploadError) {
+            console.error('File upload error:', uploadError);
+            toast({
+              title: "File Upload Warning",
+              description: "CV file could not be uploaded, but your profile will still be saved.",
+              variant: "destructive",
+            });
+          } else {
+            cvFilePath = uploadData.path;
+            console.log('File uploaded successfully:', cvFilePath);
+          }
+        } catch (uploadError) {
+          console.error('File upload failed:', uploadError);
+          // Continue without file upload
         }
       }
 
       // Prepare comprehensive consultant data with type 'new' for network consultants
       const consultantData: any = {
-        name,
-        email,
-        phone,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim() || null,
         type: 'new', // This ensures they appear under "Network Consultants"
-        linkedin_url: linkedinUrl || null,
+        linkedin_url: linkedinUrl.trim() || null,
         location: 'Sweden', // Default location
         availability: 'Available',
         last_active: 'Today',
@@ -430,23 +476,25 @@ export const CVUpload = () => {
 
       // Add comprehensive CV analysis data
       if (cvAnalysis) {
-        consultantData.skills = cvAnalysis.skills;
-        consultantData.experience_years = cvAnalysis.yearsOfExperience;
-        consultantData.roles = cvAnalysis.roles;
-        consultantData.communication_style = cvAnalysis.communicationStyle;
-        consultantData.work_style = cvAnalysis.workStyle;
-        consultantData.values = cvAnalysis.values;
-        consultantData.personality_traits = cvAnalysis.personalityTraits;
-        consultantData.team_fit = cvAnalysis.teamFit;
-        consultantData.cultural_fit = Math.round(cvAnalysis.culturalFit);
-        consultantData.adaptability = Math.round(cvAnalysis.adaptability);
-        consultantData.leadership = Math.round(cvAnalysis.leadership);
+        consultantData.skills = cvAnalysis.skills || [];
+        consultantData.experience_years = cvAnalysis.yearsOfExperience || 0;
+        consultantData.roles = cvAnalysis.roles || [];
+        consultantData.communication_style = cvAnalysis.communicationStyle || '';
+        consultantData.work_style = cvAnalysis.workStyle || '';
+        consultantData.values = cvAnalysis.values || [];
+        consultantData.personality_traits = cvAnalysis.personalityTraits || [];
+        consultantData.team_fit = cvAnalysis.teamFit || '';
+        consultantData.cultural_fit = Math.round(cvAnalysis.culturalFit) || 5;
+        consultantData.adaptability = Math.round(cvAnalysis.adaptability) || 5;
+        consultantData.leadership = Math.round(cvAnalysis.leadership) || 3;
         consultantData.hourly_rate = 850; // Default rate
-        consultantData.rating = cvAnalysis.overallScore;
+        consultantData.rating = cvAnalysis.overallScore || 4.5;
         consultantData.projects_completed = 0; // New consultant
-        consultantData.certifications = cvAnalysis.recommendedCertifications.slice(0, 3);
-        consultantData.languages = cvAnalysis.languageProficiency;
+        consultantData.certifications = cvAnalysis.recommendedCertifications?.slice(0, 3) || [];
+        consultantData.languages = cvAnalysis.languageProficiency || [];
       }
+
+      console.log('Saving consultant data:', consultantData);
 
       // Save consultant data to database
       const { data: dbData, error: dbError } = await supabase
@@ -463,7 +511,12 @@ export const CVUpload = () => {
       console.log('Consultant saved successfully:', dbData);
 
       // Send welcome email
-      await sendWelcomeEmail(email, name);
+      try {
+        await sendWelcomeEmail(email, name);
+      } catch (emailError) {
+        console.warn('Welcome email failed:', emailError);
+        // Don't fail the whole process for email
+      }
 
       // Show success dialog
       setShowSuccessDialog(true);
@@ -480,6 +533,11 @@ export const CVUpload = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+
+      toast({
+        title: "Success! 🎉",
+        description: "Your CV has been successfully submitted and you've been added to our consultant network.",
+      });
 
     } catch (error: any) {
       console.error('Error uploading CV:', error);
@@ -583,7 +641,7 @@ export const CVUpload = () => {
                 <div className="space-y-2">
                   <Label htmlFor="linkedin" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    LinkedIn Profile * (Required for AI Analysis)
+                    LinkedIn Profile (Optional for Enhanced Analysis)
                   </Label>
                   <div className="flex gap-2">
                     <Input
@@ -593,7 +651,6 @@ export const CVUpload = () => {
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
                       className="flex-1"
-                      required
                     />
                     <Button
                       type="button"
@@ -611,7 +668,7 @@ export const CVUpload = () => {
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Required: Let our AI analyze your profile for comprehensive matching
+                    Optional: Add LinkedIn for enhanced personality and communication analysis
                   </p>
                   {analyzingLinkedIn && (
                     <div className="p-3 bg-purple-50 border border-purple-200 rounded-md">
@@ -669,12 +726,12 @@ export const CVUpload = () => {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={loading || !cvAnalysis || !linkedinUrl}
+                  disabled={loading || !cvAnalysis}
                 >
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
+                      Submitting...
                     </>
                   ) : (
                     'Submit Application'
