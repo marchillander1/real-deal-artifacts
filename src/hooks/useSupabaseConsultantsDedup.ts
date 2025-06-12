@@ -74,7 +74,7 @@ export const useSupabaseConsultantsDedup = () => {
         cv_file_path: consultant.cv,
         communication_style: consultant.communicationStyle,
       })
-      .eq('id', consultant.id); // consultant.id is now a string
+      .eq('id', String(consultant.id)); // Ensure consultant.id is treated as string
 
     if (error) throw error;
 
