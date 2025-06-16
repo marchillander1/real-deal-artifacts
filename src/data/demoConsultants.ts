@@ -4,206 +4,199 @@ import { Consultant } from '@/types/consultant';
 export const demoConsultants: Consultant[] = [
   {
     id: 1,
-    name: "Anna Svensson",
-    role: "Senior Frontend Developer",
-    skills: ["React", "TypeScript", "Node.js", "GraphQL", "AWS"],
-    experience: "8 years",
-    rate: "950 SEK/hour",
-    availability: "Available",
-    location: "Stockholm",
-    rating: 4.9,
-    profileImage: "/placeholder.svg",
-    type: "existing",
-    email: "anna.svensson@example.com",
+    name: "Erik Andersson",
+    email: "erik.andersson@example.com",
     phone: "+46 70 123 4567",
-    linkedinUrl: "https://linkedin.com/in/annasvensson",
-    
-    // CV Analysis
+    skills: ["React", "TypeScript", "Node.js", "AWS", "GraphQL"],
+    experience: 8,
+    hourlyRate: 950,
+    availability: "available",
+    location: "Stockholm",
+    type: "existing",
+    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    bio: "Senior Full-Stack Developer with expertise in React and Node.js",
+    linkedinUrl: "https://linkedin.com/in/erik-andersson",
+    portfolioUrl: "https://erikandersson.dev",
+    languages: ["Swedish", "English"],
     cvAnalysis: {
-      technicalSkills: {
-        frontend: ["React", "Vue.js", "Angular", "TypeScript", "JavaScript", "HTML5", "CSS3", "Sass"],
-        backend: ["Node.js", "Express", "GraphQL", "REST APIs"],
+      personalInfo: {
+        name: "Erik Andersson",
+        email: "erik.andersson@example.com",
+        phone: "+46 70 123 4567",
+        location: "Stockholm, Sweden",
+        linkedinProfile: "https://linkedin.com/in/erik-andersson",
+        githubProfile: "https://github.com/erikandersson",
+        portfolio: "https://erikandersson.dev",
+        languages: ["Swedish", "English", "German"]
+      },
+      technicalSkillsAnalysis: {
+        primarySkills: ["React", "TypeScript", "Node.js"],
+        secondarySkills: ["AWS", "GraphQL", "Docker"],
+        frameworks: ["React", "Express.js", "Next.js"],
         databases: ["PostgreSQL", "MongoDB", "Redis"],
-        cloud: ["AWS", "Docker", "Kubernetes"],
-        tools: ["Git", "Webpack", "Jest", "Cypress"]
+        tools: ["Git", "Docker", "Kubernetes", "Jenkins"],
+        certifications: ["AWS Solutions Architect", "React Certified Developer"],
+        skillLevel: "Senior",
+        yearsOfExperience: 8
       },
-      personalityTraits: {
-        problemSolvingApproach: "Analytisk och detaljorienterad",
-        communicationStyle: "Direkt och tydlig kommunikation",
-        workStyle: "Agile/Scrum-fokuserad med stark betoning på kvalitet",
-        adaptability: "Stark problemlösningsförmåga",
-        initiativeTaking: "Proaktiv och initiativtagande",
-        attentionToDetail: "Fokuserad på kodkvalitet och best practices",
-        continuousLearning: "Teamorienterad och samarbetsvillig"
-      },
-      workStyle: "Agile/Scrum-fokuserad med stark betoning på kvalitet och kontinuerlig förbättring. Föredrar kollaborativa miljöer med tydlig kommunikation.",
-      communicationStyle: "Direkt och tydlig kommunikation. Bra på att förklara tekniska koncept för icke-tekniska intressenter.",
-      leadershipExperience: "Lett utvecklingsteam på 4-5 personer i 2 år. Mentor för junior utvecklare.",
-      achievements: [
-        "Lett migration från legacy system till modern React-arkitektur",
-        "Implementerade CI/CD pipeline som minskade deployment-tid med 70%",
-        "Utvecklade designsystem som används av 3 produktteam"
+      workExperience: [
+        {
+          company: "Tech Solutions AB",
+          position: "Senior Full-Stack Developer",
+          duration: "2019-2024",
+          responsibilities: ["Led development of React applications", "Mentored junior developers"],
+          technologies: ["React", "Node.js", "AWS"]
+        }
       ],
-      education: {
-        formal: [
-          {
-            degree: "MSc Computer Science",
-            institution: "KTH Royal Institute of Technology",
-            year: "2015"
-          }
-        ],
-        certifications: ["AWS Certified Developer", "React Professional Certificate"]
+      education: [
+        {
+          institution: "KTH Royal Institute of Technology",
+          degree: "Master of Science in Computer Science",
+          year: "2016",
+          gpa: "4.2/5.0"
+        }
+      ],
+      projects: [
+        {
+          name: "E-commerce Platform",
+          description: "Built scalable e-commerce solution",
+          technologies: ["React", "Node.js", "PostgreSQL"],
+          role: "Lead Developer"
+        }
+      ],
+      softSkills: ["Leadership", "Problem-solving", "Communication", "Team collaboration"],
+      personalityTraits: {
+        communicationStyle: "Direct and collaborative",
+        workStyle: "Agile-focused with strong problem-solving",
+        teamFit: 4.8,
+        adaptability: 4.6,
+        leadership: 4.2
       },
-      languages: ["Svenska (modersmål)", "Engelska (flyt)", "Tyska (grundläggande)"],
-      interests: ["Open source bidrag", "Tech meetups", "UX/UI design", "Hållbar utveckling"]
-    },
-
-    // LinkedIn Analysis  
-    linkedinAnalysis: {
-      communicationStyle: "Erfaren frontend-utvecklare med passion för att skapa användarvänliga och performanta webbapplikationer",
-      leadershipStyle: "Konsekvent karriärutveckling från Junior till Senior på 8 år med ökande ansvar",
-      culturalFit: 5,
-      leadership: 4,
-      innovation: 4,
-      problemSolving: "Starkt nätverk inom tech-communityn med 500+ kontakter",
-      businessAcumen: "Aktiv på LinkedIn med regelbundna posts om frontend-utveckling",
-      teamCollaboration: "Anna är en exceptionell utvecklare med djup teknisk kunskap - Maria Lindqvist",
-      adaptability: 5
+      improvementAreas: ["DevOps automation", "Cloud architecture patterns"]
     }
   },
-  
   {
     id: 2,
-    name: "Erik Johansson",
-    role: "Full-Stack Developer", 
-    skills: ["Python", "Django", "React", "PostgreSQL", "Docker"],
-    experience: "5 years",
-    rate: "750 SEK/hour",
-    availability: "Partially Available",
-    location: "Göteborg",
-    rating: 4.7,
-    profileImage: "/placeholder.svg",
-    type: "existing",
-    email: "erik.johansson@example.com",
+    name: "Maria Lindqvist",
+    email: "maria.lindqvist@example.com",
     phone: "+46 70 234 5678",
-    linkedinUrl: "https://linkedin.com/in/erikjohansson",
-    
+    skills: ["Vue.js", "JavaScript", "CSS", "Figma", "UX Design"],
+    experience: 6,
+    hourlyRate: 850,
+    availability: "partially_available",
+    location: "Göteborg",
+    type: "existing",
+    profileImage: "https://images.unsplash.com/photo-1494790108755-2616b612b765?w=150&h=150&fit=crop&crop=face",
+    bio: "Senior Frontend Developer with strong UX focus",
+    linkedinUrl: "https://linkedin.com/in/maria-lindqvist",
+    portfolioUrl: "https://marialindqvist.design",
+    languages: ["Swedish", "English", "Danish"],
     cvAnalysis: {
-      technicalSkills: {
-        backend: ["Python", "Django", "Flask", "FastAPI", "PostgreSQL", "MongoDB"],
-        frontend: ["React", "JavaScript", "TypeScript", "HTML5", "CSS3"],
-        cloud: ["Docker", "AWS", "GCP"],
-        tools: ["Git", "Jenkins", "Pytest", "Postman"]
+      personalInfo: {
+        name: "Maria Lindqvist",
+        email: "maria.lindqvist@example.com",
+        phone: "+46 70 234 5678",
+        location: "Göteborg, Sweden",
+        linkedinProfile: "https://linkedin.com/in/maria-lindqvist",
+        portfolio: "https://marialindqvist.design",
+        languages: ["Swedish", "English", "Danish"]
       },
-      personalityTraits: {
-        problemSolvingApproach: "Systematisk och metodisk approach",
-        communicationStyle: "Lugn och reflekterande kommunikationsstil",
-        workStyle: "Test-driven development med fokus på ren kod",
-        adaptability: "Självständig men bra teamspelare",
-        initiativeTaking: "Nyfiken och lärvillig",
-        attentionToDetail: "Stark fokus på kod-kvalitet och testning",
-        continuousLearning: "Balanserad mellan frontend och backend"
+      technicalSkillsAnalysis: {
+        primarySkills: ["Vue.js", "JavaScript", "CSS"],
+        secondarySkills: ["Figma", "Adobe XD", "Sass"],
+        frameworks: ["Vue.js", "Nuxt.js", "Vuetify"],
+        tools: ["Figma", "Adobe Creative Suite", "Git", "Webpack"],
+        skillLevel: "Senior",
+        yearsOfExperience: 6
       },
-      workStyle: "Test-driven development med fokus på ren, underhållbar kod. Föredrar iterativ utveckling med kontinuerlig feedback.",
-      communicationStyle: "Lugn och reflekterande kommunikationsstil. Bra på att lyssna och ställa rätt frågor.",
-      leadershipExperience: "Teknisk lead för mindre projekt. Mentor för praktikanter.",
-      achievements: [
-        "Byggde skalbar API som hanterar 100k+ requests/dag",
-        "Implementerade automatiserad testing som minskade bugs med 60%",
-        "Utvecklade internal tools som sparar 10h/vecka för teamet"
+      workExperience: [
+        {
+          company: "Design Studio Nordic",
+          position: "Senior Frontend Developer",
+          duration: "2018-2024",
+          responsibilities: ["UI/UX design and development", "Client consultation"],
+          technologies: ["Vue.js", "CSS", "Figma"]
+        }
       ],
-      education: {
-        formal: [
-          {
-            degree: "BSc Software Engineering",
-            institution: "Chalmers University",
-            year: "2018"
-          }
-        ],
-        certifications: ["AWS Solutions Architect Associate", "Python Professional Certificate"]
+      education: [
+        {
+          institution: "Chalmers University of Technology",
+          degree: "Bachelor in Interaction Design",
+          year: "2018"
+        }
+      ],
+      softSkills: ["Creative thinking", "User empathy", "Detail-oriented", "Client communication"],
+      personalityTraits: {
+        communicationStyle: "Diplomatic and detail-oriented",
+        workStyle: "Design-focused with user-centric approach",
+        teamFit: 4.3,
+        adaptability: 4.5,
+        leadership: 3.8
       },
-      languages: ["Svenska (modersmål)", "Engelska (flyt)", "Spanska (konversation)"],
-      interests: ["Machine Learning", "Hiking", "Photography", "Sustainable tech"]
-    },
-
-    linkedinAnalysis: {
-      communicationStyle: "Full-stack utvecklare med stark passion för backend-utveckling och systemarkitektur",
-      leadershipStyle: "Steady growth från trainee till senior på 5 år",
-      culturalFit: 4,
-      leadership: 3,
-      innovation: 4,
-      problemSolving: "Växande nätverk med 300+ kontakter",
-      businessAcumen: "Aktiv i Python- och Django-communities",
-      teamCollaboration: "Erik levererar alltid kod av högsta kvalitet - Anna Petersson",
-      adaptability: 4
+      improvementAreas: ["Backend development", "Mobile app development"]
     }
   },
-
   {
     id: 3,
-    name: "Maria Lindqvist",
-    role: "DevOps Engineer",
-    skills: ["Kubernetes", "Terraform", "AWS", "Docker", "Python"],
-    experience: "6 years", 
-    rate: "850 SEK/hour",
-    availability: "Available",
-    location: "Stockholm",
-    rating: 4.8,
-    profileImage: "/placeholder.svg",
-    type: "existing",
-    email: "maria.lindqvist@example.com",
+    name: "Johan Svensson",
+    email: "johan.svensson@example.com",
     phone: "+46 70 345 6789",
-    linkedinUrl: "https://linkedin.com/in/marialindqvist",
-    
+    skills: ["Python", "Django", "PostgreSQL", "Docker", "AWS"],
+    experience: 10,
+    hourlyRate: 1100,
+    availability: "available",
+    location: "Malmö",
+    type: "existing",
+    profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    bio: "Backend specialist with extensive Python and cloud experience",
+    linkedinUrl: "https://linkedin.com/in/johan-svensson",
+    githubUrl: "https://github.com/johansvensson",
+    languages: ["Swedish", "English"],
     cvAnalysis: {
-      technicalSkills: {
-        cloud: ["AWS", "GCP", "Azure", "Kubernetes", "Docker", "Terraform"],
-        automation: ["Ansible", "Jenkins", "GitLab CI", "GitHub Actions"],
-        monitoring: ["Prometheus", "Grafana", "ELK Stack", "DataDog"],
-        scripting: ["Python", "Bash", "PowerShell"],
-        databases: ["PostgreSQL", "MongoDB", "Redis"]
+      personalInfo: {
+        name: "Johan Svensson",
+        email: "johan.svensson@example.com",
+        phone: "+46 70 345 6789",
+        location: "Malmö, Sweden",
+        linkedinProfile: "https://linkedin.com/in/johan-svensson",
+        githubProfile: "https://github.com/johansvensson",
+        languages: ["Swedish", "English"]
       },
-      personalityTraits: {
-        problemSolvingApproach: "Extremt strukturerad och organiserad",
-        communicationStyle: "Tydlig och faktabaserad kommunikation",
-        workStyle: "Infrastructure as Code-fokuserad",
-        adaptability: "Stark fokus på automation och effektivitet",
-        initiativeTaking: "Proaktiv problemlösare",
-        attentionToDetail: "Säkerhetsfokuserad mindset",
-        continuousLearning: "Utmärkt under press och vid incidenter"
+      technicalSkillsAnalysis: {
+        primarySkills: ["Python", "Django", "PostgreSQL"],
+        secondarySkills: ["Docker", "AWS", "Redis"],
+        frameworks: ["Django", "FastAPI", "Flask"],
+        databases: ["PostgreSQL", "MongoDB", "Redis"],
+        tools: ["Docker", "Kubernetes", "Git", "Jenkins"],
+        certifications: ["AWS Solutions Architect Professional"],
+        skillLevel: "Expert",
+        yearsOfExperience: 10
       },
-      workStyle: "Infrastructure as Code-fokuserad med stark betoning på säkerhet och skalbarhet. Föredrar automatiserade lösningar över manuella processer.",
-      communicationStyle: "Tydlig och faktabaserad kommunikation. Excellent på att dokumentera och dela kunskap.",
-      leadershipExperience: "DevOps lead för infrastruktur-team på 6 personer. Lett flera cloud migration-projekt.",
-      achievements: [
-        "Ledde migration till Kubernetes som resulterade i 40% kostnadsbesparingar",
-        "Implementerade CI/CD pipeline som minskade deployment-tid från 2h till 10min",
-        "Byggde monitoring-system som förbättrade incident response-tid med 75%"
+      workExperience: [
+        {
+          company: "CloudTech Solutions",
+          position: "Senior Backend Developer",
+          duration: "2014-2024",
+          responsibilities: ["System architecture", "Performance optimization"],
+          technologies: ["Python", "Django", "AWS"]
+        }
       ],
-      education: {
-        formal: [
-          {
-            degree: "MSc Systems Engineering",
-            institution: "Linköping University",
-            year: "2017"
-          }
-        ],
-        certifications: ["AWS Solutions Architect Professional", "Certified Kubernetes Administrator", "Terraform Associate"]
+      education: [
+        {
+          institution: "Lund University",
+          degree: "Master of Science in Computer Science",
+          year: "2014"
+        }
+      ],
+      softSkills: ["System thinking", "Performance optimization", "Mentoring", "Architecture design"],
+      personalityTraits: {
+        communicationStyle: "Technical and precise",
+        workStyle: "Architecture-focused with performance mindset",
+        teamFit: 4.6,
+        adaptability: 4.4,
+        leadership: 4.7
       },
-      languages: ["Svenska (modersmål)", "Engelska (flyt)", "Norska (flyt)"],
-      interests: ["Cloud architecture", "Automation", "Security", "Mentoring women in tech"]
-    },
-
-    linkedinAnalysis: {
-      communicationStyle: "DevOps engineer med djup expertis inom cloud infrastructure och automation",
-      leadershipStyle: "Snabb utveckling från system administrator till senior DevOps på 6 år",
-      culturalFit: 5,
-      leadership: 5,
-      innovation: 4,
-      problemSolving: "Starkt nätverk inom DevOps och cloud communities med 450+ kontakter",
-      businessAcumen: "Passionate om att bygga stabila, skalbara system",
-      teamCollaboration: "Maria är den bästa DevOps engineer jag arbetat med - Peter Nilsson, CTO",
-      adaptability: 5
+      improvementAreas: ["Frontend frameworks", "Mobile development"]
     }
   }
 ];

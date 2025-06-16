@@ -10,7 +10,6 @@ import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import { PricingAuth } from "./components/PricingAuth";
-import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import { CVUpload } from "./pages/CVUpload";
@@ -38,17 +37,6 @@ function App() {
                   <AuthGuard>
                     <Navbar />
                     <Index />
-                  </AuthGuard>
-                } />
-                <Route path="/dashboard" element={
-                  <AuthGuard>
-                    <Navbar />
-                    <Dashboard 
-                      assignments={[]}
-                      onMatch={() => {}}
-                      onAssignmentCreated={() => {}}
-                      onFileUpload={() => {}}
-                    />
                   </AuthGuard>
                 } />
                 
