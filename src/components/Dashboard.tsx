@@ -23,9 +23,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { consultants } = useSupabaseConsultantsDedup();
 
-  // Dashboard stats - using real consultant count from Supabase
-  const totalConsultants = consultants.length;
-  const activeAssignments = assignments.length || 2;
+  // Dashboard stats - using real consultant count from Supabase, only network consultants
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'existing');
+  const totalConsultants = networkConsultants.length;
   const successfulMatches = 156;
   const avgMatchTime = "12 seconds";
 
@@ -72,7 +72,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           <p className="text-gray-600 mb-6">Real-time insights and performance metrics</p>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <Card className="bg-white border border-gray-200">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -81,21 +81,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">{totalConsultants}</div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Active Consultants</div>
+                <div className="text-sm font-medium text-gray-900 mb-1">Network Consultants</div>
                 <div className="text-sm text-green-600">↗ +{Math.max(1, Math.floor(totalConsultants * 0.15))} this week</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Briefcase className="h-6 w-6 text-green-600" />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{activeAssignments}</div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Open Assignments</div>
-                <div className="text-sm text-green-600">↗ +5 today</div>
               </CardContent>
             </Card>
 
