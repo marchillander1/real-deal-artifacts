@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Code, Users, Brain, DollarSign, TrendingUp, Award, Target, Star, CheckCircle2, Loader2, Zap, Trophy, Lightbulb, BookOpen, Briefcase, Building, Rocket, TrendingDown, Clock, ArrowUp, AlertTriangle, CheckCircle, XCircle, Eye, MessageSquare, UserCheck, ThumbsUp, TrendingDown as Perception } from 'lucide-react';
+import { Code, Users, Brain, DollarSign, TrendingUp, Award, Target, Star, CheckCircle2, Loader2, Zap, Trophy, Lightbulb, BookOpen, Briefcase, Building, Rocket, TrendingDown, Clock, ArrowUp, AlertTriangle, CheckCircle, XCircle, Eye, MessageSquare, UserCheck, ThumbsUp, TrendingDown as Perception, FileText, User, Sparkles } from 'lucide-react';
 
 interface AnalysisResultsProps {
   analysisResults: any;
@@ -84,6 +83,132 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             Comprehensive professional profile with technical assessment and optimization guidance
           </CardDescription>
         </CardHeader>
+      </Card>
+
+      {/* Personalized Improvement Tips - NEW SECTION */}
+      <Card className="shadow-lg border-emerald-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-emerald-500" />
+            Personalized Improvement Tips
+          </CardTitle>
+          <CardDescription>
+            Based on your CV and LinkedIn analysis, here are specific recommendations to enhance your profile
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* CV Improvements */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-5 w-5 text-blue-500" />
+              <h4 className="text-lg font-semibold text-gray-900">CV Improvements</h4>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded uppercase">HÖG</span>
+                  <span className="font-semibold text-blue-900">Tekniska färdigheter</span>
+                </div>
+                <p className="text-gray-700 mb-3">
+                  Lägg till en dedikerad "Tekniska färdigheter"-sektion med tydliga färdighetsnivåer (Expert, Skicklig, Bekant).
+                </p>
+                <div className="bg-blue-100 p-3 rounded border">
+                  <span className="text-sm font-medium text-blue-800">Action:</span>
+                  <span className="text-sm text-blue-700 ml-2">
+                    Skapa sektioner: "Expert: [språk]", "Skicklig: [ramverk]", "Verktyg: [programvara/plattformar]"
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded uppercase">HÖG</span>
+                  <span className="font-semibold text-blue-900">Arbetslivserfarenhet</span>
+                </div>
+                <p className="text-gray-700 mb-3">
+                  Utvidga din arbetslivserfarenhet med specifika framgångar, använda teknologier och mätbara resultat.
+                </p>
+                <div className="bg-blue-100 p-3 rounded border">
+                  <span className="text-sm font-medium text-blue-800">Action:</span>
+                  <span className="text-sm text-blue-700 ml-2">
+                    För varje roll, lägg till: Använda teknologier, Nyckelframgångar med siffror, Teamstorlek om du lett människor
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* LinkedIn Improvements */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <User className="h-5 w-5 text-purple-500" />
+              <h4 className="text-lg font-semibold text-gray-900">LinkedIn Improvements</h4>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-r-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-1 bg-purple-200 text-purple-800 text-xs font-medium rounded uppercase">HÖG</span>
+                  <span className="font-semibold text-purple-900">LinkedIn-profil</span>
+                </div>
+                <p className="text-gray-700 mb-3">
+                  Se till att din LinkedIn-profil är offentlig och komplett.
+                </p>
+                <div className="bg-purple-100 p-3 rounded border">
+                  <span className="text-sm font-medium text-purple-800">Action:</span>
+                  <span className="text-sm text-purple-700 ml-2">
+                    Uppdatera: Professionell rubrik, Detaljerad arbetsserfarenhet, Färdighetssektion, Offentliga profilinställningar
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Overall Strategy */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Target className="h-5 w-5 text-green-500" />
+              <h4 className="text-lg font-semibold text-gray-900">Overall Strategy</h4>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="h-4 w-4 text-green-600" />
+                  <span className="px-2 py-1 bg-green-200 text-green-800 text-xs font-medium rounded uppercase">HÖG</span>
+                  <span className="font-semibold text-green-900">Konsekvent varumärke</span>
+                </div>
+                <p className="text-gray-700 mb-3">
+                  Se till att ditt CV och LinkedIn berättar samma professionella historia.
+                </p>
+                <div className="bg-green-100 p-3 rounded border">
+                  <span className="text-sm font-medium text-green-800">Action:</span>
+                  <span className="text-sm text-green-700 ml-2">
+                    Anpassa: Jobbtitlar och datum, Färdigheter och teknologier, Professionell sammanfattning, Nyckelframgångar
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="h-4 w-4 text-green-600" />
+                  <span className="px-2 py-1 bg-green-200 text-green-800 text-xs font-medium rounded uppercase">HÖG</span>
+                  <span className="font-semibold text-green-900">Konsultpositionering</span>
+                </div>
+                <p className="text-gray-700 mb-3">
+                  Positionera dig tydligt som konsult genom att betona projektbaserat arbete.
+                </p>
+                <div className="bg-green-100 p-3 rounded border">
+                  <span className="text-sm font-medium text-green-800">Action:</span>
+                  <span className="text-sm text-green-700 ml-2">
+                    Framhäv: Konsulterfarenhet, Kundresultat, Specialiserade färdigheter, Tillgänglighet för uppdrag
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       {/* Professional Perception Analysis - NEW */}
