@@ -84,14 +84,13 @@ serve(async (req) => {
 
     console.log(`Found ${consultants.length} consultants to match against`);
 
-    // Calculate matches for each consultant
-    const matches = [];
-    for (const consultant of consultants) {
+    // Calculate matches for each consultant - optimized for speed
+    const matches = consultants.map(consultant => {
       const matchScore = calculateMatchScore(consultant, assignment);
       const humanFactorsScore = calculateHumanFactors(consultant);
-      const coverLetter = await generateCoverLetter(consultant, assignment, matchScore);
+      const coverLetter = generateQuickCoverLetter(consultant, assignment, matchScore);
 
-      const match = {
+      return {
         id: crypto.randomUUID(),
         consultant_id: consultant.id,
         assignment_id: assignmentId,
@@ -106,25 +105,23 @@ serve(async (req) => {
         cover_letter: coverLetter,
         status: 'pending'
       };
+    });
 
-      matches.push(match);
+    // Save matches to database (only for real assignments, not demo)
+    if (!assignmentId.startsWith('demo-')) {
+      const { error: insertError } = await supabase
+        .from('matches')
+        .insert(matches);
 
-      // Save match to database (only for real assignments, not demo)
-      if (!assignmentId.startsWith('demo-')) {
-        const { error: insertError } = await supabase
-          .from('matches')
-          .insert(match);
-
-        if (insertError) {
-          console.error('Error saving match:', insertError);
-        }
+      if (insertError) {
+        console.error('Error saving matches:', insertError);
       }
     }
 
     // Sort by match score
     matches.sort((a, b) => b.match_score - a.match_score);
 
-    console.log(`Generated ${matches.length} matches`);
+    console.log(`Generated ${matches.length} matches in optimized mode`);
 
     return new Response(JSON.stringify({
       success: true,
@@ -183,64 +180,8 @@ function getMatchedSkills(consultantSkills: string[], requiredSkills: string[]):
   );
 }
 
-async function generateCoverLetter(consultant: any, assignment: any, matchScore: number): Promise<string> {
-  const openAiKey = Deno.env.get('OPENAI_API_KEY');
-  
-  if (!openAiKey) {
-    return generateFallbackCoverLetter(consultant, assignment, matchScore);
-  }
-
-  try {
-    const prompt = `Skriv ett personligt motivationsbrev för ${consultant.name} som ${consultant.roles?.[0] || 'Konsult'} för positionen "${assignment.title}" på ${assignment.company}.
-
-Konsultens information:
-- Namn: ${consultant.name}
-- Erfarenhet: ${consultant.experience_years || 0} år
-- Kompetenser: ${(consultant.skills || []).join(', ')}
-- Betyg: ${consultant.rating || 5}/5
-
-Uppdragsinformation:
-- Titel: ${assignment.title}
-- Företag: ${assignment.company}
-- Bransch: ${assignment.industry}
-- Krav: ${(assignment.requiredSkills || []).join(', ')}
-- Beskrivning: ${assignment.description}
-
-Match score: ${matchScore}%
-
-Skriv ett professionellt och personligt motivationsbrev på svenska (max 300 ord) som betonar varför konsulten är perfekt för uppdraget.`;
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'Du är en expert på att skriva motivationsbrev för konsulter. Skriv professionellt och övertygande.' },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 500,
-        temperature: 0.8
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-
-  } catch (error) {
-    console.error('Error generating cover letter with OpenAI:', error);
-    return generateFallbackCoverLetter(consultant, assignment, matchScore);
-  }
-}
-
-function generateFallbackCoverLetter(consultant: any, assignment: any, matchScore: number): string {
+// Quick cover letter generation without OpenAI API
+function generateQuickCoverLetter(consultant: any, assignment: any, matchScore: number): string {
   const matchedSkills = getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []);
   
   return `Hej ${assignment.company}!
