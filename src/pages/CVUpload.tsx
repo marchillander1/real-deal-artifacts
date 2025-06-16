@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,7 +41,7 @@ export const CVUpload = () => {
         startAnalysis();
       }
     }
-  }, [file?.name, file?.size, file?.lastModified]); // Only depend on file properties, not state objects
+  }, [file]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -142,24 +141,17 @@ export const CVUpload = () => {
 
           if (linkedinError) {
             console.error('LinkedIn analysis error:', linkedinError);
-            toast.error('LinkedIn analysis failed - this is required for comprehensive analysis');
-            throw new Error(`LinkedIn analysis failed: ${linkedinError.message}`);
-          }
-
-          if (linkedinData?.analysis) {
+            // Don't throw error, continue with CV analysis only
+            console.warn('Continuing with CV analysis only - LinkedIn analysis failed');
+          } else if (linkedinData?.analysis) {
             linkedinAnalysis = linkedinData.analysis;
             console.log('LinkedIn analysis completed with comprehensive soft skills:', linkedinAnalysis);
-          } else {
-            console.warn('LinkedIn analysis returned no data');
           }
         } catch (linkedinErr) {
           console.error('LinkedIn analysis failed:', linkedinErr);
-          toast.error('LinkedIn analysis failed - this is required for comprehensive analysis');
-          throw linkedinErr;
+          // Don't throw error, continue with CV analysis only
+          console.warn('Continuing with CV analysis only');
         }
-      } else {
-        toast.error('LinkedIn profile is required for comprehensive professional analysis');
-        throw new Error('LinkedIn profile is required for comprehensive analysis');
       }
 
       setAnalysisProgress(100);
@@ -172,7 +164,7 @@ export const CVUpload = () => {
       
       setAnalysisResults(completeAnalysis);
       
-      toast.success('🎉 Comprehensive analysis completed! Your complete professional profile has been analyzed. Review and join our network.');
+      toast.success('🎉 Comprehensive analysis completed! Review your complete professional profile and join our network.');
 
     } catch (error) {
       console.error('Analysis error:', error);
@@ -193,12 +185,7 @@ export const CVUpload = () => {
     }
 
     if (!analysisResults) {
-      toast.error('Please wait for comprehensive analysis to complete');
-      return;
-    }
-
-    if (!analysisResults.linkedinAnalysis) {
-      toast.error('LinkedIn analysis is required for comprehensive professional analysis');
+      toast.error('Please wait for analysis to complete');
       return;
     }
 
@@ -731,7 +718,7 @@ export const CVUpload = () => {
                 <Button 
                   type="submit" 
                   className="w-full h-14 text-lg bg-purple-600 hover:bg-purple-700" 
-                  disabled={isUploading || !file || !email || !fullName || !linkedinUrl || !agreeToTerms || isAnalyzing || !analysisResults}
+                  disabled={isUploading || !file || !email || !fullName || !agreeToTerms || isAnalyzing}
                 >
                   {isUploading ? (
                     <>
@@ -756,9 +743,9 @@ export const CVUpload = () => {
                   )}
                 </Button>
                 
-                {!linkedinUrl && file && (
-                  <p className="text-center text-sm text-red-500">
-                    LinkedIn profile is required for comprehensive professional analysis
+                {!analysisResults && file && !isAnalyzing && (
+                  <p className="text-center text-sm text-orange-500">
+                    Waiting for analysis to complete before you can submit
                   </p>
                 )}
               </form>
