@@ -1,5 +1,4 @@
 
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.10';
@@ -17,7 +16,12 @@ const demoAssignments = [
     company: "TechCorp AB",
     industry: "E-handel",
     requiredSkills: ["React", "TypeScript", "Node.js"],
-    description: "Vi söker en erfaren React-utvecklare för att bygga vår e-handelsplattform"
+    description: "Vi söker en erfaren React-utvecklare för att bygga vår e-handelsplattform",
+    teamCulture: "Agile and collaborative",
+    desiredCommunicationStyle: "Direct and clear",
+    requiredValues: ["Innovation", "Quality", "Teamwork"],
+    leadershipLevel: 3,
+    teamDynamics: "Small, close-knit team"
   },
   {
     id: "demo-2", 
@@ -25,7 +29,12 @@ const demoAssignments = [
     company: "StartupXYZ",
     industry: "Fintech",
     requiredSkills: ["Vue.js", "Python", "AWS"],
-    description: "Utveckla vår fintech-plattform med modern teknologi"
+    description: "Utveckla vår fintech-plattform med modern teknologi",
+    teamCulture: "Fast-paced and innovative",
+    desiredCommunicationStyle: "Collaborative and proactive",
+    requiredValues: ["Excellence", "Innovation", "Transparency"],
+    leadershipLevel: 4,
+    teamDynamics: "Cross-functional team"
   }
 ];
 
@@ -85,22 +94,36 @@ serve(async (req) => {
 
     console.log(`Found ${consultants.length} consultants to match against`);
 
-    // Calculate matches for each consultant using Groq AI
+    // Calculate matches for each consultant using enhanced scoring
     const matches = [];
     for (const consultant of consultants) {
-      const matchScore = calculateMatchScore(consultant, assignment);
-      const humanFactorsScore = calculateHumanFactors(consultant);
+      const technicalScore = calculateTechnicalMatch(consultant, assignment);
+      const personalityScore = calculatePersonalityMatch(consultant, assignment);
+      const communicationScore = calculateCommunicationMatch(consultant, assignment);
+      const valuesScore = calculateValuesAlignment(consultant, assignment);
+      const culturalScore = calculateCulturalFit(consultant, assignment);
+      
+      // Combined match score with weighted factors
+      const matchScore = Math.round(
+        technicalScore * 0.4 +      // 40% technical skills
+        personalityScore * 0.25 +    // 25% personality fit
+        communicationScore * 0.15 +  // 15% communication style
+        valuesScore * 0.15 +         // 15% values alignment
+        culturalScore * 0.05         // 5% cultural fit
+      );
+
+      const humanFactorsScore = Math.round((personalityScore + communicationScore + valuesScore + culturalScore) / 4);
       const coverLetter = await generateCoverLetterWithGroq(consultant, assignment, matchScore);
 
       const match = {
         id: crypto.randomUUID(),
         consultant_id: consultant.id,
         assignment_id: assignmentId,
-        match_score: matchScore,
+        match_score: Math.min(matchScore, 98),
         human_factors_score: humanFactorsScore,
-        cultural_match: Math.floor(Math.random() * 2) + 4, // 4-5
-        communication_match: Math.floor(Math.random() * 2) + 4, // 4-5
-        values_alignment: Math.floor(Math.random() * 2) + 4, // 4-5
+        cultural_match: culturalScore,
+        communication_match: communicationScore,
+        values_alignment: valuesScore,
         response_time_hours: Math.floor(Math.random() * 24) + 1,
         matched_skills: getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []),
         estimated_savings: Math.floor(Math.random() * 50000) + 10000,
@@ -125,11 +148,11 @@ serve(async (req) => {
     // Sort by match score
     matches.sort((a, b) => b.match_score - a.match_score);
 
-    console.log(`Generated ${matches.length} matches with Groq AI`);
+    console.log(`Generated ${matches.length} matches with enhanced personality scoring`);
 
     return new Response(JSON.stringify({
       success: true,
-      message: `AI matching complete! Found ${matches.length} potential matches.`,
+      message: `AI matching complete! Found ${matches.length} potential matches with personality analysis.`,
       matches: matches
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -147,11 +170,11 @@ serve(async (req) => {
   }
 });
 
-function calculateMatchScore(consultant: any, assignment: any): number {
+function calculateTechnicalMatch(consultant: any, assignment: any): number {
   const consultantSkills = consultant.skills || [];
   const requiredSkills = assignment.requiredSkills || [];
   
-  if (requiredSkills.length === 0) return 75; // Default score if no requirements
+  if (requiredSkills.length === 0) return 75;
   
   const matchingSkills = consultantSkills.filter((skill: string) => 
     requiredSkills.some((required: string) => 
@@ -164,15 +187,116 @@ function calculateMatchScore(consultant: any, assignment: any): number {
   const experienceBonus = Math.min((consultant.experience_years || 0) * 2, 20);
   const ratingBonus = (consultant.rating || 0) * 2;
   
-  return Math.min(Math.round(skillMatchPercentage * 0.6 + experienceBonus + ratingBonus), 98);
+  return Math.min(Math.round(skillMatchPercentage * 0.6 + experienceBonus + ratingBonus), 100);
 }
 
-function calculateHumanFactors(consultant: any): number {
-  const cultural = consultant.cultural_fit || 4;
-  const adaptability = consultant.adaptability || 4;
-  const leadership = consultant.leadership || 3;
+function calculatePersonalityMatch(consultant: any, assignment: any): number {
+  // Analyze personality traits compatibility
+  const consultantTraits = consultant.personality_traits || [];
+  const workStyle = consultant.work_style || '';
+  const teamFit = consultant.team_fit || '';
   
-  return Math.round((cultural + adaptability + leadership) / 3 * 20); // Scale to 100
+  let personalityScore = 70; // Base score
+  
+  // Boost score based on relevant personality traits
+  const positiveTraits = ['Collaborative', 'Adaptable', 'Problem-solver', 'Detail-oriented', 'Proactive'];
+  const matchingTraits = consultantTraits.filter(trait => 
+    positiveTraits.some(positive => trait.toLowerCase().includes(positive.toLowerCase()))
+  );
+  
+  personalityScore += matchingTraits.length * 5;
+  
+  // Work style compatibility
+  if (workStyle.toLowerCase().includes('team') && assignment.teamDynamics?.toLowerCase().includes('team')) {
+    personalityScore += 10;
+  }
+  
+  if (workStyle.toLowerCase().includes('independent') && assignment.teamSize?.toLowerCase().includes('small')) {
+    personalityScore += 8;
+  }
+  
+  // Team fit analysis
+  if (teamFit.toLowerCase().includes('excellent') || teamFit.toLowerCase().includes('strong')) {
+    personalityScore += 15;
+  }
+  
+  return Math.min(personalityScore, 100);
+}
+
+function calculateCommunicationMatch(consultant: any, assignment: any): number {
+  const consultantStyle = consultant.communication_style || '';
+  const desiredStyle = assignment.desiredCommunicationStyle || assignment.desired_communication_style || '';
+  
+  let communicationScore = 75; // Base score
+  
+  if (!desiredStyle) return communicationScore;
+  
+  // Direct style matching
+  if (consultantStyle.toLowerCase().includes('direct') && desiredStyle.toLowerCase().includes('direct')) {
+    communicationScore += 20;
+  }
+  
+  if (consultantStyle.toLowerCase().includes('collaborative') && desiredStyle.toLowerCase().includes('collaborative')) {
+    communicationScore += 20;
+  }
+  
+  if (consultantStyle.toLowerCase().includes('clear') && desiredStyle.toLowerCase().includes('clear')) {
+    communicationScore += 15;
+  }
+  
+  if (consultantStyle.toLowerCase().includes('proactive') && desiredStyle.toLowerCase().includes('proactive')) {
+    communicationScore += 15;
+  }
+  
+  return Math.min(communicationScore, 100);
+}
+
+function calculateValuesAlignment(consultant: any, assignment: any): number {
+  const consultantValues = consultant.values || [];
+  const requiredValues = assignment.requiredValues || assignment.required_values || [];
+  
+  if (requiredValues.length === 0) return 80;
+  
+  const matchingValues = consultantValues.filter(value => 
+    requiredValues.some(required => 
+      value.toLowerCase().includes(required.toLowerCase()) || 
+      required.toLowerCase().includes(value.toLowerCase())
+    )
+  );
+  
+  const valueMatchPercentage = (matchingValues.length / requiredValues.length) * 100;
+  const baseScore = 60;
+  
+  return Math.min(Math.round(baseScore + valueMatchPercentage * 0.4), 100);
+}
+
+function calculateCulturalFit(consultant: any, assignment: any): number {
+  let culturalScore = consultant.cultural_fit ? consultant.cultural_fit * 20 : 80; // Scale 1-5 to 20-100
+  
+  const teamCulture = assignment.teamCulture || assignment.team_culture || '';
+  const consultantAdaptability = consultant.adaptability || 4;
+  
+  // Adaptability bonus
+  culturalScore += (consultantAdaptability - 3) * 5;
+  
+  // Culture-specific matching
+  if (teamCulture.toLowerCase().includes('agile') && consultant.work_style?.toLowerCase().includes('agile')) {
+    culturalScore += 10;
+  }
+  
+  if (teamCulture.toLowerCase().includes('innovative') && consultant.personality_traits?.some(trait => 
+    trait.toLowerCase().includes('innovative') || trait.toLowerCase().includes('creative')
+  )) {
+    culturalScore += 10;
+  }
+  
+  if (teamCulture.toLowerCase().includes('fast-paced') && consultant.personality_traits?.some(trait => 
+    trait.toLowerCase().includes('proactive') || trait.toLowerCase().includes('efficient')
+  )) {
+    culturalScore += 10;
+  }
+  
+  return Math.min(culturalScore, 100);
 }
 
 function getMatchedSkills(consultantSkills: string[], requiredSkills: string[]): string[] {
@@ -194,6 +318,8 @@ async function generateCoverLetterWithGroq(consultant: any, assignment: any, mat
 
   try {
     const matchedSkills = getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []);
+    const personalityHighlights = consultant.personality_traits?.slice(0, 3).join(', ') || 'Profesionell och målinriktad';
+    const valuesAlignment = consultant.values?.slice(0, 2).join(' och ') || 'kvalitet och innovation';
     
     const prompt = `Skriv ett professionellt motivationsbrev på svenska för ${consultant.name} som ${consultant.roles?.[0] || 'Konsult'} för positionen "${assignment.title}" på ${assignment.company}.
 
@@ -202,6 +328,10 @@ Konsultens information:
 - Erfarenhet: ${consultant.experience_years || 'Flera'} år
 - Kompetenser: ${(consultant.skills || []).slice(0, 5).join(', ')}
 - Matchande kompetenser: ${matchedSkills.join(', ')}
+- Personlighet: ${personalityHighlights}
+- Värderingar: ${valuesAlignment}
+- Kommunikationsstil: ${consultant.communication_style || 'Professionell och tydlig'}
+- Arbetssätt: ${consultant.work_style || 'Målinriktat och samarbetsinriktat'}
 - Betyg: ${consultant.rating || 5}/5
 
 Uppdragsinformation:
@@ -209,13 +339,16 @@ Uppdragsinformation:
 - Företag: ${assignment.company}
 - Bransch: ${assignment.industry}
 - Beskrivning: ${assignment.description}
+- Teamkultur: ${assignment.teamCulture || assignment.team_culture || 'Professionell och samarbetsinriktad'}
+- Önskad kommunikation: ${assignment.desiredCommunicationStyle || assignment.desired_communication_style || 'Tydlig och effektiv'}
 
-Match score: ${matchScore}%
+Match score: ${matchScore}% (inkluderar både teknisk kompetens och personlighet)
 
 Skriv ett kortfattat men övertygande motivationsbrev (max 200 ord) som betonar:
-1. Relevanta kompetenser för uppdraget
-2. Erfarenhet inom branschen
-3. Värde konsulten kan tillföra
+1. Tekniska färdigheter som matchar uppdraget
+2. Personlighet och arbetssätt som passar teamkulturen
+3. Värderingar som alignar med företaget
+4. Kommunikationsstil som passar önskemålen
 
 Börja med "Hej ${assignment.company}!" och avsluta med "Med vänliga hälsningar, ${consultant.name}".`;
 
@@ -226,15 +359,15 @@ Börja med "Hej ${assignment.company}!" och avsluta med "Med vänliga hälsninga
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama3-8b-8192', // Fast and free Groq model
+        model: 'llama3-8b-8192',
         messages: [
           { 
             role: 'system', 
-            content: 'Du är en expert på att skriva professionella motivationsbrev för konsulter. Skriv kortfattat, övertygande och på svenska.' 
+            content: 'Du är en expert på att skriva professionella motivationsbrev för konsulter som tar hänsyn till både teknisk kompetens och personlighet. Skriv kortfattat, övertygande och på svenska.' 
           },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 300,
+        max_tokens: 350,
         temperature: 0.7,
         top_p: 0.9
       }),
@@ -248,7 +381,7 @@ Börja med "Hej ${assignment.company}!" och avsluta med "Med vänliga hälsninga
     const data = await response.json();
     const generatedLetter = data.choices[0].message.content;
     
-    console.log('Successfully generated cover letter with Groq AI');
+    console.log('Successfully generated personality-aware cover letter with Groq AI');
     return generatedLetter;
 
   } catch (error) {
@@ -259,18 +392,19 @@ Börja med "Hej ${assignment.company}!" och avsluta med "Med vänliga hälsninga
 
 function generateFallbackCoverLetter(consultant: any, assignment: any, matchScore: number): string {
   const matchedSkills = getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []);
+  const personalityHighlights = consultant.personality_traits?.slice(0, 2).join(' och ') || 'professionell och målinriktad';
+  const communicationStyle = consultant.communication_style || 'tydlig och effektiv';
   
   return `Hej ${assignment.company}!
 
-Som erfaren ${consultant.roles?.[0] || 'konsult'} med ${consultant.experience_years || 'flera'} års erfarenhet är jag mycket intresserad av er ${assignment.title}-position.
+Som erfaren ${consultant.roles?.[0] || 'konsult'} med ${consultant.experience_years || 'flera'} års erfarenhet och en ${personalityHighlights} personlighet, är jag mycket intresserad av er ${assignment.title}-position.
 
-Min expertis inom ${matchedSkills.slice(0, 3).join(', ')} gör mig till en perfekt kandidat för detta uppdrag. Med en matchning på ${matchScore}% och ett betyg på ${consultant.rating || 5}/5 från tidigare kunder, är jag redo att leverera exceptionella resultat från dag ett.
+Min tekniska expertis inom ${matchedSkills.slice(0, 3).join(', ')} kombinerat med min ${communicationStyle} kommunikationsstil gör mig till en idealisk kandidat. Med en matchning på ${matchScore}% som inkluderar både teknisk kompetens och personlighet, samt ett betyg på ${consultant.rating || 5}/5, är jag redo att leverera exceptionella resultat.
 
-Jag har framgångsrikt lett projekt inom ${assignment.industry || 'branschen'} och förstår de unika utmaningar ni står inför. Min kombination av teknisk kompetens och affärsförståelse säkerställer att jag inte bara löser tekniska problem, utan även bidrar till er affärstillväxt.
+Min arbetsstil (${consultant.work_style || 'samarbetsinriktad och målinriktad'}) passar perfekt för er teamkultur, och mina värderingar kring ${consultant.values?.slice(0, 2).join(' och ') || 'kvalitet och innovation'} alignar väl med era behov.
 
-Jag ser fram emot att diskutera hur jag kan bidra till ert teams framgång och hjälpa er att uppnå era mål för detta projekt.
+Jag ser fram emot att bidra till ert teams framgång och hjälpa er uppnå era mål för detta projekt.
 
 Med vänliga hälsningar,
 ${consultant.name}`;
 }
-
