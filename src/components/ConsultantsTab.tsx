@@ -4,52 +4,35 @@ import { useSupabaseConsultantsDedup } from '@/hooks/useSupabaseConsultantsDedup
 import ConsultantCard from '@/components/ConsultantCard';
 import { ConsultantEditDialog } from '@/components/ConsultantEditDialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Upload, Search, Trash2, AlertTriangle } from 'lucide-react';
+import { Users, Upload, Trash2, AlertTriangle } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { useToast } from '@/hooks/use-toast';
 
 export const ConsultantsTab: React.FC = () => {
   const { consultants, isLoading, updateConsultant, removeDuplicates } = useSupabaseConsultantsDedup();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [skillFilter, setSkillFilter] = useState('');
   const { toast } = useToast();
 
   // Filter consultants based on type - show network consultants (new) and existing consultants separately
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const networkConsultants = consultants.filter(c => c.type === 'new');
 
-  const filterConsultants = (consultantList: Consultant[]) => {
-    return consultantList.filter(consultant => {
-      const matchesSearch = consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesSkill = !skillFilter || consultant.skills.some(skill => 
-        skill.toLowerCase().includes(skillFilter.toLowerCase())
-      );
-      return matchesSearch && matchesSkill;
-    });
-  };
-
   const handleRemoveDuplicates = async () => {
     try {
       await removeDuplicates();
       toast({
-        title: "Dubletter borttagna",
-        description: "Alla dubbletter av konsulter har tagits bort från databasen.",
+        title: "Duplicates removed",
+        description: "All duplicate consultants have been removed from the database.",
       });
     } catch (error) {
       toast({
-        title: "Fel",
-        description: "Kunde inte ta bort dubletter. Försök igen.",
+        title: "Error",
+        description: "Could not remove duplicates. Please try again.",
         variant: "destructive",
       });
     }
   };
-
-  const allSkills = [...new Set(consultants.flatMap(c => c.skills))];
 
   if (isLoading) {
     return (
@@ -68,7 +51,7 @@ export const ConsultantsTab: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-blue-600" />
               <div>
-                <p className="text-sm text-gray-600">Totalt konsulter</p>
+                <p className="text-sm text-gray-600">Total consultants</p>
                 <p className="text-2xl font-bold">{consultants.length}</p>
               </div>
             </div>
@@ -80,7 +63,7 @@ export const ConsultantsTab: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-green-600" />
               <div>
-                <p className="text-sm text-gray-600">Mina konsulter</p>
+                <p className="text-sm text-gray-600">My consultants</p>
                 <p className="text-2xl font-bold">{existingConsultants.length}</p>
               </div>
             </div>
@@ -92,7 +75,7 @@ export const ConsultantsTab: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Upload className="h-5 w-5 text-purple-600" />
               <div>
-                <p className="text-sm text-gray-600">Nätverkskonsulter</p>
+                <p className="text-sm text-gray-600">Network consultants</p>
                 <p className="text-2xl font-bold">{networkConsultants.length}</p>
               </div>
             </div>
@@ -107,71 +90,26 @@ export const ConsultantsTab: React.FC = () => {
               className="w-full flex items-center gap-2"
             >
               <Trash2 className="h-4 w-4" />
-              Ta bort dubletter
+              Remove duplicates
             </Button>
             <p className="text-xs text-gray-500 mt-2">
               <AlertTriangle className="h-3 w-3 inline mr-1" />
-              Tar bort dubletter baserat på email
+              Removes duplicates based on email
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            Sök och filtrera
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Sök efter namn eller kompetenser..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="w-48">
-              <Input
-                placeholder="Filtrera på kompetens..."
-                value={skillFilter}
-                onChange={(e) => setSkillFilter(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          {/* Popular Skills */}
-          <div className="space-y-2">
-            <p className="text-sm text-gray-600">Populära kompetenser:</p>
-            <div className="flex flex-wrap gap-1">
-              {allSkills.slice(0, 10).map((skill, index) => (
-                <Badge 
-                  key={index} 
-                  variant="outline" 
-                  className="cursor-pointer hover:bg-blue-50"
-                  onClick={() => setSkillFilter(skill)}
-                >
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Consultants List */}
       <Tabs defaultValue="network" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="network">Nätverkskonsulter ({networkConsultants.length})</TabsTrigger>
-          <TabsTrigger value="mine">Mina konsulter ({existingConsultants.length})</TabsTrigger>
+          <TabsTrigger value="network">Network consultants ({networkConsultants.length})</TabsTrigger>
+          <TabsTrigger value="mine">My consultants ({existingConsultants.length})</TabsTrigger>
         </TabsList>
         
         <TabsContent value="network" className="space-y-4">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(networkConsultants).map((consultant) => (
+            {networkConsultants.map((consultant) => (
               <div key={consultant.id} className="relative">
                 <ConsultantCard consultant={consultant} />
                 <div className="absolute top-2 right-2">
@@ -183,18 +121,18 @@ export const ConsultantsTab: React.FC = () => {
               </div>
             ))}
           </div>
-          {filterConsultants(networkConsultants).length === 0 && (
+          {networkConsultants.length === 0 && (
             <div className="text-center py-8">
               <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">Inga nätverkskonsulter hittades</p>
-              <p className="text-sm text-gray-500">Konsulter som laddar upp sina CV kommer att visas här</p>
+              <p className="text-gray-600">No network consultants found</p>
+              <p className="text-sm text-gray-500">Consultants who upload their CV will appear here</p>
             </div>
           )}
         </TabsContent>
         
         <TabsContent value="mine" className="space-y-4">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(existingConsultants).map((consultant) => (
+            {existingConsultants.map((consultant) => (
               <div key={consultant.id} className="relative">
                 <ConsultantCard consultant={consultant} />
                 <div className="absolute top-2 right-2">
@@ -206,11 +144,11 @@ export const ConsultantsTab: React.FC = () => {
               </div>
             ))}
           </div>
-          {filterConsultants(existingConsultants).length === 0 && (
+          {existingConsultants.length === 0 && (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">Inga mina konsulter hittades</p>
-              <p className="text-sm text-gray-500">Dina befintliga konsulter kommer att visas här</p>
+              <p className="text-gray-600">No personal consultants found</p>
+              <p className="text-sm text-gray-500">Your existing consultants will appear here</p>
             </div>
           )}
         </TabsContent>
