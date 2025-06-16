@@ -9,8 +9,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Match {
+  id?: string;
   consultant_id: string;
-  score: number;
+  match_score: number;
   matched_skills: string[];
   human_factors_score: number;
   cultural_match: number;
@@ -37,7 +38,7 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({ assignment
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-matching', {
-        body: { assignmentId: assignment.id }
+        body: { assignmentId: String(assignment.id) }
       });
 
       if (error) throw error;
@@ -53,14 +54,24 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({ assignment
       const { data: matchesData, error: matchesError } = await supabase
         .from('matches')
         .select('*')
-        .eq('assignment_id', assignment.id)
+        .eq('assignment_id', String(assignment.id))
         .order('match_score', { ascending: false });
 
       if (matchesError) throw matchesError;
 
       // Combine matches with consultant data
       const enrichedMatches = matchesData.map(match => ({
-        ...match,
+        id: match.id,
+        consultant_id: match.consultant_id,
+        match_score: match.match_score,
+        matched_skills: match.matched_skills || [],
+        human_factors_score: match.human_factors_score || 0,
+        cultural_match: match.cultural_match || 0,
+        communication_match: match.communication_match || 0,
+        values_alignment: match.values_alignment || 0,
+        response_time_hours: match.response_time_hours || 0,
+        estimated_savings: match.estimated_savings || 0,
+        cover_letter: match.cover_letter || '',
         consultant: consultants.find(c => c.id === match.consultant_id)
       }));
 
@@ -97,10 +108,12 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({ assignment
       if (error) throw error;
 
       // Update match status
-      await supabase
-        .from('matches')
-        .update({ status: 'contacted' })
-        .eq('id', match.id);
+      if (match.id) {
+        await supabase
+          .from('matches')
+          .update({ status: 'contacted' })
+          .eq('id', match.id);
+      }
 
       toast({
         title: "Consultant Contacted",
@@ -183,8 +196,8 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({ assignment
                               </span>
                             </div>
                             <div className="absolute -top-2 -right-2">
-                              <Badge className={`px-2 py-1 font-bold ${getScoreColor(match.score)}`}>
-                                {match.score}%
+                              <Badge className={`px-2 py-1 font-bold ${getScoreColor(match.match_score)}`}>
+                                {match.match_score}%
                               </Badge>
                             </div>
                           </div>
@@ -194,7 +207,7 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({ assignment
                             <div className="flex items-center mt-1">
                               <Star className="h-4 w-4 text-yellow-400 fill-current" />
                               <span className="text-sm font-medium ml-1">{match.consultant?.rating}/5</span>
-                              <span className="text-sm text-gray-500 ml-2">• {match.consultant?.experience_years} years exp</span>
+                              <span className="text-sm text-gray-500 ml-2">• {match.consultant?.experience} experience</span>
                             </div>
                           </div>
                         </div>
