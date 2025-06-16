@@ -1,4 +1,3 @@
-
 export interface Consultant {
   id: string | number;
   name: string;
@@ -78,4 +77,5 @@ export interface Match {
   culturalMatch: number;
   communicationMatch: number;
   valuesAlignment: number;
+  letter: string;
 }
