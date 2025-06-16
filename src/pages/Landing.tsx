@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Play, Heart, Clock, Shield, Star, TrendingUp, LogIn, Upload } from 'lucide-react';
+import { ArrowRight, Play, Heart, Clock, Shield, Star, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
@@ -61,21 +61,6 @@ export default function Landing() {
                 MatchWise AI revolutionizes consultant matching by analyzing both technical skills AND soft factors 
                 like values, communication style, and personal fit.
               </p>
-
-              {/* Network Consultants USP */}
-              <div className="mb-8">
-                <Card className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border-emerald-400/50 inline-block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="text-4xl font-bold text-white">{totalNetworkConsultants}</div>
-                      <div>
-                        <div className="text-lg font-semibold text-white">Verified Network Consultants</div>
-                        <div className="text-emerald-300 text-sm">Ready to match today</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
                 <Button size="lg" className="px-8 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25">
