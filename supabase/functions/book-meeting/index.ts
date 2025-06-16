@@ -38,7 +38,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const body = await req.text();
-    console.log("📦 Raw request body received");
+    console.log("📦 Raw request body received:", body);
     
     if (!body) {
       throw new Error("Request body is empty");

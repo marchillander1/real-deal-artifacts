@@ -26,8 +26,8 @@ const AppContent = () => {
       const [url, options] = args;
       
       if (typeof url === 'string' && url.startsWith('/api/book-meeting')) {
-        const supabaseUrl = 'https://sxqmqnfopqzcdqwtjcpd.supabase.co/functions/v1/book-meeting';
-        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4cW1xbmZvcHF6Y2Rxd3RqY3BkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM5MzgwNjcsImV4cCI6MjA0OTUxNDA2N30.3WsOOOiJJvB5wDCFHcI7Y4aGi-V-tNHvTGdNNKSA5ic';
+        const supabaseUrl = 'https://xbliknlrikolcjjfhxqa.supabase.co/functions/v1/book-meeting';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGlrbmxyaWtvbGNqamZoeHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzAzNzksImV4cCI6MjA2NDY0NjM3OX0.fdHf9AYYfHAwetzpfagscbmXaQSBVgdd38XvzoN0m14';
         
         return originalFetch(supabaseUrl, {
           ...options,
