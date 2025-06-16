@@ -125,12 +125,9 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             {hasValidLinkedInUrl && (
               <div className="flex items-center gap-2 text-green-600 text-sm">
                 <CheckCircle2 className="h-4 w-4" />
-                Valid LinkedIn URL - Analysis will include recent posts and profile summary
+                Valid LinkedIn URL - Ready for analysis
               </div>
             )}
-            <p className="text-xs text-gray-500">
-              We analyze your 30 most recent posts and bio/summary for comprehensive insights
-            </p>
           </div>
 
           {/* Analysis Requirements Alert */}
@@ -138,10 +135,10 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-blue-800">Analysis Requirements</span>
+                <span className="font-medium text-blue-800">Comprehensive Analysis Requirements</span>
               </div>
               <p className="text-sm text-blue-700">
-                Both CV file and valid LinkedIn profile URL are required to start the comprehensive analysis.
+                Both CV file and LinkedIn profile URL are required.
               </p>
             </div>
           )}
@@ -201,8 +198,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                 <span className="font-medium">I agree to comprehensive analysis and network joining</span>
               </Label>
               <p className="mt-1">
-                I consent to MatchWise analyzing my CV, LinkedIn profile (including recent posts and bio), 
-                and storing my comprehensive professional information for advanced consultant matching.
+                I consent to MatchWise analyzing my CV and LinkedIn profile for advanced consultant matching.
               </p>
             </div>
           </div>
