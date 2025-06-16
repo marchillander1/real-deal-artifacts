@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.10';
@@ -73,16 +72,18 @@ serve(async (req) => {
       assignment = dbAssignment;
     }
 
-    // Fetch all consultants
-    const { data: consultants, error: consultantsError } = await supabase
+    // Fetch consultants with better filtering - limit to top candidates
+    const { data: allConsultants, error: consultantsError } = await supabase
       .from('consultants')
-      .select('*');
+      .select('*')
+      .limit(50) // Limit to 50 consultants for better performance
+      .order('rating', { ascending: false }); // Get highest rated first
 
     if (consultantsError) {
       throw new Error(`Failed to fetch consultants: ${consultantsError.message}`);
     }
 
-    if (!consultants || consultants.length === 0) {
+    if (!allConsultants || allConsultants.length === 0) {
       return new Response(JSON.stringify({
         success: true,
         message: 'No consultants found to match',
@@ -92,68 +93,94 @@ serve(async (req) => {
       });
     }
 
-    console.log(`Found ${consultants.length} consultants to match against`);
+    console.log(`Found ${allConsultants.length} consultants to evaluate`);
 
     // Calculate matches for each consultant using enhanced scoring
-    const matches = [];
-    for (const consultant of consultants) {
+    const consultantMatches = [];
+    for (const consultant of allConsultants) {
       const technicalScore = calculateTechnicalMatch(consultant, assignment);
-      const personalityScore = calculatePersonalityMatch(consultant, assignment);
-      const communicationScore = calculateCommunicationMatch(consultant, assignment);
-      const valuesScore = calculateValuesAlignment(consultant, assignment);
-      const culturalScore = calculateCulturalFit(consultant, assignment);
       
-      // Combined match score with weighted factors
-      const matchScore = Math.round(
-        technicalScore * 0.4 +      // 40% technical skills
-        personalityScore * 0.25 +    // 25% personality fit
-        communicationScore * 0.15 +  // 15% communication style
-        valuesScore * 0.15 +         // 15% values alignment
-        culturalScore * 0.05         // 5% cultural fit
-      );
+      // Only process consultants with decent technical match (>= 40%)
+      if (technicalScore >= 40) {
+        const personalityScore = calculatePersonalityMatch(consultant, assignment);
+        const communicationScore = calculateCommunicationMatch(consultant, assignment);
+        const valuesScore = calculateValuesAlignment(consultant, assignment);
+        const culturalScore = calculateCulturalFit(consultant, assignment);
+        
+        // Combined match score with weighted factors
+        const matchScore = Math.round(
+          technicalScore * 0.4 +      // 40% technical skills
+          personalityScore * 0.25 +    // 25% personality fit
+          communicationScore * 0.15 +  // 15% communication style
+          valuesScore * 0.15 +         // 15% values alignment
+          culturalScore * 0.05         // 5% cultural fit
+        );
 
-      const humanFactorsScore = Math.round((personalityScore + communicationScore + valuesScore + culturalScore) / 4);
-      const coverLetter = await generateCoverLetterWithGroq(consultant, assignment, matchScore);
+        // Only include matches above 50%
+        if (matchScore >= 50) {
+          const humanFactorsScore = Math.round((personalityScore + communicationScore + valuesScore + culturalScore) / 4);
+          const coverLetter = await generateCoverLetterWithGroq(consultant, assignment, matchScore);
 
-      const match = {
-        id: crypto.randomUUID(),
-        consultant_id: consultant.id,
-        assignment_id: assignmentId,
-        match_score: Math.min(matchScore, 98),
-        human_factors_score: humanFactorsScore,
-        cultural_match: culturalScore,
-        communication_match: communicationScore,
-        values_alignment: valuesScore,
-        response_time_hours: Math.floor(Math.random() * 24) + 1,
-        matched_skills: getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []),
-        estimated_savings: Math.floor(Math.random() * 50000) + 10000,
-        cover_letter: coverLetter,
-        status: 'pending'
-      };
+          const match = {
+            id: crypto.randomUUID(),
+            consultant_id: consultant.id,
+            assignment_id: assignmentId,
+            match_score: Math.min(matchScore, 98),
+            human_factors_score: humanFactorsScore,
+            cultural_match: Math.round(culturalScore),
+            communication_match: Math.round(communicationScore),
+            values_alignment: Math.round(valuesScore),
+            response_time_hours: Math.floor(Math.random() * 24) + 1,
+            matched_skills: getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []),
+            estimated_savings: Math.floor(Math.random() * 50000) + 10000,
+            cover_letter: coverLetter,
+            status: 'pending',
+            consultant: consultant // Include full consultant data
+          };
 
-      matches.push(match);
+          consultantMatches.push(match);
+        }
+      }
     }
 
+    // Sort by match score and limit to top 10
+    const topMatches = consultantMatches
+      .sort((a, b) => b.match_score - a.match_score)
+      .slice(0, 10);
+
     // Save matches to database (only for real assignments, not demo)
-    if (!assignmentId.startsWith('demo-')) {
+    if (!assignmentId.startsWith('demo-') && topMatches.length > 0) {
+      const matchesToSave = topMatches.map(match => ({
+        id: match.id,
+        consultant_id: match.consultant_id,
+        assignment_id: match.assignment_id,
+        match_score: match.match_score,
+        human_factors_score: match.human_factors_score,
+        cultural_match: match.cultural_match,
+        communication_match: match.communication_match,
+        values_alignment: match.values_alignment,
+        response_time_hours: match.response_time_hours,
+        matched_skills: match.matched_skills,
+        estimated_savings: match.estimated_savings,
+        cover_letter: match.cover_letter,
+        status: match.status
+      }));
+
       const { error: insertError } = await supabase
         .from('matches')
-        .insert(matches);
+        .insert(matchesToSave);
 
       if (insertError) {
         console.error('Error saving matches:', insertError);
       }
     }
 
-    // Sort by match score
-    matches.sort((a, b) => b.match_score - a.match_score);
-
-    console.log(`Generated ${matches.length} matches with enhanced personality scoring`);
+    console.log(`Generated ${topMatches.length} quality matches`);
 
     return new Response(JSON.stringify({
       success: true,
-      message: `AI matching complete! Found ${matches.length} potential matches with personality analysis.`,
-      matches: matches
+      message: `AI matching complete! Found ${topMatches.length} high-quality matches with personality analysis.`,
+      matches: topMatches
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
