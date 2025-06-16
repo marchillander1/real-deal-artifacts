@@ -203,28 +203,6 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
           ))}
         </div>
       </div>
-
-      {/* AI Generated Cover Letter Preview */}
-      <div>
-        <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <Mail className="h-4 w-4 text-blue-500" />
-          AI-Generated Cover Letter Preview
-        </h5>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="text-sm text-gray-700 space-y-2">
-            <p><strong>Application: Senior React Developer - E-commerce Platform | {consultant.name}</strong></p>
-            <p>Hello TechStore Nordic AB Team! 👋</p>
-            <p>I'm {consultant.name}, a {consultant.roles[0]} with {consultant.experience} of hands-on experience. Your Senior React Developer - E-commerce Platform project perfectly aligns with my expertise and career goals.</p>
-            <p className="text-red-600"><strong>🎯 Why I'm Perfect for This Role:</strong></p>
-            <p><strong>Technical Match (100%):</strong></p>
-            <div className="pl-4 space-y-1">
-              {consultant.skills.slice(0, 4).map((skill, idx) => (
-                <p key={idx} className="text-green-600">✅ Expert in {skill}</p>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
