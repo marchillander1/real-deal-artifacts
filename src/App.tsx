@@ -43,7 +43,12 @@ function App() {
                 <Route path="/dashboard" element={
                   <AuthGuard>
                     <Navbar />
-                    <Dashboard />
+                    <Dashboard 
+                      assignments={[]}
+                      onMatch={() => {}}
+                      onAssignmentCreated={() => {}}
+                      onFileUpload={() => {}}
+                    />
                   </AuthGuard>
                 } />
                 
