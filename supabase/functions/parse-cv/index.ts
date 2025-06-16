@@ -146,7 +146,7 @@ Skapa en komplett analys med följande struktur (returnera ENDAST valid JSON, in
 
 Basera analysen på det faktiska CV-innehållet, men fyll i realistiska värden även för områden som inte explicit nämns. Fokusera på svenska tech-marknaden.`;
 
-    // Call Groq API
+    // Call Groq API with updated model
     console.log('Calling Groq API for CV analysis...');
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -155,7 +155,7 @@ Basera analysen på det faktiska CV-innehållet, men fyll i realistiska värden 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         messages: [
           {
             role: 'system',
@@ -293,7 +293,7 @@ Basera analysen på det faktiska CV-innehållet, men fyll i realistiska värden 
       analysis: cvAnalysis,
       extractedText: extractedText.substring(0, 500),
       analysisDepth: 'ai_powered_comprehensive',
-      aiModel: 'llama-3.1-70b-versatile',
+      aiModel: 'llama-3.1-8b-instant',
       provider: 'Groq',
       sectionsAnalyzed: ['personal_info', 'technical_skills', 'experience', 'projects', 'education', 'soft_skills', 'market_positioning'],
       recommendationsIncluded: true
