@@ -121,6 +121,7 @@ export type Database = {
           team_fit: string | null
           type: string | null
           updated_at: string | null
+          user_id: string | null
           values: string[] | null
           work_style: string | null
         }
@@ -151,6 +152,7 @@ export type Database = {
           team_fit?: string | null
           type?: string | null
           updated_at?: string | null
+          user_id?: string | null
           values?: string[] | null
           work_style?: string | null
         }
@@ -181,6 +183,7 @@ export type Database = {
           team_fit?: string | null
           type?: string | null
           updated_at?: string | null
+          user_id?: string | null
           values?: string[] | null
           work_style?: string | null
         }

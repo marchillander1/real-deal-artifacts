@@ -12,18 +12,44 @@ export const useSupabaseConsultants = () => {
     const fetchConsultants = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
+        
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Fetch network consultants (user_id IS NULL) - visible to everyone
+        const { data: networkData, error: networkError } = await supabase
           .from('consultants')
           .select('*')
+          .is('user_id', null)
           .order('rating', { ascending: false });
 
-        if (error) {
-          throw error;
+        if (networkError) {
+          throw networkError;
         }
 
-        if (data) {
+        let myData = [];
+        
+        // Fetch user's own consultants only if user is authenticated
+        if (user) {
+          const { data: userData, error: userError } = await supabase
+            .from('consultants')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('rating', { ascending: false });
+
+          if (userError) {
+            throw userError;
+          }
+          
+          myData = userData || [];
+        }
+
+        // Combine network and user consultants
+        const allData = [...(networkData || []), ...myData];
+
+        if (allData) {
           // Map the data to match the Consultant interface
-          const mappedConsultants: Consultant[] = data.map((c: any) => ({
+          const mappedConsultants: Consultant[] = allData.map((c: any) => ({
             id: c.id,
             name: c.name,
             email: c.email,
@@ -40,7 +66,7 @@ export const useSupabaseConsultants = () => {
             lastActive: c.last_active || 'Recently',
             roles: c.roles || [],
             certifications: c.certifications || [],
-            type: c.type || 'new',
+            type: c.user_id ? 'existing' : 'new', // Set type based on user_id
             languages: c.languages || [],
             workStyle: c.work_style || '',
             values: c.values || [],
