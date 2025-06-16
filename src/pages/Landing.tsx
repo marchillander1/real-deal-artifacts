@@ -89,8 +89,8 @@ export default function Landing() {
                     <div className="flex items-center space-x-4">
                       <div className="text-4xl font-bold text-white">{totalNetworkConsultants}</div>
                       <div>
-                        <div className="text-lg font-semibold text-white">Verifierade Nätverkskonsulter</div>
-                        <div className="text-green-300 text-sm">Redo att matcha idag</div>
+                        <div className="text-lg font-semibold text-white">Verified Network Consultants</div>
+                        <div className="text-green-300 text-sm">Ready to match today</div>
                       </div>
                     </div>
                   </CardContent>
