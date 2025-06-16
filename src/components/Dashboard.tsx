@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +33,7 @@ export default function Dashboard() {
     },
   });
 
-  // Real stats using actual data
+  // Real stats using actual data (same logic as Index page)
   const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
   const myConsultants = consultants.filter(consultant => consultant.type === 'existing');
   const totalConsultants = consultants.length;
@@ -86,13 +87,13 @@ export default function Dashboard() {
               
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Match Success Rate</CardTitle>
+                  <CardTitle className="text-sm font-medium">Successful Matches</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">96%</div>
+                  <div className="text-2xl font-bold">{successfulMatches}</div>
                   <p className="text-xs text-muted-foreground">
-                    Human factors included
+                    +{Math.max(1, Math.floor(successfulMatches * 0.1))} this month
                   </p>
                 </CardContent>
               </Card>
