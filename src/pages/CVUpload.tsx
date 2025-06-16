@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -25,17 +24,24 @@ export const CVUpload = () => {
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [hasStartedAnalysis, setHasStartedAnalysis] = useState(false);
   const navigate = useNavigate();
+  
+  // Use ref to track if analysis has been started for current file
+  const analysisStartedRef = useRef<string | null>(null);
 
-  // Auto-start analysis when CV is uploaded (only once)
+  // Start analysis when CV is uploaded (only once per file)
   useEffect(() => {
-    if (file && !isAnalyzing && !analysisResults && !hasStartedAnalysis) {
-      console.log('Starting automatic comprehensive analysis of uploaded CV...');
-      setHasStartedAnalysis(true);
-      startAnalysis();
+    if (file && !isAnalyzing && !analysisResults) {
+      const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
+      
+      // Only start analysis if we haven't already started for this specific file
+      if (analysisStartedRef.current !== fileKey) {
+        console.log('Starting automatic comprehensive analysis of uploaded CV...');
+        analysisStartedRef.current = fileKey;
+        startAnalysis();
+      }
     }
-  }, [file, isAnalyzing, analysisResults, hasStartedAnalysis]);
+  }, [file?.name, file?.size, file?.lastModified]); // Only depend on file properties, not state objects
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -43,7 +49,7 @@ export const CVUpload = () => {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
         setFile(selectedFile);
         setAnalysisResults(null);
-        setHasStartedAnalysis(false); // Reset analysis state for new file
+        analysisStartedRef.current = null; // Reset analysis state for new file
         toast.success('CV uploaded! Starting comprehensive AI analysis...');
       } else {
         toast.error('Please upload a PDF file or image');
@@ -170,7 +176,7 @@ export const CVUpload = () => {
     } catch (error) {
       console.error('Analysis error:', error);
       toast.error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
-      setHasStartedAnalysis(false); // Allow retry
+      analysisStartedRef.current = null; // Allow retry
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
