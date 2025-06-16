@@ -28,7 +28,7 @@ export const CVUpload = () => {
   // Keep track of analyzed files to prevent re-analysis
   const analyzedFiles = useRef<Set<string>>(new Set());
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
@@ -42,7 +42,8 @@ export const CVUpload = () => {
           setAnalysisResults(null);
           toast.success('CV uploaded! Starting comprehensive AI analysis...');
           
-          performCVAnalysis(
+          // Start analysis immediately
+          await performCVAnalysis(
             selectedFile,
             setIsAnalyzing,
             setAnalysisProgress,
