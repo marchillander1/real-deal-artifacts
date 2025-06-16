@@ -10,9 +10,10 @@ export const performCVAnalysis = async (
   setFullName: (value: string) => void,
   setEmail: (value: string) => void,
   setPhoneNumber: (value: string) => void,
-  setLinkedinUrl: (value: string) => void
+  setLinkedinUrl: (value: string) => void,
+  linkedinUrl?: string
 ) => {
-  console.log('🚀 Starting CV analysis for file:', file.name);
+  console.log('🚀 Starting comprehensive CV and LinkedIn analysis for file:', file.name);
   
   setIsAnalyzing(true);
   setAnalysisProgress(10);
@@ -27,7 +28,7 @@ export const performCVAnalysis = async (
     setAnalysisProgress(30);
     console.log('✅ File prepared for analysis, calling parse-cv function...');
     
-    // Call CV analysis function with FormData
+    // Call CV analysis function
     toast.info('🧠 AI analyzing CV...');
     const { data: cvData, error: cvError } = await supabase.functions.invoke('parse-cv', {
       body: formData
@@ -39,7 +40,7 @@ export const performCVAnalysis = async (
     }
 
     console.log('✅ CV analysis completed:', cvData);
-    setAnalysisProgress(60);
+    setAnalysisProgress(50);
     
     // Auto-fill form fields if available
     if (cvData?.analysis?.personalInfo) {
@@ -65,20 +66,53 @@ export const performCVAnalysis = async (
       }
     }
 
-    setAnalysisProgress(90);
+    setAnalysisProgress(60);
+
+    // LinkedIn Analysis if URL provided
+    let linkedinAnalysis = null;
+    const finalLinkedInUrl = linkedinUrl || cvData?.analysis?.personalInfo?.linkedinProfile;
     
-    // Set final results
+    if (finalLinkedInUrl) {
+      try {
+        toast.info('🔗 Analyzing LinkedIn profile...');
+        console.log('🔗 Starting LinkedIn analysis for:', finalLinkedInUrl);
+        
+        const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
+          body: { linkedinUrl: finalLinkedInUrl }
+        });
+        
+        if (linkedinError) {
+          console.warn('⚠️ LinkedIn analysis failed:', linkedinError);
+          toast.warning('LinkedIn analysis failed, but CV analysis succeeded');
+        } else {
+          linkedinAnalysis = linkedinData?.analysis;
+          console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
+          toast.success('🎉 LinkedIn analysis completed!');
+        }
+      } catch (linkedinErr) {
+        console.warn('⚠️ LinkedIn analysis error:', linkedinErr);
+        toast.warning('LinkedIn analysis encountered an error');
+      }
+    }
+
+    setAnalysisProgress(80);
+    
+    // Generate improvement tips
+    const improvementTips = generateImprovementTips(cvData?.analysis, linkedinAnalysis);
+    
+    // Set final results with improvement tips
     const finalResults = {
       cvAnalysis: cvData?.analysis || null,
-      linkedinAnalysis: null, // Will be added later if LinkedIn URL provided
+      linkedinAnalysis: linkedinAnalysis,
+      improvementTips: improvementTips,
       timestamp: new Date().toISOString()
     };
     
-    console.log('✅ Analysis complete:', finalResults);
+    console.log('✅ Complete analysis finished:', finalResults);
     setAnalysisResults(finalResults);
     setAnalysisProgress(100);
     
-    toast.success('🎉 CV analysis completed successfully!');
+    toast.success('🎉 Complete CV and LinkedIn analysis completed successfully!');
 
   } catch (error) {
     console.error('❌ Analysis failed:', error);
@@ -89,4 +123,95 @@ export const performCVAnalysis = async (
     setIsAnalyzing(false);
     setTimeout(() => setAnalysisProgress(0), 2000);
   }
+};
+
+const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
+  const tips = {
+    cvTips: [],
+    linkedinTips: [],
+    overallStrategy: []
+  };
+
+  // CV Improvement Tips
+  if (cvAnalysis) {
+    if (!cvAnalysis.technicalExpertise?.programmingLanguages?.expert?.length) {
+      tips.cvTips.push({
+        category: 'Technical Skills',
+        tip: 'Clearly highlight your expert-level programming languages and frameworks at the top of your CV',
+        priority: 'High'
+      });
+    }
+
+    if (!cvAnalysis.professionalSummary?.yearsOfExperience) {
+      tips.cvTips.push({
+        category: 'Professional Summary',
+        tip: 'Add a clear statement of your years of experience and seniority level',
+        priority: 'High'
+      });
+    }
+
+    if (!cvAnalysis.certifications?.length) {
+      tips.cvTips.push({
+        category: 'Certifications',
+        tip: 'Consider adding relevant technical certifications to boost your credibility',
+        priority: 'Medium'
+      });
+    }
+
+    if (!cvAnalysis.marketPositioning?.uniqueValueProposition) {
+      tips.cvTips.push({
+        category: 'Value Proposition',
+        tip: 'Create a compelling unique value proposition that sets you apart from other consultants',
+        priority: 'High'
+      });
+    }
+  }
+
+  // LinkedIn Improvement Tips
+  if (linkedinAnalysis) {
+    if (linkedinAnalysis.culturalFit < 4) {
+      tips.linkedinTips.push({
+        category: 'Cultural Fit',
+        tip: 'Share more content about team collaboration and company culture alignment',
+        priority: 'Medium'
+      });
+    }
+
+    if (linkedinAnalysis.leadership < 4) {
+      tips.linkedinTips.push({
+        category: 'Leadership',
+        tip: 'Post about leadership experiences, mentoring, and team management',
+        priority: 'High'
+      });
+    }
+
+    if (!linkedinAnalysis.communicationStyle || linkedinAnalysis.communicationStyle.includes('unknown')) {
+      tips.linkedinTips.push({
+        category: 'Communication',
+        tip: 'Be more active in posting and commenting to showcase your communication style',
+        priority: 'Medium'
+      });
+    }
+  } else {
+    tips.linkedinTips.push({
+      category: 'LinkedIn Presence',
+      tip: 'Ensure your LinkedIn profile is public and accessible for analysis',
+      priority: 'High'
+    });
+  }
+
+  // Overall Strategy Tips
+  tips.overallStrategy.push({
+    category: 'Market Positioning',
+    tip: 'Align your CV technical skills with your LinkedIn professional narrative',
+    priority: 'High'
+  });
+
+  tips.overallStrategy.push({
+    category: 'Network Building',
+    tip: 'Regularly engage with industry content and share insights to build your professional brand',
+    priority: 'Medium'
+  });
+
+  return tips;
 };

@@ -41,10 +41,10 @@ export const CVUpload = () => {
     // Reset previous analysis
     setAnalysisResults(null);
     
-    console.log('🎯 Starting analysis immediately...');
-    toast.success('CV uploaded! Starting analysis...');
+    console.log('🎯 Starting comprehensive analysis...');
+    toast.success('CV uploaded! Starting comprehensive analysis...');
     
-    // Start analysis immediately
+    // Start analysis with LinkedIn URL if provided
     await performCVAnalysis(
       selectedFile,
       setIsAnalyzing,
@@ -53,8 +53,31 @@ export const CVUpload = () => {
       setFullName,
       setEmail,
       setPhoneNumber,
-      setLinkedinUrl
+      setLinkedinUrl,
+      linkedinUrl // Pass current LinkedIn URL for analysis
     );
+  };
+
+  const handleLinkedInUrlChange = async (newUrl: string) => {
+    setLinkedinUrl(newUrl);
+    
+    // If we have a file and valid LinkedIn URL, re-run analysis
+    if (file && newUrl && newUrl.includes('linkedin.com')) {
+      console.log('🔗 LinkedIn URL updated, re-running analysis...');
+      toast.info('Re-analyzing with LinkedIn profile...');
+      
+      await performCVAnalysis(
+        file,
+        setIsAnalyzing,
+        setAnalysisProgress,
+        setAnalysisResults,
+        setFullName,
+        setEmail,
+        setPhoneNumber,
+        setLinkedinUrl,
+        newUrl
+      );
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -162,6 +185,7 @@ export const CVUpload = () => {
   if (uploadComplete && analysisResults) {
     const cvAnalysis = analysisResults.cvAnalysis;
     const linkedinAnalysis = analysisResults.linkedinAnalysis;
+    const improvementTips = analysisResults.improvementTips;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
@@ -176,15 +200,15 @@ export const CVUpload = () => {
                 <CheckCircle2 className="h-16 w-16 text-green-500" />
               </div>
               <CardTitle className="text-2xl font-bold text-green-600">
-                Welcome to our consultant network!
+                Välkommen till vårt konsultnätverk!
               </CardTitle>
               <CardDescription>
-                Your comprehensive professional profile has been analyzed and you are now part of our network.
+                Din profil har analyserats och du är nu synlig i vårt konsultnätverk på /dashboard.
               </CardDescription>
             </CardHeader>
           </Card>
 
-          {/* Analysis Results Display */}
+          {/* Analysis Results and Improvement Tips */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Professional Summary */}
             {cvAnalysis?.professionalSummary && (
@@ -192,25 +216,25 @@ export const CVUpload = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-blue-500" />
-                    Professional Profile
+                    Professionell Profil
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm text-gray-600">Level:</span>
+                      <span className="text-sm text-gray-600">Nivå:</span>
                       <p className="font-semibold">{cvAnalysis.professionalSummary.seniorityLevel}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Experience:</span>
+                      <span className="text-sm text-gray-600">Erfarenhet:</span>
                       <p className="font-semibold">{cvAnalysis.professionalSummary.yearsOfExperience}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Role:</span>
+                      <span className="text-sm text-gray-600">Roll:</span>
                       <p className="font-semibold">{cvAnalysis.professionalSummary.currentRole}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Trajectory:</span>
+                      <span className="text-sm text-gray-600">Karriärutveckling:</span>
                       <p className="font-semibold text-green-600">{cvAnalysis.professionalSummary.careerTrajectory}</p>
                     </div>
                   </div>
@@ -224,13 +248,13 @@ export const CVUpload = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Code className="h-5 w-5 text-purple-500" />
-                    Technical Expertise
+                    Teknisk Expertis
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {cvAnalysis.technicalExpertise.programmingLanguages?.expert && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Expert Skills:</span>
+                      <span className="text-sm font-medium text-gray-700">Expert färdigheter:</span>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, idx: number) => (
                           <Badge key={idx} className="bg-green-100 text-green-800">{skill}</Badge>
@@ -242,35 +266,35 @@ export const CVUpload = () => {
               </Card>
             )}
 
-            {/* Leadership Analysis */}
+            {/* LinkedIn Analysis */}
             {linkedinAnalysis && (
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Brain className="h-5 w-5 text-blue-500" />
-                    Communication & Leadership
+                    LinkedIn Analys
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div>
-                      <span className="text-sm text-gray-600">Communication Style:</span>
+                      <span className="text-sm text-gray-600">Kommunikationsstil:</span>
                       <p className="font-semibold">{linkedinAnalysis.communicationStyle}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Leadership Approach:</span>
+                      <span className="text-sm text-gray-600">Ledarskapsansats:</span>
                       <p className="font-semibold">{linkedinAnalysis.leadershipStyle}</p>
                     </div>
                     <div className="grid grid-cols-3 gap-2 mt-4">
                       <div className="text-center">
-                        <p className="text-xs text-gray-600">Cultural Fit</p>
+                        <p className="text-xs text-gray-600">Kulturell Passform</p>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                           <div className="bg-blue-600 h-2 rounded-full" style={{width: `${(linkedinAnalysis.culturalFit/5)*100}%`}}></div>
                         </div>
                         <p className="text-xs font-bold text-blue-600 mt-1">{linkedinAnalysis.culturalFit}/5</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-gray-600">Leadership</p>
+                        <p className="text-xs text-gray-600">Ledarskap</p>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                           <div className="bg-orange-600 h-2 rounded-full" style={{width: `${(linkedinAnalysis.leadership/5)*100}%`}}></div>
                         </div>
@@ -289,23 +313,68 @@ export const CVUpload = () => {
               </Card>
             )}
 
-            {/* Market Positioning */}
-            {cvAnalysis?.marketPositioning && (
-              <Card className="shadow-lg">
+            {/* Improvement Tips */}
+            {improvementTips && (
+              <Card className="shadow-lg col-span-full">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5 text-purple-500" />
-                    Market Positioning
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    Förbättringstips
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <span className="text-sm text-gray-600">Unique Value:</span>
-                    <p className="text-sm font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* CV Tips */}
+                    <div>
+                      <h4 className="font-semibold text-lg mb-3">CV Förbättringar</h4>
+                      <div className="space-y-3">
+                        {improvementTips.cvTips.map((tip: any, idx: number) => (
+                          <div key={idx} className="border-l-4 border-blue-500 pl-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
+                                {tip.priority}
+                              </Badge>
+                              <span className="font-medium">{tip.category}</span>
+                            </div>
+                            <p className="text-sm text-gray-600">{tip.tip}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* LinkedIn Tips */}
+                    <div>
+                      <h4 className="font-semibold text-lg mb-3">LinkedIn Förbättringar</h4>
+                      <div className="space-y-3">
+                        {improvementTips.linkedinTips.map((tip: any, idx: number) => (
+                          <div key={idx} className="border-l-4 border-purple-500 pl-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
+                                {tip.priority}
+                              </Badge>
+                              <span className="font-medium">{tip.category}</span>
+                            </div>
+                            <p className="text-sm text-gray-600">{tip.tip}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Competitiveness:</span>
-                    <p className="text-sm font-semibold text-blue-600">{cvAnalysis.marketPositioning.competitiveness}</p>
+
+                  {/* Overall Strategy */}
+                  <div className="mt-6">
+                    <h4 className="font-semibold text-lg mb-3">Övergripande Strategi</h4>
+                    <div className="space-y-2">
+                      {improvementTips.overallStrategy.map((tip: any, idx: number) => (
+                        <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                          <Star className="h-5 w-5 text-green-500 mt-0.5" />
+                          <div>
+                            <span className="font-medium text-green-800">{tip.category}: </span>
+                            <span className="text-green-700">{tip.tip}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -315,10 +384,10 @@ export const CVUpload = () => {
           {/* Next Steps */}
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-4">
-              A welcome email has been sent to {email}. You can now explore the platform.
+              Ett välkomstmail har skickats till {email}. Din profil är nu synlig i konsultnätverket.
             </p>
             <Button onClick={handleContinue} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3">
-              Continue to Platform
+              Gå till Plattformen
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -338,36 +407,36 @@ export const CVUpload = () => {
           
           <div className="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-            AI-Powered Comprehensive Career Analysis
+            AI-Driven Omfattande Karriäranalys
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Upload Your CV & LinkedIn Profile
+            Ladda upp ditt CV & LinkedIn Profil
           </h1>
           
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-            Get instant comprehensive AI analysis of your technical skills, leadership style, 
-            personality, and career potential. Upload your CV and add your LinkedIn profile 
-            to receive detailed insights and join our exclusive consultant network.
+            Få omedelbar omfattande AI-analys av dina tekniska färdigheter, ledarskapsförmåga, 
+            personlighet och karriärpotential. Ladda upp ditt CV och lägg till din LinkedIn-profil 
+            för att få detaljerade insikter och bli synlig i vårt konsultnätverk.
           </p>
 
           {/* Feature highlights */}
           <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Code className="h-4 w-4 text-purple-500" />
-              Technical Expertise
+              Teknisk Expertis
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Users className="h-4 w-4 text-blue-500" />
-              Leadership Analysis
+              Ledarskapsanalys
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Target className="h-4 w-4 text-orange-500" />
-              Career Strategy
+              Förbättringstips
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <BarChart3 className="h-4 w-4 text-green-500" />
-              Market Positioning
+              Marknadspositionering
             </div>
           </div>
         </div>
@@ -389,7 +458,7 @@ export const CVUpload = () => {
             onEmailChange={setEmail}
             onFullNameChange={setFullName}
             onPhoneNumberChange={setPhoneNumber}
-            onLinkedinUrlChange={setLinkedinUrl}
+            onLinkedinUrlChange={handleLinkedInUrlChange}
             onAgreeToTermsChange={setAgreeToTerms}
             onSubmit={handleSubmit}
           />
