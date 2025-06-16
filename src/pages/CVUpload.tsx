@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -649,11 +650,11 @@ export const CVUpload = () => {
                         htmlFor="dataConsent"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
-                        Jag godkänner datalagring
+                        I agree to data storage
                       </Label>
                       <p className="text-xs text-gray-600">
-                        Jag samtycker till att MatchWise lagrar och behandlar mina personuppgifter, CV-data och LinkedIn-information för matchningsändamål. 
-                        Data används endast för att koppla mig till relevanta uppdrag och kan raderas på begäran.
+                        I consent to MatchWise storing and processing my personal information, CV data, and LinkedIn information for matching purposes. 
+                        Data is used only to connect me with relevant assignments and can be deleted upon request.
                       </p>
                     </div>
                   </div>
