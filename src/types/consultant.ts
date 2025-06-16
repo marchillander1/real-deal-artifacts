@@ -168,6 +168,12 @@ export interface Consultant {
         malmo?: string;
         remote?: string;
       };
+      hourlyRateEstimate?: {
+        min: number;
+        max: number;
+        recommended: number;
+        currency: string;
+      };
       marketReadiness?: number;
       competitiveness?: string;
       demandLevel?: string;
