@@ -16,6 +16,33 @@ interface DashboardProps {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+// Helper function to transform Supabase assignment data to Assignment interface
+const transformSupabaseAssignment = (supabaseAssignment: any): Assignment => {
+  return {
+    id: supabaseAssignment.id,
+    title: supabaseAssignment.title,
+    description: supabaseAssignment.description,
+    requiredSkills: supabaseAssignment.required_skills || [],
+    startDate: supabaseAssignment.start_date || '',
+    duration: supabaseAssignment.duration || '',
+    workload: supabaseAssignment.workload || '',
+    budget: supabaseAssignment.budget_min && supabaseAssignment.budget_max 
+      ? `${supabaseAssignment.budget_min} - ${supabaseAssignment.budget_max} ${supabaseAssignment.budget_currency || 'SEK'}/månad`
+      : 'Budget ej specificerad',
+    company: supabaseAssignment.company,
+    industry: supabaseAssignment.industry || '',
+    teamSize: supabaseAssignment.team_size || '',
+    remote: supabaseAssignment.remote_type || '',
+    urgency: supabaseAssignment.urgency || 'Medium',
+    clientLogo: supabaseAssignment.client_logo || '🏢',
+    teamCulture: supabaseAssignment.team_culture || '',
+    desiredCommunicationStyle: supabaseAssignment.desired_communication_style || '',
+    requiredValues: supabaseAssignment.required_values || [],
+    leadershipLevel: supabaseAssignment.leadership_level || 3,
+    teamDynamics: supabaseAssignment.team_dynamics || ''
+  };
+};
+
 const Dashboard: React.FC<DashboardProps> = ({
   assignments,
   onMatch,
@@ -128,8 +155,9 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
   ];
 
-  // Combine real assignments with sample assignments
-  const allAssignments = [...supabaseAssignments, ...sampleAssignments, ...assignments];
+  // Transform Supabase assignments and combine with sample assignments
+  const transformedSupabaseAssignments = supabaseAssignments.map(transformSupabaseAssignment);
+  const allAssignments = [...transformedSupabaseAssignments, ...sampleAssignments, ...assignments];
 
   // Real dashboard stats using actual data
   const networkConsultants = consultants.filter(consultant => consultant.type === 'existing');
@@ -230,7 +258,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         <p className="text-gray-600 mb-6">Real-time insights and performance metrics</p>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Card className="bg-white border border-gray-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -241,19 +269,6 @@ const Dashboard: React.FC<DashboardProps> = ({
               <div className="text-2xl font-bold text-gray-900 mb-1">{totalConsultants}</div>
               <div className="text-sm font-medium text-gray-900 mb-1">Network Consultants</div>
               <div className="text-sm text-green-600">↗ +{Math.max(1, Math.floor(totalConsultants * 0.15))} this week</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Briefcase className="h-6 w-6 text-green-600" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">{totalAssignments}</div>
-              <div className="text-sm font-medium text-gray-900 mb-1">Active Assignments</div>
-              <div className="text-sm text-green-600">↗ +{Math.max(1, Math.floor(totalAssignments * 0.1))} this week</div>
             </CardContent>
           </Card>
 
