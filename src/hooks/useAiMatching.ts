@@ -6,15 +6,15 @@ import { toast } from 'sonner';
 export const useAiMatching = () => {
   const [isMatching, setIsMatching] = useState(false);
 
-  const performAiMatching = async (assignmentId: string) => {
+  const performAiMatching = async (assignment: any) => {
     setIsMatching(true);
     
     try {
-      console.log('🤖 Starting AI matching for assignment:', assignmentId);
+      console.log('🤖 Starting AI matching for assignment:', assignment.id);
       toast.info('🤖 AI is matching consultants...');
       
       const { data, error } = await supabase.functions.invoke('ai-matching', {
-        body: { assignmentId }
+        body: { assignment }
       });
 
       if (error) {
@@ -24,11 +24,11 @@ export const useAiMatching = () => {
 
       console.log('AI matching function response:', data);
 
-      if (data && data.success) {
-        toast.success(data.message || 'AI matching complete!');
+      if (data && data.matches) {
+        toast.success('AI matching complete!');
         return data;
       } else {
-        throw new Error(data?.error || 'AI matching failed');
+        throw new Error('AI matching failed - no matches returned');
       }
       
     } catch (error) {
