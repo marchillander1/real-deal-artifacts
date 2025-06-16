@@ -25,15 +25,17 @@ export const CVUpload = () => {
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [hasStartedAnalysis, setHasStartedAnalysis] = useState(false);
   const navigate = useNavigate();
 
-  // Auto-start analysis immediately when CV is uploaded
+  // Auto-start analysis when CV is uploaded (only once)
   useEffect(() => {
-    if (file && !isAnalyzing && !analysisResults) {
+    if (file && !isAnalyzing && !analysisResults && !hasStartedAnalysis) {
       console.log('Starting automatic comprehensive analysis of uploaded CV...');
+      setHasStartedAnalysis(true);
       startAnalysis();
     }
-  }, [file]);
+  }, [file, isAnalyzing, analysisResults, hasStartedAnalysis]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -41,6 +43,7 @@ export const CVUpload = () => {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
         setFile(selectedFile);
         setAnalysisResults(null);
+        setHasStartedAnalysis(false); // Reset analysis state for new file
         toast.success('CV uploaded! Starting comprehensive AI analysis...');
       } else {
         toast.error('Please upload a PDF file or image');
@@ -49,7 +52,10 @@ export const CVUpload = () => {
   };
 
   const startAnalysis = async () => {
-    if (!file) return;
+    if (!file) {
+      console.error('No file available for analysis');
+      return;
+    }
 
     setIsAnalyzing(true);
     setAnalysisProgress(10);
@@ -74,7 +80,11 @@ export const CVUpload = () => {
 
       if (parseError) {
         console.error('Parse error:', parseError);
-        throw parseError;
+        throw new Error(`CV parsing failed: ${parseError.message}`);
+      }
+
+      if (!parseData || !parseData.analysis) {
+        throw new Error('No analysis data returned from CV parsing');
       }
 
       console.log('CV analyzed successfully with comprehensive data:', parseData);
@@ -126,19 +136,23 @@ export const CVUpload = () => {
           if (linkedinError) {
             console.error('LinkedIn analysis error:', linkedinError);
             toast.error('LinkedIn analysis failed - this is required for comprehensive analysis');
-            return;
-          } else {
-            linkedinAnalysis = linkedinData?.analysis;
+            throw new Error(`LinkedIn analysis failed: ${linkedinError.message}`);
+          }
+
+          if (linkedinData?.analysis) {
+            linkedinAnalysis = linkedinData.analysis;
             console.log('LinkedIn analysis completed with comprehensive soft skills:', linkedinAnalysis);
+          } else {
+            console.warn('LinkedIn analysis returned no data');
           }
         } catch (linkedinErr) {
           console.error('LinkedIn analysis failed:', linkedinErr);
           toast.error('LinkedIn analysis failed - this is required for comprehensive analysis');
-          return;
+          throw linkedinErr;
         }
       } else {
         toast.error('LinkedIn profile is required for comprehensive professional analysis');
-        return;
+        throw new Error('LinkedIn profile is required for comprehensive analysis');
       }
 
       setAnalysisProgress(100);
@@ -155,7 +169,8 @@ export const CVUpload = () => {
 
     } catch (error) {
       console.error('Analysis error:', error);
-      toast.error('Analysis failed. Please try again.');
+      toast.error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      setHasStartedAnalysis(false); // Allow retry
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
@@ -240,7 +255,7 @@ export const CVUpload = () => {
 
       if (insertError) {
         console.error('Insert error:', insertError);
-        throw insertError;
+        throw new Error(`Failed to save profile: ${insertError.message}`);
       }
 
       console.log('Consultant saved to database successfully with comprehensive profile');
@@ -266,7 +281,7 @@ export const CVUpload = () => {
 
     } catch (error) {
       console.error('Save error:', error);
-      toast.error('Failed to save comprehensive profile. Please try again.');
+      toast.error(`Failed to save comprehensive profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
       setIsUploading(false);
     }
@@ -551,7 +566,7 @@ export const CVUpload = () => {
             to receive detailed insights and join our exclusive consultant network.
           </p>
 
-          {/* Feature highlights matching your screenshots */}
+          {/* Feature highlights */}
           <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Code className="h-4 w-4 text-purple-500" />
@@ -825,7 +840,7 @@ export const CVUpload = () => {
                 )}
               </Button>
               
-              {!linkedinUrl && (
+              {!linkedinUrl && file && (
                 <p className="text-center text-sm text-red-500">
                   LinkedIn profile is required for comprehensive professional analysis
                 </p>
