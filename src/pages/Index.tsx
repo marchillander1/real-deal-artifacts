@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
-import { ConsultantsTab } from "@/components/ConsultantsTab";
+import { EnhancedConsultantsTabDedup } from "@/components/EnhancedConsultantsTabDedup";
 import { Assignment, Consultant, Match } from "../types/consultant";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
@@ -515,7 +516,7 @@ const Index = () => {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="consultants">
-              Consultants ({consultants.length})
+              Consultants
             </TabsTrigger>
             <TabsTrigger value="assignments">
               Assignments ({assignments.length})
@@ -532,7 +533,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <ConsultantsTab />
+            <EnhancedConsultantsTabDedup />
           </TabsContent>
 
           <TabsContent value="assignments">
