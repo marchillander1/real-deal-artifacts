@@ -37,13 +37,8 @@ const Dashboard: React.FC<DashboardProps> = ({
           <h1 className="text-2xl font-bold text-gray-900">AI-Driven Consultant Matching Platform</h1>
           <p className="text-gray-600 mt-1">Match consultants with assignments using advanced AI that analyzes both technical skills and soft factors</p>
           
-          {/* Navigation */}
-          <div className="flex items-center justify-between mt-6">
-            <div className="flex space-x-8">
-              <button className="text-blue-600 font-medium border-b-2 border-blue-600 pb-2">Dashboard</button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">Consultants</button>
-              <button className="text-gray-500 hover:text-gray-700 pb-2">Assignments</button>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end mt-6">
             <div className="flex space-x-3">
               <div className="relative">
                 <Button variant="outline" className="flex items-center gap-2">
