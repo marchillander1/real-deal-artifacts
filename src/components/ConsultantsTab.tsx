@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, MapPin, Clock, Search, Filter, Users, Upload, Award } from 'lucide-react';
+import { Star, MapPin, Clock, Search, Filter, Users, Upload, Award, Trash2 } from 'lucide-react';
 import ConsultantCard from './ConsultantCard';
 import { Consultant } from '@/types/consultant';
 import { ConsultantEditDialog } from './ConsultantEditDialog';
@@ -27,6 +28,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState<'network' | 'my'>('network');
   const { toast } = useToast();
 
   // Limit consultants to specific amounts for clean display
@@ -64,6 +66,14 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         description: "An unexpected error occurred",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Navigate to CV upload page with context that this should go to "My Consultants"
+      window.location.href = '/cv-upload?source=my-consultants';
     }
   };
 
@@ -149,17 +159,33 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       {/* My Consultants Tab */}
       {activeSubTab === 'my' && (
         <div>
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Users className="h-5 w-5 text-blue-600" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">My Consultants</h3>
+                <p className="text-gray-600">Our established team of experienced professionals</p>
+              </div>
+              <Badge className="bg-blue-100 text-blue-800">
+                {filteredExistingConsultants.length} consultants
+              </Badge>
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">My Consultants</h3>
-              <p className="text-gray-600">Our established team of experienced professionals</p>
+            
+            {/* Upload CV Button */}
+            <div className="relative">
+              <Button className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                Upload CV
+              </Button>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
             </div>
-            <Badge className="bg-blue-100 text-blue-800">
-              {filteredExistingConsultants.length} consultants
-            </Badge>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

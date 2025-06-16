@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,9 +47,11 @@ const Index: React.FC = () => {
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Handle file upload - this will add consultants to "My Consultants"
-    console.log('File uploaded:', event.target.files);
-    // TODO: Process CV and add to "My Consultants"
+    const file = event.target.files?.[0];
+    if (file) {
+      // Navigate to CV upload page with context that this should go to "My Consultants"
+      window.location.href = '/cv-upload?source=my-consultants';
+    }
   };
 
   const renderAssignmentsContent = () => (

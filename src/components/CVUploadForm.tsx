@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -45,18 +45,51 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
   onAgreeToTermsChange,
   onSubmit
 }) => {
+  const [isMyConsultant, setIsMyConsultant] = useState(false);
+
+  // Check if we're uploading for "My Consultants" based on URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const source = urlParams.get('source');
+    setIsMyConsultant(source === 'my-consultants');
+  }, []);
+
   const hasValidLinkedInUrl = linkedinUrl && linkedinUrl.includes('linkedin.com');
   const canStartAnalysis = file && hasValidLinkedInUrl;
+
+  const getCardTitle = () => {
+    if (isMyConsultant) {
+      return "Add Consultant to My Team";
+    }
+    return "Start Your Comprehensive Analysis";
+  };
+
+  const getCardDescription = () => {
+    if (isMyConsultant) {
+      return "Upload CV and LinkedIn profile to add a consultant to your team";
+    }
+    return "Both CV and LinkedIn profile are required for complete professional analysis";
+  };
+
+  const getSubmitButtonText = () => {
+    if (isUploading) {
+      return isMyConsultant ? "Adding to My Team..." : "Saving Comprehensive Profile...";
+    }
+    if (analysisResults) {
+      return isMyConsultant ? "Add to My Team" : "Submit & Join Our Network";
+    }
+    return isMyConsultant ? "Upload CV & Add to My Team" : "Upload CV & Add LinkedIn to Start Analysis";
+  };
 
   return (
     <Card className="shadow-xl">
       <CardHeader className="text-center border-b">
         <div className="flex items-center justify-center mb-4">
           <Upload className="h-6 w-6 mr-2 text-purple-600" />
-          <CardTitle className="text-xl font-semibold">Start Your Comprehensive Analysis</CardTitle>
+          <CardTitle className="text-xl font-semibold">{getCardTitle()}</CardTitle>
         </div>
         <CardDescription className="text-gray-600">
-          Both CV and LinkedIn profile are required for complete professional analysis
+          {getCardDescription()}
         </CardDescription>
       </CardHeader>
       
@@ -195,10 +228,15 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             />
             <div className="text-sm text-gray-600">
               <Label htmlFor="terms" className="cursor-pointer">
-                <span className="font-medium">I agree to comprehensive analysis and network joining</span>
+                <span className="font-medium">
+                  {isMyConsultant ? "I agree to add this consultant to my team" : "I agree to comprehensive analysis and network joining"}
+                </span>
               </Label>
               <p className="mt-1">
-                I consent to MatchWise analyzing my CV and LinkedIn profile for advanced consultant matching.
+                {isMyConsultant 
+                  ? "I consent to MatchWise analyzing this CV and LinkedIn profile for my consultant team."
+                  : "I consent to MatchWise analyzing my CV and LinkedIn profile for advanced consultant matching."
+                }
               </p>
             </div>
           </div>
@@ -212,17 +250,17 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             {isUploading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Saving Comprehensive Profile...
+                {getSubmitButtonText()}
               </>
             ) : analysisResults ? (
               <>
                 <CheckCircle2 className="mr-2 h-5 w-5" />
-                Submit & Join Our Network
+                {getSubmitButtonText()}
               </>
             ) : (
               <>
                 <Upload className="mr-2 h-5 w-5" />
-                Upload CV & Add LinkedIn to Start Analysis
+                {getSubmitButtonText()}
               </>
             )}
           </Button>
