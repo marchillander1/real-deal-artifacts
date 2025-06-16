@@ -42,7 +42,7 @@ Please provide a comprehensive analysis covering:
 8. Leadership potential (1-5 scale)
 9. Adaptability rating (1-5 scale)
 
-Provide realistic professional assessments in Swedish context. Return as JSON with these exact keys:
+Provide realistic professional assessments. Return as JSON with these exact keys:
 {
   "communicationStyle": "string",
   "leadershipStyle": "string", 
@@ -66,7 +66,7 @@ Provide realistic professional assessments in Swedish context. Return as JSON wi
         messages: [
           {
             role: 'system',
-            content: 'You are a professional LinkedIn profile analyzer specializing in Swedish consulting market. Provide realistic, professional assessments based on typical LinkedIn profiles.'
+            content: 'You are a professional LinkedIn profile analyzer specializing in consulting market analysis. Provide realistic, professional assessments based on typical LinkedIn profiles. Always respond in English.'
           },
           {
             role: 'user',
@@ -103,14 +103,14 @@ Provide realistic professional assessments in Swedish context. Return as JSON wi
       }
     } catch (parseError) {
       console.warn('⚠️ Failed to parse GROQ response, using fallback:', parseError);
-      // Provide professional fallback analysis
+      // Provide professional fallback analysis in English
       analysis = {
-        communicationStyle: 'Professionell och strukturerad',
-        leadershipStyle: 'Kollaborativ och coachande',
-        problemSolving: 'Analytisk och systematisk',
-        teamCollaboration: 'Stark teamspelare med mentorskapsförmåga',
+        communicationStyle: 'Professional and structured',
+        leadershipStyle: 'Collaborative and coaching-oriented',
+        problemSolving: 'Analytical and systematic',
+        teamCollaboration: 'Strong team player with mentorship abilities',
         innovation: 4,
-        businessAcumen: 'God förståelse för affärsprocesser',
+        businessAcumen: 'Good understanding of business processes',
         culturalFit: 4,
         leadership: 4,
         adaptability: 4
@@ -133,14 +133,14 @@ Provide realistic professional assessments in Swedish context. Return as JSON wi
   } catch (error) {
     console.error('❌ LinkedIn analysis error:', error);
     
-    // Return a professional fallback analysis instead of failing
+    // Return a professional fallback analysis instead of failing (in English)
     const fallbackAnalysis = {
-      communicationStyle: 'Professionell och tydlig',
-      leadershipStyle: 'Kollaborativ',
-      problemSolving: 'Analytisk',
-      teamCollaboration: 'Stark teamspelare',
+      communicationStyle: 'Professional and clear',
+      leadershipStyle: 'Collaborative',
+      problemSolving: 'Analytical',
+      teamCollaboration: 'Strong team player',
       innovation: 4,
-      businessAcumen: 'God affärsförståelse',
+      businessAcumen: 'Good business understanding',
       culturalFit: 4,
       leadership: 3,
       adaptability: 4
