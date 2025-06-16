@@ -176,23 +176,23 @@ const CVUpload: React.FC = () => {
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-blue-600 mb-2">🔧</div>
-                <h3 className="font-semibold text-sm">Technical Expertise</h3>
-                <p className="text-xs text-gray-600">Deep skill analysis</p>
+                <h3 className="font-semibold text-sm">Technical Analysis</h3>
+                <p className="text-xs text-gray-600">Skills assessment</p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="text-purple-600 mb-2">👥</div>
-                <h3 className="font-semibold text-sm">Leadership Analysis</h3>
-                <p className="text-xs text-gray-600">Team fit assessment</p>
+                <div className="text-purple-600 mb-2">🔗</div>
+                <h3 className="font-semibold text-sm">LinkedIn Analysis</h3>
+                <p className="text-xs text-gray-600">Profile optimization</p>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg">
                 <div className="text-orange-600 mb-2">💡</div>
-                <h3 className="font-semibold text-sm">Improvement Tips</h3>
-                <p className="text-xs text-gray-600">Career guidance</p>
+                <h3 className="font-semibold text-sm">Improvement Plan</h3>
+                <p className="text-xs text-gray-600">Actionable steps</p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <div className="text-green-600 mb-2">📈</div>
                 <h3 className="font-semibold text-sm">Market Positioning</h3>
-                <p className="text-xs text-gray-600">Rate benchmarking</p>
+                <p className="text-xs text-gray-600">Rate optimization</p>
               </div>
             </div>
           </div>
@@ -221,10 +221,10 @@ const CVUpload: React.FC = () => {
                 />
               ) : (
                 <div className="space-y-6">
-                  {/* Enhanced Analysis Results with comprehensive insights */}
+                  {/* Analysis Complete Header */}
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold text-gray-900">🤖 Comprehensive CV & LinkedIn Analysis</h2>
+                      <h2 className="text-2xl font-bold text-gray-900">🤖 Professional Analysis Complete</h2>
                       <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                         Analysis Complete ✓
                       </div>
@@ -232,7 +232,7 @@ const CVUpload: React.FC = () => {
 
                     {/* Professional Summary */}
                     <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-500">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">📋 Professional Summary</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">📋 Professional Overview</h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-sm text-gray-600">Experience Level</p>
@@ -253,10 +253,10 @@ const CVUpload: React.FC = () => {
 
                     {/* Technical Skills Analysis */}
                     <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🔧 Technical Expertise Analysis</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🔧 Technical Assessment</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-gray-900 mb-3">Core Skills</h4>
+                          <h4 className="font-medium text-gray-900 mb-3">Current Skills</h4>
                           <div className="flex flex-wrap gap-2">
                             {(analysisResults.technicalAssessment?.skillsGapAnalysis?.strengths || 
                               analysisResults.cvAnalysis?.technicalExpertise?.programmingLanguages?.expert || 
@@ -268,7 +268,7 @@ const CVUpload: React.FC = () => {
                           </div>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-gray-900 mb-3">Technical Maturity</h4>
+                          <h4 className="font-medium text-gray-900 mb-3">Skill Maturity</h4>
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-600">Frontend</span>
@@ -285,206 +285,169 @@ const CVUpload: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      
-                      {/* Skills Gap Analysis */}
-                      {analysisResults.technicalAssessment?.skillsGapAnalysis?.missing?.length > 0 && (
-                        <div className="mt-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
-                          <h4 className="font-medium text-gray-900 mb-2">🎯 High-Demand Skills to Add</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {analysisResults.technicalAssessment.skillsGapAnalysis.missing.slice(0, 5).map((skill: string, index: number) => (
-                              <span key={index} className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
-                                + {skill}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
 
-                    {/* LinkedIn Analysis Based on Posts & Bio */}
+                    {/* LinkedIn Analysis */}
                     <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🔗 LinkedIn Analysis (30 Recent Posts + Bio)</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🔗 LinkedIn Analysis</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-linkedin-blue bg-opacity-10 p-4 rounded-lg border border-blue-200">
-                          <h4 className="font-medium text-gray-900 mb-3">Content Analysis</h4>
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                          <h4 className="font-medium text-gray-900 mb-3">Profile Analysis</h4>
                           <div className="space-y-2">
                             <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Post Frequency</span>
-                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.postFrequency || 'Medium'}</span>
+                              <span className="text-sm text-gray-600">Professional Presence</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.professionalPresence || 'Good'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Consulting Readiness</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.consultingReadiness || '7/10'}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-sm text-gray-600">Content Quality</span>
-                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.contentQuality || 'Good'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Thought Leadership</span>
-                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.thoughtLeadership || 'Moderate'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Engagement Level</span>
-                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.engagementLevel || 'Medium'}</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.contentQuality || 'Moderate'}</span>
                             </div>
                           </div>
                         </div>
                         
                         <div className="bg-purple-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-gray-900 mb-3">Professional Bio Analysis</h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Bio Clarity</span>
-                              <span className="font-medium">{analysisResults.linkedinAnalysis?.bioAnalysis?.clarity || 'Good'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Consultant Positioning</span>
-                              <span className="font-medium">{analysisResults.linkedinAnalysis?.bioAnalysis?.consultantPositioning || 'Moderate'}</span>
-                            </div>
-                            <div className="mt-3">
-                              <p className="text-sm text-gray-600 mb-1">Key Strengths:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {(analysisResults.linkedinAnalysis?.bioAnalysis?.keyStrengths || ['Technical expertise', 'Clear communication']).map((strength: string, index: number) => (
-                                  <span key={index} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                                    {strength}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Leadership & Team Fit Analysis */}
-                    <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">👥 Leadership & Team Fit Assessment</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="text-center p-4 bg-purple-50 rounded-lg">
-                          <div className="text-2xl font-bold text-purple-600">{analysisResults.linkedinAnalysis?.leadership || 7}/10</div>
-                          <p className="text-sm text-gray-600">Leadership Score</p>
-                        </div>
-                        <div className="text-center p-4 bg-green-50 rounded-lg">
-                          <div className="text-2xl font-bold text-green-600">{analysisResults.linkedinAnalysis?.culturalFit || 8}/10</div>
-                          <p className="text-sm text-gray-600">Cultural Fit</p>
-                        </div>
-                        <div className="text-center p-4 bg-orange-50 rounded-lg">
-                          <div className="text-2xl font-bold text-orange-600">{analysisResults.linkedinAnalysis?.adaptability || 9}/10</div>
-                          <p className="text-sm text-gray-600">Adaptability</p>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Work Style Analysis</h4>
-                          <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
+                          <h4 className="font-medium text-gray-900 mb-3">Communication Style</h4>
+                          <p className="text-sm text-gray-700 mb-3">
                             {analysisResults.linkedinAnalysis?.communicationStyle || 
-                             'Professional and structured communication with clear technical explanations and collaborative approach'}
+                             'Professional and technical communication with good industry engagement'}
                           </p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Team Collaboration</h4>
-                          <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
-                            {analysisResults.linkedinAnalysis?.teamCollaboration || 
-                             'Strong collaborative partner focused on knowledge sharing and cross-functional teamwork'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Certification Recommendations */}
-                    <div className="mb-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-l-4 border-indigo-500">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🏆 Certification Recommendations</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {(analysisResults.certificationRecommendations?.technical || [
-                          {
-                            certification: 'AWS Solutions Architect',
-                            priority: 'High',
-                            reason: 'Enhance cloud consulting capabilities',
-                            timeToComplete: '2-3 months',
-                            marketValue: 'High demand in enterprise consulting'
-                          },
-                          {
-                            certification: 'Google Professional Cloud Developer',
-                            priority: 'Medium',
-                            reason: 'Complement frontend skills with cloud backend',
-                            timeToComplete: '1-2 months',
-                            marketValue: 'Growing demand for full-stack cloud developers'
-                          }
-                        ]).map((cert: any, index: number) => (
-                          <div key={index} className="bg-white p-4 rounded border">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium text-gray-900">{cert.certification}</h4>
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                cert.priority === 'High' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {cert.priority} Priority
-                              </span>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-600">Leadership</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.leadership || 7}/10</span>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">{cert.reason}</p>
-                            <div className="text-xs text-gray-500">
-                              <p>⏱️ Time: {cert.timeToComplete}</p>
-                              <p>💼 Value: {cert.marketValue}</p>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-600">Adaptability</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.adaptability || 8}/10</span>
                             </div>
                           </div>
-                        ))}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Improvement Tips */}
+                    {/* Action Plan - NEW FOCUSED SECTION */}
                     <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border-l-4 border-orange-500">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">💡 Career Enhancement Tips</h3>
-                      <div className="space-y-4">
-                        
-                        {/* CV Tips */}
-                        <div>
-                          <h4 className="font-medium text-gray-900 mb-2">📄 CV Optimization</h4>
-                          <div className="space-y-2">
-                            {(analysisResults.improvementTips?.cvTips || [
-                              {
-                                category: 'Technical Skills',
-                                tip: 'Add a dedicated "Technical Skills" section with clear proficiency levels',
-                                priority: 'High'
-                              }
-                            ]).slice(0, 2).map((tip: any, index: number) => (
-                              <div key={index} className="flex items-start space-x-3">
-                                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">{tip.category}</p>
-                                  <p className="text-sm text-gray-700">{tip.tip}</p>
-                                </div>
-                              </div>
-                            ))}
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Improvement Action Plan</h3>
+                      
+                      {/* Immediate Actions (This Week) */}
+                      <div className="mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">THIS WEEK</span>
+                          Immediate Actions
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-white p-4 rounded border-l-4 border-red-400">
+                            <h5 className="font-medium text-gray-900 mb-2">📄 CV Updates</h5>
+                            <ul className="text-sm text-gray-700 space-y-1">
+                              <li>• Add "Technical Skills" section with clear proficiency levels</li>
+                              <li>• Write 3-line professional summary at the top</li>
+                              <li>• Add quantified achievements (numbers, percentages)</li>
+                              <li>• Include 2-3 key projects with tech stack</li>
+                            </ul>
+                          </div>
+                          <div className="bg-white p-4 rounded border-l-4 border-blue-400">
+                            <h5 className="font-medium text-gray-900 mb-2">🔗 LinkedIn Profile</h5>
+                            <ul className="text-sm text-gray-700 space-y-1">
+                              <li>• Update headline: "Role | Tech Stack | Available for Consulting"</li>
+                              <li>• Optimize About section with client focus</li>
+                              <li>• Add top 10 relevant skills and get endorsements</li>
+                              <li>• Update profile photo and banner</li>
+                            </ul>
                           </div>
                         </div>
+                      </div>
 
-                        {/* LinkedIn Tips */}
-                        <div>
-                          <h4 className="font-medium text-gray-900 mb-2">🔗 LinkedIn Optimization</h4>
-                          <div className="space-y-2">
-                            {(analysisResults.improvementTips?.linkedinTips || [
-                              {
-                                category: 'Consulting Readiness',
-                                tip: 'Improve your consulting positioning with client-focused content',
-                                priority: 'High'
-                              }
-                            ]).slice(0, 2).map((tip: any, index: number) => (
-                              <div key={index} className="flex items-start space-x-3">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">{tip.category}</p>
-                                  <p className="text-sm text-gray-700">{tip.tip}</p>
+                      {/* Monthly Plan */}
+                      <div className="mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">30 DAYS</span>
+                          Monthly Development Plan
+                        </h4>
+                        <div className="space-y-4">
+                          <div className="bg-white p-4 rounded border-l-4 border-green-400">
+                            <h5 className="font-medium text-gray-900 mb-2">📚 Skill Development</h5>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-sm font-medium text-gray-800 mb-1">High Priority Skills to Add:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {(analysisResults.technicalAssessment?.skillsGapAnalysis?.missing || 
+                                    ['Docker', 'Kubernetes', 'AWS', 'TypeScript']).slice(0, 4).map((skill: string, index: number) => (
+                                    <span key={index} className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                                      {skill}
+                                    </span>
+                                  ))}
                                 </div>
                               </div>
-                            ))}
+                              <div>
+                                <p className="text-sm font-medium text-gray-800 mb-1">Recommended Certifications:</p>
+                                <ul className="text-xs text-gray-700">
+                                  <li>• AWS Solutions Architect (High Priority)</li>
+                                  <li>• Certified Kubernetes Administrator</li>
+                                  <li>• Google Cloud Professional Developer</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-white p-4 rounded border-l-4 border-purple-400">
+                            <h5 className="font-medium text-gray-900 mb-2">💼 Professional Positioning</h5>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-sm font-medium text-gray-800 mb-1">Content Strategy:</p>
+                                <ul className="text-xs text-gray-700 space-y-1">
+                                  <li>• Share 2 technical posts per week</li>
+                                  <li>• Write about project learnings</li>
+                                  <li>• Comment on industry discussions</li>
+                                  <li>• Share case studies (anonymized)</li>
+                                </ul>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-800 mb-1">Thought Leadership:</p>
+                                <ul className="text-xs text-gray-700 space-y-1">
+                                  <li>• Write about technology trends</li>
+                                  <li>• Share best practices and tips</li>
+                                  <li>• Engage with tech community</li>
+                                  <li>• Build consultant personal brand</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Expected Outcomes */}
+                      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h4 className="font-medium text-gray-900 mb-2">📈 Expected Results</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div className="text-center">
+                            <p className="font-bold text-green-700">Week 1-2</p>
+                            <p className="text-gray-700">Improved profile visibility</p>
+                            <p className="text-xs text-gray-600">+20% profile views</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-bold text-green-700">Month 1</p>
+                            <p className="text-gray-700">Increased opportunities</p>
+                            <p className="text-xs text-gray-600">+50% relevant inquiries</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-bold text-green-700">Month 2-3</p>
+                            <p className="text-gray-700">Rate increase potential</p>
+                            <p className="text-xs text-gray-600">+15% hourly rate</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* ROI Predictions */}
+                    {/* Current Market Position */}
                     <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-l-4 border-green-500">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 Market Positioning & ROI Predictions</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">💰 Market Position & Growth</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-3">Current Market Position</h4>
+                          <h4 className="font-medium text-gray-900 mb-3">Current Value</h4>
                           <div className="bg-white p-4 rounded border">
                             <div className="text-center">
                               <p className="text-2xl font-bold text-green-600">
@@ -499,11 +462,11 @@ const CVUpload: React.FC = () => {
                         </div>
                         
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-3">Growth Potential</h4>
+                          <h4 className="font-medium text-gray-900 mb-3">Growth Timeline</h4>
                           <div className="space-y-2">
                             <div className="bg-white p-3 rounded border">
                               <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">6 months improvement</span>
+                                <span className="text-sm text-gray-600">After improvements (6 months)</span>
                                 <span className="font-medium text-green-600">
                                   {analysisResults.roiPredictions?.improvementPotential?.with6MonthsImprovement?.hourlyRate || 1150} SEK/h
                                 </span>
@@ -512,12 +475,12 @@ const CVUpload: React.FC = () => {
                             </div>
                             <div className="bg-white p-3 rounded border">
                               <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">1 year improvement</span>
+                                <span className="text-sm text-gray-600">Long-term potential (1 year)</span>
                                 <span className="font-medium text-green-600">
                                   {analysisResults.roiPredictions?.improvementPotential?.with1YearImprovement?.hourlyRate || 1300} SEK/h
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-500">Technical certs + thought leadership</p>
+                              <p className="text-xs text-gray-500">Technical expertise + thought leadership</p>
                             </div>
                           </div>
                         </div>
