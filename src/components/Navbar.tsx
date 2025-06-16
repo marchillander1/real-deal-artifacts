@@ -19,12 +19,17 @@ export const Navbar = () => {
           {showAuthButtons && (
             <>
               {user ? (
-                <Button onClick={signOut} variant="outline">
-                  Sign Out
-                </Button>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600">
+                    Welcome, {user.email}
+                  </span>
+                  <Button onClick={signOut} variant="outline">
+                    Sign Out
+                  </Button>
+                </div>
               ) : (
                 <Button asChild>
-                  <Link to="/auth">Login</Link>
+                  <Link to="/pricing-auth">Get Started</Link>
                 </Button>
               )}
             </>

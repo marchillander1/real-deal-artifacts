@@ -1,77 +1,61 @@
 
-import React from 'react';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { Navbar } from "./components/Navbar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
+import { AuthGuard } from "@/components/AuthGuard";
+import { Navbar } from "@/components/Navbar";
 import Index from "./pages/Index";
-import { CVUpload } from "./pages/CVUpload";
 import Landing from "./pages/Landing";
-import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
-import { AuthProvider } from "./hooks/useAuth";
+import { PricingAuth } from "./components/PricingAuth";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
+import { CVUpload } from "./pages/CVUpload";
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
-  const location = useLocation();
-  const showNavbar = location.pathname !== '/';
-
-  // Set up API route for book-meeting
-  React.useEffect(() => {
-    const originalFetch = window.fetch;
-    window.fetch = function(...args) {
-      const [url, options] = args;
-      
-      if (typeof url === 'string' && url.startsWith('/api/book-meeting')) {
-        const supabaseUrl = 'https://xbliknlrikolcjjfhxqa.supabase.co/functions/v1/book-meeting';
-        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGlrbmxyaWtvbGNqamZoeHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzAzNzksImV4cCI6MjA2NDY0NjM3OX0.fdHf9AYYfHAwetzpfagscbmXaQSBVgdd38XvzoN0m14';
-        
-        return originalFetch(supabaseUrl, {
-          ...options,
-          headers: {
-            ...options?.headers,
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-          },
-        });
-      }
-      
-      return originalFetch.apply(this, args);
-    };
-
-    return () => {
-      window.fetch = originalFetch;
-    };
-  }, []);
-
+function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {showNavbar && <Navbar />}
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/matchwiseai" element={<Index />} />
-        <Route path="/cv-upload" element={<CVUpload />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/auth" element={<Auth />} />
-      </Routes>
-    </div>
-  );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
+        <AuthProvider>
+          <Toaster />
+          <BrowserRouter>
+            <div className="min-h-screen bg-background font-sans antialiased">
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/pricing-auth" element={<PricingAuth />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/cv-upload" element={<CVUpload />} />
+                
+                {/* Protected routes */}
+                <Route path="/matchwiseai" element={
+                  <AuthGuard>
+                    <Navbar />
+                    <Index />
+                  </AuthGuard>
+                } />
+                <Route path="/dashboard" element={
+                  <AuthGuard>
+                    <Navbar />
+                    <Dashboard />
+                  </AuthGuard>
+                } />
+                
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;

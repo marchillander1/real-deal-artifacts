@@ -20,43 +20,23 @@ export default function Landing() {
   const totalNetworkConsultants = networkConsultants.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-      {/* Header */}
-      <header className="border-b border-gray-700 bg-gray-900/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Logo />
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#solution" className="text-gray-300 hover:text-white transition-colors">Solution</a>
-            <a href="#benefits" className="text-gray-300 hover:text-white transition-colors">Benefits</a>
-            <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-          </nav>
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <Link to="/matchwiseai">
-                <Button>
-                  Go to Dashboard
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link to="/cv-upload">
-                  <Button>
-                    <Upload className="mr-2 h-4 w-4" />
-                    CV Upload
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button>
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Login
-                  </Button>
-                </Link>
-              </>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Navbar */}
+      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <Logo size="md" variant="full" />
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" onClick={() => window.open('/cv-upload', '_blank')}>
+                Upload CV
+              </Button>
+              <Button asChild>
+                <Link to="/pricing-auth">Get Started</Link>
+              </Button>
+            </div>
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Hero Section */}
       <section className="py-20">

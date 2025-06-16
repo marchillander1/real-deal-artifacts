@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -451,9 +450,9 @@ export const CVUpload = () => {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => window.location.href = '/matchwiseai'}
+                onClick={() => window.location.href = '/pricing-auth'}
               >
-                Go to MatchWise AI
+                Register Account
               </Button>
             </div>
           </CardContent>

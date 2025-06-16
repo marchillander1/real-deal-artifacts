@@ -1,25 +1,39 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import Logo from '@/components/Logo';
 import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, Crown } from 'lucide-react';
 
 export default function Auth() {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  // Check if user came from pricing page with valid payment
+  const packageInfo = location.state;
+  const hasValidPayment = packageInfo?.paymentComplete;
+
+  useEffect(() => {
+    // If no valid payment, redirect to pricing
+    if (!hasValidPayment) {
+      navigate('/pricing-auth');
+    }
+  }, [hasValidPayment, navigate]);
 
   const sendRegistrationNotification = async (userEmail: string, userName?: string) => {
     try {
@@ -72,16 +86,42 @@ export default function Auth() {
     setLoading(false);
   };
 
+  // Show loading if no valid payment state
+  if (!hasValidPayment) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/pricing-auth')}
+            className="absolute top-4 left-4 p-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          
           <div className="flex justify-center mb-4">
             <Logo />
           </div>
+          
+          {packageInfo && (
+            <Badge className="mb-2 bg-green-100 text-green-800">
+              <Crown className="h-3 w-3 mr-1" />
+              {packageInfo.packageName} Package Selected
+            </Badge>
+          )}
+          
           <CardTitle>Welcome to MatchWise AI</CardTitle>
           <CardDescription>
-            Sign in or create an account to get started
+            Complete your registration to access your {packageInfo?.packageName} features
           </CardDescription>
         </CardHeader>
         <CardContent>
