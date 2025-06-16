@@ -189,7 +189,7 @@ export const CVUpload = () => {
   };
 
   const handleContinue = () => {
-    navigate('/dashboard');
+    navigate('/matchwiseai'); // Changed from '/dashboard' to '/matchwiseai'
   };
 
   if (uploadComplete && analysisResults) {

@@ -34,25 +34,32 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
 
-    // Send email
+    // Send notification to admin
     await client.send({
       from: Deno.env.get("SMTP_USERNAME")!,
       to: "marc@matchwise.tech",
-      subject: "New User Registration - MatchWise AI",
+      subject: "🚀 New User Registration - MatchWise AI",
       content: `
-        <h2>New User Registration</h2>
-        <p><strong>Email:</strong> ${userEmail}</p>
-        <p><strong>Name:</strong> ${userName || 'Not provided'}</p>
-        <p><strong>Registration Time:</strong> ${new Date().toLocaleString()}</p>
-        <hr>
-        <p>This notification was sent automatically from MatchWise AI.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">New User Registration</h2>
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Email:</strong> ${userEmail}</p>
+            <p><strong>Name:</strong> ${userName || 'Not provided'}</p>
+            <p><strong>Registration Time:</strong> ${new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' })}</p>
+          </div>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+          <p style="color: #64748b; font-size: 14px;">This notification was sent automatically from MatchWise AI platform.</p>
+          <p style="color: #64748b; font-size: 14px;">
+            <a href="https://xbliknlrikolcjjfhxqa.supabase.co/dashboard" style="color: #2563eb;">View in Supabase Dashboard</a>
+          </p>
+        </div>
       `,
       html: true,
     });
 
     await client.close();
 
-    console.log("Registration notification sent via SMTP");
+    console.log("Registration notification sent successfully to marc@matchwise.tech");
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
