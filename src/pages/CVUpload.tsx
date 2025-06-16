@@ -26,31 +26,24 @@ export const CVUpload = () => {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const navigate = useNavigate();
   
-  // Keep track of which files have been analyzed to prevent re-analysis
-  const analyzedFilesRef = useRef<Set<string>>(new Set());
+  // Keep track of analyzed files to prevent re-analysis
+  const analyzedFiles = useRef<Set<string>>(new Set());
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
-        // Create unique identifier for this file
         const fileId = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
         
-        // Check if we've already analyzed this exact file
-        if (!analyzedFilesRef.current.has(fileId)) {
-          setFile(selectedFile);
+        setFile(selectedFile);
+        
+        // Only analyze if this file hasn't been analyzed before
+        if (!analyzedFiles.current.has(fileId)) {
+          analyzedFiles.current.add(fileId);
           setAnalysisResults(null);
-          
-          // Mark this file as being analyzed
-          analyzedFilesRef.current.add(fileId);
-          
           toast.success('CV uploaded! Starting comprehensive AI analysis...');
-          
-          // Start analysis immediately for this specific file
           performAnalysis(selectedFile);
         } else {
-          // Same file selected again, just set it without re-analyzing
-          setFile(selectedFile);
           toast.info('This file has already been analyzed');
         }
       } else {
@@ -69,7 +62,7 @@ export const CVUpload = () => {
     try {
       // Convert file to base64
       const fileBuffer = await fileToAnalyze.arrayBuffer();
-      const fileBase60 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+      const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
 
       console.log('Sending CV for comprehensive parsing...');
       setAnalysisProgress(30);
@@ -77,7 +70,7 @@ export const CVUpload = () => {
       // Call the parse-cv edge function
       const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-cv', {
         body: {
-          file: fileBase60,
+          file: fileBase64,
           fileName: fileToAnalyze.name,
           fileType: fileToAnalyze.type
         }
@@ -112,7 +105,6 @@ export const CVUpload = () => {
           console.log('Auto-filled phone:', personalInfo.phone);
         }
         if (personalInfo.linkedinProfile && !linkedinUrl) {
-          // Ensure it's a full URL
           const linkedinProfile = personalInfo.linkedinProfile.startsWith('http') 
             ? personalInfo.linkedinProfile 
             : `https://linkedin.com/in/${personalInfo.linkedinProfile}`;
@@ -123,7 +115,7 @@ export const CVUpload = () => {
 
       setAnalysisProgress(80);
 
-      // Call LinkedIn analysis - THIS IS REQUIRED FOR COMPREHENSIVE ANALYSIS
+      // Call LinkedIn analysis
       let linkedinAnalysis = null;
       const linkedinToAnalyze = linkedinUrl || parseData.analysis?.personalInfo?.linkedinProfile;
       
@@ -140,7 +132,6 @@ export const CVUpload = () => {
 
           if (linkedinError) {
             console.error('LinkedIn analysis error:', linkedinError);
-            // Don't throw error, continue with CV analysis only
             console.warn('Continuing with CV analysis only - LinkedIn analysis failed');
           } else if (linkedinData?.analysis) {
             linkedinAnalysis = linkedinData.analysis;
@@ -148,14 +139,13 @@ export const CVUpload = () => {
           }
         } catch (linkedinErr) {
           console.error('LinkedIn analysis failed:', linkedinErr);
-          // Don't throw error, continue with CV analysis only
           console.warn('Continuing with CV analysis only');
         }
       }
 
       setAnalysisProgress(100);
 
-      // Set comprehensive analysis results for immediate display
+      // Set comprehensive analysis results
       const completeAnalysis = {
         cvAnalysis: parseData.analysis,
         linkedinAnalysis: linkedinAnalysis
@@ -171,7 +161,7 @@ export const CVUpload = () => {
       
       // Remove file from analyzed set to allow retry
       const fileId = `${fileToAnalyze.name}-${fileToAnalyze.size}-${fileToAnalyze.lastModified}`;
-      analyzedFilesRef.current.delete(fileId);
+      analyzedFiles.current.delete(fileId);
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
@@ -194,7 +184,7 @@ export const CVUpload = () => {
     setIsUploading(true);
 
     try {
-      // Prepare comprehensive consultant data with complete analysis integration
+      // Prepare comprehensive consultant data
       const consultantData = {
         name: fullName,
         email: email,
@@ -208,7 +198,7 @@ export const CVUpload = () => {
         availability: 'Available now',
         cv_file_path: `cv_${Date.now()}_${file.name}`,
         
-        // Enhanced soft skills and human factors from comprehensive LinkedIn analysis
+        // Enhanced soft skills and human factors
         communication_style: analysisResults.linkedinAnalysis?.communicationStyle || 
                            analysisResults.cvAnalysis?.softSkills?.communication?.[0] || 
                            'Professional and clear communication',
@@ -219,13 +209,13 @@ export const CVUpload = () => {
         personality_traits: analysisResults.cvAnalysis?.softSkills?.problemSolving || 
                           ['Analytical', 'Solution-oriented', 'Creative', 'Collaborative'],
         
-        // Human factors scoring from comprehensive LinkedIn analysis
+        // Human factors scoring
         cultural_fit: analysisResults.linkedinAnalysis?.culturalFit || 5,
         leadership: analysisResults.linkedinAnalysis?.leadership || 
                    (analysisResults.cvAnalysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3),
         adaptability: analysisResults.linkedinAnalysis?.adaptability || 5,
         
-        // Professional data from comprehensive CV analysis
+        // Professional data
         certifications: analysisResults.cvAnalysis?.certifications?.development || 
                        analysisResults.cvAnalysis?.certifications || [],
         roles: analysisResults.cvAnalysis?.marketPositioning?.targetRoles?.slice(0, 3) || 
@@ -238,7 +228,7 @@ export const CVUpload = () => {
         projects_completed: 0,
         last_active: 'Today',
         
-        // Store complete comprehensive analysis data for advanced searchability and matching
+        // Store complete analysis data
         cvAnalysis: analysisResults.cvAnalysis,
         linkedinAnalysis: analysisResults.linkedinAnalysis
       };
@@ -254,7 +244,7 @@ export const CVUpload = () => {
         throw new Error(`Failed to save profile: ${insertError.message}`);
       }
 
-      console.log('Consultant saved to database successfully with comprehensive profile');
+      console.log('Consultant saved to database successfully');
 
       // Send welcome email
       try {
@@ -273,11 +263,11 @@ export const CVUpload = () => {
       }
 
       setUploadComplete(true);
-      toast.success('🎉 Comprehensive profile saved! You are now part of our consultant network with complete professional analysis.');
+      toast.success('🎉 Comprehensive profile saved! You are now part of our consultant network.');
 
     } catch (error) {
       console.error('Save error:', error);
-      toast.error(`Failed to save comprehensive profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      toast.error(`Failed to save profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
       setIsUploading(false);
     }
