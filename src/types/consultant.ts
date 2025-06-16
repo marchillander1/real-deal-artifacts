@@ -242,4 +242,44 @@ export interface Match {
   communicationMatch: number;
   valuesAlignment: number;
   letter: string;
+  technicalAnalysis?: {
+    matchedSkills: string[];
+    unmatchedSkills: string[];
+    technicalDepth: string;
+    skillMatchPercentage: number;
+    experienceLevel: string;
+    certifications: string[];
+    learningRecommendations: string[];
+  };
+  personalityAnalysis?: {
+    workStyleCompatibility: number;
+    communicationAlignment: number;
+    teamFitScore: number;
+    leadershipPotential: number;
+    adaptabilityScore: number;
+    personalityTraits: string[];
+    workStyle: string;
+    communicationStyle: string;
+    culturalValues: string[];
+    strengthsForRole: string[];
+  };
+  industryAnalysis?: {
+    industryExperience: boolean;
+    industryKnowledgeScore: number;
+    relevantProjects: number;
+    industrySpecificSkills: string[];
+    marketUnderstanding: number;
+    clientTypeExperience: string[];
+    regulatoryKnowledge: string;
+  };
+  projectMetrics?: {
+    successRate: string;
+    completedProjects: number;
+    averageProjectDuration: string;
+    clientSatisfactionScore: string;
+    repeatClientRate: string;
+    timeToProductivity: string;
+    budgetAccuracy: string;
+    deliveryTimeliness: string;
+  };
 }
