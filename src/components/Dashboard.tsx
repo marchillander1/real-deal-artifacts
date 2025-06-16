@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,9 +8,35 @@ import { ConsultantsTab } from './ConsultantsTab';
 import AIMatchingPreview from './AIMatchingPreview';
 import { CVUploadForm } from './CVUploadForm';
 import { MatchWiseChat } from './MatchWiseChat';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview');
+  const { consultants } = useSupabaseConsultantsWithDemo();
+
+  // Fetch matches data for stats
+  const { data: matchesData = [] } = useQuery({
+    queryKey: ['matches'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('matches')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching matches:', error);
+        return [];
+      }
+      return data || [];
+    },
+  });
+
+  // Real stats using actual data
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
+  const myConsultants = consultants.filter(consultant => consultant.type === 'existing');
+  const totalConsultants = consultants.length;
+  const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -39,9 +64,9 @@ export default function Dashboard() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">247</div>
+                  <div className="text-2xl font-bold">{totalConsultants}</div>
                   <p className="text-xs text-muted-foreground">
-                    +12% from last month
+                    {networkConsultants.length} network + {myConsultants.length} my consultants
                   </p>
                 </CardContent>
               </Card>

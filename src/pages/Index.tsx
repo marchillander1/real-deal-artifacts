@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus, Brain }
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { ConsultantsTab } from "../components/ConsultantsTab";
 import { AIMatchingResults } from "../components/AIMatchingResults";
-import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
+import { useSupabaseConsultantsWithDemo } from "@/hooks/useSupabaseConsultantsWithDemo";
 import { useDemoAssignments } from "@/hooks/useDemoAssignments";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,7 +16,7 @@ const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedAssignmentForMatching, setSelectedAssignmentForMatching] = useState<Assignment | null>(null);
-  const { consultants } = useSupabaseConsultants();
+  const { consultants } = useSupabaseConsultantsWithDemo();
   const { assignments, addAssignment } = useDemoAssignments();
 
   // Fetch matches data for stats
@@ -34,10 +35,10 @@ const Index: React.FC = () => {
     },
   });
 
-  // Real dashboard stats using actual limited data (1 network + 5 my consultants = 6 total)
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'new'); // Should be 1
-  const myConsultants = consultants.filter(consultant => consultant.type === 'existing'); // Should be 5
-  const totalConsultants = consultants.length; // Should be 6 total
+  // Real dashboard stats using actual data
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
+  const myConsultants = consultants.filter(consultant => consultant.type === 'existing');
+  const totalConsultants = consultants.length;
   const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
   const avgMatchTime = "12 seconds";
 

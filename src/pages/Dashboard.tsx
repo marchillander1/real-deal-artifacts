@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { EnhancedConsultantsTab } from "../components/EnhancedConsultantsTab";
-import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
+import { useSupabaseConsultantsWithDemo } from "@/hooks/useSupabaseConsultantsWithDemo";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,7 +27,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [matchResults, setMatchResults] = useState<any[]>([]);
   const [showMatchResults, setShowMatchResults] = useState(false);
-  const { consultants } = useSupabaseConsultants();
+  const { consultants } = useSupabaseConsultantsWithDemo();
 
   // Fetch matches data for stats
   const { data: matchesData = [] } = useQuery({

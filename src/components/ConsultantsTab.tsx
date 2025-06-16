@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Star, MapPin, Clock, Search, Filter, Users, Upload, Award } from 'lucide-react';
 import ConsultantCard from './ConsultantCard';
 import { Consultant } from '@/types/consultant';
+import { ConsultantEditDialog } from './ConsultantEditDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -15,12 +19,14 @@ interface ConsultantsTabProps {
 }
 
 export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
-  showEditForNetwork = true,
+  showEditForNetwork = false,
   showDeleteForMyConsultants = false,
-  showRemoveDuplicates = true
+  showRemoveDuplicates = false
 }) => {
-  const { consultants, isLoading } = useSupabaseConsultants();
-  const [activeSubTab, setActiveSubTab] = useState<'network' | 'my'>('network');
+  const { consultants, isLoading, updateConsultant } = useSupabaseConsultantsWithDemo();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Limit consultants to specific amounts for clean display
@@ -68,6 +74,18 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       </div>
     );
   }
+
+  const filteredExistingConsultants = existingConsultants.filter(consultant =>
+    consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    consultant.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredNetworkConsultants = networkConsultants.filter(consultant =>
+    consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    consultant.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
@@ -140,12 +158,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <p className="text-gray-600">Our established team of experienced professionals</p>
             </div>
             <Badge className="bg-blue-100 text-blue-800">
-              {existingConsultants.length} consultants
+              {filteredExistingConsultants.length} consultants
             </Badge>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {existingConsultants.map((consultant) => (
+            {filteredExistingConsultants.map((consultant) => (
               <div key={consultant.id} className="relative">
                 <ConsultantCard consultant={consultant} isNew={false} />
                 {showDeleteForMyConsultants && (
@@ -162,7 +180,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             ))}
           </div>
 
-          {existingConsultants.length === 0 && (
+          {filteredExistingConsultants.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants yet</h3>
