@@ -1,78 +1,62 @@
 
 import React, { useState } from 'react';
-import { useSupabaseConsultantsDedup } from '@/hooks/useSupabaseConsultantsDedup';
-import ConsultantCard from '@/components/ConsultantCard';
-import { ConsultantEditDialog } from '@/components/ConsultantEditDialog';
+import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Upload, Trash2, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Users, Trash2 } from 'lucide-react';
+import ConsultantCard from './ConsultantCard';
 import { Consultant } from '@/types/consultant';
-import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
-export const ConsultantsTab: React.FC = () => {
-  const { consultants, isLoading, updateConsultant, removeDuplicates } = useSupabaseConsultantsDedup();
+interface ConsultantsTabProps {
+  showEditForNetwork?: boolean;
+  showDeleteForMyConsultants?: boolean;
+  showRemoveDuplicates?: boolean;
+}
+
+export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
+  showEditForNetwork = true,
+  showDeleteForMyConsultants = false,
+  showRemoveDuplicates = true
+}) => {
+  const { consultants, isLoading, refetch } = useSupabaseConsultants();
+  const [activeSubTab, setActiveSubTab] = useState<'network' | 'my'>('network');
   const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
 
-  // Filter consultants based on type - show network consultants (new) and existing consultants separately
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const networkConsultants = consultants.filter(c => c.type === 'new');
 
-  const handleRemoveDuplicates = async () => {
+  const handleDeleteConsultant = async (consultantId: string) => {
     try {
-      await removeDuplicates();
-      toast({
-        title: "Duplicates removed",
-        description: "All duplicate consultants have been removed from the database.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Could not remove duplicates. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+      const { error } = await supabase
+        .from('consultants')
+        .delete()
+        .eq('id', consultantId);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    const file = files[0];
-    setIsUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/parse-cv', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to process CV');
+      if (error) {
+        console.error('Error deleting consultant:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete consultant",
+          variant: "destructive",
+        });
+        return;
       }
 
-      const result = await response.json();
-      
       toast({
-        title: "CV uploaded successfully",
-        description: "The consultant profile has been created and added to the network.",
+        title: "Success",
+        description: "Consultant deleted successfully",
       });
-
-      // Reset the file input
-      event.target.value = '';
+      
+      refetch();
     } catch (error) {
-      console.error('CV upload error:', error);
+      console.error('Error deleting consultant:', error);
       toast({
-        title: "Upload failed",
-        description: "Could not process the CV. Please try again.",
+        title: "Error",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -85,141 +69,107 @@ export const ConsultantsTab: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Stats and Actions */}
-      <div className="grid md:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-blue-600" />
-              <div>
-                <p className="text-sm text-gray-600">Total consultants</p>
-                <p className="text-2xl font-bold">{consultants.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-sm text-gray-600">My consultants</p>
-                <p className="text-2xl font-bold">{existingConsultants.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Upload className="h-5 w-5 text-purple-600" />
-              <div>
-                <p className="text-sm text-gray-600">Network consultants</p>
-                <p className="text-2xl font-bold">{networkConsultants.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="relative">
-              <Button 
-                disabled={isUploading}
-                className="w-full flex items-center gap-2 bg-green-600 hover:bg-green-700"
-              >
-                <Upload className="h-4 w-4" />
-                {isUploading ? 'Processing...' : 'Upload CV'}
-              </Button>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileUpload}
-                disabled={isUploading}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              <Upload className="h-3 w-3 inline mr-1" />
-              Add consultant to network
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <Button 
-              onClick={handleRemoveDuplicates} 
-              variant="destructive"
-              className="w-full flex items-center gap-2"
-            >
-              <Trash2 className="h-4 w-4" />
-              Remove duplicates
-            </Button>
-            <p className="text-xs text-gray-500 mt-2">
-              <AlertTriangle className="h-3 w-3 inline mr-1" />
-              Removes duplicates based on email
-            </p>
-          </CardContent>
-        </Card>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Consultant Database</h2>
+          <p className="text-gray-600">AI-powered consultant profiles with automated skill extraction</p>
+        </div>
       </div>
 
-      {/* Consultants List */}
-      <Tabs defaultValue="network" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="network">Network consultants ({networkConsultants.length})</TabsTrigger>
-          <TabsTrigger value="mine">My consultants ({existingConsultants.length})</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="network" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Sub Navigation */}
+      <div className="flex space-x-8 mb-8 border-b">
+        <button 
+          className={`font-medium pb-2 ${activeSubTab === 'network' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+          onClick={() => setActiveSubTab('network')}
+        >
+          Network Consultants
+        </button>
+        <button 
+          className={`font-medium pb-2 ${activeSubTab === 'my' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+          onClick={() => setActiveSubTab('my')}
+        >
+          My Consultants
+        </button>
+      </div>
+
+      {/* Network Consultants Tab */}
+      {activeSubTab === 'network' && (
+        <div>
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <Users className="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Network Consultants</h3>
+              <p className="text-gray-600">External consultants who joined through our platform</p>
+            </div>
+            <Badge className="bg-green-100 text-green-800">
+              {networkConsultants.length} consultants
+            </Badge>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {networkConsultants.map((consultant) => (
               <div key={consultant.id} className="relative">
-                <ConsultantCard consultant={consultant} />
-                <div className="absolute top-2 right-2">
-                  <ConsultantEditDialog
-                    consultant={consultant}
-                    onSave={(updated) => updateConsultant(updated)}
-                  />
-                </div>
+                <ConsultantCard consultant={consultant} isNew={true} />
               </div>
             ))}
           </div>
+
           {networkConsultants.length === 0 && (
-            <div className="text-center py-8">
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No network consultants found</p>
-              <p className="text-sm text-gray-500">Upload consultant CVs to add them to your network</p>
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No network consultants yet</h3>
+              <p className="text-gray-600">Network consultants will appear here when they upload their CVs</p>
             </div>
           )}
-        </TabsContent>
-        
-        <TabsContent value="mine" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        </div>
+      )}
+
+      {/* My Consultants Tab */}
+      {activeSubTab === 'my' && (
+        <div>
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Users className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">My Consultants</h3>
+              <p className="text-gray-600">Our established team of experienced professionals</p>
+            </div>
+            <Badge className="bg-blue-100 text-blue-800">
+              {existingConsultants.length} consultants
+            </Badge>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {existingConsultants.map((consultant) => (
               <div key={consultant.id} className="relative">
-                <ConsultantCard consultant={consultant} />
-                <div className="absolute top-2 right-2">
-                  <ConsultantEditDialog
-                    consultant={consultant}
-                    onSave={(updated) => updateConsultant(updated)}
-                  />
-                </div>
+                <ConsultantCard consultant={consultant} isNew={false} />
+                {showDeleteForMyConsultants && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2 h-8 w-8 p-0"
+                    onClick={() => handleDeleteConsultant(consultant.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             ))}
           </div>
+
           {existingConsultants.length === 0 && (
-            <div className="text-center py-8">
+            <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No personal consultants found</p>
-              <p className="text-sm text-gray-500">Your existing consultants will appear here</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants yet</h3>
+              <p className="text-gray-600">Upload CVs to add consultants to your team</p>
             </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
     </div>
   );
 };

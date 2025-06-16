@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,8 +45,9 @@ const Index: React.FC = () => {
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Handle file upload
+    // Handle file upload - this will add consultants to "My Consultants"
     console.log('File uploaded:', event.target.files);
+    // TODO: Process CV and add to "My Consultants"
   };
 
   const renderAssignmentsContent = () => (
@@ -283,7 +285,13 @@ const Index: React.FC = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'dashboard' && renderDashboardContent()}
-        {activeTab === 'consultants' && <ConsultantsTab />}
+        {activeTab === 'consultants' && (
+          <ConsultantsTab 
+            showEditForNetwork={false}
+            showDeleteForMyConsultants={true}
+            showRemoveDuplicates={false}
+          />
+        )}
         {activeTab === 'assignments' && renderAssignmentsContent()}
       </div>
 
