@@ -45,3 +45,37 @@ export interface Consultant {
     teamCollaboration: string;
   };
 }
+
+export interface Assignment {
+  id: string | number;
+  title: string;
+  description: string;
+  requiredSkills: string[];
+  startDate: string;
+  duration: string;
+  workload: string;
+  budget: string;
+  company: string;
+  industry: string;
+  teamSize: string;
+  remote: string;
+  urgency: string;
+  clientLogo: string;
+  teamCulture: string;
+  desiredCommunicationStyle: string;
+  requiredValues: string[];
+  leadershipLevel: number;
+  teamDynamics: string;
+}
+
+export interface Match {
+  consultant: Consultant;
+  score: number;
+  matchedSkills: string[];
+  estimatedSavings: number;
+  responseTime: number;
+  humanFactorsScore: number;
+  culturalMatch: number;
+  communicationMatch: number;
+  valuesAlignment: number;
+}
