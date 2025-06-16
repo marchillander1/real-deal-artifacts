@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -190,16 +191,16 @@ const generateTechnicalAssessment = (cvAnalysis: any, linkedinAnalysis: any) => 
     allSkills.some(userSkill => userSkill.toLowerCase().includes(skill.toLowerCase()))
   );
 
-  // Calculate technical maturity scores
+  // Calculate technical maturity scores - ensure integers
   const frontendSkills = ['React', 'Vue', 'Angular', 'JavaScript', 'TypeScript', 'CSS', 'HTML'];
   const backendSkills = ['Node.js', 'Python', 'Java', 'C#', 'Go', 'Rust'];
   const devopsSkills = ['Docker', 'Kubernetes', 'AWS', 'Azure', 'Terraform', 'Jenkins'];
   const dataSkills = ['SQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Elasticsearch'];
 
-  assessment.technicalMaturity.frontendScore = calculateSkillScore(allSkills, frontendSkills);
-  assessment.technicalMaturity.backendScore = calculateSkillScore(allSkills, backendSkills);
-  assessment.technicalMaturity.devopsScore = calculateSkillScore(allSkills, devopsSkills);
-  assessment.technicalMaturity.dataScore = calculateSkillScore(allSkills, dataSkills);
+  assessment.technicalMaturity.frontendScore = Math.round(calculateSkillScore(allSkills, frontendSkills));
+  assessment.technicalMaturity.backendScore = Math.round(calculateSkillScore(allSkills, backendSkills));
+  assessment.technicalMaturity.devopsScore = Math.round(calculateSkillScore(allSkills, devopsSkills));
+  assessment.technicalMaturity.dataScore = Math.round(calculateSkillScore(allSkills, dataSkills));
 
   const averageScore = (assessment.technicalMaturity.frontendScore + 
                        assessment.technicalMaturity.backendScore + 
@@ -211,7 +212,7 @@ const generateTechnicalAssessment = (cvAnalysis: any, linkedinAnalysis: any) => 
   else if (averageScore >= 4) assessment.technicalMaturity.overallLevel = 'Mid-level';
   else assessment.technicalMaturity.overallLevel = 'Junior';
 
-  // Generate improvement priorities
+  // Generate improvement priorities in English
   if (assessment.skillsGapAnalysis.missing.length > 0) {
     assessment.improvementPriority.push({
       category: 'Critical Skills Gap',
@@ -512,16 +513,16 @@ const generateCertificationRecommendations = (cvAnalysis: any, linkedinAnalysis:
 };
 
 const generateROIPredictions = (cvAnalysis: any, linkedinAnalysis: any) => {
-  // Fix: Handle both string and number values for hourly rate
+  // Fix: Handle both string and number values for hourly rate - ensure integers
   let baseRate = 800; // Default fallback
   
   if (cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended) {
     const recommended = cvAnalysis.marketPositioning.hourlyRateEstimate.recommended;
     
     if (typeof recommended === 'number') {
-      baseRate = recommended;
+      baseRate = Math.round(recommended);
     } else if (typeof recommended === 'string') {
-      baseRate = parseInt(recommended.replace(/\D/g, '')) || 800;
+      baseRate = Math.round(parseInt(recommended.replace(/\D/g, '')) || 800);
     }
   }
   
@@ -546,9 +547,9 @@ const generateROIPredictions = (cvAnalysis: any, linkedinAnalysis: any) => {
       }
     },
     teamFitValue: {
-      startupFit: linkedinAnalysis?.clientFitIndicators?.startupCompatibility || 4,
-      enterpriseFit: linkedinAnalysis?.clientFitIndicators?.enterpriseCompatibility || 4,
-      consultingReadiness: linkedinAnalysis?.clientFitIndicators?.consultingReadiness || 7,
+      startupFit: Math.round(linkedinAnalysis?.clientFitIndicators?.startupCompatibility || 4),
+      enterpriseFit: Math.round(linkedinAnalysis?.clientFitIndicators?.enterpriseCompatibility || 4),
+      consultingReadiness: Math.round(linkedinAnalysis?.clientFitIndicators?.consultingReadiness || 7),
       expectedOnboardingTime: linkedinAnalysis?.teamFitAssessment?.projectApproach === 'Methodical' ? '1-2 weeks' : '2-3 weeks'
     }
   };
