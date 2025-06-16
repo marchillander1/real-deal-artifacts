@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,13 +27,6 @@ export default function Auth() {
   // Check if user came from pricing page with valid payment
   const packageInfo = location.state;
   const hasValidPayment = packageInfo?.paymentComplete;
-
-  useEffect(() => {
-    // If no valid payment, redirect to pricing
-    if (!hasValidPayment) {
-      navigate('/pricing-auth');
-    }
-  }, [hasValidPayment, navigate]);
 
   const sendRegistrationNotification = async (userEmail: string, userName?: string) => {
     try {
@@ -86,15 +79,6 @@ export default function Auth() {
     setLoading(false);
   };
 
-  // Show loading if no valid payment state
-  if (!hasValidPayment) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -102,7 +86,7 @@ export default function Auth() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/pricing-auth')}
+            onClick={() => navigate('/')}
             className="absolute top-4 left-4 p-2"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -112,7 +96,7 @@ export default function Auth() {
             <Logo />
           </div>
           
-          {packageInfo && (
+          {hasValidPayment && packageInfo && (
             <Badge className="mb-2 bg-green-100 text-green-800">
               <Crown className="h-3 w-3 mr-1" />
               {packageInfo.packageName} Package Selected
@@ -121,7 +105,10 @@ export default function Auth() {
           
           <CardTitle>Welcome to MatchWise AI</CardTitle>
           <CardDescription>
-            Complete your registration to access your {packageInfo?.packageName} features
+            {hasValidPayment 
+              ? `Complete your registration to access your ${packageInfo?.packageName} features`
+              : 'Sign in to your account or create a new one'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
