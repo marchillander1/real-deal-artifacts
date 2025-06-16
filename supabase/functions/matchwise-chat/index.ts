@@ -30,17 +30,17 @@ serve(async (req) => {
     }
 
     // Use AI for intelligent responses
-    const systemPrompt = `Du är MatchWise AI-assistent, en expert på konsultverksamhet och karriärutveckling inom tech-branschen i Sverige. Du hjälper konsulter med:
+    const systemPrompt = `You are the MatchWise AI Assistant, an expert in tech consulting and career development in Sweden. You help consultants with:
 
-1. **Karriärutveckling:** Teknisk progression, specialisering, certifieringar
-2. **Prissättning:** Timarvodering, förhandling, marknadsjämförelser  
-3. **CV & LinkedIn:** Optimering, nyckelord, personal branding
-4. **Kundrelationer:** Affärsutveckling, nätverk, långsiktiga relationer
-5. **MatchWise-plattformen:** Hur matchning fungerar, profil-optimering
+1. **Career Development:** Technical progression, specialization, certifications
+2. **Pricing Strategy:** Hourly rates, negotiation, market comparisons  
+3. **CV & LinkedIn:** Optimization, keywords, personal branding
+4. **Client Relations:** Business development, networking, long-term relationships
+5. **MatchWise Platform:** How matching works, profile optimization
 
-Svara alltid på svenska. Var konkret, praktisk och ge actionable råd. Om användaren frågar om något utanför dina expertområden, hänvisa tillbaka till vad du kan hjälpa med.
+Always respond in English. Be concrete, practical and give actionable advice. If users ask about topics outside your expertise areas, redirect them back to what you can help with.
 
-Kontextinformation om användaren: ${context || 'Ingen specifik kontext tillgänglig'}`;
+User context information: ${context || 'No specific context available'}`;
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -90,7 +90,7 @@ Kontextinformation om användaren: ${context || 'Ingen specifik kontext tillgän
     
     // Fallback response
     return new Response(JSON.stringify({ 
-      reply: 'Ursäkta, jag kan inte svara just nu. Försök igen om ett ögonblick.'
+      reply: 'Sorry, I cannot respond right now. Please try again in a moment.'
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -101,93 +101,93 @@ Kontextinformation om användaren: ${context || 'Ingen specifik kontext tillgän
 function getSimpleFallbackResponse(message: string): string {
   const messageLC = message.toLowerCase();
   
-  if (messageLC.includes('matchwise') || messageLC.includes('plattform') || messageLC.includes('vad är')) {
-    return `# MatchWise - AI-driven Konsultmatchning 🚀
+  if (messageLC.includes('matchwise') || messageLC.includes('platform') || messageLC.includes('what is')) {
+    return `# MatchWise - AI-Powered Consultant Matching 🚀
 
-MatchWise är en plattform som använder AI för att matcha konsulter med rätt uppdrag. Vi analyserar din CV och LinkedIn-profil för att:
+MatchWise is a platform that uses AI to match consultants with the right assignments. We analyze your CV and LinkedIn profile to:
 
-✅ **Hitta perfekta uppdrag** som matchar din expertis
-✅ **Optimera din profil** för bättre synlighet  
-✅ **Ge marknadsinformation** om priser och efterfrågan
-✅ **Matcha företagskultur** för bättre samarbeten
+✅ **Find perfect assignments** matching your expertise
+✅ **Optimize your profile** for better visibility  
+✅ **Provide market insights** on rates and demand
+✅ **Match company culture** for better collaborations
 
-Vad vill du veta mer om?`;
+What would you like to know more about?`;
   }
   
-  if (messageLC.includes('cv') || messageLC.includes('linkedin') || messageLC.includes('profil')) {
-    return `# CV & LinkedIn Optimering 📊
+  if (messageLC.includes('cv') || messageLC.includes('linkedin') || messageLC.includes('profile')) {
+    return `# CV & LinkedIn Optimization 📊
 
-Här är mina bästa tips:
+Here are my best tips:
 
-## CV-optimering
-✅ **Använd STAR-metoden** för projektbeskrivningar
-✅ **Kvantifiera resultat** - "Ökade prestanda med 40%"
-✅ **Inkludera rätt nyckelord** för din teknikstack
-✅ **Håll det relevant** - fokusera på senaste 5-8 åren
+## CV Optimization
+✅ **Use STAR method** for project descriptions
+✅ **Quantify results** - "Increased performance by 40%"
+✅ **Include right keywords** for your tech stack
+✅ **Keep it relevant** - focus on last 5-8 years
 
-## LinkedIn-strategi  
-✅ **Optimera rubriken** med nyckelord och värdeproposition
-✅ **Skriv engagerande innehåll** 2-3 gånger per vecka
-✅ **Nätverka strategiskt** med CTOs och techchefer
-✅ **Dela framgångshistorier** från dina projekt
+## LinkedIn Strategy  
+✅ **Optimize headline** with keywords and value proposition
+✅ **Write engaging content** 2-3 times per week
+✅ **Network strategically** with CTOs and tech leaders
+✅ **Share success stories** from your projects
 
-Vill du ha mer specifika tips för din situation?`;
+Want more specific tips for your situation?`;
   }
   
-  if (messageLC.includes('pris') || messageLC.includes('arvode') || messageLC.includes('förhandl')) {
-    return `# Prissättning & Förhandling 💰
+  if (messageLC.includes('price') || messageLC.includes('rate') || messageLC.includes('salary') || messageLC.includes('negotiat')) {
+    return `# Pricing & Negotiation 💰
 
-## Grundläggande prissättning (Stockholm 2024)
-- **Junior (0-2 år):** 650-850 SEK/timme
-- **Mid-level (3-5 år):** 850-1,200 SEK/timme  
-- **Senior (5-8 år):** 1,200-1,600 SEK/timme
-- **Expert/Lead (8+ år):** 1,600-2,200 SEK/timme
+## Basic Pricing (Stockholm 2024)
+- **Junior (0-2 years):** 650-850 SEK/hour
+- **Mid-level (3-5 years):** 850-1,200 SEK/hour  
+- **Senior (5-8 years):** 1,200-1,600 SEK/hour
+- **Expert/Lead (8+ years):** 1,600-2,200 SEK/hour
 
-## Förhandlingstips
-✅ **Börja med värde** - berätta vad du kan leverera
-✅ **Kvantifiera påverkan** - "Sparade företaget 500k/månad"
-✅ **Ha alternativ** - förhandla aldrig från desperation
-✅ **Årliga justeringar** - 8-15% för inflation + kompetensökning
+## Negotiation Tips
+✅ **Start with value** - explain what you can deliver
+✅ **Quantify impact** - "Saved company 500k/month"
+✅ **Have alternatives** - never negotiate from desperation
+✅ **Annual adjustments** - 8-15% for inflation + skill growth
 
-Vilken specifik situation vill du diskutera?`;
+Which specific situation would you like to discuss?`;
   }
   
-  if (messageLC.includes('karriär') || messageLC.includes('utveckling') || messageLC.includes('senior')) {
-    return `# Karriärutveckling för Konsulter 🚀
+  if (messageLC.includes('career') || messageLC.includes('development') || messageLC.includes('senior')) {
+    return `# Career Development for Consultants 🚀
 
-## Teknisk karriärväg
-**Developer → Senior Developer (3-5 år)**
-- Fördjupa dig i 2-3 språk
-- Lär dig arkitektur och designmönster
-- +40-60% arvodeökning
+## Technical Career Path
+**Developer → Senior Developer (3-5 years)**
+- Master 2-3 languages deeply
+- Learn architecture and design patterns
+- +40-60% rate increase
 
-**Senior → Tech Lead (5-8 år)**  
-- Utveckla ledarskapsförmågor
-- Mentorskap och kodgranskning
-- +50-80% arvodeökning
+**Senior → Tech Lead (5-8 years)**  
+- Develop leadership skills
+- Mentorship and code reviews
+- +50-80% rate increase
 
-**Tech Lead → Arkitekt (8-12 år)**
-- Systemdesign och affärsförståelse  
-- Enterprise-arkitektur
-- +60-100% arvodeökning
+**Tech Lead → Architect (8-12 years)**
+- System design and business understanding  
+- Enterprise architecture
+- +60-100% rate increase
 
-## Högvärderade teknologier 2024
+## High-Value Technologies 2024
 - **AI/ML:** +30-50% premium
 - **Cloud Native:** +25-40% premium
 - **Data Engineering:** +30-45% premium
 
-Vilken del av din karriär vill du utveckla?`;
+Which part of your career would you like to develop?`;
   }
   
-  return `# Hej! Jag är MatchWise AI-assistent 🤖
+  return `# Hi! I'm the MatchWise AI Assistant 🤖
 
-Jag hjälper dig med:
+I help you with:
 
-💼 **Karriärutveckling** - Teknisk progression och specialisering
-💰 **Prissättning** - Arvoden, förhandling, marknadspriser  
-📊 **Profil-optimering** - CV och LinkedIn förbättring
-🤝 **Kundrelationer** - Affärsutveckling och nätverk
-🚀 **MatchWise** - Hur plattformen fungerar
+💼 **Career Development** - Technical progression and specialization
+💰 **Pricing Strategy** - Rates, negotiation, market prices  
+📊 **Profile Optimization** - CV and LinkedIn improvement
+🤝 **Client Relations** - Business development and networking
+🚀 **MatchWise Platform** - How the platform works
 
-Vad kan jag hjälpa dig med idag?`;
+What can I help you with today?`;
 }

@@ -56,16 +56,16 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: `Hej! Jag är MatchWise AI-assistenten 🤖
+      text: `Hello! I'm the MatchWise AI Assistant 🤖
 
-Jag hjälper dig med konsultverksamhet och karriärutveckling. 
+I help you with consulting and career development.
 
-**Vad kan jag hjälpa dig med?**
-- Karriärutveckling och teknisk progression
-- Prissättning och förhandling
-- CV och LinkedIn optimering  
-- Kundrelationer och nätverk
-- MatchWise plattformen`,
+**What can I help you with?**
+- Career development and technical progression
+- Pricing and negotiation strategies
+- CV and LinkedIn optimization  
+- Client relations and networking
+- MatchWise platform guidance`,
       sender: 'bot',
       timestamp: new Date()
     }
@@ -86,21 +86,21 @@ Jag hjälper dig med konsultverksamhet och karriärutveckling.
   useEffect(() => {
     if (analysisResults?.cvAnalysis && messages.length === 1) {
       const cv = analysisResults.cvAnalysis;
-      let contextMessage = "👋 Jag ser att du har laddat upp ditt CV! ";
+      let contextMessage = "👋 I see you've uploaded your CV! ";
       
       if (cv.personalInfo?.name) {
-        contextMessage += `Hej ${cv.personalInfo.name}! `;
+        contextMessage += `Hello ${cv.personalInfo.name}! `;
       }
       
       if (cv.professionalSummary?.currentRole) {
-        contextMessage += `Som ${cv.professionalSummary.currentRole} `;
+        contextMessage += `As a ${cv.professionalSummary.currentRole} `;
       }
       
       if (cv.professionalSummary?.yearsOfExperience) {
-        contextMessage += `med ${cv.professionalSummary.yearsOfExperience} års erfarenhet `;
+        contextMessage += `with ${cv.professionalSummary.yearsOfExperience} of experience `;
       }
       
-      contextMessage += "kan jag ge dig skräddarsydda råd för din karriär och konsultverksamhet.";
+      contextMessage += "I can provide you with tailored advice for your career and consulting business.";
       
       const contextMsg: Message = {
         id: '2',
@@ -132,35 +132,35 @@ Jag hjälper dig med konsultverksamhet och karriärutveckling.
       let context = '';
       if (analysisResults?.cvAnalysis) {
         const cv = analysisResults.cvAnalysis;
-        context += `Användarens CV-data: `;
+        context += `User's CV data: `;
         
-        if (cv.personalInfo?.name) context += `Namn: ${cv.personalInfo.name}. `;
+        if (cv.personalInfo?.name) context += `Name: ${cv.personalInfo.name}. `;
         if (cv.personalInfo?.email) context += `Email: ${cv.personalInfo.email}. `;
-        if (cv.personalInfo?.location) context += `Plats: ${cv.personalInfo.location}. `;
+        if (cv.personalInfo?.location) context += `Location: ${cv.personalInfo.location}. `;
         
         if (cv.professionalSummary?.currentRole) {
-          context += `Nuvarande roll: ${cv.professionalSummary.currentRole}. `;
+          context += `Current role: ${cv.professionalSummary.currentRole}. `;
         }
         if (cv.professionalSummary?.yearsOfExperience) {
-          context += `Erfarenhet: ${cv.professionalSummary.yearsOfExperience}. `;
+          context += `Experience: ${cv.professionalSummary.yearsOfExperience}. `;
         }
         if (cv.professionalSummary?.seniorityLevel) {
-          context += `Senioritetsnivå: ${cv.professionalSummary.seniorityLevel}. `;
+          context += `Seniority level: ${cv.professionalSummary.seniorityLevel}. `;
         }
         
         if (cv.technicalSkillsAnalysis?.programmingLanguages?.expert?.length > 0) {
-          context += `Expert färdigheter: ${cv.technicalSkillsAnalysis.programmingLanguages.expert.join(', ')}. `;
+          context += `Expert skills: ${cv.technicalSkillsAnalysis.programmingLanguages.expert.join(', ')}. `;
         }
         if (cv.technicalSkillsAnalysis?.programmingLanguages?.proficient?.length > 0) {
-          context += `Proficient färdigheter: ${cv.technicalSkillsAnalysis.programmingLanguages.proficient.join(', ')}. `;
+          context += `Proficient skills: ${cv.technicalSkillsAnalysis.programmingLanguages.proficient.join(', ')}. `;
         }
         
-        if (cv.marketPositioning?.salaryBenchmarks?.stockholm) {
-          context += `Marknadslön Stockholm: ${cv.marketPositioning.salaryBenchmarks.stockholm}. `;
+        if (cv.marketPositioning?.hourlyRateEstimate?.recommended) {
+          context += `Recommended hourly rate: ${cv.marketPositioning.hourlyRateEstimate.recommended} SEK/hour. `;
         }
         
         if (cv.careerPotential?.currentLevel) {
-          context += `Karriärnivå: ${cv.careerPotential.currentLevel}. `;
+          context += `Career level: ${cv.careerPotential.currentLevel}. `;
         }
       }
 
@@ -183,11 +183,11 @@ Jag hjälper dig med konsultverksamhet och karriärutveckling.
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      toast.error('Kunde inte skicka meddelandet. Försök igen.');
+      toast.error('Could not send message. Please try again.');
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'Ursäkta, jag kunde inte svara just nu. Försök igen senare.',
+        text: 'Sorry, I could not respond right now. Please try again later.',
         sender: 'bot',
         timestamp: new Date()
       };
@@ -205,11 +205,11 @@ Jag hjälper dig med konsultverksamhet och karriärutveckling.
   };
 
   const quickQuestions = [
-    "Hur kan jag öka min timlön?",
-    "Tips för att förbättra mitt CV",
-    "Vilka certifieringar bör jag ta?",
-    "Hur fungerar MatchWise?",
-    "Karriärutveckling inom tech"
+    "How to increase my hourly rate?",
+    "Tips for improving my CV",
+    "Which certifications should I get?",
+    "How does MatchWise work?",
+    "Career development in tech"
   ];
 
   const handleQuickQuestion = (question: string) => {
@@ -300,7 +300,7 @@ Jag hjälper dig med konsultverksamhet och karriärutveckling.
         {/* Quick Questions */}
         {messages.length <= 2 && (
           <div className="p-4 border-t bg-gray-50">
-            <p className="text-xs text-gray-600 mb-3 font-medium">Populära frågor:</p>
+            <p className="text-xs text-gray-600 mb-3 font-medium">Popular questions:</p>
             <div className="flex flex-wrap gap-2">
               {quickQuestions.map((question, idx) => (
                 <Button
@@ -324,7 +324,7 @@ Jag hjälper dig med konsultverksamhet och karriärutveckling.
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Fråga mig om konsultverksamhet..."
+              placeholder="Ask me about consulting..."
               disabled={isLoading}
               className="flex-1"
             />

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Brain, Users, Target, TrendingUp, Star, Award, Heart, Code, CheckCircle, Mail, Phone, MapPin, Globe } from 'lucide-react';
+import { Brain, Users, Target, TrendingUp, Star, Award, Heart, Code, CheckCircle, Mail, Phone, MapPin, Globe, DollarSign } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 
 interface ConsultantAnalysisCardProps {
@@ -103,6 +103,92 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
               <p className="text-sm italic text-blue-800">{cvAnalysis.professionalSummary.uniqueValueProposition}</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Market Position & Hourly Rate */}
+      {cvAnalysis?.marketPositioning && (
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-green-500" />
+            Marknadsposition & Timpris
+          </h5>
+          <div className="space-y-3">
+            {cvAnalysis.marketPositioning.hourlyRateEstimate && (
+              <div className="bg-green-50 p-3 rounded border border-green-200">
+                <h6 className="font-semibold text-green-800 mb-2">Rekommenderat timpris</h6>
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  <div className="text-center">
+                    <p className="text-gray-600">Minimum</p>
+                    <p className="text-lg font-bold text-green-600">{cvAnalysis.marketPositioning.hourlyRateEstimate.min} SEK</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-600">Rekommenderat</p>
+                    <p className="text-xl font-bold text-green-700">{cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} SEK</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-600">Maximum</p>
+                    <p className="text-lg font-bold text-green-600">{cvAnalysis.marketPositioning.hourlyRateEstimate.max} SEK</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {cvAnalysis.marketPositioning.uniqueValueProposition && (
+              <div>
+                <span className="text-sm text-gray-600">Unik värdeproposition:</span>
+                <p className="text-sm font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
+              </div>
+            )}
+            
+            {cvAnalysis.marketPositioning.competitiveness && (
+              <div>
+                <span className="text-sm text-gray-600">Konkurrenskraft:</span>
+                <p className="text-sm font-semibold text-green-600">{cvAnalysis.marketPositioning.competitiveness}</p>
+              </div>
+            )}
+
+            {cvAnalysis.careerPotential?.currentLevel && (
+              <div>
+                <span className="text-sm text-gray-600">Nuvarande nivå:</span>
+                <p className="text-sm font-semibold text-blue-600">{cvAnalysis.careerPotential.currentLevel}</p>
+              </div>
+            )}
+
+            {cvAnalysis.careerPotential?.nextCareerSteps?.length > 0 && (
+              <div>
+                <span className="text-sm text-gray-600">Nästa karriärsteg:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {cvAnalysis.careerPotential.nextCareerSteps.slice(0, 3).map((step: string, idx: number) => (
+                    <Badge key={idx} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">{step}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {cvAnalysis.marketPositioning.salaryBenchmarks && (
+              <div className="grid grid-cols-3 gap-2 mt-3">
+                {cvAnalysis.marketPositioning.salaryBenchmarks.stockholm && (
+                  <div className="text-center p-2 bg-blue-50 rounded">
+                    <p className="text-xs text-gray-600">Stockholm</p>
+                    <p className="text-xs font-bold text-blue-600">{cvAnalysis.marketPositioning.salaryBenchmarks.stockholm}</p>
+                  </div>
+                )}
+                {cvAnalysis.marketPositioning.salaryBenchmarks.gothenburg && (
+                  <div className="text-center p-2 bg-green-50 rounded">
+                    <p className="text-xs text-gray-600">Göteborg</p>
+                    <p className="text-xs font-bold text-green-600">{cvAnalysis.marketPositioning.salaryBenchmarks.gothenburg}</p>
+                  </div>
+                )}
+                {cvAnalysis.marketPositioning.salaryBenchmarks.remote && (
+                  <div className="text-center p-2 bg-purple-50 rounded">
+                    <p className="text-xs text-gray-600">Remote</p>
+                    <p className="text-xs font-bold text-purple-600">{cvAnalysis.marketPositioning.salaryBenchmarks.remote}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -267,72 +353,6 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Market Position & Career Potential */}
-      {cvAnalysis?.marketPositioning && (
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Award className="h-4 w-4 text-purple-500" />
-            Marknadsposition & Karriärpotential
-          </h5>
-          <div className="space-y-3">
-            {cvAnalysis.marketPositioning.uniqueValueProposition && (
-              <div>
-                <span className="text-sm text-gray-600">Unik värdeproposition:</span>
-                <p className="text-sm font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
-              </div>
-            )}
-            
-            {cvAnalysis.marketPositioning.competitiveness && (
-              <div>
-                <span className="text-sm text-gray-600">Konkurrenskraft:</span>
-                <p className="text-sm font-semibold text-green-600">{cvAnalysis.marketPositioning.competitiveness}</p>
-              </div>
-            )}
-
-            {cvAnalysis.careerPotential?.currentLevel && (
-              <div>
-                <span className="text-sm text-gray-600">Nuvarande nivå:</span>
-                <p className="text-sm font-semibold text-blue-600">{cvAnalysis.careerPotential.currentLevel}</p>
-              </div>
-            )}
-
-            {cvAnalysis.careerPotential?.nextCareerSteps?.length > 0 && (
-              <div>
-                <span className="text-sm text-gray-600">Nästa karriärsteg:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {cvAnalysis.careerPotential.nextCareerSteps.slice(0, 3).map((step: string, idx: number) => (
-                    <Badge key={idx} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">{step}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {cvAnalysis.marketPositioning.salaryBenchmarks && (
-              <div className="grid grid-cols-3 gap-2 mt-3">
-                {cvAnalysis.marketPositioning.salaryBenchmarks.stockholm && (
-                  <div className="text-center p-2 bg-blue-50 rounded">
-                    <p className="text-xs text-gray-600">Stockholm</p>
-                    <p className="text-xs font-bold text-blue-600">{cvAnalysis.marketPositioning.salaryBenchmarks.stockholm}</p>
-                  </div>
-                )}
-                {cvAnalysis.marketPositioning.salaryBenchmarks.gothenburg && (
-                  <div className="text-center p-2 bg-green-50 rounded">
-                    <p className="text-xs text-gray-600">Göteborg</p>
-                    <p className="text-xs font-bold text-green-600">{cvAnalysis.marketPositioning.salaryBenchmarks.gothenburg}</p>
-                  </div>
-                )}
-                {cvAnalysis.marketPositioning.salaryBenchmarks.remote && (
-                  <div className="text-center p-2 bg-purple-50 rounded">
-                    <p className="text-xs text-gray-600">Remote</p>
-                    <p className="text-xs font-bold text-purple-600">{cvAnalysis.marketPositioning.salaryBenchmarks.remote}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       )}
 

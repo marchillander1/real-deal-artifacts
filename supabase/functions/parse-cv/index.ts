@@ -1,6 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +16,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('📄 CV Analysis function called');
+    
     const formData = await req.formData();
     const file = formData.get('file') as File;
     
@@ -22,204 +25,214 @@ serve(async (req) => {
       throw new Error('No file provided');
     }
 
-    if (!GROQ_API_KEY) {
-      throw new Error('GROQ_API_KEY is not configured');
-    }
+    console.log('📄 Processing file:', file.name, 'Size:', file.size);
 
-    console.log('Processing CV file:', file.name, 'Type:', file.type);
-
-    // Extract text from file
-    let extractedText = '';
+    const fileBuffer = await file.arrayBuffer();
+    const fileContent = new TextDecoder().decode(fileBuffer);
     
-    if (file.type === 'application/pdf') {
-      // For now, we'll work with filename and basic info
-      // In production, you'd want to add PDF parsing
-      extractedText = `CV Document: ${file.name}`;
-    } else if (file.type.includes('text') || file.name.endsWith('.txt')) {
-      extractedText = await file.text();
-    } else if (file.type.startsWith('image/')) {
-      extractedText = `Image CV: ${file.name}`;
-    } else {
-      extractedText = `Document: ${file.name}`;
+    console.log('📄 File content length:', fileContent.length);
+
+    if (!GROQ_API_KEY) {
+      console.warn('⚠️ No GROQ API key found, returning basic analysis');
+      return new Response(JSON.stringify({
+        success: true,
+        analysis: {
+          personalInfo: {
+            name: 'Unknown',
+            email: 'Unknown',
+            phone: 'Unknown',
+            location: 'Unknown'
+          },
+          experience: 'Unknown',
+          seniorityLevel: 'Unknown',
+          strengths: ['Technical skills'],
+          marketPosition: 'Mid-level',
+          technicalDepth: 'Good',
+          improvementAreas: ['Profile optimization']
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    console.log('Extracted text length:', extractedText.length);
+    const analysisPrompt = `Analyze this CV/resume content and provide a comprehensive analysis in the following JSON structure. Be thorough and specific:
 
-    // Enhanced comprehensive CV analysis prompt focusing on our promises
-    const analysisPrompt = `Du är en expert på CV-analys och karriärrådgivning som specialiserar dig på den svenska tech-marknaden. Utför en OMFATTANDE analys som levererar exakt vad vi lovar: tekniska färdigheter, ledarskapsförmågor, personlighetsdrag och karriärpotential.
+CV Content:
+${fileContent.substring(0, 8000)}
 
-CV-innehåll: ${extractedText}
-
-Skapa en DETALJERAD och OMFATTANDE analys med följande struktur (returnera ENDAST valid JSON, inga andra kommentarer):
-
+Return ONLY valid JSON in this exact structure:
 {
   "personalInfo": {
-    "name": "extraherat namn eller tom sträng",
-    "email": "extraherad email eller tom sträng", 
-    "phone": "extraherat telefon eller tom sträng",
-    "location": "extraherad plats eller 'Sweden'",
-    "linkedinProfile": "extraherad LinkedIn eller tom sträng",
-    "githubProfile": "extraherad GitHub eller tom sträng",
-    "portfolio": "extraherad portfolio-länk eller tom sträng",
-    "languages": ["språk baserat på CV eller standardlista"]
+    "name": "Full name from CV",
+    "email": "Email address",
+    "phone": "Phone number", 
+    "location": "Location/city",
+    "linkedinProfile": "LinkedIn URL if found",
+    "githubProfile": "GitHub URL if found",
+    "portfolio": "Portfolio URL if found",
+    "languages": ["Swedish", "English"]
   },
   "technicalSkillsAnalysis": {
     "programmingLanguages": {
-      "expert": ["språk personen verkar vara expert på med 5+ års erfarenhet"],
-      "proficient": ["språk personen kan bra med 2-4 års erfarenhet"],
-      "familiar": ["språk personen känner till men mindre erfarenhet"]
+      "expert": ["Languages with 5+ years or expert level"],
+      "proficient": ["Languages with 2-4 years experience"],
+      "familiar": ["Languages with <2 years or basic knowledge"]
     },
     "frontendTechnologies": {
-      "frameworks": ["React, Vue, Angular etc. med specifika versioner om möjligt"],
-      "styling": ["CSS-ramverk, preprocessors, design systems"],
-      "stateManagement": ["Redux, Zustand, Context API etc."],
-      "buildTools": ["Webpack, Vite, Parcel etc."],
-      "testingFrameworks": ["Jest, Cypress, Testing Library etc."]
+      "frameworks": ["React", "Vue", "Angular", etc],
+      "styling": ["CSS", "Sass", "Tailwind", etc],
+      "stateManagement": ["Redux", "Vuex", etc],
+      "buildTools": ["Webpack", "Vite", etc],
+      "testingFrameworks": ["Jest", "Cypress", etc]
     },
     "backendTechnologies": {
-      "frameworks": ["Node.js, Django, Spring Boot etc."],
-      "databases": ["PostgreSQL, MongoDB, MySQL etc. med specifik erfarenhet"],
-      "messageQueues": ["RabbitMQ, Kafka, Redis Pub/Sub etc."],
-      "caching": ["Redis, Memcached, CDN-lösningar"],
-      "apiDesign": ["REST, GraphQL, gRPC, OpenAPI"]
+      "frameworks": ["Node.js", "Express", "Django", etc],
+      "databases": ["PostgreSQL", "MongoDB", etc],
+      "messageQueues": ["RabbitMQ", "Kafka", etc],
+      "caching": ["Redis", "Memcached", etc],
+      "apiDesign": ["REST", "GraphQL", etc]
     },
     "cloudAndInfrastructure": {
-      "platforms": ["AWS, Azure, GCP med specifika tjänster"],
-      "containerization": ["Docker, Kubernetes, container orchestration"],
-      "cicd": ["Jenkins, GitHub Actions, GitLab CI, deployment strategies"],
-      "monitoring": ["Prometheus, Grafana, CloudWatch, logging"],
-      "iac": ["Terraform, Ansible, CloudFormation"]
+      "platforms": ["AWS", "Azure", "GCP", etc],
+      "containerization": ["Docker", "Kubernetes", etc],
+      "cicd": ["Jenkins", "GitHub Actions", etc],
+      "monitoring": ["Prometheus", "Grafana", etc],
+      "iac": ["Terraform", "CloudFormation", etc]
     },
     "specializedSkills": {
-      "aiMl": ["TensorFlow, PyTorch, machine learning frameworks"],
-      "security": ["OWASP, penetration testing, security frameworks"],
-      "mobile": ["React Native, Flutter, native development"],
-      "dataEngineering": ["ETL pipelines, data warehousing, big data"]
+      "aiMl": ["TensorFlow", "PyTorch", etc],
+      "security": ["OWASP", "Penetration testing", etc],
+      "mobile": ["React Native", "Flutter", etc],
+      "dataEngineering": ["Apache Spark", "Kafka", etc]
     },
-    "technicalDepthAssessment": "Bedömning av teknisk djup och bredd baserat på projekt och erfarenheter",
-    "emergingTechAdoption": "Förmåga att lära sig och adopta nya teknologier baserat på CV-mönster"
+    "technicalDepthAssessment": "Deep analysis of technical expertise level",
+    "emergingTechAdoption": "Assessment of adoption of new technologies"
   },
   "leadershipCapabilities": {
     "technicalLeadership": {
-      "architecturalDecisions": "Bevis på tekniska arkitekturbeslut och systemdesign",
-      "codeReviewAndMentoring": "Erfarenhet av kod-granskning och mentorskap",
-      "technicalVision": "Förmåga att sätta teknisk riktning och vision"
+      "architecturalDecisions": "Evidence of system design and architecture decisions",
+      "codeReviewAndMentoring": "Experience with code reviews and mentoring",
+      "technicalVision": "Ability to set technical direction"
     },
     "teamLeadership": {
-      "teamSize": "Storlek på team som personen lett",
-      "projectManagement": "Erfarenhet av projektledning och leverans",
-      "crossFunctionalCollaboration": "Samarbete mellan olika funktioner och avdelningar",
-      "conflictResolution": "Förmåga att hantera konflikter och utmaningar"
+      "teamSize": "Number of people managed/led",
+      "projectManagement": "Project management experience",
+      "crossFunctionalCollaboration": "Working across teams",
+      "conflictResolution": "Handling team conflicts"
     },
     "strategicLeadership": {
-      "businessAlignment": "Förmåga att koppla teknik till affärsmål",
-      "stakeholderManagement": "Hantering av olika intressenter",
-      "changeManagement": "Ledning av förändringsprocesser",
-      "innovationDriving": "Drivande av innovation och förbättringar"
+      "businessAlignment": "Aligning technical decisions with business goals",
+      "stakeholderManagement": "Managing stakeholder relationships",
+      "changeManagement": "Leading organizational changes",
+      "innovationDriving": "Driving innovation and new initiatives"
     },
-    "leadershipStyle": "Bedömd ledarstil baserat på projektbeskrivningar och achievements",
-    "leadershipPotential": "Potential för framtida ledarskap baserat på nuvarande nivå och progression"
+    "leadershipStyle": "Collaborative/Directive/Servant/Transformational",
+    "leadershipPotential": "Assessment of future leadership potential"
   },
   "personalityTraits": {
-    "problemSolvingApproach": "Analytisk, kreativ, systematisk etc. baserat på projektbeskrivningar",
-    "communicationStyle": "Teknisk, pedagogisk, samarbetsinriktad etc.",
-    "workStyle": "Självständig, samarbetsinriktad, strukturerad etc.",
-    "adaptability": "Förmåga att anpassa sig till nya situationer och teknologier",
-    "initiativeTaking": "Bevis på eget initiativ och proaktivitet",
-    "attentionToDetail": "Fokus på kvalitet och detaljer i arbetet",
-    "continuousLearning": "Engagemang för kontinuerlig utveckling och lärande",
-    "stressHandling": "Förmåga att hantera press och deadlines",
-    "teamOrientation": "Inställning till teamarbete och samarbete",
-    "innovationMindset": "Kreativitet och innovation i arbetsmetoder"
+    "problemSolvingApproach": "Analytical/Creative/Systematic",
+    "communicationStyle": "Direct/Collaborative/Persuasive",
+    "workStyle": "Independent/Team-oriented/Hybrid",
+    "adaptability": "High/Medium/Low adaptability to change",
+    "initiativeTaking": "Proactive/Reactive approach",
+    "attentionToDetail": "High/Medium/Low attention to detail",
+    "continuousLearning": "Evidence of continuous learning",
+    "stressHandling": "How they handle pressure",
+    "teamOrientation": "Preference for team vs individual work",
+    "innovationMindset": "Openness to innovation and experimentation"
   },
   "careerPotential": {
-    "currentLevel": "Junior/Mid-level/Senior/Lead/Principal/Architect",
-    "experienceProgression": "Analys av karriärutveckling och progression över tid",
-    "nextCareerSteps": ["Föreslagna nästa steg i karriären"],
-    "leadershipReadiness": "Beredskap för ledarroller på skala 1-5",
-    "specialistVsGeneralist": "Specialist inom område eller generalist",
-    "marketValue": "Bedömning av marknadsvärde och efterfrågan",
-    "growthTrajectory": "Förväntad karriärbana framåt",
-    "competitiveAdvantages": ["Unika konkurrensfördelar"],
-    "developmentAreas": ["Områden för fortsatt utveckling"],
-    "salaryProgression": "Förväntad löneutveckling baserat på färdigheter och erfarenhet"
+    "currentLevel": "Junior/Mid/Senior/Lead/Principal/Architect",
+    "experienceProgression": "Career trajectory analysis",
+    "nextCareerSteps": ["Potential next roles"],
+    "leadershipReadiness": 1-5,
+    "specialistVsGeneralist": "Specialist/Generalist/Hybrid",
+    "marketValue": "High/Medium/Low market demand",
+    "growthTrajectory": "Rapid/Steady/Slow growth potential",
+    "competitiveAdvantages": ["Unique strengths"],
+    "developmentAreas": ["Areas for improvement"],
+    "salaryProgression": "Expected salary growth"
   },
   "professionalSummary": {
-    "yearsOfExperience": "bedömd erfarenhet (t.ex. '5+', '8+', '10+')",
-    "seniorityLevel": "Junior/Mid-level/Senior/Lead/Principal",
-    "industryFocus": ["branschområden baserat på erfarenhet"],
-    "specializations": ["specialiseringsområden"],
-    "careerTrajectory": "bedömning av karriärutveckling",
-    "currentRole": "nuvarande eller senaste roll",
-    "uniqueValueProposition": "Vad som gör personen unik på marknaden"
+    "yearsOfExperience": "X years",
+    "seniorityLevel": "Junior/Mid/Senior/Lead/Principal",
+    "industryFocus": ["Industries worked in"],
+    "specializations": ["Key technical specializations"],
+    "careerTrajectory": "Upward/Lateral/Varied trajectory",
+    "currentRole": "Current or most recent role title",
+    "uniqueValueProposition": "What makes this person unique"
   },
   "workExperience": [
     {
-      "title": "jobbtitel",
-      "company": "företag",
-      "duration": "period",
-      "responsibilities": ["detaljerade ansvarsområden"],
-      "achievements": ["kvantifierade prestationer med siffror om möjligt"],
-      "technologies": ["använda tekniker och verktyg"],
-      "teamSize": "storlek på team om relevant",
-      "impact": "affärspåverkan och resultat"
+      "title": "Job title",
+      "company": "Company name",
+      "duration": "Start - End dates",
+      "responsibilities": ["Key responsibilities"],
+      "achievements": ["Quantified achievements"],
+      "technologies": ["Technologies used"],
+      "teamSize": "Size of team if leadership role",
+      "impact": "Business impact of the role"
     }
   ],
   "projects": [
     {
-      "name": "projektnamn",
-      "description": "detaljerad beskrivning",
-      "technologies": ["tekniker och verktyg"],
-      "role": "specifik roll i projektet",
-      "impact": "mätbar påverkan och resultat",
-      "challenges": "utmaningar som hanterades",
-      "learnings": "lärdomar från projektet"
+      "name": "Project name",
+      "description": "Project description",
+      "technologies": ["Technologies used"],
+      "role": "Your role in the project",
+      "impact": "Impact/results of the project",
+      "challenges": "Technical challenges faced",
+      "learnings": "Key learnings from the project"
     }
   ],
   "education": {
     "formal": [
       {
-        "degree": "examen",
-        "institution": "skola/universitet",
-        "year": "år",
-        "relevantCourses": ["relevanta kurser"],
-        "thesis": "examensarbete om relevant"
+        "degree": "Degree name",
+        "institution": "University/school",
+        "year": "Graduation year",
+        "relevantCourses": ["Relevant courses"],
+        "thesis": "Thesis topic if applicable"
       }
     ],
-    "certifications": ["certifieringar med utfärdare och år"],
-    "continuousLearning": ["kurser, konferenser, self-study"],
-    "professionalDevelopment": ["kompetensutvecklingsaktiviteter"]
+    "certifications": ["Professional certifications"],
+    "continuousLearning": ["Online courses, bootcamps"],
+    "professionalDevelopment": ["Conferences, workshops attended"]
   },
   "marketPositioning": {
-    "uniqueValueProposition": "Specifik värdeproposition på svenska marknaden",
-    "competitiveAdvantages": ["Konkreta konkurrensfördelar"],
-    "targetRoles": ["Lämpliga konsultroller"],
+    "uniqueValueProposition": "What sets this person apart",
+    "competitiveAdvantages": ["Key competitive advantages"],
+    "targetRoles": ["Suitable roles for this person"],
     "salaryBenchmarks": {
-      "stockholm": "Realistiskt löneintervall för Stockholm",
-      "gothenburg": "Löneintervall för Göteborg",
-      "malmo": "Löneintervall för Malmö",
-      "remote": "Löneintervall för remote arbete"
+      "stockholm": "SEK X,XXX-Y,YYY/hour",
+      "gothenburg": "SEK X,XXX-Y,YYY/hour", 
+      "malmo": "SEK X,XXX-Y,YYY/hour",
+      "remote": "SEK X,XXX-Y,YYY/hour"
     },
-    "marketReadiness": "Beredskap för konsultmarknaden på skala 1-5",
-    "competitiveness": "Konkurrenskraft på marknaden",
-    "demandLevel": "Efterfrågan på denna profil",
-    "growthPotential": "Potentiell tillväxt inom 2-3 år"
+    "hourlyRateEstimate": {
+      "min": 800,
+      "max": 1200,
+      "recommended": 1000,
+      "currency": "SEK"
+    },
+    "marketReadiness": 1-5,
+    "competitiveness": "High/Medium/Low",
+    "demandLevel": "High/Medium/Low",
+    "growthPotential": "Strong potential for X% annual growth"
   },
   "consultingReadiness": {
-    "independentWorkAbility": "Förmåga att arbeta självständigt",
-    "clientCommunication": "Kommunikationsförmåga med kunder",
-    "problemSolvingInNewEnvironments": "Problemlösning i nya miljöer",
-    "adaptabilityToClientCultures": "Anpassning till olika företagskulturer",
-    "businessAcumen": "Affärsförståelse och kommersialitet",
-    "deliveryFocus": "Fokus på leverans och resultat",
-    "consultingExperience": "Tidigare konsulterfarenhet om relevant"
+    "independentWorkAbility": "High/Medium/Low",
+    "clientCommunication": "Excellent/Good/Needs development",
+    "problemSolvingInNewEnvironments": "Strong/Average/Weak",
+    "adaptabilityToClientCultures": "High/Medium/Low",
+    "businessAcumen": "Strong/Average/Weak",
+    "deliveryFocus": "Results-oriented/Process-oriented",
+    "consultingExperience": "X years of consulting experience"
   }
-}
+}`;
 
-Analysera djupt och ge konkreta, actionable insights. Fokusera särskilt på att leverera exakt vad vi lovar: omfattande analys av tekniska färdigheter, ledarskapsförmågor, personlighetsdrag och karriärpotential. Basera analysen på faktiskt innehåll men fyll i realistiska bedömningar för svenska tech-marknaden.`;
-
-    // Call Groq API with enhanced analysis
-    console.log('Calling Groq API for comprehensive CV analysis...');
+    console.log('🤖 Calling Groq API for CV analysis...');
+    
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -231,241 +244,80 @@ Analysera djupt och ge konkreta, actionable insights. Fokusera särskilt på att
         messages: [
           {
             role: 'system',
-            content: 'Du är en expert CV-analytiker för den svenska tech-marknaden som fokuserar på tekniska färdigheter, ledarskapsförmågor, personlighetsdrag och karriärpotential. Returnera alltid valid JSON utan extra text.'
+            content: 'You are an expert CV analyzer specializing in technical consultants in Sweden. Analyze CVs comprehensively and provide detailed insights. Always respond with valid JSON only, no additional text.'
           },
           {
             role: 'user',
             content: analysisPrompt
           }
         ],
-        temperature: 0.1,
-        max_tokens: 6000
+        temperature: 0.3,
+        max_tokens: 4000
       })
     });
 
     if (!groqResponse.ok) {
       const errorText = await groqResponse.text();
-      console.error('Groq API error:', groqResponse.status, errorText);
+      console.error('❌ Groq API error:', groqResponse.status, errorText);
       throw new Error(`Groq API error: ${groqResponse.status}`);
     }
 
     const groqData = await groqResponse.json();
-    console.log('Groq response received');
-
-    let cvAnalysis;
+    const analysisText = groqData.choices[0].message.content;
+    
+    console.log('✅ Groq analysis completed, parsing JSON...');
+    
+    // Clean and parse the JSON response
+    let analysis;
     try {
-      const analysisText = groqData.choices[0].message.content;
-      console.log('Raw analysis:', analysisText);
+      const cleanedJson = analysisText
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
       
-      // Clean up the response to ensure it's valid JSON
-      const cleanedText = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      cvAnalysis = JSON.parse(cleanedText);
-      
-      console.log('Successfully parsed comprehensive CV analysis');
+      analysis = JSON.parse(cleanedJson);
+      console.log('✅ JSON parsed successfully');
     } catch (parseError) {
-      console.error('JSON parsing error:', parseError);
-      console.log('Raw content:', groqData.choices[0].message.content);
+      console.error('❌ JSON parsing failed:', parseError);
+      console.log('Raw response:', analysisText);
       
-      // Enhanced fallback structure that matches our promises
-      cvAnalysis = {
+      // Fallback analysis
+      analysis = {
         personalInfo: {
-          name: '',
-          email: '',
-          phone: '',
-          location: 'Sweden',
-          linkedinProfile: '',
-          githubProfile: '',
-          portfolio: '',
-          languages: ['Swedish', 'English']
-        },
-        technicalSkillsAnalysis: {
-          programmingLanguages: {
-            expert: ['JavaScript', 'TypeScript'],
-            proficient: ['Python', 'React'],
-            familiar: ['Java', 'C#']
-          },
-          frontendTechnologies: {
-            frameworks: ['React', 'Next.js'],
-            styling: ['CSS3', 'Tailwind CSS'],
-            stateManagement: ['Redux', 'Context API'],
-            buildTools: ['Webpack', 'Vite'],
-            testingFrameworks: ['Jest', 'React Testing Library']
-          },
-          backendTechnologies: {
-            frameworks: ['Node.js', 'Express'],
-            databases: ['PostgreSQL', 'MongoDB'],
-            messageQueues: [],
-            caching: ['Redis'],
-            apiDesign: ['REST', 'GraphQL']
-          },
-          cloudAndInfrastructure: {
-            platforms: ['AWS', 'Docker'],
-            containerization: ['Docker'],
-            cicd: ['GitHub Actions'],
-            monitoring: ['CloudWatch'],
-            iac: []
-          },
-          specializedSkills: {
-            aiMl: [],
-            security: ['HTTPS', 'JWT'],
-            mobile: [],
-            dataEngineering: []
-          },
-          technicalDepthAssessment: 'Solid full-stack capabilities with modern technologies',
-          emergingTechAdoption: 'Shows good ability to learn new frameworks and tools'
-        },
-        leadershipCapabilities: {
-          technicalLeadership: {
-            architecturalDecisions: 'Some experience with system design and technical choices',
-            codeReviewAndMentoring: 'Participates in code reviews, some mentoring experience',
-            technicalVision: 'Developing ability to set technical direction'
-          },
-          teamLeadership: {
-            teamSize: '3-5 personer',
-            projectManagement: 'Experience leading small projects and features',
-            crossFunctionalCollaboration: 'Works well with designers and product managers',
-            conflictResolution: 'Good communication skills for resolving technical disagreements'
-          },
-          strategicLeadership: {
-            businessAlignment: 'Understanding of how technical decisions impact business goals',
-            stakeholderManagement: 'Comfortable presenting technical concepts to non-technical stakeholders',
-            changeManagement: 'Helps teams adopt new technologies and processes',
-            innovationDriving: 'Suggests improvements and new approaches'
-          },
-          leadershipStyle: 'Collaborative and technical expertise-based leadership',
-          leadershipPotential: 'Strong potential for technical leadership roles'
-        },
-        personalityTraits: {
-          problemSolvingApproach: 'Analytical and systematic approach to complex problems',
-          communicationStyle: 'Clear technical communication with ability to explain complex concepts',
-          workStyle: 'Self-motivated with strong collaboration skills',
-          adaptability: 'Quick to learn new technologies and adapt to changing requirements',
-          initiativeTaking: 'Proactive in identifying and solving problems',
-          attentionToDetail: 'Strong focus on code quality and best practices',
-          continuousLearning: 'Actively keeps up with new technologies and industry trends',
-          stressHandling: 'Performs well under pressure and tight deadlines',
-          teamOrientation: 'Strong team player with mentoring mindset',
-          innovationMindset: 'Creative problem-solving and open to new approaches'
-        },
-        careerPotential: {
-          currentLevel: 'Mid-level',
-          experienceProgression: 'Steady progression from junior to mid-level roles',
-          nextCareerSteps: ['Senior Developer', 'Tech Lead', 'Solution Architect'],
-          leadershipReadiness: 4,
-          specialistVsGeneralist: 'Full-stack generalist with frontend specialization',
-          marketValue: 'High demand profile in Swedish tech market',
-          growthTrajectory: 'Strong potential for senior technical and leadership roles',
-          competitiveAdvantages: ['Modern tech stack', 'Full-stack capabilities', 'Team collaboration'],
-          developmentAreas: ['System architecture', 'Team leadership', 'Business domain expertise'],
-          salaryProgression: 'Expected 15-25% annual growth potential'
+          name: 'Unknown',
+          email: 'Unknown', 
+          phone: 'Unknown',
+          location: 'Unknown'
         },
         professionalSummary: {
-          yearsOfExperience: '5+',
+          yearsOfExperience: 'Unknown',
           seniorityLevel: 'Mid-level',
-          industryFocus: ['Technology', 'Software Development'],
-          specializations: ['Full-stack Development', 'React', 'Modern JavaScript'],
-          careerTrajectory: 'Positive progression with strong technical foundation',
-          currentRole: 'Software Developer',
-          uniqueValueProposition: 'Strong full-stack developer with modern tech stack and team collaboration skills'
-        },
-        workExperience: [
-          {
-            title: 'Software Developer',
-            company: 'Tech Company',
-            duration: '2+ years',
-            responsibilities: ['Frontend development', 'Backend API development', 'Code review'],
-            achievements: ['Delivered projects on time', 'Improved application performance'],
-            technologies: ['React', 'Node.js', 'TypeScript'],
-            teamSize: '5-8 personer',
-            impact: 'Contributed to 20% improvement in user experience'
-          }
-        ],
-        projects: [
-          {
-            name: 'Modern Web Application',
-            description: 'Full-stack web application with modern architecture',
-            technologies: ['React', 'Node.js', 'PostgreSQL'],
-            role: 'Full-stack Developer',
-            impact: 'Improved user engagement and system performance',
-            challenges: 'Complex state management and real-time features',
-            learnings: 'Advanced React patterns and system architecture'
-          }
-        ],
-        education: {
-          formal: [
-            {
-              degree: 'Computer Science',
-              institution: 'University',
-              year: '2020',
-              relevantCourses: ['Programming', 'Algorithms', 'System Design'],
-              thesis: 'Web Application Performance Optimization'
-            }
-          ],
-          certifications: ['AWS Cloud Practitioner', 'React Developer'],
-          continuousLearning: ['Online courses', 'Tech conferences', 'Open source contributions'],
-          professionalDevelopment: ['Workshops', 'Internal training', 'Mentoring programs']
+          currentRole: 'Developer'
         },
         marketPositioning: {
-          uniqueValueProposition: 'Modern full-stack developer with strong collaboration skills and continuous learning mindset',
-          competitiveAdvantages: ['Current tech stack', 'Team leadership potential', 'Adaptability'],
-          targetRoles: ['Senior Developer', 'Tech Lead', 'Full-Stack Consultant'],
-          salaryBenchmarks: {
-            stockholm: '550,000 - 700,000 SEK',
-            gothenburg: '500,000 - 650,000 SEK',
-            malmo: '480,000 - 620,000 SEK',
-            remote: '500,000 - 750,000 SEK'
-          },
-          marketReadiness: 4,
-          competitiveness: 'Strong competitive position with high-demand skills',
-          demandLevel: 'High demand for this profile in Swedish market',
-          growthPotential: 'Excellent growth potential with leadership development'
-        },
-        consultingReadiness: {
-          independentWorkAbility: 'Strong self-direction and autonomous work capability',
-          clientCommunication: 'Good technical communication skills, developing client-facing abilities',
-          problemSolvingInNewEnvironments: 'Adaptable problem-solving approach for diverse environments',
-          adaptabilityToClientCultures: 'Good cultural awareness and professional adaptability',
-          businessAcumen: 'Growing understanding of business impact of technical decisions',
-          deliveryFocus: 'Strong focus on delivering working solutions on time',
-          consultingExperience: 'Ready to start consulting with some mentoring support'
+          hourlyRateEstimate: {
+            min: 800,
+            max: 1200,
+            recommended: 1000,
+            currency: 'SEK'
+          }
         }
       };
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      analysis: cvAnalysis,
-      extractedText: extractedText.substring(0, 500),
-      analysisDepth: 'comprehensive_ai_powered',
-      aiModel: 'llama-3.1-8b-instant',
-      provider: 'Groq',
-      sectionsAnalyzed: [
-        'technical_skills_deep_analysis', 
-        'leadership_capabilities', 
-        'personality_traits', 
-        'career_potential', 
-        'consulting_readiness',
-        'market_positioning',
-        'professional_summary'
-      ],
-      analysisPromises: [
-        'technical_skills_analysis',
-        'leadership_capabilities_assessment', 
-        'personality_traits_evaluation',
-        'career_potential_mapping'
-      ],
-      recommendationsIncluded: true,
-      comprehensivenessLevel: 'complete'
+    return new Response(JSON.stringify({
+      success: true,
+      analysis: analysis,
+      timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('CV parsing error:', error);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message,
-      provider: 'Groq'
+    console.error('❌ CV analysis failed:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
