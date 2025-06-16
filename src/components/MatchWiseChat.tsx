@@ -20,6 +20,50 @@ interface MatchWiseChatProps {
   onToggleMinimize?: () => void;
 }
 
+const formatMarkdown = (text: string) => {
+  // Convert markdown to JSX
+  return text
+    // Headers
+    .replace(/^# (.*$)/gm, '<h1 class="text-xl font-bold text-gray-900 mb-3">$1</h1>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold text-gray-800 mb-2 mt-4">$1</h2>')
+    .replace(/^### (.*$)/gm, '<h3 class="text-md font-medium text-gray-700 mb-2 mt-3">$1</h3>')
+    
+    // Bold text
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+    
+    // Bullet points
+    .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1">• $1</li>')
+    .replace(/^✅ (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">✅ $1</li>')
+    .replace(/^🔗 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">🔗 $1</li>')
+    .replace(/^🎯 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🎯 $1</li>')
+    .replace(/^📈 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">📈 $1</li>')
+    .replace(/^💬 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">💬 $1</li>')
+    .replace(/^🧩 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🧩 $1</li>')
+    .replace(/^🚀 (.*$)/gm, '<li class="ml-4 mb-1 text-orange-700">🚀 $1</li>')
+    .replace(/^🤝 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">🤝 $1</li>')
+    .replace(/^👑 (.*$)/gm, '<li class="ml-4 mb-1 text-yellow-700">👑 $1</li>')
+    .replace(/^🏢 (.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">🏢 $1</li>')
+    .replace(/^🔍 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">🔍 $1</li>')
+    .replace(/^📊 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">📊 $1</li>')
+    .replace(/^🧠 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🧠 $1</li>')
+    .replace(/^💡 (.*$)/gm, '<li class="ml-4 mb-1 text-yellow-700">💡 $1</li>')
+    .replace(/^💰 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">💰 $1</li>')
+    .replace(/^🏆 (.*$)/gm, '<li class="ml-4 mb-1 text-yellow-700">🏆 $1</li>')
+    .replace(/^📱 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">📱 $1</li>')
+    .replace(/^🔑 (.*$)/gm, '<li class="ml-4 mb-1 text-orange-700">🔑 $1</li>')
+    .replace(/^📖 (.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">📖 $1</li>')
+    .replace(/^🔄 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">🔄 $1</li>')
+    .replace(/^💼 (.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">💼 $1</li>')
+    .replace(/^🤖 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🤖 $1</li>')
+    
+    // Horizontal rules
+    .replace(/^---$/gm, '<hr class="my-4 border-gray-200">')
+    
+    // Line breaks
+    .replace(/\n\n/g, '</p><p class="mb-2">')
+    .replace(/\n/g, '<br>');
+};
+
 export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({ 
   analysisResults, 
   isMinimized = false, 
@@ -28,7 +72,11 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! I\'m the MatchWise AI assistant. I can help you with questions about MatchWise and give tips to improve your CV. What can I help you with?',
+      text: `# Hello! I'm the MatchWise AI assistant 🤖
+
+I can help you with questions about MatchWise and give tips to improve your CV and LinkedIn profile.
+
+**What can I help you with today?**`,
       sender: 'bot',
       timestamp: new Date()
     }
@@ -169,30 +217,35 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg p-3 ${
+                className={`max-w-[85%] rounded-lg p-4 ${
                   message.sender === 'user'
                     ? 'bg-purple-600 text-white'
-                    : 'bg-gray-100 text-gray-900'
+                    : 'bg-gray-50 text-gray-900 border'
                 }`}
               >
-                <div className="flex items-start gap-2">
+                <div className="flex items-start gap-3">
                   {message.sender === 'bot' && (
-                    <Bot className="h-4 w-4 mt-0.5 text-purple-600" />
+                    <Bot className="h-5 w-5 mt-1 text-purple-600 flex-shrink-0" />
                   )}
                   {message.sender === 'user' && (
-                    <User className="h-4 w-4 mt-0.5" />
+                    <User className="h-5 w-5 mt-1 flex-shrink-0" />
                   )}
-                  <div className="text-sm">{message.text}</div>
+                  <div 
+                    className="text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: message.sender === 'bot' ? formatMarkdown(message.text) : message.text 
+                    }}
+                  />
                 </div>
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 rounded-lg p-3 max-w-[80%]">
-                <div className="flex items-center gap-2">
-                  <Bot className="h-4 w-4 text-purple-600" />
-                  <div className="text-sm text-gray-600">Typing...</div>
+              <div className="bg-gray-50 border rounded-lg p-4 max-w-[85%]">
+                <div className="flex items-center gap-3">
+                  <Bot className="h-5 w-5 text-purple-600" />
+                  <div className="text-sm text-gray-600">Thinking...</div>
                 </div>
               </div>
             </div>
@@ -203,7 +256,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
         {/* Quick Questions */}
         {messages.length === 1 && (
           <div className="p-4 border-t bg-gray-50">
-            <p className="text-xs text-gray-600 mb-2">Common questions:</p>
+            <p className="text-xs text-gray-600 mb-3 font-medium">Popular questions:</p>
             <div className="flex flex-wrap gap-2">
               {quickQuestions.map((question, idx) => (
                 <Button
@@ -211,7 +264,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={() => handleQuickQuestion(question)}
-                  className="text-xs h-7"
+                  className="text-xs h-8 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200"
                 >
                   {question}
                 </Button>
@@ -221,20 +274,20 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
         )}
 
         {/* Input */}
-        <div className="p-4 border-t">
-          <div className="flex gap-2">
+        <div className="p-4 border-t bg-white">
+          <div className="flex gap-3">
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your question here..."
+              placeholder="Ask me anything about MatchWise..."
               disabled={isLoading}
               className="flex-1"
             />
             <Button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-purple-600 hover:bg-purple-700 px-4"
             >
               <Send className="h-4 w-4" />
             </Button>
