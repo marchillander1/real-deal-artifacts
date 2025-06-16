@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Upload, FileText, CheckCircle2, Loader2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CVUploadFormProps {
@@ -45,6 +45,9 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
   onAgreeToTermsChange,
   onSubmit
 }) => {
+  const hasValidLinkedInUrl = linkedinUrl && linkedinUrl.includes('linkedin.com');
+  const canStartAnalysis = file && hasValidLinkedInUrl;
+
   return (
     <Card className="shadow-xl">
       <CardHeader className="text-center border-b">
@@ -79,7 +82,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                     <div>
                       <p className="font-medium text-green-700">{file.name}</p>
                       <p className="text-sm text-gray-500">
-                        {isAnalyzing ? 'Analyzing...' : analysisResults ? 'Analysis complete' : 'Ready for analysis'}
+                        {isAnalyzing ? 'Analyzing...' : analysisResults ? 'Analysis complete' : 'CV uploaded - LinkedIn required to start analysis'}
                       </p>
                     </div>
                   </div>
@@ -91,7 +94,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                         Upload Your CV
                       </p>
                       <p className="text-sm text-gray-500">
-                        PDF or image format - Comprehensive analysis starts automatically
+                        PDF or image format - Analysis starts when both CV and LinkedIn are provided
                       </p>
                     </div>
                   </div>
@@ -99,6 +102,49 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
               </label>
             </div>
           </div>
+
+          {/* LinkedIn URL Section - Enhanced */}
+          <div className="space-y-3">
+            <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
+              LinkedIn Profile <span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              id="linkedin"
+              value={linkedinUrl}
+              onChange={(e) => onLinkedinUrlChange(e.target.value)}
+              placeholder="https://linkedin.com/in/yourprofile - Required for comprehensive analysis"
+              className="h-12"
+              required
+            />
+            {linkedinUrl && !hasValidLinkedInUrl && (
+              <div className="flex items-center gap-2 text-red-600 text-sm">
+                <AlertCircle className="h-4 w-4" />
+                Please enter a valid LinkedIn URL (must contain 'linkedin.com')
+              </div>
+            )}
+            {hasValidLinkedInUrl && (
+              <div className="flex items-center gap-2 text-green-600 text-sm">
+                <CheckCircle2 className="h-4 w-4" />
+                Valid LinkedIn URL - Analysis will include recent posts and profile summary
+              </div>
+            )}
+            <p className="text-xs text-gray-500">
+              We analyze your 30 most recent posts and bio/summary for comprehensive insights
+            </p>
+          </div>
+
+          {/* Analysis Requirements Alert */}
+          {!canStartAnalysis && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-800">Analysis Requirements</span>
+              </div>
+              <p className="text-sm text-blue-700">
+                Both CV file and valid LinkedIn profile URL are required to start the comprehensive analysis.
+              </p>
+            </div>
+          )}
 
           {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -131,30 +177,15 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <Label htmlFor="phone" className="text-base font-medium">Phone</Label>
-              <Input
-                id="phone"
-                value={phoneNumber}
-                onChange={(e) => onPhoneNumberChange(e.target.value)}
-                placeholder="Auto-filled from CV"
-                className="h-12"
-              />
-            </div>
-            <div className="space-y-3">
-              <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
-                LinkedIn Profile <span className="text-red-500 ml-1">*</span>
-              </Label>
-              <Input
-                id="linkedin"
-                value={linkedinUrl}
-                onChange={(e) => onLinkedinUrlChange(e.target.value)}
-                placeholder="Required for comprehensive analysis"
-                className="h-12"
-                required
-              />
-            </div>
+          <div className="space-y-3">
+            <Label htmlFor="phone" className="text-base font-medium">Phone</Label>
+            <Input
+              id="phone"
+              value={phoneNumber}
+              onChange={(e) => onPhoneNumberChange(e.target.value)}
+              placeholder="Auto-filled from CV"
+              className="h-12"
+            />
           </div>
 
           {/* Terms and Conditions */}
@@ -170,8 +201,8 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                 <span className="font-medium">I agree to comprehensive analysis and network joining</span>
               </Label>
               <p className="mt-1">
-                I consent to MatchWise storing and processing my comprehensive professional information for advanced consultant matching. 
-                This allows me to receive highly relevant assignment opportunities based on my complete skills, experience and personality profile.
+                I consent to MatchWise analyzing my CV, LinkedIn profile (including recent posts and bio), 
+                and storing my comprehensive professional information for advanced consultant matching.
               </p>
             </div>
           </div>
@@ -180,7 +211,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           <Button 
             type="submit" 
             className="w-full h-14 text-lg bg-purple-600 hover:bg-purple-700" 
-            disabled={isUploading || !file || !email || !fullName || !agreeToTerms || !analysisResults}
+            disabled={isUploading || !file || !email || !fullName || !agreeToTerms || !analysisResults || !hasValidLinkedInUrl}
           >
             {isUploading ? (
               <>
@@ -195,14 +226,20 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             ) : (
               <>
                 <Upload className="mr-2 h-5 w-5" />
-                Upload CV to Start Analysis
+                Upload CV & Add LinkedIn to Start Analysis
               </>
             )}
           </Button>
           
-          {!analysisResults && file && (
+          {!analysisResults && canStartAnalysis && (
+            <p className="text-center text-sm text-green-600">
+              ✅ Ready for analysis - Upload will trigger comprehensive CV and LinkedIn analysis
+            </p>
+          )}
+          
+          {!canStartAnalysis && (
             <p className="text-center text-sm text-orange-500">
-              Analysis will start automatically when you upload a CV
+              Both CV file and LinkedIn URL are required to start analysis
             </p>
           )}
         </form>

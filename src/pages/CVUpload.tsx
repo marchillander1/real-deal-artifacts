@@ -43,10 +43,16 @@ export const CVUpload = () => {
     // Reset previous analysis
     setAnalysisResults(null);
     
-    console.log('🎯 Starting comprehensive analysis...');
-    toast.success('CV uploaded! Starting comprehensive analysis...');
+    // Check if LinkedIn URL is provided before starting analysis
+    if (!linkedinUrl || !linkedinUrl.includes('linkedin.com')) {
+      toast.info('CV uploaded! Please add your LinkedIn profile URL to start comprehensive analysis.');
+      return;
+    }
     
-    // Start analysis with LinkedIn URL if provided
+    console.log('🎯 Starting comprehensive analysis with both CV and LinkedIn...');
+    toast.success('CV uploaded! Starting comprehensive analysis with LinkedIn profile...');
+    
+    // Start analysis with LinkedIn URL
     await performCVAnalysis(
       selectedFile,
       setIsAnalyzing,
@@ -56,17 +62,17 @@ export const CVUpload = () => {
       setEmail,
       setPhoneNumber,
       setLinkedinUrl,
-      linkedinUrl // Pass current LinkedIn URL for analysis
+      linkedinUrl
     );
   };
 
   const handleLinkedInUrlChange = async (newUrl: string) => {
     setLinkedinUrl(newUrl);
     
-    // If we have a file and valid LinkedIn URL, re-run analysis
+    // If we have a file and valid LinkedIn URL, start/re-run analysis
     if (file && newUrl && newUrl.includes('linkedin.com')) {
-      console.log('🔗 LinkedIn URL updated, re-running analysis...');
-      toast.info('Re-analyzing with LinkedIn profile...');
+      console.log('🔗 LinkedIn URL added/updated, starting comprehensive analysis...');
+      toast.info('Starting comprehensive analysis with CV and LinkedIn profile...');
       
       await performCVAnalysis(
         file,
@@ -79,6 +85,8 @@ export const CVUpload = () => {
         setLinkedinUrl,
         newUrl
       );
+    } else if (file && newUrl && !newUrl.includes('linkedin.com')) {
+      toast.warning('Please enter a valid LinkedIn URL to start comprehensive analysis');
     }
   };
 
@@ -495,7 +503,7 @@ export const CVUpload = () => {
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
             Get instant comprehensive AI analysis of your technical skills, leadership capabilities, 
             personality traits, and career potential. Upload your CV and add your LinkedIn profile 
-            to receive detailed insights and become visible in our consultant network.
+            to receive detailed insights including analysis of your recent posts and professional bio.
           </p>
 
           {/* Feature highlights */}
@@ -506,7 +514,7 @@ export const CVUpload = () => {
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Users className="h-4 w-4 text-blue-500" />
-              Leadership Analysis
+              LinkedIn Post Analysis
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Target className="h-4 w-4 text-orange-500" />
@@ -516,6 +524,14 @@ export const CVUpload = () => {
               <BarChart3 className="h-4 w-4 text-green-500" />
               Market Positioning
             </div>
+          </div>
+
+          {/* Requirements Notice */}
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
+            <p className="text-amber-800 text-sm">
+              <strong>Comprehensive Analysis Requirements:</strong> Both CV file and LinkedIn profile URL are required. 
+              We analyze your 30 most recent LinkedIn posts and bio/summary for complete professional insights.
+            </p>
           </div>
         </div>
 

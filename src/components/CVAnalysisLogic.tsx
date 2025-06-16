@@ -15,6 +15,12 @@ export const performCVAnalysis = async (
 ) => {
   console.log('🚀 Starting comprehensive CV and LinkedIn analysis for file:', file.name);
   
+  // Validate that both CV and LinkedIn URL are provided
+  if (!linkedinUrl || !linkedinUrl.includes('linkedin.com')) {
+    toast.error('Both CV file and valid LinkedIn URL are required for comprehensive analysis');
+    return;
+  }
+  
   setIsAnalyzing(true);
   setAnalysisProgress(10);
   
@@ -25,7 +31,7 @@ export const performCVAnalysis = async (
     const formData = new FormData();
     formData.append('file', file);
     
-    setAnalysisProgress(30);
+    setAnalysisProgress(20);
     console.log('✅ File prepared for analysis, calling parse-cv function...');
     
     // Call CV analysis function
@@ -40,7 +46,7 @@ export const performCVAnalysis = async (
     }
 
     console.log('✅ CV analysis completed:', cvData);
-    setAnalysisProgress(50);
+    setAnalysisProgress(40);
     
     // Auto-fill form fields with better validation and formatting
     if (cvData?.analysis?.personalInfo) {
@@ -65,68 +71,44 @@ export const performCVAnalysis = async (
         console.log('📝 Auto-filled phone:', cleanedPhone);
         toast.success(`✅ Found phone: ${cleanedPhone}`);
       }
-      
-      if (info.linkedinProfile && info.linkedinProfile.trim() && info.linkedinProfile !== 'Unknown') {
-        let linkedinProfile = info.linkedinProfile.trim();
-        
-        // Ensure proper LinkedIn URL format
-        if (!linkedinProfile.startsWith('http')) {
-          if (linkedinProfile.startsWith('linkedin.com/in/')) {
-            linkedinProfile = `https://${linkedinProfile}`;
-          } else if (linkedinProfile.startsWith('/in/')) {
-            linkedinProfile = `https://linkedin.com${linkedinProfile}`;
-          } else if (!linkedinProfile.includes('linkedin.com')) {
-            linkedinProfile = `https://linkedin.com/in/${linkedinProfile}`;
-          } else {
-            linkedinProfile = `https://${linkedinProfile}`;
-          }
-        }
-        
-        setLinkedinUrl(linkedinProfile);
-        console.log('📝 Auto-filled LinkedIn:', linkedinProfile);
-        toast.success(`✅ Found LinkedIn: ${linkedinProfile}`);
-      }
     }
 
-    setAnalysisProgress(60);
+    setAnalysisProgress(50);
 
-    // LinkedIn Analysis if URL provided
+    // Enhanced LinkedIn Analysis - Now required and comprehensive
     let linkedinAnalysis = null;
-    const finalLinkedInUrl = linkedinUrl || cvData?.analysis?.personalInfo?.linkedinProfile;
     
-    if (finalLinkedInUrl && finalLinkedInUrl.includes('linkedin.com')) {
-      try {
-        toast.info('🔗 Analyzing LinkedIn profile...');
-        console.log('🔗 Starting LinkedIn analysis for:', finalLinkedInUrl);
-        
-        const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
-          body: { linkedinUrl: finalLinkedInUrl }
-        });
-        
-        if (linkedinError) {
-          console.warn('⚠️ LinkedIn analysis failed:', linkedinError);
-          toast.warning('LinkedIn analysis failed, but CV analysis succeeded');
-          // Create fallback LinkedIn analysis
-          linkedinAnalysis = createFallbackLinkedInAnalysis();
-        } else {
-          linkedinAnalysis = linkedinData?.analysis || createFallbackLinkedInAnalysis();
-          console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
-          toast.success('🎉 LinkedIn analysis complete!');
+    try {
+      toast.info('🔗 Analyzing LinkedIn profile, posts, and bio...');
+      console.log('🔗 Starting comprehensive LinkedIn analysis for:', linkedinUrl);
+      
+      const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
+        body: { 
+          linkedinUrl: linkedinUrl,
+          includeRecentPosts: true,
+          includeBioSummary: true,
+          postLimit: 30
         }
-      } catch (linkedinErr) {
-        console.warn('⚠️ LinkedIn analysis error:', linkedinErr);
-        toast.warning('LinkedIn analysis encountered an issue, using fallback analysis');
-        linkedinAnalysis = createFallbackLinkedInAnalysis();
+      });
+      
+      if (linkedinError) {
+        console.error('❌ LinkedIn analysis failed:', linkedinError);
+        throw new Error(`LinkedIn analysis failed: ${linkedinError.message}`);
       }
-    } else {
-      // If no LinkedIn URL, create basic fallback
-      linkedinAnalysis = createFallbackLinkedInAnalysis();
-      toast.info('ℹ️ No LinkedIn profile found, using basic analysis');
+      
+      linkedinAnalysis = linkedinData?.analysis;
+      console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
+      toast.success('🎉 LinkedIn analysis complete - including recent posts and bio!');
+      
+    } catch (linkedinErr) {
+      console.error('❌ LinkedIn analysis error:', linkedinErr);
+      toast.error('LinkedIn analysis failed. Both CV and LinkedIn are required for comprehensive analysis.');
+      throw new Error(`LinkedIn analysis is required: ${linkedinErr instanceof Error ? linkedinErr.message : 'Unknown error'}`);
     }
 
     setAnalysisProgress(80);
     
-    // Generate improvement tips
+    // Generate comprehensive improvement tips
     const improvementTips = generateImprovementTips(cvData?.analysis, linkedinAnalysis);
     
     // Set final results with improvement tips
@@ -137,67 +119,23 @@ export const performCVAnalysis = async (
       timestamp: new Date().toISOString()
     };
     
-    console.log('✅ Complete analysis finished:', finalResults);
+    console.log('✅ Complete comprehensive analysis finished:', finalResults);
     setAnalysisResults(finalResults);
     setAnalysisProgress(100);
     
-    toast.success('🎉 Complete CV analysis ready!');
+    toast.success('🎉 Complete comprehensive CV and LinkedIn analysis ready!');
 
   } catch (error) {
     console.error('❌ Analysis failed:', error);
     const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
-    toast.error(`Analysis failed: ${errorMessage}`);
+    toast.error(`Comprehensive analysis failed: ${errorMessage}`);
     
-    // Provide a basic fallback result so the form can still be submitted
-    const fallbackResults = {
-      cvAnalysis: {
-        personalInfo: {
-          name: 'Analysis failed',
-          email: 'Analysis failed',
-          phone: 'Analysis failed'
-        },
-        professionalSummary: {
-          yearsOfExperience: 'Unknown',
-          seniorityLevel: 'Mid-level',
-          currentRole: 'Consultant'
-        },
-        marketPositioning: {
-          hourlyRateEstimate: {
-            min: 800,
-            max: 1200,
-            recommended: 1000,
-            currency: 'SEK'
-          }
-        }
-      },
-      linkedinAnalysis: createFallbackLinkedInAnalysis(),
-      improvementTips: {
-        cvTips: [],
-        linkedinTips: [],
-        overallStrategy: []
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    setAnalysisResults(fallbackResults);
+    // Reset analysis state on failure
+    setAnalysisResults(null);
   } finally {
     setIsAnalyzing(false);
     setTimeout(() => setAnalysisProgress(0), 2000);
   }
-};
-
-const createFallbackLinkedInAnalysis = () => {
-  return {
-    communicationStyle: 'Professional and clear communication',
-    leadershipStyle: 'Collaborative leadership approach',
-    problemSolving: 'Analytical problem-solving skills',
-    teamCollaboration: 'Strong team collaboration abilities',
-    innovation: 4,
-    businessAcumen: 'Good business understanding',
-    culturalFit: 4,
-    leadership: 3,
-    adaptability: 4
-  };
 };
 
 const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
@@ -250,8 +188,40 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
     }
   }
 
-  // LinkedIn Improvement Tips
+  // Enhanced LinkedIn Improvement Tips based on posts and bio analysis
   if (linkedinAnalysis) {
+    // Content engagement tips based on recent posts
+    if (linkedinAnalysis.recentPostsAnalysis) {
+      if (linkedinAnalysis.recentPostsAnalysis.postFrequency === 'Low') {
+        tips.linkedinTips.push({
+          category: 'Content Strategy',
+          tip: 'Increase posting frequency to build professional visibility and thought leadership.',
+          priority: 'High',
+          action: 'Aim for 2-3 posts per week about: Technical insights, Project learnings, Industry trends, Professional development'
+        });
+      }
+      
+      if (linkedinAnalysis.recentPostsAnalysis.engagementLevel === 'Low') {
+        tips.linkedinTips.push({
+          category: 'Engagement',
+          tip: 'Improve post engagement by adding questions and calls-to-action.',
+          priority: 'Medium',
+          action: 'End posts with: "What\'s your experience with [topic]?", "How do you handle [situation]?", or "Share your thoughts below"'
+        });
+      }
+    }
+
+    // Bio/Summary optimization
+    if (linkedinAnalysis.bioAnalysis?.needsImprovement) {
+      tips.linkedinTips.push({
+        category: 'Profile Summary',
+        tip: 'Optimize your LinkedIn summary to better highlight your consulting expertise.',
+        priority: 'High',
+        action: 'Include: Years of experience, Key specializations, Notable achievements, Available for consulting'
+      });
+    }
+
+    // Professional networking
     if (linkedinAnalysis.culturalFit < 4) {
       tips.linkedinTips.push({
         category: 'Professional Presence',
@@ -269,13 +239,6 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
         action: 'Share stories about: Leading technical projects, Mentorship, Architecture decisions, Problem-solving'
       });
     }
-  } else {
-    tips.linkedinTips.push({
-      category: 'LinkedIn Profile',
-      tip: 'Ensure your LinkedIn profile is public and complete.',
-      priority: 'High',
-      action: 'Update: Professional headline, Detailed work experience, Skills section, Public profile settings'
-    });
   }
 
   // Overall Strategy Tips
@@ -293,6 +256,13 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
     action: 'Highlight: Consulting experience, Client results, Specialized skills, Availability for assignments'
   });
 
-  console.log('📋 Generated detailed improvement tips:', tips);
+  tips.overallStrategy.push({
+    category: 'Thought Leadership',
+    tip: 'Build thought leadership through consistent content sharing on LinkedIn.',
+    priority: 'Medium',
+    action: 'Share: Technical insights, Industry analysis, Project case studies, Professional development tips'
+  });
+
+  console.log('📋 Generated comprehensive improvement tips:', tips);
   return tips;
 };
