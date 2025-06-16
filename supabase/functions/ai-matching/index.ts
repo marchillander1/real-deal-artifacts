@@ -72,7 +72,7 @@ serve(async (req) => {
       assignment = dbAssignment;
     }
 
-    // Fetch consultants with strict demo limits - exactly 1 network + 5 my consultants
+    // Fetch all consultants without artificial limits
     const { data: allConsultants, error: consultantsError } = await supabase
       .from('consultants')
       .select('*')
@@ -92,16 +92,11 @@ serve(async (req) => {
       });
     }
 
-    // Apply the same demo limits as in the frontend
-    const networkConsultants = allConsultants.filter(c => c.type === 'new').slice(0, 1);
-    const myConsultants = allConsultants.filter(c => c.type === 'existing').slice(0, 5);
-    const limitedConsultants = [...networkConsultants, ...myConsultants];
-
-    console.log(`Found ${limitedConsultants.length} consultants to evaluate (1 network + 5 my consultants)`);
+    console.log(`Found ${allConsultants.length} consultants to evaluate`);
 
     // Calculate matches for each consultant using enhanced scoring
     const consultantMatches = [];
-    for (const consultant of limitedConsultants) {
+    for (const consultant of allConsultants) {
       const technicalScore = calculateTechnicalMatch(consultant, assignment);
       
       // Only process consultants with decent technical match (>= 40%)
@@ -147,10 +142,10 @@ serve(async (req) => {
       }
     }
 
-    // Sort by match score and limit to top 6 (since we only have 6 total consultants max)
+    // Sort by match score and limit to top 20 for performance
     const topMatches = consultantMatches
       .sort((a, b) => b.match_score - a.match_score)
-      .slice(0, 6);
+      .slice(0, 20);
 
     // Save matches to database (only for real assignments, not demo)
     if (!assignmentId.startsWith('demo-') && topMatches.length > 0) {
@@ -179,7 +174,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Generated ${topMatches.length} quality matches from ${limitedConsultants.length} available consultants`);
+    console.log(`Generated ${topMatches.length} quality matches from ${allConsultants.length} available consultants`);
 
     return new Response(JSON.stringify({
       success: true,

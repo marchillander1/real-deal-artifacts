@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,10 +45,10 @@ const Dashboard: React.FC<DashboardProps> = ({
     },
   });
 
-  // Real dashboard stats using actual limited data (1 network + 5 my consultants = 6 total)
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'new'); // Should be 1
-  const myConsultants = consultants.filter(consultant => consultant.type === 'existing'); // Should be 5
-  const totalConsultants = consultants.length; // Should be 6 total
+  // Real dashboard stats using actual data
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
+  const myConsultants = consultants.filter(consultant => consultant.type === 'existing');
+  const totalConsultants = consultants.length;
   const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
   const avgMatchTime = "12 seconds";
 

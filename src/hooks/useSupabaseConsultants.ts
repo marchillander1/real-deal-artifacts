@@ -22,12 +22,37 @@ export const useSupabaseConsultants = () => {
         }
 
         if (data) {
-          // Filter and limit consultants to exactly what we want in demo
-          const networkConsultants = data.filter(c => c.type === 'new').slice(0, 1); // Only 1 network consultant
-          const myConsultants = data.filter(c => c.type === 'existing').slice(0, 5); // Only 5 my consultants
-          
-          const limitedConsultants = [...networkConsultants, ...myConsultants];
-          setConsultants(limitedConsultants);
+          // Map the data to match the Consultant interface
+          const mappedConsultants: Consultant[] = data.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            email: c.email,
+            phone: c.phone || '',
+            location: c.location || '',
+            skills: c.skills || [],
+            experience: c.experience_years?.toString() || '',
+            rate: c.hourly_rate?.toString() || '',
+            availability: c.availability || 'Available',
+            cv: c.cv_file_path || '',
+            communicationStyle: c.communication_style || '',
+            rating: c.rating || 4.8,
+            projects: c.projects_completed || 0,
+            lastActive: c.last_active || 'Recently',
+            roles: c.roles || [],
+            certifications: c.certifications || [],
+            type: c.type || 'new',
+            languages: c.languages || [],
+            workStyle: c.work_style || '',
+            values: c.values || [],
+            personalityTraits: c.personality_traits || [],
+            teamFit: c.team_fit || '',
+            culturalFit: c.cultural_fit || 5,
+            adaptability: c.adaptability || 5,
+            leadership: c.leadership || 3,
+            linkedinUrl: c.linkedin_url || ''
+          }));
+
+          setConsultants(mappedConsultants);
         }
       } catch (err) {
         console.error('Error fetching consultants:', err);
@@ -40,5 +65,35 @@ export const useSupabaseConsultants = () => {
     fetchConsultants();
   }, []);
 
-  return { consultants, isLoading, error };
+  const updateConsultant = async (consultant: Consultant) => {
+    try {
+      const { error } = await supabase
+        .from('consultants')
+        .update({
+          name: consultant.name,
+          email: consultant.email,
+          phone: consultant.phone,
+          location: consultant.location,
+          skills: consultant.skills,
+          experience_years: consultant.experience ? parseInt(consultant.experience) : null,
+          hourly_rate: consultant.rate ? parseInt(consultant.rate) : null,
+          availability: consultant.availability,
+          cv_file_path: consultant.cv,
+          communication_style: consultant.communicationStyle,
+        })
+        .eq('id', String(consultant.id));
+
+      if (error) throw error;
+
+      // Update local state
+      setConsultants(prev => 
+        prev.map(c => c.id === consultant.id ? consultant : c)
+      );
+    } catch (err) {
+      console.error('Error updating consultant:', err);
+      throw err;
+    }
+  };
+
+  return { consultants, isLoading, error, updateConsultant };
 };
