@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,28 +23,33 @@ export const CVUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const navigate = useNavigate();
+
+  // Auto-start analysis when CV and LinkedIn URL are available
+  useEffect(() => {
+    if (file && linkedinUrl && fullName && email && !isAnalyzing && !uploadComplete) {
+      startAnalysis();
+    }
+  }, [file, linkedinUrl, fullName, email]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
         setFile(selectedFile);
+        toast.success('CV uploaded! Analysis will start automatically when all fields are filled.');
       } else {
         toast.error('Please upload a PDF file or image');
       }
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    if (!file || !email || !fullName || !linkedinUrl || !agreeToTerms) {
-      toast.error('Please fill in all required fields, upload a file, add LinkedIn URL, and agree to terms');
-      return;
-    }
+  const startAnalysis = async () => {
+    if (!file || !linkedinUrl || !fullName || !email) return;
 
-    setIsUploading(true);
+    setIsAnalyzing(true);
+    toast.info('Starting comprehensive analysis...');
 
     try {
       // Convert file to base64
@@ -101,29 +106,55 @@ export const CVUpload = () => {
         linkedinAnalysis: linkedinAnalysis
       });
 
+      toast.success('Analysis complete! Review your comprehensive profile below.');
+
+    } catch (error) {
+      console.error('Analysis error:', error);
+      toast.error('Analysis failed. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    if (!file || !email || !fullName || !linkedinUrl || !agreeToTerms) {
+      toast.error('Please fill in all required fields, upload a file, add LinkedIn URL, and agree to terms');
+      return;
+    }
+
+    if (!analysisResults) {
+      toast.error('Please wait for analysis to complete');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
       // Save to database with comprehensive analysis data
       const consultantData = {
         name: fullName,
         email: email,
         phone: phoneNumber || null,
         linkedin_url: linkedinUrl || null,
-        skills: parseData.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
-        experience_years: parseData.analysis?.professionalSummary?.yearsOfExperience?.replace(/\D/g, '') || 0,
-        hourly_rate: parseData.analysis?.marketPositioning?.salaryBenchmarks?.stockholm?.replace(/\D/g, '') || null,
-        location: parseData.analysis?.personalInfo?.location || 'Sweden',
+        skills: analysisResults.cvAnalysis?.technicalExpertise?.programmingLanguages?.expert || [],
+        experience_years: analysisResults.cvAnalysis?.professionalSummary?.yearsOfExperience?.replace(/\D/g, '') || 0,
+        hourly_rate: analysisResults.cvAnalysis?.marketPositioning?.salaryBenchmarks?.stockholm?.replace(/\D/g, '') || null,
+        location: analysisResults.cvAnalysis?.personalInfo?.location || 'Sweden',
         availability: 'Available',
         cv_file_path: `cv_${Date.now()}_${file.name}`,
-        communication_style: linkedinAnalysis?.communicationStyle || parseData.analysis?.softSkills?.communication?.[0] || 'Professional',
-        work_style: parseData.analysis?.workPreferences?.workStyle || 'Collaborative',
-        values: parseData.analysis?.softSkills?.leadership || [],
-        personality_traits: parseData.analysis?.softSkills?.problemSolving || [],
-        cultural_fit: linkedinAnalysis?.culturalFit || 5,
-        leadership: linkedinAnalysis?.leadership || (parseData.analysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3),
-        certifications: parseData.analysis?.certifications?.development || [],
+        communication_style: analysisResults.linkedinAnalysis?.communicationStyle || analysisResults.cvAnalysis?.softSkills?.communication?.[0] || 'Professional',
+        work_style: analysisResults.cvAnalysis?.workPreferences?.workStyle || 'Collaborative',
+        values: analysisResults.cvAnalysis?.softSkills?.leadership || [],
+        personality_traits: analysisResults.cvAnalysis?.softSkills?.problemSolving || [],
+        cultural_fit: analysisResults.linkedinAnalysis?.culturalFit || 5,
+        leadership: analysisResults.linkedinAnalysis?.leadership || (analysisResults.cvAnalysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3),
+        certifications: analysisResults.cvAnalysis?.certifications?.development || [],
         type: 'new',
         // Store complete analysis data
-        cv_analysis: parseData.analysis,
-        linkedin_analysis: linkedinAnalysis
+        cv_analysis: analysisResults.cvAnalysis,
+        linkedin_analysis: analysisResults.linkedinAnalysis
       };
 
       const { data: insertData, error: insertError } = await supabase
@@ -154,11 +185,11 @@ export const CVUpload = () => {
       }
 
       setUploadComplete(true);
-      toast.success('CV uploaded and analyzed successfully!');
+      toast.success('Profile saved successfully! You are now part of our consultant network.');
 
     } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload CV. Please try again.');
+      console.error('Save error:', error);
+      toast.error('Failed to save profile. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -524,6 +555,55 @@ export const CVUpload = () => {
           </div>
         </div>
 
+        {/* Analysis Status */}
+        {isAnalyzing && (
+          <Card className="max-w-2xl mx-auto mb-8 shadow-xl">
+            <CardContent className="p-8 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <h3 className="text-lg font-semibold mb-2">Analyzing Your Profile...</h3>
+              <p className="text-gray-600">
+                Vårt AI system analyserar ditt CV och LinkedIn-profil för att ge dig djupgående insikter.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Analysis Results Preview */}
+        {analysisResults && !uploadComplete && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <Card className="shadow-xl">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl text-green-600">Analysis Complete!</CardTitle>
+                <CardDescription>
+                  Här är en förhandsvisning av din analys. Fyll i resterande information och acceptera villkoren för att spara din profil.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Quick Preview */}
+                {analysisResults.cvAnalysis?.professionalSummary && (
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 mb-2">Professional Summary</h4>
+                    <p className="text-sm text-blue-700">
+                      {analysisResults.cvAnalysis.professionalSummary.seniorityLevel} • {analysisResults.cvAnalysis.professionalSummary.yearsOfExperience} • {analysisResults.cvAnalysis.professionalSummary.currentRole}
+                    </p>
+                  </div>
+                )}
+                
+                {analysisResults.cvAnalysis?.technicalExpertise?.programmingLanguages?.expert && (
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-green-800 mb-2">Expert Skills</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {analysisResults.cvAnalysis.technicalExpertise.programmingLanguages.expert.slice(0, 5).map((skill: string, idx: number) => (
+                        <Badge key={idx} className="bg-green-100 text-green-800 text-xs">{skill}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Main Form Card */}
         <Card className="max-w-2xl mx-auto shadow-xl">
           <CardHeader className="text-center border-b">
@@ -577,21 +657,6 @@ export const CVUpload = () => {
                 </div>
               </div>
 
-              {/* LinkedIn Profile Section */}
-              <div className="space-y-3">
-                <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
-                  LinkedIn Profile URL <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Input
-                  id="linkedin"
-                  value={linkedinUrl}
-                  onChange={(e) => setLinkedinUrl(e.target.value)}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  className="h-12"
-                  required
-                />
-              </div>
-
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
@@ -621,6 +686,24 @@ export const CVUpload = () => {
                     required
                   />
                 </div>
+              </div>
+
+              {/* LinkedIn Profile Section */}
+              <div className="space-y-3">
+                <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
+                  LinkedIn Profile URL <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Input
+                  id="linkedin"
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                  placeholder="https://linkedin.com/in/yourprofile"
+                  className="h-12"
+                  required
+                />
+                <p className="text-xs text-gray-500">
+                  Analysis will start automatically when all required fields are filled
+                </p>
               </div>
 
               <div className="space-y-3">
@@ -657,18 +740,23 @@ export const CVUpload = () => {
               {/* Submit Button */}
               <Button 
                 type="submit" 
-                className="w-full h-14 text-lg bg-gray-500 hover:bg-gray-600" 
-                disabled={isUploading || !file || !email || !fullName || !linkedinUrl || !agreeToTerms}
+                className="w-full h-14 text-lg bg-purple-600 hover:bg-purple-700" 
+                disabled={isUploading || !file || !email || !fullName || !linkedinUrl || !agreeToTerms || !analysisResults}
               >
                 {isUploading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                    Processing Analysis...
+                    Saving Profile...
+                  </>
+                ) : analysisResults ? (
+                  <>
+                    <CheckCircle2 className="mr-2 h-5 w-5" />
+                    Save Profile & Join Network
                   </>
                 ) : (
                   <>
                     <Upload className="mr-2 h-5 w-5" />
-                    Submit & Join Network
+                    Complete Analysis First
                   </>
                 )}
               </Button>
