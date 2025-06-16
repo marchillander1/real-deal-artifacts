@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, ArrowRight, Code, Users, Target, TrendingUp, Brain, Award, Star, BarChart3, DollarSign } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Code, Users, Target, TrendingUp, Brain, Award, Star, BarChart3, DollarSign, Lightbulb, Zap, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -340,100 +339,125 @@ export const CVUpload = () => {
                 </CardContent>
               </Card>
             )}
-
-            {/* Improvement Tips */}
-            {improvementTips && (
-              <Card className="shadow-lg col-span-full">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                    Personalized Improvement Tips
-                  </CardTitle>
-                  <CardDescription>
-                    Based on your CV and LinkedIn analysis, here are specific recommendations to enhance your profile
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {/* CV Tips */}
-                    <div>
-                      <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                        <Award className="h-5 w-5 text-blue-500" />
-                        CV Improvements
-                      </h4>
-                      <div className="space-y-4">
-                        {improvementTips.cvTips.map((tip: any, idx: number) => (
-                          <div key={idx} className="border-l-4 border-blue-500 pl-4 bg-blue-50 p-3 rounded-r-lg">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
-                                {tip.priority}
-                              </Badge>
-                              <span className="font-medium text-blue-800">{tip.category}</span>
-                            </div>
-                            <p className="text-sm text-gray-700 mb-2">{tip.tip}</p>
-                            {tip.action && (
-                              <p className="text-xs text-blue-600 font-medium">Action: {tip.action}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* LinkedIn Tips */}
-                    <div>
-                      <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                        <Brain className="h-5 w-5 text-purple-500" />
-                        LinkedIn Improvements
-                      </h4>
-                      <div className="space-y-4">
-                        {improvementTips.linkedinTips.map((tip: any, idx: number) => (
-                          <div key={idx} className="border-l-4 border-purple-500 pl-4 bg-purple-50 p-3 rounded-r-lg">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
-                                {tip.priority}
-                              </Badge>
-                              <span className="font-medium text-purple-800">{tip.category}</span>
-                            </div>
-                            <p className="text-sm text-gray-700 mb-2">{tip.tip}</p>
-                            {tip.action && (
-                              <p className="text-xs text-purple-600 font-medium">Action: {tip.action}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Overall Strategy */}
-                  <div className="mt-6">
-                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                      <Target className="h-5 w-5 text-green-500" />
-                      Overall Strategy
-                    </h4>
-                    <div className="space-y-3">
-                      {improvementTips.overallStrategy.map((tip: any, idx: number) => (
-                        <div key={idx} className="flex items-start gap-3 p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
-                          <Star className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
-                                {tip.priority}
-                              </Badge>
-                              <span className="font-medium text-green-800">{tip.category}</span>
-                            </div>
-                            <p className="text-sm text-gray-700 mb-2">{tip.tip}</p>
-                            {tip.action && (
-                              <p className="text-xs text-green-600 font-medium">Action: {tip.action}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
+
+          {/* Enhanced Personalized Improvement Tips - Like the reference image */}
+          <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-blue-50/30 mb-8">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <TrendingUp className="h-6 w-6 text-green-600" />
+                Personalized Improvement Tips
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                Based on your CV and LinkedIn analysis, here are specific recommendations to enhance your profile
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-8">
+                {/* CV Improvements Section */}
+                <div>
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-blue-800 mb-4">
+                    <Award className="h-5 w-5" />
+                    CV Improvements
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="bg-red-100 text-red-800 border-red-200">High</Badge>
+                        <span className="font-semibold text-blue-900">Technical Skills</span>
+                      </div>
+                      <p className="text-gray-700 text-sm mb-2">
+                        Add a dedicated "Technical Skills" section with clear skill levels (Expert, Proficient, Familiar).
+                      </p>
+                      <p className="text-blue-700 text-xs font-medium">
+                        Action: Create sections: "Expert: [languages]", "Proficient: [frameworks]", "Tools: [platforms]"
+                      </p>
+                    </div>
+                    
+                    <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="bg-red-100 text-red-800 border-red-200">High</Badge>
+                        <span className="font-semibold text-blue-900">Work Experience</span>
+                      </div>
+                      <p className="text-gray-700 text-sm mb-2">
+                        Expand your work experience with specific achievements, technologies used and measurable results.
+                      </p>
+                      <p className="text-blue-700 text-xs font-medium">
+                        Action: For each role, add: Used technologies, Key achievements with numbers, Team collaboration examples
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* LinkedIn Improvements Section */}
+                <div>
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-purple-800 mb-4">
+                    <Brain className="h-5 w-5" />
+                    LinkedIn Improvements
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-r-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="bg-red-100 text-red-800 border-red-200">High</Badge>
+                        <span className="font-semibold text-purple-900">LinkedIn Profile</span>
+                      </div>
+                      <p className="text-gray-700 text-sm mb-2">
+                        Ensure your LinkedIn profile is public and complete.
+                      </p>
+                      <p className="text-purple-700 text-xs font-medium">
+                        Action: Update: Professional headline, Detailed work experience, Skills section, Public profile settings
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overall Strategy Section */}
+                <div>
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-green-800 mb-4">
+                    <Target className="h-5 w-5" />
+                    Overall Strategy
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg">
+                      <div className="flex items-center gap-3">
+                        <Star className="h-5 w-5 text-green-600 flex-shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className="bg-red-100 text-red-800 border-red-200">High</Badge>
+                            <span className="font-semibold text-green-900">Consistent Professional Brand</span>
+                          </div>
+                          <p className="text-gray-700 text-sm mb-2">
+                            Ensure your CV and LinkedIn tell the same professional story.
+                          </p>
+                          <p className="text-green-700 text-xs font-medium">
+                            Action: Match: Job titles and dates, Skills and technologies, Professional summary, Achievements
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg">
+                      <div className="flex items-center gap-3">
+                        <Star className="h-5 w-5 text-green-600 flex-shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className="bg-orange-100 text-orange-800 border-orange-200">Medium</Badge>
+                            <span className="font-semibold text-green-900">Consultant Positioning</span>
+                          </div>
+                          <p className="text-gray-700 text-sm mb-2">
+                            Position yourself clearly as a consultant through project-based work emphasis.
+                          </p>
+                          <p className="text-green-700 text-xs font-medium">
+                            Action: Highlight: Consultant experience, Specialized skills, Availability for projects
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Next Steps */}
           <div className="text-center">
