@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 export const ConsultantsTab: React.FC = () => {
   const { consultants, isLoading, updateConsultant, removeDuplicates } = useSupabaseConsultantsDedup();
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
   // Filter consultants based on type - show network consultants (new) and existing consultants separately
   const existingConsultants = consultants.filter(c => c.type === 'existing');
@@ -34,6 +35,47 @@ export const ConsultantsTab: React.FC = () => {
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/parse-cv', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process CV');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: "CV uploaded successfully",
+        description: "The consultant profile has been created and added to the network.",
+      });
+
+      // Reset the file input
+      event.target.value = '';
+    } catch (error) {
+      console.error('CV upload error:', error);
+      toast({
+        title: "Upload failed",
+        description: "Could not process the CV. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -44,8 +86,8 @@ export const ConsultantsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Stats and Duplicate Removal */}
-      <div className="grid md:grid-cols-4 gap-4">
+      {/* Header with Stats and Actions */}
+      <div className="grid md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -79,6 +121,31 @@ export const ConsultantsTab: React.FC = () => {
                 <p className="text-2xl font-bold">{networkConsultants.length}</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="relative">
+              <Button 
+                disabled={isUploading}
+                className="w-full flex items-center gap-2 bg-green-600 hover:bg-green-700"
+              >
+                <Upload className="h-4 w-4" />
+                {isUploading ? 'Processing...' : 'Upload CV'}
+              </Button>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileUpload}
+                disabled={isUploading}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              <Upload className="h-3 w-3 inline mr-1" />
+              Add consultant to network
+            </p>
           </CardContent>
         </Card>
 
@@ -125,7 +192,7 @@ export const ConsultantsTab: React.FC = () => {
             <div className="text-center py-8">
               <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No network consultants found</p>
-              <p className="text-sm text-gray-500">Consultants who upload their CV will appear here</p>
+              <p className="text-sm text-gray-500">Upload consultant CVs to add them to your network</p>
             </div>
           )}
         </TabsContent>
