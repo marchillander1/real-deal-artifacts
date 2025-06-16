@@ -514,7 +514,7 @@ export const CVUpload = () => {
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Users className="h-4 w-4 text-blue-500" />
-              LinkedIn Post Analysis
+              LinkedIn Analysis
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Target className="h-4 w-4 text-orange-500" />

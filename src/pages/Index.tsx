@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,15 +6,15 @@ import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { ConsultantsTab } from "../components/ConsultantsTab";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
+import { useDemoAssignments } from "@/hooks/useDemoAssignments";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [matchResults, setMatchResults] = useState<any[]>([]);
-  const [showMatchResults, setShowMatchResults] = useState(false);
   const { consultants } = useSupabaseConsultants();
+  const { assignments, addAssignment } = useDemoAssignments();
 
   // Fetch matches data for stats
   const { data: matchesData = [] } = useQuery({
@@ -39,91 +38,8 @@ const Index: React.FC = () => {
   const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
   const avgMatchTime = "12 seconds";
 
-  const handleMatch = (assignment: Assignment) => {
-    // Mock AI matching results with detailed soft values
-    const mockResults = [
-      {
-        id: 1,
-        name: "Erik Andersson",
-        role: "Senior Full-Stack Developer",
-        overallMatch: 96,
-        technicalMatch: 94,
-        culturalFit: 98,
-        communicationMatch: 92,
-        valuesAlignment: 95,
-        skills: ["React", "TypeScript", "Node.js", "AWS"],
-        experience: "8 years",
-        rate: "950 SEK/hour",
-        availability: "Available",
-        location: "Stockholm",
-        
-        // Human Factors
-        communicationStyle: "Direct and collaborative",
-        workStyle: "Agile-focused with strong problem-solving",
-        values: ["Innovation", "Quality", "Team collaboration"],
-        personalityTraits: ["Analytical", "Proactive", "Empathetic"],
-        teamFit: 4.8,
-        adaptability: 4.6,
-        leadership: 4.2,
-        
-        // AI Insights
-        culturalFitReason: "Perfect match for innovative and fast-paced environment",
-        communicationReason: "Direct communication style aligns with team preferences",
-        valuesReason: "Strong alignment on innovation and quality focus",
-        
-        // Estimated Impact
-        costSavings: "~45K SEK",
-        responseTime: "8 seconds",
-        successProbability: 94,
-        
-        // AI Cover Letter
-        coverLetter: `Based on our AI analysis, Erik is an exceptional match for this ${assignment.title} position. His technical expertise in React and TypeScript combined with his collaborative communication style makes him ideal for your team dynamic. Erik's proven track record in agile environments and his strong focus on code quality align perfectly with your project requirements.`
-      },
-      {
-        id: 2,
-        name: "Maria Lindqvist",
-        role: "Senior Frontend Developer",
-        overallMatch: 89,
-        technicalMatch: 91,
-        culturalFit: 87,
-        communicationMatch: 88,
-        valuesAlignment: 90,
-        skills: ["Vue.js", "JavaScript", "CSS", "Figma"],
-        experience: "6 years",
-        rate: "850 SEK/hour",
-        availability: "Partially Available",
-        location: "Göteborg",
-        
-        // Human Factors
-        communicationStyle: "Diplomatic and detail-oriented",
-        workStyle: "Design-focused with user-centric approach",
-        values: ["User experience", "Attention to detail", "Continuous learning"],
-        personalityTraits: ["Creative", "Methodical", "User-focused"],
-        teamFit: 4.3,
-        adaptability: 4.5,
-        leadership: 3.8,
-        
-        // AI Insights
-        culturalFitReason: "Great fit for structured and detail-oriented projects",
-        communicationReason: "Diplomatic style works well with diverse teams",
-        valuesReason: "Strong UX focus aligns with user-centered development",
-        
-        // Estimated Impact
-        costSavings: "~38K SEK",
-        responseTime: "12 seconds",
-        successProbability: 87,
-        
-        // AI Cover Letter
-        coverLetter: `Maria brings exceptional frontend expertise with a strong design sensibility to your ${assignment.title} project. Her diplomatic communication style and attention to detail make her particularly well-suited for projects requiring close collaboration with design teams. Her user-centric approach ensures deliverables that exceed expectations.`
-      }
-    ];
-
-    setMatchResults(mockResults);
-    setShowMatchResults(true);
-  };
-
   const handleAssignmentCreated = (assignment: Assignment) => {
-    // Handle assignment creation
+    addAssignment(assignment);
     console.log('Assignment created:', assignment);
   };
 
@@ -131,6 +47,95 @@ const Index: React.FC = () => {
     // Handle file upload
     console.log('File uploaded:', event.target.files);
   };
+
+  const renderAssignmentsContent = () => (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Assignments</h2>
+          <p className="text-gray-600">Manage assignments and find the perfect consultant matches</p>
+        </div>
+        <Button 
+          onClick={() => setShowCreateForm(true)}
+          className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Create Assignment
+        </Button>
+      </div>
+
+      <div className="grid gap-6">
+        {assignments.map((assignment) => (
+          <Card key={assignment.id} className="border hover:shadow-lg transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{assignment.title}</h3>
+                  <p className="text-gray-600 mb-3">{assignment.description}</p>
+                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                    <span>📍 {assignment.company}</span>
+                    <span>💼 {assignment.workload}</span>
+                    <span>⏱️ {assignment.duration}</span>
+                    <span>💰 {assignment.budget}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="text-4xl">{assignment.clientLogo}</div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    assignment.urgency === 'High' ? 'bg-red-100 text-red-800' :
+                    assignment.urgency === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {assignment.urgency} Priority
+                  </span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Required Skills:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {assignment.requiredSkills.map((skill, idx) => (
+                      <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Team Culture:</span>
+                  <p className="text-sm text-gray-600 mt-1">{assignment.teamCulture}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-4 border-t">
+                <div className="text-sm text-gray-500">
+                  {assignment.remote} • {assignment.teamSize} • {assignment.industry}
+                </div>
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  Find Matches
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        
+        {assignments.length === 0 && (
+          <div className="text-center py-12">
+            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No assignments yet</h3>
+            <p className="text-gray-600 mb-4">Create your first assignment to start finding consultant matches</p>
+            <Button 
+              onClick={() => setShowCreateForm(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Create New Assignment
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   const renderDashboardContent = () => (
     <div>
@@ -279,19 +284,7 @@ const Index: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'dashboard' && renderDashboardContent()}
         {activeTab === 'consultants' && <ConsultantsTab />}
-        {activeTab === 'assignments' && (
-          <div className="text-center py-8">
-            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Assignment Management</h3>
-            <p className="text-gray-600 mb-4">Create and manage assignments with AI-powered matching</p>
-            <Button 
-              onClick={() => setShowCreateForm(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Create New Assignment
-            </Button>
-          </div>
-        )}
+        {activeTab === 'assignments' && renderAssignmentsContent()}
       </div>
 
       {/* Create Assignment Modal */}
