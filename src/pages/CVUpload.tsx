@@ -28,20 +28,22 @@ export const CVUpload = () => {
   
   // Use ref to track if analysis has been started for current file
   const analysisStartedRef = useRef<string | null>(null);
+  const isAnalysisRunningRef = useRef(false);
 
   // Start analysis when CV is uploaded (only once per file)
   useEffect(() => {
-    if (file && !isAnalyzing && !analysisResults) {
+    if (file && !isAnalysisRunningRef.current && !analysisResults) {
       const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
       
       // Only start analysis if we haven't already started for this specific file
       if (analysisStartedRef.current !== fileKey) {
         console.log('Starting automatic comprehensive analysis of uploaded CV...');
         analysisStartedRef.current = fileKey;
+        isAnalysisRunningRef.current = true;
         startAnalysis();
       }
     }
-  }, [file]);
+  }, [file?.name, file?.size, file?.lastModified]); // Use file properties instead of file object
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -50,6 +52,7 @@ export const CVUpload = () => {
         setFile(selectedFile);
         setAnalysisResults(null);
         analysisStartedRef.current = null; // Reset analysis state for new file
+        isAnalysisRunningRef.current = false;
         toast.success('CV uploaded! Starting comprehensive AI analysis...');
       } else {
         toast.error('Please upload a PDF file or image');
@@ -60,6 +63,7 @@ export const CVUpload = () => {
   const startAnalysis = async () => {
     if (!file) {
       console.error('No file available for analysis');
+      isAnalysisRunningRef.current = false;
       return;
     }
 
@@ -170,9 +174,11 @@ export const CVUpload = () => {
       console.error('Analysis error:', error);
       toast.error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
       analysisStartedRef.current = null; // Allow retry
+      isAnalysisRunningRef.current = false;
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
+      isAnalysisRunningRef.current = false;
     }
   };
 
