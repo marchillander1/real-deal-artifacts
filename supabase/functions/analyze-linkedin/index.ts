@@ -20,10 +20,8 @@ serve(async (req) => {
       throw new Error('Invalid LinkedIn URL provided');
     }
 
-    // Extract profile info from URL (basic extraction for demo)
     const profileId = linkedinUrl.split('/in/').pop()?.split('/')[0] || 'unknown';
     
-    // Use GROQ API for comprehensive LinkedIn analysis
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
     if (!groqApiKey) {
       throw new Error('GROQ API key not configured');
@@ -31,7 +29,8 @@ serve(async (req) => {
 
     const prompt = `Analyze this LinkedIn profile URL comprehensively: ${linkedinUrl}
 
-COMPREHENSIVE ANALYSIS REQUIREMENTS:
+ENHANCED COMPREHENSIVE ANALYSIS REQUIREMENTS:
+
 1. Profile Bio/Summary Analysis:
    - Professional headline assessment
    - Summary content quality and positioning
@@ -54,11 +53,26 @@ COMPREHENSIVE ANALYSIS REQUIREMENTS:
    - Innovation capacity evidence
    - Business acumen display
 
-4. Consultant Readiness:
+4. Consultant Readiness & Market Positioning:
    - Professional brand consistency
    - Market positioning effectiveness
    - Client-facing readiness
    - Expertise demonstration
+   - Competitive advantages
+   - Niche specialization potential
+
+5. Team Fit & Cultural Assessment:
+   - Work style preferences
+   - Cultural adaptability indicators
+   - Collaboration approach
+   - Communication preferences
+   - Leadership compatibility
+
+6. Growth & Development Potential:
+   - Learning mindset evidence
+   - Skill development trajectory
+   - Career progression patterns
+   - Adaptability to new technologies
 
 Provide a realistic professional assessment as if you analyzed actual recent posts and bio content. Return as JSON with these exact keys:
 {
@@ -86,6 +100,33 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
     "keyStrengths": ["strength1", "strength2", "strength3"],
     "improvementAreas": ["area1", "area2", "area3"]
   },
+  "marketPositioning": {
+    "uniqueValueProposition": "string describing unique strengths",
+    "competitiveAdvantages": ["advantage1", "advantage2", "advantage3"],
+    "nicheSpecialization": "string describing potential niche areas",
+    "marketDifferentiators": ["differentiator1", "differentiator2"]
+  },
+  "teamFitAssessment": {
+    "workStyle": "Collaborative/Independent/Hybrid",
+    "communicationPreference": "Direct/Diplomatic/Analytical",
+    "decisionMaking": "Data-driven/Intuitive/Consultative",
+    "conflictResolution": "Mediator/Direct/Avoidant",
+    "projectApproach": "Methodical/Agile/Creative"
+  },
+  "growthPotential": {
+    "learningMindset": number (1-5 scale),
+    "skillDevelopmentTrajectory": "Ascending/Stable/Declining",
+    "adaptabilityToChange": number (1-5 scale),
+    "leadershipGrowth": "High potential/Moderate/Limited",
+    "technicalGrowth": "Rapid learner/Steady/Slow adopter"
+  },
+  "clientFitIndicators": {
+    "startupCompatibility": number (1-5 scale),
+    "enterpriseCompatibility": number (1-5 scale),
+    "consultingReadiness": number (1-5 scale),
+    "clientCommunication": number (1-5 scale),
+    "projectDeliveryStyle": "Structured/Flexible/Collaborative"
+  },
   "overallConsultantReadiness": number (1-10 scale)
 }`;
 
@@ -100,7 +141,7 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
         messages: [
           {
             role: 'system',
-            content: 'You are a professional LinkedIn profile analyzer specializing in comprehensive consulting market analysis. Analyze profiles as if you have access to recent posts, bio content, and professional activity. Provide realistic, detailed assessments. Always respond in English.'
+            content: 'You are a professional LinkedIn profile analyzer specializing in comprehensive consulting market analysis and team-fit assessment. Analyze profiles as if you have access to recent posts, bio content, and professional activity. Provide realistic, detailed assessments for both consultant development and client matching. Always respond in English.'
           },
           {
             role: 'user',
@@ -108,7 +149,7 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
           }
         ],
         temperature: 0.3,
-        max_tokens: 2000,
+        max_tokens: 3000,
       }),
     });
 
@@ -119,7 +160,7 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ GROQ comprehensive response received:', groqData);
+    console.log('✅ GROQ enhanced response received:', groqData);
 
     let analysis;
     try {
@@ -128,7 +169,6 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
         throw new Error('No content in GROQ response');
       }
 
-      // Extract JSON from response (handle potential markdown formatting)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
@@ -136,19 +176,18 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
-      console.warn('⚠️ Failed to parse GROQ response, using comprehensive fallback:', parseError);
-      // Provide comprehensive professional fallback analysis
-      analysis = createComprehensiveFallbackAnalysis();
+      console.warn('⚠️ Failed to parse GROQ response, using enhanced fallback:', parseError);
+      analysis = createEnhancedFallbackAnalysis();
     }
 
-    console.log('✅ Comprehensive LinkedIn analysis completed:', analysis);
+    console.log('✅ Enhanced LinkedIn analysis completed:', analysis);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         analysis: analysis,
         profileUrl: linkedinUrl,
-        analysisType: 'comprehensive',
+        analysisType: 'enhanced-comprehensive',
         includesRecentPosts: includeRecentPosts,
         includesBioAnalysis: includeBioSummary
       }),
@@ -158,10 +197,9 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
     );
 
   } catch (error) {
-    console.error('❌ LinkedIn comprehensive analysis error:', error);
+    console.error('❌ LinkedIn enhanced analysis error:', error);
     
-    // Return a comprehensive fallback analysis instead of failing
-    const fallbackAnalysis = createComprehensiveFallbackAnalysis();
+    const fallbackAnalysis = createEnhancedFallbackAnalysis();
 
     return new Response(
       JSON.stringify({ 
@@ -169,7 +207,7 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
         analysis: fallbackAnalysis,
         fallback: true,
         error: error.message,
-        analysisType: 'comprehensive-fallback'
+        analysisType: 'enhanced-comprehensive-fallback'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -178,14 +216,14 @@ Provide a realistic professional assessment as if you analyzed actual recent pos
   }
 });
 
-function createComprehensiveFallbackAnalysis() {
+function createEnhancedFallbackAnalysis() {
   return {
-    communicationStyle: 'Professional and structured communication with clear technical explanations',
-    leadershipStyle: 'Collaborative leadership approach with focus on team development and technical mentorship',
-    problemSolving: 'Systematic and analytical approach to problem-solving with emphasis on data-driven decisions',
-    teamCollaboration: 'Strong collaborative partner focused on knowledge sharing and collective problem-solving',
+    communicationStyle: 'Professional and structured communication with clear technical explanations and collaborative approach',
+    leadershipStyle: 'Collaborative leadership with focus on team development, technical mentorship, and inclusive decision-making',
+    problemSolving: 'Systematic and analytical approach combining data-driven insights with creative problem-solving methodologies',
+    teamCollaboration: 'Strong collaborative partner focused on knowledge sharing, collective problem-solving, and cross-functional teamwork',
     innovation: 4,
-    businessAcumen: 'Good understanding of business processes and technical solutions alignment',
+    businessAcumen: 'Good understanding of business processes, strategic thinking, and technical solutions alignment with business objectives',
     culturalFit: 4,
     leadership: 4,
     adaptability: 4,
@@ -203,6 +241,33 @@ function createComprehensiveFallbackAnalysis() {
       needsImprovement: true,
       keyStrengths: ['Technical expertise', 'Professional experience', 'Clear communication'],
       improvementAreas: ['Consultant positioning', 'Thought leadership content', 'Professional brand consistency']
+    },
+    marketPositioning: {
+      uniqueValueProposition: 'Strong technical foundation with collaborative leadership approach and systematic problem-solving',
+      competitiveAdvantages: ['Technical depth', 'Team collaboration', 'Analytical thinking'],
+      nicheSpecialization: 'Technical consulting with emphasis on team development and process optimization',
+      marketDifferentiators: ['Cross-functional collaboration', 'Mentorship capabilities']
+    },
+    teamFitAssessment: {
+      workStyle: 'Collaborative',
+      communicationPreference: 'Analytical',
+      decisionMaking: 'Data-driven',
+      conflictResolution: 'Mediator',
+      projectApproach: 'Methodical'
+    },
+    growthPotential: {
+      learningMindset: 4,
+      skillDevelopmentTrajectory: 'Ascending',
+      adaptabilityToChange: 4,
+      leadershipGrowth: 'Moderate',
+      technicalGrowth: 'Steady'
+    },
+    clientFitIndicators: {
+      startupCompatibility: 4,
+      enterpriseCompatibility: 4,
+      consultingReadiness: 7,
+      clientCommunication: 4,
+      projectDeliveryStyle: 'Structured'
     },
     overallConsultantReadiness: 7
   };

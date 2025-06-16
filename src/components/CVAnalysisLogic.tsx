@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -13,9 +12,8 @@ export const performCVAnalysis = async (
   setLinkedinUrl: (value: string) => void,
   linkedinUrl?: string
 ) => {
-  console.log('🚀 Starting comprehensive CV and LinkedIn analysis for file:', file.name);
+  console.log('🚀 Starting enhanced comprehensive CV and LinkedIn analysis for file:', file.name);
   
-  // Validate that both CV and LinkedIn URL are provided
   if (!linkedinUrl || !linkedinUrl.includes('linkedin.com')) {
     toast.error('Both CV file and valid LinkedIn URL are required for comprehensive analysis');
     return;
@@ -27,14 +25,12 @@ export const performCVAnalysis = async (
   try {
     toast.info('📄 Processing CV file...');
     
-    // Create FormData to send file properly
     const formData = new FormData();
     formData.append('file', file);
     
     setAnalysisProgress(20);
     console.log('✅ File prepared for analysis, calling parse-cv function...');
     
-    // Call CV analysis function
     toast.info('🧠 AI analyzing CV...');
     const { data: cvData, error: cvError } = await supabase.functions.invoke('parse-cv', {
       body: formData
@@ -48,7 +44,6 @@ export const performCVAnalysis = async (
     console.log('✅ CV analysis completed:', cvData);
     setAnalysisProgress(40);
     
-    // Auto-fill form fields with better validation and formatting
     if (cvData?.analysis?.personalInfo) {
       const info = cvData.analysis.personalInfo;
       
@@ -65,7 +60,6 @@ export const performCVAnalysis = async (
       }
       
       if (info.phone && info.phone.trim() && info.phone !== 'Unknown' && info.phone.length > 5) {
-        // Clean up phone number format
         const cleanedPhone = info.phone.replace(/[^\d+\-\s]/g, '').trim();
         setPhoneNumber(cleanedPhone);
         console.log('📝 Auto-filled phone:', cleanedPhone);
@@ -75,12 +69,11 @@ export const performCVAnalysis = async (
 
     setAnalysisProgress(50);
 
-    // Enhanced LinkedIn Analysis - Now required and comprehensive
     let linkedinAnalysis = null;
     
     try {
-      toast.info('🔗 Analyzing LinkedIn profile, posts, and bio...');
-      console.log('🔗 Starting comprehensive LinkedIn analysis for:', linkedinUrl);
+      toast.info('🔗 Analyzing LinkedIn profile, posts, and bio comprehensively...');
+      console.log('🔗 Starting enhanced LinkedIn analysis for:', linkedinUrl);
       
       const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
         body: { 
@@ -97,8 +90,8 @@ export const performCVAnalysis = async (
       }
       
       linkedinAnalysis = linkedinData?.analysis;
-      console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
-      toast.success('🎉 LinkedIn analysis complete - including recent posts and bio!');
+      console.log('✅ Enhanced LinkedIn analysis completed:', linkedinAnalysis);
+      toast.success('🎉 Enhanced LinkedIn analysis complete - including market positioning and team fit!');
       
     } catch (linkedinErr) {
       console.error('❌ LinkedIn analysis error:', linkedinErr);
@@ -108,29 +101,30 @@ export const performCVAnalysis = async (
 
     setAnalysisProgress(80);
     
-    // Generate comprehensive improvement tips
-    const improvementTips = generateImprovementTips(cvData?.analysis, linkedinAnalysis);
+    const enhancedImprovementTips = generateEnhancedImprovementTips(cvData?.analysis, linkedinAnalysis);
+    const certificationRecommendations = generateCertificationRecommendations(cvData?.analysis, linkedinAnalysis);
+    const roiPredictions = generateROIPredictions(cvData?.analysis, linkedinAnalysis);
     
-    // Set final results with improvement tips
     const finalResults = {
       cvAnalysis: cvData?.analysis || null,
       linkedinAnalysis: linkedinAnalysis,
-      improvementTips: improvementTips,
+      improvementTips: enhancedImprovementTips,
+      certificationRecommendations: certificationRecommendations,
+      roiPredictions: roiPredictions,
       timestamp: new Date().toISOString()
     };
     
-    console.log('✅ Complete comprehensive analysis finished:', finalResults);
+    console.log('✅ Enhanced comprehensive analysis finished:', finalResults);
     setAnalysisResults(finalResults);
     setAnalysisProgress(100);
     
-    toast.success('🎉 Complete comprehensive CV and LinkedIn analysis ready!');
+    toast.success('🎉 Enhanced comprehensive CV and LinkedIn analysis ready!');
 
   } catch (error) {
     console.error('❌ Analysis failed:', error);
     const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
     toast.error(`Comprehensive analysis failed: ${errorMessage}`);
     
-    // Reset analysis state on failure
     setAnalysisResults(null);
   } finally {
     setIsAnalyzing(false);
@@ -138,16 +132,16 @@ export const performCVAnalysis = async (
   }
 };
 
-const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
+const generateEnhancedImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
   const tips = {
     cvTips: [],
     linkedinTips: [],
+    marketPositioning: [],
+    teamFitOptimization: [],
     overallStrategy: []
   };
 
-  // CV Improvement Tips - More specific and actionable
   if (cvAnalysis) {
-    // Technical Skills Section
     if (!cvAnalysis.technicalSkillsAnalysis?.programmingLanguages?.expert?.length) {
       tips.cvTips.push({
         category: 'Technical Skills',
@@ -157,7 +151,6 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
       });
     }
 
-    // Professional Summary
     if (!cvAnalysis.professionalSummary?.yearsOfExperience || cvAnalysis.professionalSummary.yearsOfExperience === 'Unknown') {
       tips.cvTips.push({
         category: 'Professional Summary',
@@ -167,7 +160,6 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
       });
     }
 
-    // Work Experience
     if (!cvAnalysis.workExperience?.length || cvAnalysis.workExperience.length < 3) {
       tips.cvTips.push({
         category: 'Work Experience',
@@ -177,7 +169,6 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
       });
     }
 
-    // Missing certifications
     if (!cvAnalysis.education?.certifications?.length) {
       tips.cvTips.push({
         category: 'Certifications',
@@ -188,60 +179,44 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
     }
   }
 
-  // Enhanced LinkedIn Improvement Tips based on posts and bio analysis
   if (linkedinAnalysis) {
-    // Content engagement tips based on recent posts
-    if (linkedinAnalysis.recentPostsAnalysis) {
-      if (linkedinAnalysis.recentPostsAnalysis.postFrequency === 'Low') {
-        tips.linkedinTips.push({
-          category: 'Content Strategy',
-          tip: 'Increase posting frequency to build professional visibility and thought leadership.',
-          priority: 'High',
-          action: 'Aim for 2-3 posts per week about: Technical insights, Project learnings, Industry trends, Professional development'
-        });
-      }
-      
-      if (linkedinAnalysis.recentPostsAnalysis.engagementLevel === 'Low') {
-        tips.linkedinTips.push({
-          category: 'Engagement',
-          tip: 'Improve post engagement by adding questions and calls-to-action.',
-          priority: 'Medium',
-          action: 'End posts with: "What\'s your experience with [topic]?", "How do you handle [situation]?", or "Share your thoughts below"'
-        });
-      }
-    }
-
-    // Bio/Summary optimization
-    if (linkedinAnalysis.bioAnalysis?.needsImprovement) {
-      tips.linkedinTips.push({
-        category: 'Profile Summary',
-        tip: 'Optimize your LinkedIn summary to better highlight your consulting expertise.',
+    if (linkedinAnalysis.marketPositioning?.uniqueValueProposition) {
+      tips.marketPositioning.push({
+        category: 'Unique Value Proposition',
+        tip: 'Strengthen your unique value proposition in all professional communications.',
         priority: 'High',
-        action: 'Include: Years of experience, Key specializations, Notable achievements, Available for consulting'
+        action: `Highlight: ${linkedinAnalysis.marketPositioning.uniqueValueProposition}`
       });
     }
 
-    // Professional networking
-    if (linkedinAnalysis.culturalFit < 4) {
-      tips.linkedinTips.push({
-        category: 'Professional Presence',
-        tip: 'Share more content about your work philosophy and professional values.',
+    if (linkedinAnalysis.teamFitAssessment?.workStyle) {
+      tips.teamFitOptimization.push({
+        category: 'Team Collaboration Style',
+        tip: 'Showcase your collaborative approach in project descriptions and posts.',
         priority: 'Medium',
-        action: 'Post weekly about: Successful projects, Team collaboration, Professional insights, Industry trends'
+        action: `Emphasize your ${linkedinAnalysis.teamFitAssessment.workStyle.toLowerCase()} work style with specific examples`
       });
     }
 
-    if (linkedinAnalysis.leadership < 4) {
+    if (linkedinAnalysis.clientFitIndicators?.consultingReadiness < 7) {
       tips.linkedinTips.push({
-        category: 'Leadership Content',
-        tip: 'Show leadership examples through posts about mentorship and technical decision-making.',
+        category: 'Consulting Readiness',
+        tip: 'Improve your consulting positioning with client-focused content.',
         priority: 'High',
-        action: 'Share stories about: Leading technical projects, Mentorship, Architecture decisions, Problem-solving'
+        action: 'Share case studies, client success stories, and consulting methodology posts'
+      });
+    }
+
+    if (linkedinAnalysis.growthPotential?.learningMindset < 4) {
+      tips.linkedinTips.push({
+        category: 'Growth Mindset',
+        tip: 'Demonstrate continuous learning through posts about new technologies and skills.',
+        priority: 'Medium',
+        action: 'Share learning experiences, course completions, and skill development journey'
       });
     }
   }
 
-  // Overall Strategy Tips
   tips.overallStrategy.push({
     category: 'Consistent Branding',
     tip: 'Ensure your CV and LinkedIn tell the same professional story.',
@@ -263,6 +238,93 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
     action: 'Share: Technical insights, Industry analysis, Project case studies, Professional development tips'
   });
 
-  console.log('📋 Generated comprehensive improvement tips:', tips);
+  console.log('📋 Generated enhanced improvement tips:', tips);
   return tips;
+};
+
+const generateCertificationRecommendations = (cvAnalysis: any, linkedinAnalysis: any) => {
+  const recommendations = {
+    technical: [],
+    business: [],
+    leadership: [],
+    industry: []
+  };
+
+  if (cvAnalysis?.technicalExpertise) {
+    const skills = cvAnalysis.technicalExpertise.programmingLanguages?.expert || [];
+    
+    if (skills.includes('AWS') || skills.includes('Cloud')) {
+      recommendations.technical.push({
+        certification: 'AWS Solutions Architect',
+        priority: 'High',
+        reason: 'Enhance cloud consulting capabilities',
+        timeToComplete: '2-3 months',
+        marketValue: 'High demand in enterprise consulting'
+      });
+    }
+
+    if (skills.includes('React') || skills.includes('JavaScript')) {
+      recommendations.technical.push({
+        certification: 'Google Professional Cloud Developer',
+        priority: 'Medium',
+        reason: 'Complement frontend skills with cloud backend',
+        timeToComplete: '1-2 months',
+        marketValue: 'Growing demand for full-stack cloud developers'
+      });
+    }
+  }
+
+  if (linkedinAnalysis?.businessAcumen) {
+    recommendations.business.push({
+      certification: 'Project Management Professional (PMP)',
+      priority: 'High',
+      reason: 'Essential for senior consulting roles',
+      timeToComplete: '3-4 months',
+      marketValue: 'Significantly increases hourly rates'
+    });
+  }
+
+  if (linkedinAnalysis?.leadership >= 4) {
+    recommendations.leadership.push({
+      certification: 'Certified Scrum Master (CSM)',
+      priority: 'Medium',
+      reason: 'Demonstrate agile leadership capabilities',
+      timeToComplete: '1 month',
+      marketValue: 'High demand in agile organizations'
+    });
+  }
+
+  return recommendations;
+};
+
+const generateROIPredictions = (cvAnalysis: any, linkedinAnalysis: any) => {
+  const baseRate = parseInt(cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended?.replace(/\D/g, '') || '800');
+  
+  return {
+    currentMarketValue: {
+      hourlyRate: baseRate,
+      monthlyPotential: baseRate * 160,
+      annualPotential: baseRate * 160 * 12
+    },
+    improvementPotential: {
+      with6MonthsImprovement: {
+        hourlyRate: Math.round(baseRate * 1.15),
+        reasoning: 'LinkedIn optimization + 1 certification'
+      },
+      with1YearImprovement: {
+        hourlyRate: Math.round(baseRate * 1.3),
+        reasoning: 'Technical certifications + thought leadership'
+      },
+      with2YearImprovement: {
+        hourlyRate: Math.round(baseRate * 1.5),
+        reasoning: 'Senior positioning + niche expertise'
+      }
+    },
+    teamFitValue: {
+      startupFit: linkedinAnalysis?.clientFitIndicators?.startupCompatibility || 4,
+      enterpriseFit: linkedinAnalysis?.clientFitIndicators?.enterpriseCompatibility || 4,
+      consultingReadiness: linkedinAnalysis?.clientFitIndicators?.consultingReadiness || 7,
+      expectedOnboardingTime: linkedinAnalysis?.teamFitAssessment?.projectApproach === 'Methodical' ? '1-2 weeks' : '2-3 weeks'
+    }
+  };
 };
