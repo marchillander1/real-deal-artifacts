@@ -72,12 +72,11 @@ serve(async (req) => {
       assignment = dbAssignment;
     }
 
-    // Fetch consultants with better filtering - limit to top candidates
+    // Fetch consultants with strict demo limits - exactly 1 network + 5 my consultants
     const { data: allConsultants, error: consultantsError } = await supabase
       .from('consultants')
       .select('*')
-      .limit(50) // Limit to 50 consultants for better performance
-      .order('rating', { ascending: false }); // Get highest rated first
+      .order('rating', { ascending: false });
 
     if (consultantsError) {
       throw new Error(`Failed to fetch consultants: ${consultantsError.message}`);
@@ -93,11 +92,16 @@ serve(async (req) => {
       });
     }
 
-    console.log(`Found ${allConsultants.length} consultants to evaluate`);
+    // Apply the same demo limits as in the frontend
+    const networkConsultants = allConsultants.filter(c => c.type === 'new').slice(0, 1);
+    const myConsultants = allConsultants.filter(c => c.type === 'existing').slice(0, 5);
+    const limitedConsultants = [...networkConsultants, ...myConsultants];
+
+    console.log(`Found ${limitedConsultants.length} consultants to evaluate (1 network + 5 my consultants)`);
 
     // Calculate matches for each consultant using enhanced scoring
     const consultantMatches = [];
-    for (const consultant of allConsultants) {
+    for (const consultant of limitedConsultants) {
       const technicalScore = calculateTechnicalMatch(consultant, assignment);
       
       // Only process consultants with decent technical match (>= 40%)
@@ -143,10 +147,10 @@ serve(async (req) => {
       }
     }
 
-    // Sort by match score and limit to top 10
+    // Sort by match score and limit to top 6 (since we only have 6 total consultants max)
     const topMatches = consultantMatches
       .sort((a, b) => b.match_score - a.match_score)
-      .slice(0, 10);
+      .slice(0, 6);
 
     // Save matches to database (only for real assignments, not demo)
     if (!assignmentId.startsWith('demo-') && topMatches.length > 0) {
@@ -175,7 +179,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Generated ${topMatches.length} quality matches`);
+    console.log(`Generated ${topMatches.length} quality matches from ${limitedConsultants.length} available consultants`);
 
     return new Response(JSON.stringify({
       success: true,
