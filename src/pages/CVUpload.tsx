@@ -39,8 +39,8 @@ export const CVUpload = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
-    if (!file || !email || !fullName || !agreeToTerms) {
-      toast.error('Please fill in all required fields, upload a file, and agree to terms');
+    if (!file || !email || !fullName || !linkedinUrl || !agreeToTerms) {
+      toast.error('Please fill in all required fields, upload a file, add LinkedIn URL, and agree to terms');
       return;
     }
 
@@ -72,31 +72,63 @@ export const CVUpload = () => {
       }
 
       console.log('CV parsed successfully:', parseData);
-      setAnalysisResults(parseData.analysis);
+      
+      // Call LinkedIn analysis
+      let linkedinAnalysis = null;
+      try {
+        console.log('Analyzing LinkedIn profile...');
+        const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
+          body: {
+            linkedinUrl,
+            fullName,
+            email
+          }
+        });
 
-      // Save to database with analysis data
+        if (linkedinError) {
+          console.warn('LinkedIn analysis error:', linkedinError);
+        } else {
+          linkedinAnalysis = linkedinData?.analysis;
+          console.log('LinkedIn analysis completed:', linkedinAnalysis);
+        }
+      } catch (linkedinErr) {
+        console.warn('LinkedIn analysis failed:', linkedinErr);
+      }
+
+      // Set analysis results for display
+      setAnalysisResults({
+        cvAnalysis: parseData.analysis,
+        linkedinAnalysis: linkedinAnalysis
+      });
+
+      // Save to database with comprehensive analysis data
+      const consultantData = {
+        name: fullName,
+        email: email,
+        phone: phoneNumber || null,
+        linkedin_url: linkedinUrl || null,
+        skills: parseData.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
+        experience_years: parseData.analysis?.professionalSummary?.yearsOfExperience?.replace(/\D/g, '') || 0,
+        hourly_rate: parseData.analysis?.marketPositioning?.salaryBenchmarks?.stockholm?.replace(/\D/g, '') || null,
+        location: parseData.analysis?.personalInfo?.location || 'Sweden',
+        availability: 'Available',
+        cv_file_path: `cv_${Date.now()}_${file.name}`,
+        communication_style: linkedinAnalysis?.communicationStyle || parseData.analysis?.softSkills?.communication?.[0] || 'Professional',
+        work_style: parseData.analysis?.workPreferences?.workStyle || 'Collaborative',
+        values: parseData.analysis?.softSkills?.leadership || [],
+        personality_traits: parseData.analysis?.softSkills?.problemSolving || [],
+        cultural_fit: linkedinAnalysis?.culturalFit || 5,
+        leadership: linkedinAnalysis?.leadership || (parseData.analysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3),
+        certifications: parseData.analysis?.certifications?.development || [],
+        type: 'new',
+        // Store complete analysis data
+        cv_analysis: parseData.analysis,
+        linkedin_analysis: linkedinAnalysis
+      };
+
       const { data: insertData, error: insertError } = await supabase
         .from('consultants')
-        .insert({
-          name: fullName,
-          email: email,
-          phone: phoneNumber || null,
-          linkedin_url: linkedinUrl || null,
-          skills: parseData.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
-          experience_years: parseData.analysis?.professionalSummary?.yearsOfExperience?.replace(/\D/g, '') || 0,
-          hourly_rate: parseData.analysis?.marketPositioning?.salaryBenchmarks?.stockholm?.replace(/\D/g, '') || null,
-          location: parseData.analysis?.personalInfo?.location || 'Sweden',
-          availability: 'Available',
-          cv_file_path: `cv_${Date.now()}_${file.name}`,
-          communication_style: parseData.analysis?.softSkills?.communication?.[0] || 'Professional',
-          work_style: parseData.analysis?.workPreferences?.workStyle || 'Collaborative',
-          values: parseData.analysis?.softSkills?.leadership || [],
-          personality_traits: parseData.analysis?.softSkills?.problemSolving || [],
-          cultural_fit: 5,
-          leadership: parseData.analysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3,
-          certifications: parseData.analysis?.certifications?.development || [],
-          type: 'new'
-        });
+        .insert(consultantData);
 
       if (insertError) {
         console.error('Insert error:', insertError);
@@ -137,6 +169,9 @@ export const CVUpload = () => {
   };
 
   if (uploadComplete && analysisResults) {
+    const cvAnalysis = analysisResults.cvAnalysis;
+    const linkedinAnalysis = analysisResults.linkedinAnalysis;
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
         <div className="container mx-auto max-w-4xl">
@@ -153,7 +188,7 @@ export const CVUpload = () => {
                 Analysis Complete!
               </CardTitle>
               <CardDescription>
-                Din CV har analyserats och du är nu del av vårt konsultnätverk. Här är din omfattande professionella analys:
+                Din CV och LinkedIn-profil har analyserats och du är nu del av vårt konsultnätverk. Här är din omfattande professionella analys:
               </CardDescription>
             </CardHeader>
           </Card>
@@ -161,192 +196,272 @@ export const CVUpload = () => {
           {/* Comprehensive Analysis Results */}
           <div className="space-y-6">
             {/* Professional Summary */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-blue-500" />
-                  Professional Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm text-gray-600">Seniority Level:</span>
-                    <p className="font-semibold">{analysisResults.professionalSummary?.seniorityLevel}</p>
+            {cvAnalysis?.professionalSummary && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-blue-500" />
+                    Professional Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm text-gray-600">Seniority Level:</span>
+                      <p className="font-semibold">{cvAnalysis.professionalSummary.seniorityLevel}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Years of Experience:</span>
+                      <p className="font-semibold">{cvAnalysis.professionalSummary.yearsOfExperience}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Career Trajectory:</span>
+                      <p className="font-semibold text-green-600">{cvAnalysis.professionalSummary.careerTrajectory}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Current Role:</span>
+                      <p className="font-semibold">{cvAnalysis.professionalSummary.currentRole}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Years of Experience:</span>
-                    <p className="font-semibold">{analysisResults.professionalSummary?.yearsOfExperience}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Career Trajectory:</span>
-                    <p className="font-semibold text-green-600">{analysisResults.professionalSummary?.careerTrajectory}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Current Role:</span>
-                    <p className="font-semibold">{analysisResults.professionalSummary?.currentRole}</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <span className="text-sm text-gray-600">Specializations:</span>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {analysisResults.professionalSummary?.specializations?.map((spec: string, idx: number) => (
-                      <Badge key={idx} className="bg-blue-100 text-blue-800">{spec}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  
+                  {cvAnalysis.professionalSummary.specializations && (
+                    <div>
+                      <span className="text-sm text-gray-600">Specializations:</span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {cvAnalysis.professionalSummary.specializations.map((spec: string, idx: number) => (
+                          <Badge key={idx} className="bg-blue-100 text-blue-800">{spec}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Technical Expertise */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Code className="h-5 w-5 text-purple-500" />
-                  Technical Expertise
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Expert Level:</span>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {analysisResults.technicalExpertise?.programmingLanguages?.expert?.map((skill: string, idx: number) => (
-                        <Badge key={idx} className="bg-green-100 text-green-800 text-xs">{skill}</Badge>
-                      ))}
-                    </div>
+            {cvAnalysis?.technicalExpertise && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Code className="h-5 w-5 text-purple-500" />
+                    Technical Expertise
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {cvAnalysis.technicalExpertise.programmingLanguages?.expert && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">Expert Level:</span>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, idx: number) => (
+                            <Badge key={idx} className="bg-green-100 text-green-800 text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {cvAnalysis.technicalExpertise.programmingLanguages?.proficient && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">Proficient:</span>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {cvAnalysis.technicalExpertise.programmingLanguages.proficient.map((skill: string, idx: number) => (
+                            <Badge key={idx} className="bg-blue-100 text-blue-800 text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {cvAnalysis.technicalExpertise.programmingLanguages?.familiar && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">Familiar:</span>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {cvAnalysis.technicalExpertise.programmingLanguages.familiar.map((skill: string, idx: number) => (
+                            <Badge key={idx} className="bg-gray-100 text-gray-800 text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Proficient:</span>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {analysisResults.technicalExpertise?.programmingLanguages?.proficient?.map((skill: string, idx: number) => (
-                        <Badge key={idx} className="bg-blue-100 text-blue-800 text-xs">{skill}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Familiar:</span>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {analysisResults.technicalExpertise?.programmingLanguages?.familiar?.map((skill: string, idx: number) => (
-                        <Badge key={idx} className="bg-gray-100 text-gray-800 text-xs">{skill}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
 
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Cloud & Infrastructure:</span>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {analysisResults.technicalExpertise?.cloudAndInfrastructure?.platforms?.map((platform: string, idx: number) => (
-                      <Badge key={idx} className="bg-orange-100 text-orange-800 text-xs">{platform}</Badge>
-                    ))}
+                  {cvAnalysis.technicalExpertise.cloudAndInfrastructure?.platforms && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Cloud & Infrastructure:</span>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {cvAnalysis.technicalExpertise.cloudAndInfrastructure.platforms.map((platform: string, idx: number) => (
+                          <Badge key={idx} className="bg-orange-100 text-orange-800 text-xs">{platform}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* LinkedIn Analysis */}
+            {linkedinAnalysis && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-blue-600" />
+                    LinkedIn Leadership & Communication Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm text-gray-600">Communication Style:</span>
+                      <p className="font-semibold">{linkedinAnalysis.communicationStyle}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Leadership Style:</span>
+                      <p className="font-semibold">{linkedinAnalysis.leadershipStyle}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Problem Solving:</span>
+                      <p className="font-semibold">{linkedinAnalysis.problemSolving}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Business Acumen:</span>
+                      <p className="font-semibold">{linkedinAnalysis.businessAcumen}</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  
+                  <div className="grid md:grid-cols-3 gap-4 mt-4">
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Cultural Fit</span>
+                      <div className="flex items-center justify-center mt-2">
+                        <Progress value={(linkedinAnalysis.culturalFit / 5) * 100} className="w-16 h-2" />
+                        <span className="ml-2 text-sm font-bold">{linkedinAnalysis.culturalFit}/5</span>
+                      </div>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Leadership</span>
+                      <div className="flex items-center justify-center mt-2">
+                        <Progress value={(linkedinAnalysis.leadership / 5) * 100} className="w-16 h-2" />
+                        <span className="ml-2 text-sm font-bold">{linkedinAnalysis.leadership}/5</span>
+                      </div>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Innovation</span>
+                      <div className="flex items-center justify-center mt-2">
+                        <Progress value={(linkedinAnalysis.innovation / 5) * 100} className="w-16 h-2" />
+                        <span className="ml-2 text-sm font-bold">{linkedinAnalysis.innovation}/5</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Strengths Analysis */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                  Key Strengths & Market Position
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {analysisResults.detailedStrengthsAnalysis?.slice(0, 3).map((strength: any, idx: number) => (
-                  <div key={idx} className="border-l-4 border-green-500 pl-4">
-                    <h4 className="font-semibold text-green-700">{strength.category}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{strength.description}</p>
-                    <div className="mt-2">
-                      <span className="text-xs text-gray-500">Market Value: </span>
-                      <span className="text-xs font-medium">{strength.marketValue}</span>
+            {cvAnalysis?.detailedStrengthsAnalysis && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    Key Strengths & Market Position
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {cvAnalysis.detailedStrengthsAnalysis.slice(0, 3).map((strength: any, idx: number) => (
+                    <div key={idx} className="border-l-4 border-green-500 pl-4">
+                      <h4 className="font-semibold text-green-700">{strength.category}</h4>
+                      <p className="text-sm text-gray-600 mt-1">{strength.description}</p>
+                      <div className="mt-2">
+                        <span className="text-xs text-gray-500">Market Value: </span>
+                        <span className="text-xs font-medium">{strength.marketValue}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                
-                <div className="bg-green-50 p-4 rounded-lg mt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Star className="h-4 w-4 text-yellow-500" />
-                    <span className="font-semibold">Market Positioning</span>
-                  </div>
-                  <p className="text-sm text-gray-700">{analysisResults.marketPositioning?.uniqueValueProposition}</p>
-                  <div className="mt-2">
-                    <span className="text-xs text-gray-600">Competitiveness: </span>
-                    <span className="text-xs font-semibold text-green-600">{analysisResults.marketPositioning?.competitiveness}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  ))}
+                  
+                  {cvAnalysis.marketPositioning && (
+                    <div className="bg-green-50 p-4 rounded-lg mt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-4 w-4 text-yellow-500" />
+                        <span className="font-semibold">Market Positioning</span>
+                      </div>
+                      <p className="text-sm text-gray-700">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
+                      <div className="mt-2">
+                        <span className="text-xs text-gray-600">Competitiveness: </span>
+                        <span className="text-xs font-semibold text-green-600">{cvAnalysis.marketPositioning.competitiveness}</span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Improvement Areas */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-orange-500" />
-                  Development Recommendations
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {analysisResults.comprehensiveImprovementAreas?.slice(0, 3).map((area: any, idx: number) => (
-                  <div key={idx} className="border border-orange-200 rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-semibold text-orange-700">{area.area}</h4>
-                      <Badge className={`text-xs ${
-                        area.improvementPriority === 'High' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {area.improvementPriority} Priority
-                      </Badge>
+            {cvAnalysis?.comprehensiveImprovementAreas && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-orange-500" />
+                    Development Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {cvAnalysis.comprehensiveImprovementAreas.slice(0, 3).map((area: any, idx: number) => (
+                    <div key={idx} className="border border-orange-200 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-semibold text-orange-700">{area.area}</h4>
+                        <Badge className={`text-xs ${
+                          area.improvementPriority === 'High' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {area.improvementPriority} Priority
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">{area.currentState}</p>
+                      <div className="text-xs text-gray-500">
+                        <span className="font-medium">Expected Impact: </span>
+                        {area.expectedImpact}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        <span className="font-medium">Timeline: </span>
+                        {area.timeToImplement}
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{area.currentState}</p>
-                    <div className="text-xs text-gray-500">
-                      <span className="font-medium">Expected Impact: </span>
-                      {area.expectedImpact}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      <span className="font-medium">Timeline: </span>
-                      {area.timeToImplement}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Salary Benchmarks */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-purple-500" />
-                  Salary Benchmarks & Career Opportunities
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-gray-600">Stockholm Market</p>
-                    <p className="font-bold text-lg text-blue-600">{analysisResults.marketPositioning?.salaryBenchmarks?.stockholm}</p>
+            {cvAnalysis?.marketPositioning?.salaryBenchmarks && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5 text-purple-500" />
+                    Salary Benchmarks & Career Opportunities
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Stockholm Market</p>
+                      <p className="font-bold text-lg text-blue-600">{cvAnalysis.marketPositioning.salaryBenchmarks.stockholm}</p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <p className="text-sm text-gray-600">European Tech</p>
+                      <p className="font-bold text-lg text-green-600">{cvAnalysis.marketPositioning.salaryBenchmarks.europeanTech}</p>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Remote Global</p>
+                      <p className="font-bold text-lg text-purple-600">{cvAnalysis.marketPositioning.salaryBenchmarks.remoteGlobal}</p>
+                    </div>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <p className="text-sm text-gray-600">European Tech</p>
-                    <p className="font-bold text-lg text-green-600">{analysisResults.marketPositioning?.salaryBenchmarks?.europeanTech}</p>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-sm text-gray-600">Remote Global</p>
-                    <p className="font-bold text-lg text-purple-600">{analysisResults.marketPositioning?.salaryBenchmarks?.remoteGlobal}</p>
-                  </div>
-                </div>
 
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Target Roles:</span>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {analysisResults.marketPositioning?.targetRoles?.slice(0, 6).map((role: string, idx: number) => (
-                      <Badge key={idx} className="bg-purple-100 text-purple-800 text-xs">{role}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  {cvAnalysis.marketPositioning.targetRoles && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Target Roles:</span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {cvAnalysis.marketPositioning.targetRoles.slice(0, 6).map((role: string, idx: number) => (
+                          <Badge key={idx} className="bg-purple-100 text-purple-800 text-xs">{role}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Action Button */}
             <div className="text-center">
