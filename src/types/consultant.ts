@@ -27,12 +27,6 @@ export interface Consultant {
   leadership?: number;
   linkedinUrl?: string;
   cvAnalysis?: {
-    experience: string;
-    seniorityLevel: string;
-    strengths: string[];
-    marketPosition: string;
-    technicalDepth: string;
-    improvementAreas: string[];
     personalInfo?: {
       name?: string;
       email?: string;
@@ -43,15 +37,7 @@ export interface Consultant {
       portfolio?: string;
       languages?: string[];
     };
-    professionalSummary?: {
-      yearsOfExperience?: string;
-      seniorityLevel?: string;
-      industryFocus?: string[];
-      specializations?: string[];
-      careerTrajectory?: string;
-      currentRole?: string;
-    };
-    technicalExpertise?: {
+    technicalSkillsAnalysis?: {
       programmingLanguages?: {
         expert?: string[];
         proficient?: string[];
@@ -62,12 +48,14 @@ export interface Consultant {
         styling?: string[];
         stateManagement?: string[];
         buildTools?: string[];
+        testingFrameworks?: string[];
       };
       backendTechnologies?: {
         frameworks?: string[];
         databases?: string[];
         messageQueues?: string[];
         caching?: string[];
+        apiDesign?: string[];
       };
       cloudAndInfrastructure?: {
         platforms?: string[];
@@ -79,62 +67,128 @@ export interface Consultant {
       specializedSkills?: {
         aiMl?: string[];
         security?: string[];
-        testing?: string[];
-        apiDesign?: string[];
+        mobile?: string[];
+        dataEngineering?: string[];
       };
+      technicalDepthAssessment?: string;
+      emergingTechAdoption?: string;
     };
-    detailedStrengthsAnalysis?: {
-      category: string;
-      description: string;
-      evidence: string[];
-      marketValue: string;
-      competitiveDifferentiator: string;
-      growthPotential: string;
-    }[];
-    comprehensiveImprovementAreas?: {
-      area: string;
-      currentState: string;
-      improvementPriority: string;
-      timeToImplement: string;
-      detailedTips: string[];
-      expectedImpact: string;
-      resources: string[];
-    }[];
+    leadershipCapabilities?: {
+      technicalLeadership?: {
+        architecturalDecisions?: string;
+        codeReviewAndMentoring?: string;
+        technicalVision?: string;
+      };
+      teamLeadership?: {
+        teamSize?: string;
+        projectManagement?: string;
+        crossFunctionalCollaboration?: string;
+        conflictResolution?: string;
+      };
+      strategicLeadership?: {
+        businessAlignment?: string;
+        stakeholderManagement?: string;
+        changeManagement?: string;
+        innovationDriving?: string;
+      };
+      leadershipStyle?: string;
+      leadershipPotential?: string;
+    };
+    personalityTraits?: {
+      problemSolvingApproach?: string;
+      communicationStyle?: string;
+      workStyle?: string;
+      adaptability?: string;
+      initiativeTaking?: string;
+      attentionToDetail?: string;
+      continuousLearning?: string;
+      stressHandling?: string;
+      teamOrientation?: string;
+      innovationMindset?: string;
+    };
+    careerPotential?: {
+      currentLevel?: string;
+      experienceProgression?: string;
+      nextCareerSteps?: string[];
+      leadershipReadiness?: number;
+      specialistVsGeneralist?: string;
+      marketValue?: string;
+      growthTrajectory?: string;
+      competitiveAdvantages?: string[];
+      developmentAreas?: string[];
+      salaryProgression?: string;
+    };
+    professionalSummary?: {
+      yearsOfExperience?: string;
+      seniorityLevel?: string;
+      industryFocus?: string[];
+      specializations?: string[];
+      careerTrajectory?: string;
+      currentRole?: string;
+      uniqueValueProposition?: string;
+    };
+    workExperience?: Array<{
+      title?: string;
+      company?: string;
+      duration?: string;
+      responsibilities?: string[];
+      achievements?: string[];
+      technologies?: string[];
+      teamSize?: string;
+      impact?: string;
+    }>;
+    projects?: Array<{
+      name?: string;
+      description?: string;
+      technologies?: string[];
+      role?: string;
+      impact?: string;
+      challenges?: string;
+      learnings?: string;
+    }>;
+    education?: {
+      formal?: Array<{
+        degree?: string;
+        institution?: string;
+        year?: string;
+        relevantCourses?: string[];
+        thesis?: string;
+      }>;
+      certifications?: string[];
+      continuousLearning?: string[];
+      professionalDevelopment?: string[];
+    };
     marketPositioning?: {
       uniqueValueProposition?: string;
       competitiveAdvantages?: string[];
       targetRoles?: string[];
       salaryBenchmarks?: {
         stockholm?: string;
-        europeanTech?: string;
-        remoteGlobal?: string;
+        gothenburg?: string;
+        malmo?: string;
+        remote?: string;
       };
+      marketReadiness?: number;
       competitiveness?: string;
-      marketReadiness?: string;
-      growthTrajectory?: string;
+      demandLevel?: string;
+      growthPotential?: string;
     };
-    softSkills?: {
-      leadership?: string[];
-      communication?: string[];
-      problemSolving?: string[];
-      adaptability?: string[];
+    consultingReadiness?: {
+      independentWorkAbility?: string;
+      clientCommunication?: string;
+      problemSolvingInNewEnvironments?: string;
+      adaptabilityToClientCultures?: string;
+      businessAcumen?: string;
+      deliveryFocus?: string;
+      consultingExperience?: string;
     };
-    workPreferences?: {
-      workStyle?: string;
-      teamEnvironment?: string;
-      projectTypes?: string;
-      remoteWork?: string;
-      travelWillingness?: string;
-      workLifeBalance?: string;
-      companySize?: string;
-      industryPreferences?: string[];
-    };
-    certifications?: {
-      cloud?: string[];
-      development?: string[];
-      management?: string[];
-      security?: string[];
-    };
+    // Legacy properties for backward compatibility
+    experience?: string;
+    seniorityLevel?: string;
+    strengths?: string[];
+    marketPosition?: string;
+    technicalDepth?: string;
+    improvementAreas?: string[];
   };
   linkedinAnalysis?: {
     communicationStyle: string;
