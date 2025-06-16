@@ -29,38 +29,38 @@ serve(async (req) => {
     if (isSwedish) {
       // Swedish responses with comprehensive MatchWise knowledge
       if (message.toLowerCase().includes('matchwise') || message.toLowerCase().includes('vad är') || message.toLowerCase().includes('plattform')) {
-        reply = `Hej! MatchWise är en avancerad AI-driven plattform som revolutionerar hur konsulter och företag hittar varandra. 
+        reply = `**MatchWise - AI-driven konsultmatchning** 🚀
 
-🎯 **Så fungerar MatchWise:**
+MatchWise är en avancerad plattform som revolutionerar hur konsulter och företag hittar varandra.
 
 **För Konsulter:**
-• **AI-analys av CV:** Vår AI analyserar din tekniska expertis, ledarskapsförmåga och personlighet
-• **LinkedIn-integration:** Vi analyserar din LinkedIn-profil för att förstå din kommunikationsstil och arbetsmetoder
-• **Automatisk matchning:** Du syns automatiskt för relevanta uppdrag baserat på dina skills
-• **Personlig profil:** Få detaljerad feedback och förbättringsförslag för din karriär
+• **AI-analys av CV** - Vår AI analyserar din tekniska expertis, ledarskapsförmåga och personlighet
+• **LinkedIn-integration** - Vi analyserar din profil för att förstå din kommunikationsstil och arbetsmetoder  
+• **Automatisk matchning** - Du syns automatiskt för relevanta uppdrag baserat på dina skills
+• **Personlig profil** - Få detaljerad feedback och förbättringsförslag för din karriär
 
 **För Företag:**
-• **Sök i konsultdatabasen:** Hitta konsulter baserat på specifika tekniska färdigheter och erfarenhet
-• **AI-matchning:** Vår algoritm föreslår bästa kandidater för dina projekt
-• **Kulturell passform:** Se hur konsulter passar in i din företagskultur
-• **Direktkontakt:** Kontakta konsulter direkt genom plattformen
+• **Sök i konsultdatabasen** - Hitta konsulter baserat på specifika tekniska färdigheter och erfarenhet
+• **AI-matchning** - Vår algoritm föreslår bästa kandidater för dina projekt
+• **Kulturell passform** - Se hur konsulter passar in i din företagskultur
+• **Direktkontakt** - Kontakta konsulter direkt genom plattformen
 
-**Teknologin bakom:**
+**Teknologin:**
 • Avancerad NLP för CV-analys
 • Maskininlärning för personlighetsanalys
 • Prediktiv matchning baserad på framgångsrika projekt
 • Kontinuerlig förbättring av algoritmer
 
-Vill du veta mer om någon specifik del av plattformen?`;
+💡 **Vill du veta mer om någon specifik del av plattformen?**`;
 
       } else if (message.toLowerCase().includes('cv') || message.toLowerCase().includes('ladda upp') || message.toLowerCase().includes('analys')) {
-        reply = `MatchWise CV-analys är mycket mer än bara att läsa ditt CV! 
+        reply = `**CV-analys på MatchWise** 📊
 
-📊 **Vad händer när du laddar upp ditt CV:**
+När du laddar upp ditt CV händer mycket mer än bara läsning!
 
 **1. Teknisk Expertis-analys:**
 • Identifierar programmeringsspråk och teknologier
-• Kategoriserar färdighetsnivåer (nybörjare, medel, expert)
+• Kategoriserar färdighetsnivåer (nybörjare → expert)
 • Analyserar projektkontext och användningsområden
 • Bedömer teknologisk bredd vs djup
 
@@ -82,18 +82,18 @@ Vill du veta mer om någon specifik del av plattformen?`;
 • Identifiering av nischområden och specialiseringar
 • Förslag på målroller och branscher
 
-**5. LinkedIn-integration (om du anger profil):**
+**5. LinkedIn-integration:**
 • Analyserar din online-närvaro och personal branding
 • Bedömer nätverksstorlek och branschkopplingar
 • Utvärderar innehållsdelning och tankeledarsskap
 • Mäter engagemang och professionell aktivitet
 
-Processen tar bara några sekunder men ger dig insights som normalt skulle kräva en professionell karriärcoach!`;
+⚡ **Processen tar bara några sekunder men ger dig insights som normalt skulle kräva en professionell karriärcoach!**`;
 
       } else if (message.toLowerCase().includes('linkedin') || message.toLowerCase().includes('profil')) {
-        reply = `LinkedIn-analysen på MatchWise är djupgående och ger unika insights! 
+        reply = `**LinkedIn-analys på MatchWise** 🔗
 
-🔗 **Så analyserar vi din LinkedIn-profil:**
+Vi analyserar din LinkedIn-profil djupgående för unika insights!
 
 **Kommunikationsstil:**
 • Analyserar språkbruk och tonalitet i dina inlägg
@@ -131,124 +131,124 @@ Processen tar bara några sekunder men ger dig insights som normalt skulle kräv
 • Identifiering av likasinnade konsulter för team-projekt
 • Personlig utvecklingsplan för starkare LinkedIn-närvaro
 
-Genom att kombinera CV + LinkedIn får vi en 360-graders bild av dig som professionell!`;
+🎯 **Genom att kombinera CV + LinkedIn får vi en 360-graders bild av dig som professionell!**`;
 
       } else if (message.toLowerCase().includes('företag') || message.toLowerCase().includes('hitta') || message.toLowerCase().includes('söka')) {
-        reply = `MatchWise gör det enkelt för företag att hitta rätt konsulter! 
+        reply = `**För Företag - Hitta rätt konsulter** 🏢
 
-🏢 **För Företag - Så hittar ni perfekta konsulter:**
+MatchWise gör det enkelt för företag att hitta perfekta konsulter!
 
 **Dashboard-funktioner:**
-• **Konsultdatabas:** Bläddra genom verifierade konsulter med detaljerade profiler
-• **Avancerad sökning:** Filtrera på teknisk expertis, erfarenhet, plats, tillgänglighet
-• **AI-rekommendationer:** Få förslag på konsulter baserat på era projektbehov
-• **Kulturell matchning:** Se vilka konsulter som passar er företagskultur
+• **Konsultdatabas** - Bläddra genom verifierade konsulter med detaljerade profiler
+• **Avancerad sökning** - Filtrera på teknisk expertis, erfarenhet, plats, tillgänglighet
+• **AI-rekommendationer** - Få förslag på konsulter baserat på era projektbehov
+• **Kulturell matchning** - Se vilka konsulter som passar er företagskultur
 
 **Sökfunktioner:**
-• **Teknisk sökning:** Hitta experter inom specifika programmeringsspråk eller teknologier
-• **Erfarenhetsnivå:** Filtrera på junior, medior, senior, eller expert-nivå
-• **Branschexpertis:** Sök konsulter med erfarenhet från er specifika bransch
-• **Projekttyp:** Matcha baserat på tidigare liknande projekt
+• **Teknisk sökning** - Hitta experter inom specifika programmeringsspråk eller teknologier
+• **Erfarenhetsnivå** - Filtrera på junior, medior, senior, eller expert-nivå
+• **Branschexpertis** - Sök konsulter med erfarenhet från er specifika bransch
+• **Projekttyp** - Matcha baserat på tidigare liknande projekt
 
 **Konsultprofiler innehåller:**
-• **Tekniska färdigheter:** Detaljerad breakdown av expertis-områden
-• **Personlighetsanalys:** Arbetsstil, kommunikation, ledarskap
-• **Portfolioinformation:** CV-analys och LinkedIn-insights
-• **Tillgänglighet:** När konsulten kan börja och på vilka villkor
-• **Referenser:** Betyg och feedback från tidigare uppdrag
+• **Tekniska färdigheter** - Detaljerad breakdown av expertis-områden
+• **Personlighetsanalys** - Arbetsstil, kommunikation, ledarskap
+• **Portfolioinformation** - CV-analys och LinkedIn-insights
+• **Tillgänglighet** - När konsulten kan börja och på vilka villkor
+• **Referenser** - Betyg och feedback från tidigare uppdrag
 
 **Matchning-algoritm:**
-• **Teknisk kompatibilitet:** Matchar era tekniska krav med konsulternas expertis
-• **Kulturell passform:** Analyserar om konsulten passar er arbetskultur
-• **Projekthistorik:** Konsulter med framgångsrika liknande projekt prioriteras
-• **Geografisk närhet:** Tar hänsyn till plats och resemöjligheter
+• **Teknisk kompatibilitet** - Matchar era tekniska krav med konsulternas expertis
+• **Kulturell passform** - Analyserar om konsulten passar er arbetskultur
+• **Projekthistorik** - Konsulter med framgångsrika liknande projekt prioriteras
+• **Geografisk närhet** - Tar hänsyn till plats och resemöjligheter
 
 **Kontakt och bokning:**
-• **Direkt kontakt:** Skicka meddelanden direkt till konsulter
-• **Videosamtal:** Boka möten direkt i plattformen
-• **Projektbeskrivningar:** Dela detaljerad information om uppdraget
-• **Snabb respons:** De flesta konsulter svarar inom 24 timmar
+• **Direkt kontakt** - Skicka meddelanden direkt till konsulter
+• **Videosamtal** - Boka möten direkt i plattformen
+• **Projektbeskrivningar** - Dela detaljerad information om uppdraget
+• **Snabb respons** - De flesta konsulter svarar inom 24 timmar
 
-Vill du veta mer om någon specifik funktion för företag?`;
+💼 **Vill du veta mer om någon specifik funktion för företag?**`;
 
       } else if (message.toLowerCase().includes('förbättra') || message.toLowerCase().includes('tips') || message.toLowerCase().includes('råd')) {
-        reply = `MatchWise ger personliga förbättringsförslag baserat på din analys! 
+        reply = `**Förbättra din profil systematiskt** ⭐
 
-⭐ **Så förbättrar du din profil systematiskt:**
+MatchWise ger personliga förbättringsförslag baserat på din analys!
 
 **CV-optimering:**
-• **Kvantifiera resultat:** Lägg till siffror, procent och konkreta utfall från dina projekt
-• **Tekniska nyckelord:** Använd specifika teknologier och verktyg som är efterfrågade
-• **Projektberättelser:** Beskriv utmaningar, lösningar och resultat strukturerat
-• **Progressiv utveckling:** Visa hur du utvecklats över tid i komplexitet och ansvar
+• **Kvantifiera resultat** - Lägg till siffror, procent och konkreta utfall från dina projekt
+• **Tekniska nyckelord** - Använd specifika teknologier och verktyg som är efterfrågade
+• **Projektberättelser** - Beskriv utmaningar, lösningar och resultat strukturerat
+• **Progressiv utveckling** - Visa hur du utvecklats över tid i komplexitet och ansvar
 
 **LinkedIn-strategi:**
-• **Konsistent aktivitet:** Dela branschrelevant innehåll regelbundet (2-3 gånger/vecka)
-• **Engagerad närvaro:** Kommentera genomtänkt på andras inlägg inom ditt expertområde
-• **Thought leadership:** Dela dina lärdomar och insights från projekt
-• **Professionellt nätverk:** Bygg strategiska kopplingar inom din bransch
+• **Konsistent aktivitet** - Dela branschrelevant innehåll regelbundet (2-3 gånger/vecka)
+• **Engagerad närvaro** - Kommentera genomtänkt på andras inlägg inom ditt expertområde
+• **Thought leadership** - Dela dina lärdomar och insights från projekt
+• **Professionellt nätverk** - Bygg strategiska kopplingar inom din bransch
 
 **Personlig utveckling:**
-• **Certifieringar:** Skaffa relevanta certifiering inom dina nischområden
-• **Continuous learning:** Håll dig uppdaterad med nya teknologier och trender
-• **Projektportfolj:** Dokumentera och visa upp dina bästa arbeten
-• **Mentorskap:** Både ge och ta emot mentorskap för accelererad utveckling
+• **Certifieringar** - Skaffa relevanta certifiering inom dina nischområden
+• **Continuous learning** - Håll dig uppdaterad med nya teknologier och trender
+• **Projektportfolj** - Dokumentera och visa upp dina bästa arbeten
+• **Mentorskap** - Både ge och ta emot mentorskap för accelererad utveckling
 
 **Marknadspositionering:**
-• **Specialisering:** Fokusera på att bli expert inom 2-3 nischområden
-• **Value proposition:** Formulera tydligt vad som gör dig unik som konsult
-• **Branschfokus:** Välj 1-2 branscher att fokusera på för djupare expertis
-• **Prispositionering:** Justera dina arvoden baserat på marknadsvärde
+• **Specialisering** - Fokusera på att bli expert inom 2-3 nischområden
+• **Value proposition** - Formulera tydligt vad som gör dig unik som konsult
+• **Branschfokus** - Välj 1-2 branscher att fokusera på för djupare expertis
+• **Prispositionering** - Justera dina arvoden baserat på marknadsvärde
 
 **MatchWise-specifika tips:**
-• **Komplett profil:** Se till att all information är fylld i och uppdaterad
-• **Regelbundna uppdateringar:** Ladda upp uppdaterat CV när du får nya erfarenheter
-• **Aktiv närvaro:** Logga in regelbundet och svara snabbt på förfrågningar
-• **Feedback-loop:** Använd feedback från projekt för kontinuerlig förbättring
+• **Komplett profil** - Se till att all information är fylld i och uppdaterad
+• **Regelbundna uppdateringar** - Ladda upp uppdaterat CV när du får nya erfarenheter
+• **Aktiv närvaro** - Logga in regelbundet och svara snabbt på förfrågningar
+• **Feedback-loop** - Använd feedback från projekt för kontinuerlig förbättring
 
-Vill du ha mer specifika råd för ditt expertområde eller karriärsteg?`;
+🚀 **Vill du ha mer specifika råd för ditt expertområde eller karriärsteg?**`;
 
       } else if (message.toLowerCase().includes('pris') || message.toLowerCase().includes('kostar') || message.toLowerCase().includes('arvode')) {
-        reply = `MatchWise hjälper dig att positionera dig rätt på marknaden! 
+        reply = `**Arvodesguide och prispositionering** 💰
 
-💰 **Arvodesguide och prispositionering:**
+MatchWise hjälper dig att positionera dig rätt på marknaden!
 
 **För Konsulter:**
-• **Kostnadsfri registrering:** Det kostar inget att ladda upp CV och skapa profil
-• **Gratis AI-analys:** Du får detaljerad analys av din profil utan kostnad
-• **Marknadsintäkter:** Du behåller 100% av dina konsultintäkter
-• **Premium-funktioner:** Vissa avancerade funktioner kan ha en månadsavgift
+• **Kostnadsfri registrering** - Det kostar inget att ladda upp CV och skapa profil
+• **Gratis AI-analys** - Du får detaljerad analys av din profil utan kostnad
+• **Marknadsintäkter** - Du behåller 100% av dina konsultintäkter
+• **Premium-funktioner** - Vissa avancerade funktioner kan ha en månadsavgift
 
 **Arvodesanalys baserat på:**
-• **Teknisk expertis:** Sällsynta och efterfrågade färdigheter ger högre arvoden
-• **Erfarenhetsnivå:** Junior (400-600 kr/h), Medior (600-900 kr/h), Senior (900-1400 kr/h)
-• **Branschexpertis:** Specialiserade branscher (fintech, medtech) betalar premium
-• **Geografisk plats:** Stockholm/Göteborg har högre arvoden än mindre orter
+• **Teknisk expertis** - Sällsynta och efterfrågade färdigheter ger högre arvoden
+• **Erfarenhetsnivå** - Junior (400-600 kr/h), Medior (600-900 kr/h), Senior (900-1400 kr/h)
+• **Branschexpertis** - Specialiserade branscher (fintech, medtech) betalar premium
+• **Geografisk plats** - Stockholm/Göteborg har högre arvoden än mindre orter
 
 **Faktorer som påverkar ditt marknadsvärde:**
-• **Teknologisk nisch:** AI/ML, cybersecurity, cloud-arkitektur ger höga arvoden
-• **Ledarskapsförmåga:** Tech leads och arkitekter kan ta 20-40% högre arvoden
-• **Certifieringar:** AWS, Azure, Google Cloud certifieringar höjer marknadsvärdet
-• **Branschdjup:** 3+ år inom samma bransch ger betydande premium
+• **Teknologisk nisch** - AI/ML, cybersecurity, cloud-arkitektur ger höga arvoden
+• **Ledarskapsförmåga** - Tech leads och arkitekter kan ta 20-40% högre arvoden
+• **Certifieringar** - AWS, Azure, Google Cloud certifieringar höjer marknadsvärdet
+• **Branschdjup** - 3+ år inom samma bransch ger betydande premium
 
 **Benchmarking-verktyg:**
-• **Marknadsanalys:** Se vad liknande konsulter tar i arvode
-• **Trend-analys:** Förstå vilka färdigheter som ökar/minskar i värde
-• **Optimal pricing:** Rekommendationer för konkurrenskraftiga men lönsamma priser
-• **Förhandlingsstöd:** Tips för att motivera dina arvoden gentemot kunder
+• **Marknadsanalys** - Se vad liknande konsulter tar i arvode
+• **Trend-analys** - Förstå vilka färdigheter som ökar/minskar i värde
+• **Optimal pricing** - Rekommendationer för konkurrenskraftiga men lönsamma priser
+• **Förhandlingsstöd** - Tips för att motivera dina arvoden gentemot kunder
 
 **För Företag:**
-• **Transparent prissättning:** Se konsulternas arvoden direkt i plattformen
-• **Budgetplanering:** Filtrera konsulter baserat på era budgetramar
-• **Value-analys:** Förstå vad som motiverar olika priser
-• **ROI-beräkning:** Verktyg för att beräkna affärsvärdet av olika konsulter
+• **Transparent prissättning** - Se konsulternas arvoden direkt i plattformen
+• **Budgetplanering** - Filtrera konsulter baserat på era budgetramar
+• **Value-analys** - Förstå vad som motiverar olika priser
+• **ROI-beräkning** - Verktyg för att beräkna affärsvärdet av olika konsulter
 
-Vill du ha en personlig arvodesanalys baserat på din profil?`;
+💡 **Vill du ha en personlig arvodesanalys baserat på din profil?**`;
 
       } else if (message.toLowerCase().includes('hur') || message.toLowerCase().includes('kommer igång') || message.toLowerCase().includes('börjar')) {
-        reply = `Så kommer du igång med MatchWise på bästa sätt! 
+        reply = `**Kom igång med MatchWise** 🚀
 
-🚀 **Steg-för-steg guide:**
+Så kommer du igång på bästa sätt:
 
 **Steg 1 - Registrering (5 minuter):**
 • Ladda upp ditt senaste CV (PDF eller bild fungerar)
@@ -275,29 +275,31 @@ Vill du ha en personlig arvodesanalys baserat på din profil?`;
 • Börja få förfrågningar inom 24-48 timmar
 
 **Pro-tips för snabbare resultat:**
-• **Komplett profil:** Fyll i alla fält för bättre synlighet
-• **Professionella bilder:** Använd kvalitetsbilder i profilen
-• **Tydlig specialisering:** Fokusera på dina starkaste områden
-• **Snabb respons:** Svara på förfrågningar inom några timmar
+• **Komplett profil** - Fyll i alla fält för bättre synlighet
+• **Professionella bilder** - Använd kvalitetsbilder i profilen
+• **Tydlig specialisering** - Fokusera på dina starkaste områden
+• **Snabb respons** - Svara på förfrågningar inom några timmar
 
 **Efter aktivering:**
-• **Dashboard-övervakning:** Följ upp intresse och matchningar
-• **Kontinuerlig uppdatering:** Lägg till nya projekt och färdigheter
-• **Nätverksbyggande:** Använd plattformen för att bygga professionella kontakter
-• **Feedback-användning:** Använd projektfeedback för att förbättra profilen
+• **Dashboard-övervakning** - Följ upp intresse och matchningar
+• **Kontinuerlig uppdatering** - Lägg till nya projekt och färdigheter
+• **Nätverksbyggande** - Använd plattformen för att bygga professionella kontakter
+• **Feedback-användning** - Använd projektfeedback för att förbättra profilen
 
 **Support och hjälp:**
-• **AI-chat:** Fråga mig vad som helst om plattformen
-• **Video-guider:** Titta på tutorials för avancerade funktioner
-• **Best practices:** Lär av framgångsrika konsulter på plattformen
-• **Community:** Delta i diskussioner och kunskapsdelning
+• **AI-chat** - Fråga mig vad som helst om plattformen
+• **Video-guider** - Titta på tutorials för avancerade funktioner
+• **Best practices** - Lär av framgångsrika konsulter på plattformen
+• **Community** - Delta i diskussioner och kunskapsdelning
 
-Är du redo att börja, eller har du frågor om någon specifik del?`;
+✨ **Är du redo att börja, eller har du frågor om någon specifik del?**`;
 
       } else {
-        reply = `Hej! Jag är MatchWise AI-assistenten och jag känner plattformen in och ut! 🤖
+        reply = `**Hej! Jag är MatchWise AI-assistenten** 🤖
 
-🎯 **Jag kan hjälpa dig med:**
+Jag känner plattformen in och ut och kan hjälpa dig med allt!
+
+**🎯 Jag kan hjälpa dig med:**
 
 **Om MatchWise:**
 • Hur plattformen fungerar för konsulter och företag
@@ -323,28 +325,34 @@ Vill du ha en personlig arvodesanalys baserat på din profil?`;
 • Best practices från framgångsrika konsulter
 • Affärsutveckling och kundskapande
 
-Ställ en specifik fråga så får du djupgående svar med konkreta tips och strategier! 
+💬 **Ställ en specifik fråga så får du djupgående svar med konkreta tips och strategier!**
 
-Vad vill du veta mer om?`;
+**Exempel på frågor:**
+• "Hur fungerar CV-analysen?"
+• "Tips för att förbättra min LinkedIn-profil"
+• "Vad kostar det att använda MatchWise?"
+• "Hur kommer jag igång som konsult?"
+
+🚀 **Vad vill du veta mer om?**`;
       }
     } else {
-      // English responses with comprehensive MatchWise knowledge
+      // English responses with better formatting
       if (message.toLowerCase().includes('matchwise') || message.toLowerCase().includes('what is') || message.toLowerCase().includes('platform')) {
-        reply = `Hello! MatchWise is an advanced AI-driven platform that revolutionizes how consultants and companies find each other.
+        reply = `**MatchWise - AI-Driven Consultant Matching** 🚀
 
-🎯 **How MatchWise Works:**
+MatchWise is an advanced platform that revolutionizes how consultants and companies find each other.
 
 **For Consultants:**
-• **AI CV Analysis:** Our AI analyzes your technical expertise, leadership abilities, and personality
-• **LinkedIn Integration:** We analyze your LinkedIn profile to understand your communication style and work methods
-• **Automatic Matching:** You become automatically visible for relevant assignments based on your skills
-• **Personal Profile:** Get detailed feedback and improvement suggestions for your career
+• **AI CV Analysis** - Our AI analyzes your technical expertise, leadership abilities, and personality
+• **LinkedIn Integration** - We analyze your profile to understand your communication style and work methods
+• **Automatic Matching** - You become automatically visible for relevant assignments based on your skills
+• **Personal Profile** - Get detailed feedback and improvement suggestions for your career
 
 **For Companies:**
-• **Consultant Database Search:** Find consultants based on specific technical skills and experience
-• **AI Matching:** Our algorithm suggests the best candidates for your projects
-• **Cultural Fit:** See how consultants would fit into your company culture
-• **Direct Contact:** Contact consultants directly through the platform
+• **Consultant Database Search** - Find consultants based on specific technical skills and experience
+• **AI Matching** - Our algorithm suggests the best candidates for your projects
+• **Cultural Fit** - See how consultants would fit into your company culture
+• **Direct Contact** - Contact consultants directly through the platform
 
 **The Technology Behind:**
 • Advanced NLP for CV analysis
@@ -359,16 +367,16 @@ Vad vill du veta mer om?`;
 • Salary benchmarking and optimization
 • Professional networking opportunities
 
-Would you like to know more about any specific part of the platform?`;
+💡 **Would you like to know more about any specific part of the platform?**`;
 
       } else if (message.toLowerCase().includes('cv') || message.toLowerCase().includes('upload') || message.toLowerCase().includes('analysis')) {
-        reply = `MatchWise CV analysis is much more than just reading your resume!
+        reply = `**CV Analysis on MatchWise** 📊
 
-📊 **What happens when you upload your CV:**
+MatchWise CV analysis is much more than just reading your resume!
 
 **1. Technical Expertise Analysis:**
 • Identifies programming languages and technologies
-• Categorizes skill levels (beginner, intermediate, expert)
+• Categorizes skill levels (beginner → expert)
 • Analyzes project context and use cases
 • Assesses technological breadth vs depth
 
@@ -390,7 +398,7 @@ Would you like to know more about any specific part of the platform?`;
 • Identification of niche areas and specializations
 • Suggestions for target roles and industries
 
-**5. LinkedIn Integration (if you provide profile):**
+**5. LinkedIn Integration:**
 • Analyzes your online presence and personal branding
 • Assesses network size and industry connections
 • Evaluates content sharing and thought leadership
@@ -402,148 +410,14 @@ Would you like to know more about any specific part of the platform?`;
 • Skill depreciation/appreciation trends
 • Competitive advantage identification
 
-The process takes just a few seconds but gives you insights that would normally require a professional career coach!`;
-
-      } else if (message.toLowerCase().includes('linkedin') || message.toLowerCase().includes('profile')) {
-        reply = `LinkedIn analysis on MatchWise is deep and provides unique insights!
-
-🔗 **How we analyze your LinkedIn profile:**
-
-**Communication Style:**
-• Analyzes language use and tone in your posts
-• Assesses professional vs personal communication
-• Identifies rhetorical strengths and influencing ability
-• Measures clarity and structure in messages
-
-**Leadership Analysis:**
-• How often you initiate discussions
-• What type of content you share (trend spotting, problem solving, etc.)
-• How you engage with others' posts
-• Mentorship and knowledge sharing activities
-
-**Cultural Fit:**
-• Company values reflected in your activities
-• Work methods and collaboration ability
-• Innovation vs stability in your approach
-• Formal vs informal communication style
-
-**Industry Engagement:**
-• Which trends you follow and comment on
-• Expertise areas you demonstrate
-• Network and industry connections
-• Continuous learning and development
-
-**Personal Branding:**
-• Consistency between CV and LinkedIn presence
-• Authenticity in presentation
-• Unique value proposition
-• Professional storytelling ability
-
-**Networking Analysis:**
-• Quality and relevance of your connections
-• Engagement patterns with industry leaders
-• Content amplification and reach
-• Professional relationship building
-
-**Concrete Use Cases:**
-• Companies can see how you would fit into their team
-• Automatic matching based on work style
-• Identification of like-minded consultants for team projects
-• Personal development plan for stronger LinkedIn presence
-
-By combining CV + LinkedIn, we get a 360-degree view of you as a professional!`;
-
-      } else if (message.toLowerCase().includes('company') || message.toLowerCase().includes('find') || message.toLowerCase().includes('search')) {
-        reply = `MatchWise makes it easy for companies to find the right consultants!
-
-🏢 **For Companies - How to find perfect consultants:**
-
-**Dashboard Features:**
-• **Consultant Database:** Browse through verified consultants with detailed profiles
-• **Advanced Search:** Filter by technical expertise, experience, location, availability
-• **AI Recommendations:** Get consultant suggestions based on your project needs
-• **Cultural Matching:** See which consultants fit your company culture
-
-**Search Functions:**
-• **Technical Search:** Find experts in specific programming languages or technologies
-• **Experience Level:** Filter by junior, mid-level, senior, or expert level
-• **Industry Expertise:** Search consultants with experience from your specific industry
-• **Project Type:** Match based on similar previous projects
-
-**Consultant Profiles Include:**
-• **Technical Skills:** Detailed breakdown of expertise areas
-• **Personality Analysis:** Work style, communication, leadership
-• **Portfolio Information:** CV analysis and LinkedIn insights
-• **Availability:** When the consultant can start and on what terms
-• **References:** Ratings and feedback from previous assignments
-
-**Matching Algorithm:**
-• **Technical Compatibility:** Matches your technical requirements with consultants' expertise
-• **Cultural Fit:** Analyzes if the consultant fits your work culture
-• **Project History:** Consultants with successful similar projects are prioritized
-• **Geographic Proximity:** Takes location and travel possibilities into account
-
-**Contact and Booking:**
-• **Direct Contact:** Send messages directly to consultants
-• **Video Calls:** Book meetings directly in the platform
-• **Project Descriptions:** Share detailed information about the assignment
-• **Quick Response:** Most consultants respond within 24 hours
-
-**Advanced Features:**
-• **Team Formation:** Build entire consultant teams
-• **Skill Gap Analysis:** Identify missing competencies in your organization
-• **Market Intelligence:** Understand consultant availability and pricing trends
-• **Project Success Prediction:** AI-powered success probability scoring
-
-Would you like to know more about any specific function for companies?`;
-
-      } else if (message.toLowerCase().includes('improve') || message.toLowerCase().includes('tips') || message.toLowerCase().includes('advice')) {
-        reply = `MatchWise provides personalized improvement suggestions based on your analysis!
-
-⭐ **How to systematically improve your profile:**
-
-**CV Optimization:**
-• **Quantify Results:** Add numbers, percentages, and concrete outcomes from your projects
-• **Technical Keywords:** Use specific technologies and tools that are in demand
-• **Project Stories:** Describe challenges, solutions, and results in a structured way
-• **Progressive Development:** Show how you've evolved over time in complexity and responsibility
-
-**LinkedIn Strategy:**
-• **Consistent Activity:** Share industry-relevant content regularly (2-3 times/week)
-• **Engaged Presence:** Comment thoughtfully on others' posts within your expertise area
-• **Thought Leadership:** Share your learnings and insights from projects
-• **Professional Network:** Build strategic connections within your industry
-
-**Personal Development:**
-• **Certifications:** Obtain relevant certifications within your niche areas
-• **Continuous Learning:** Stay updated with new technologies and trends
-• **Project Portfolio:** Document and showcase your best work
-• **Mentorship:** Both give and receive mentorship for accelerated development
-
-**Market Positioning:**
-• **Specialization:** Focus on becoming an expert in 2-3 niche areas
-• **Value Proposition:** Clearly articulate what makes you unique as a consultant
-• **Industry Focus:** Choose 1-2 industries to focus on for deeper expertise
-• **Price Positioning:** Adjust your rates based on market value
-
-**MatchWise-Specific Tips:**
-• **Complete Profile:** Ensure all information is filled in and updated
-• **Regular Updates:** Upload updated CV when you gain new experience
-• **Active Presence:** Log in regularly and respond quickly to inquiries
-• **Feedback Loop:** Use project feedback for continuous improvement
-
-**Performance Metrics:**
-• **Profile Views:** Track how often companies view your profile
-• **Match Quality:** Monitor the relevance of project suggestions
-• **Response Rate:** Measure how quickly you respond to opportunities
-• **Success Rate:** Track your project acquisition and completion rates
-
-Would you like more specific advice for your expertise area or career stage?`;
+⚡ **The process takes just a few seconds but gives you insights that would normally require a professional career coach!**`;
 
       } else {
-        reply = `Hello! I'm the MatchWise AI assistant and I know the platform inside and out! 🤖
+        reply = `**Hello! I'm the MatchWise AI Assistant** 🤖
 
-🎯 **I can help you with:**
+I know the platform inside and out and can help you with everything!
+
+**🎯 I can help you with:**
 
 **About MatchWise:**
 • How the platform works for consultants and companies
@@ -569,9 +443,15 @@ Would you like more specific advice for your expertise area or career stage?`;
 • Best practices from successful consultants
 • Business development and client acquisition
 
-Ask a specific question and you'll get in-depth answers with concrete tips and strategies!
+💬 **Ask a specific question and you'll get in-depth answers with concrete tips and strategies!**
 
-What would you like to know more about?`;
+**Example questions:**
+• "How does the CV analysis work?"
+• "Tips for improving my LinkedIn profile"
+• "What does it cost to use MatchWise?"
+• "How do I get started as a consultant?"
+
+🚀 **What would you like to know more about?**`;
       }
     }
 
