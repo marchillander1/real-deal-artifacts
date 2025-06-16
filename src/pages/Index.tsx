@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Dashboard from "@/components/Dashboard";
-import { EnhancedConsultantsTabDedup } from "@/components/EnhancedConsultantsTabDedup";
+import { ConsultantsTab } from "@/components/ConsultantsTab";
 import { Assignment, Consultant, Match } from "../types/consultant";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/sonner";
@@ -14,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-// Sample data for demo purposes
+// Sample data for demo purposes - these are our "existing consultants"
 const initialConsultants: Consultant[] = [
   {
     id: 1,
@@ -117,7 +116,7 @@ const initialConsultants: Consultant[] = [
     cv: "AI specialist with focus on practical ML implementations...",
     certifications: ["Google Cloud ML", "TensorFlow Developer"],
     languages: ["Swedish", "English"],
-    type: 'new',
+    type: 'existing',
     communicationStyle: "Technical and precise",
     workStyle: "Research-oriented, enjoys experimenting",
     values: ["Innovation", "Scientific rigor", "Open source"],
@@ -145,7 +144,7 @@ const initialConsultants: Consultant[] = [
     cv: "User-centered designer with strong research background...",
     certifications: ["Google UX Certificate", "Design Thinking"],
     languages: ["Swedish", "English", "French"],
-    type: 'new',
+    type: 'existing',
     communicationStyle: "Empathetic and user-focused",
     workStyle: "Collaborative, user research driven",
     values: ["User empathy", "Accessibility", "Inclusive design"],
@@ -354,27 +353,19 @@ const Index = () => {
     console.log("Loading assignments:", assignments.length);
     
     // Load data from localStorage if it exists, otherwise use initial data
-    const storedConsultants = localStorage.getItem("consultants");
     const storedAssignments = localStorage.getItem("assignments");
 
-    if (storedConsultants && JSON.parse(storedConsultants).length > 0) {
-      setConsultants(JSON.parse(storedConsultants));
-    }
-    
     if (storedAssignments && JSON.parse(storedAssignments).length > 0) {
       setAssignments(JSON.parse(storedAssignments));
     }
   }, []);
 
   useEffect(() => {
-    // Update localStorage whenever consultants or assignments change
-    if (consultants.length > 0) {
-      localStorage.setItem("consultants", JSON.stringify(consultants));
-    }
+    // Update localStorage whenever assignments change
     if (assignments.length > 0) {
       localStorage.setItem("assignments", JSON.stringify(assignments));
     }
-  }, [consultants, assignments]);
+  }, [assignments]);
 
   const handleMatch = (assignment: Assignment) => {
     setAssignments((prevAssignments) =>
@@ -533,7 +524,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <EnhancedConsultantsTabDedup />
+            <ConsultantsTab />
           </TabsContent>
 
           <TabsContent value="assignments">
