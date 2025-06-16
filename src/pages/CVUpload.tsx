@@ -26,24 +26,32 @@ export const CVUpload = () => {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const navigate = useNavigate();
   
-  // Use ref to track if analysis has been started for current file
-  const lastAnalyzedFileRef = useRef<string | null>(null);
+  // Keep track of which files have been analyzed to prevent re-analysis
+  const analyzedFilesRef = useRef<Set<string>>(new Set());
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
-        setFile(selectedFile);
-        setAnalysisResults(null);
+        // Create unique identifier for this file
+        const fileId = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
         
-        // Create unique file identifier
-        const fileKey = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
-        
-        // Only start analysis if this is a new file
-        if (lastAnalyzedFileRef.current !== fileKey) {
-          lastAnalyzedFileRef.current = fileKey;
+        // Check if we've already analyzed this exact file
+        if (!analyzedFilesRef.current.has(fileId)) {
+          setFile(selectedFile);
+          setAnalysisResults(null);
+          
+          // Mark this file as being analyzed
+          analyzedFilesRef.current.add(fileId);
+          
           toast.success('CV uploaded! Starting comprehensive AI analysis...');
-          startAnalysisForFile(selectedFile);
+          
+          // Start analysis immediately for this specific file
+          performAnalysis(selectedFile);
+        } else {
+          // Same file selected again, just set it without re-analyzing
+          setFile(selectedFile);
+          toast.info('This file has already been analyzed');
         }
       } else {
         toast.error('Please upload a PDF file or image');
@@ -51,8 +59,8 @@ export const CVUpload = () => {
     }
   };
 
-  const startAnalysisForFile = async (fileToAnalyze: File) => {
-    console.log('Starting automatic comprehensive analysis of uploaded CV...');
+  const performAnalysis = async (fileToAnalyze: File) => {
+    console.log('Starting comprehensive analysis for file:', fileToAnalyze.name);
     
     setIsAnalyzing(true);
     setAnalysisProgress(10);
@@ -61,7 +69,7 @@ export const CVUpload = () => {
     try {
       // Convert file to base64
       const fileBuffer = await fileToAnalyze.arrayBuffer();
-      const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+      const fileBase60 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
 
       console.log('Sending CV for comprehensive parsing...');
       setAnalysisProgress(30);
@@ -69,7 +77,7 @@ export const CVUpload = () => {
       // Call the parse-cv edge function
       const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-cv', {
         body: {
-          file: fileBase64,
+          file: fileBase60,
           fileName: fileToAnalyze.name,
           fileType: fileToAnalyze.type
         }
@@ -160,7 +168,10 @@ export const CVUpload = () => {
     } catch (error) {
       console.error('Analysis error:', error);
       toast.error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
-      lastAnalyzedFileRef.current = null; // Allow retry
+      
+      // Remove file from analyzed set to allow retry
+      const fileId = `${fileToAnalyze.name}-${fileToAnalyze.size}-${fileToAnalyze.lastModified}`;
+      analyzedFilesRef.current.delete(fileId);
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
@@ -724,7 +735,7 @@ export const CVUpload = () => {
                   ) : analysisResults ? (
                     <>
                       <CheckCircle2 className="mr-2 h-5 w-5" />
-                      Submit & Join Network
+                      Submit & Join Our Network
                     </>
                   ) : (
                     <>
