@@ -1,5 +1,4 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, ArrowRight, Code, Users, Target, TrendingUp, Brain, Award, Star, BarChart3 } from 'lucide-react';
@@ -25,8 +24,6 @@ export const CVUpload = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const navigate = useNavigate();
-  
-  const analyzedFiles = useRef<Set<string>>(new Set());
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -39,44 +36,25 @@ export const CVUpload = () => {
     }
 
     console.log('📂 File selected:', selectedFile.name, selectedFile.type);
-    
-    const fileId = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
     setFile(selectedFile);
     
     // Reset previous analysis
     setAnalysisResults(null);
     
-    // Only analyze if this file hasn't been analyzed before
-    if (!analyzedFiles.current.has(fileId)) {
-      analyzedFiles.current.add(fileId);
-      
-      console.log('🎯 Starting analysis for new file...');
-      toast.success('CV uploaded! Starting analysis...');
-      
-      // Start analysis immediately
-      try {
-        await performCVAnalysis(
-          selectedFile,
-          setIsAnalyzing,
-          setAnalysisProgress,
-          setAnalysisResults,
-          setFullName,
-          setEmail,
-          setPhoneNumber,
-          setLinkedinUrl,
-          fullName,
-          email,
-          phoneNumber,
-          linkedinUrl
-        );
-      } catch (error) {
-        console.error('❌ Analysis error in handleFileChange:', error);
-        toast.error('Analysis failed to start');
-      }
-    } else {
-      console.log('ℹ️ File already analyzed');
-      toast.info('This file has already been analyzed');
-    }
+    console.log('🎯 Starting analysis immediately...');
+    toast.success('CV uploaded! Starting analysis...');
+    
+    // Start analysis immediately
+    await performCVAnalysis(
+      selectedFile,
+      setIsAnalyzing,
+      setAnalysisProgress,
+      setAnalysisResults,
+      setFullName,
+      setEmail,
+      setPhoneNumber,
+      setLinkedinUrl
+    );
   };
 
   const handleSubmit = async (event: React.FormEvent) => {

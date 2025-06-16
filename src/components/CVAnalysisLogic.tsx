@@ -10,11 +10,7 @@ export const performCVAnalysis = async (
   setFullName: (value: string) => void,
   setEmail: (value: string) => void,
   setPhoneNumber: (value: string) => void,
-  setLinkedinUrl: (value: string) => void,
-  fullName: string,
-  email: string,
-  phoneNumber: string,
-  linkedinUrl: string
+  setLinkedinUrl: (value: string) => void
 ) => {
   console.log('🚀 Starting CV analysis for file:', file.name);
   
@@ -24,21 +20,17 @@ export const performCVAnalysis = async (
   try {
     toast.info('📄 Processing CV file...');
     
-    // Convert file to base64
-    const fileBuffer = await file.arrayBuffer();
-    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+    // Create FormData to send file properly
+    const formData = new FormData();
+    formData.append('file', file);
     
     setAnalysisProgress(30);
-    console.log('✅ File converted to base64, starting analysis...');
+    console.log('✅ File prepared for analysis, calling parse-cv function...');
     
-    // Call CV analysis function
+    // Call CV analysis function with FormData
     toast.info('🧠 AI analyzing CV...');
     const { data: cvData, error: cvError } = await supabase.functions.invoke('parse-cv', {
-      body: {
-        file: fileBase64,
-        fileName: file.name,
-        fileType: file.type
-      }
+      body: formData
     });
 
     if (cvError) {
@@ -52,19 +44,19 @@ export const performCVAnalysis = async (
     // Auto-fill form fields if available
     if (cvData?.analysis?.personalInfo) {
       const info = cvData.analysis.personalInfo;
-      if (info.name && !fullName) {
+      if (info.name) {
         setFullName(info.name);
         console.log('📝 Auto-filled name:', info.name);
       }
-      if (info.email && !email) {
+      if (info.email) {
         setEmail(info.email);
         console.log('📝 Auto-filled email:', info.email);
       }
-      if (info.phone && !phoneNumber) {
+      if (info.phone) {
         setPhoneNumber(info.phone);
         console.log('📝 Auto-filled phone:', info.phone);
       }
-      if (info.linkedinProfile && !linkedinUrl) {
+      if (info.linkedinProfile) {
         const linkedinProfile = info.linkedinProfile.startsWith('http') 
           ? info.linkedinProfile 
           : `https://linkedin.com/in/${info.linkedinProfile}`;
@@ -73,44 +65,12 @@ export const performCVAnalysis = async (
       }
     }
 
-    // LinkedIn analysis if URL is available
-    let linkedinAnalysis = null;
-    const linkedinToAnalyze = linkedinUrl || cvData?.analysis?.personalInfo?.linkedinProfile;
-    
-    if (linkedinToAnalyze) {
-      try {
-        setAnalysisProgress(70);
-        toast.info('🔗 Analyzing LinkedIn profile...');
-        console.log('🔗 Starting LinkedIn analysis for:', linkedinToAnalyze);
-        
-        const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
-          body: {
-            linkedinUrl: linkedinToAnalyze,
-            fullName: fullName || cvData?.analysis?.personalInfo?.name || 'Unknown',
-            email: email || cvData?.analysis?.personalInfo?.email || 'unknown@email.com'
-          }
-        });
-
-        if (linkedinError) {
-          console.error('⚠️ LinkedIn analysis error:', linkedinError);
-          toast.warning('LinkedIn analysis failed, continuing with CV only');
-        } else if (linkedinData?.analysis) {
-          linkedinAnalysis = linkedinData.analysis;
-          console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
-          toast.success('LinkedIn analysis completed!');
-        }
-      } catch (error) {
-        console.error('⚠️ LinkedIn analysis exception:', error);
-        toast.warning('LinkedIn analysis failed, continuing with CV only');
-      }
-    }
-
     setAnalysisProgress(90);
     
-    // Combine results
+    // Set final results
     const finalResults = {
       cvAnalysis: cvData?.analysis || null,
-      linkedinAnalysis: linkedinAnalysis,
+      linkedinAnalysis: null, // Will be added later if LinkedIn URL provided
       timestamp: new Date().toISOString()
     };
     
@@ -118,7 +78,7 @@ export const performCVAnalysis = async (
     setAnalysisResults(finalResults);
     setAnalysisProgress(100);
     
-    toast.success('🎉 Analysis completed successfully!');
+    toast.success('🎉 CV analysis completed successfully!');
 
   } catch (error) {
     console.error('❌ Analysis failed:', error);
