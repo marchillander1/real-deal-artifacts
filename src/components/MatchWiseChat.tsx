@@ -97,7 +97,7 @@ I help you with consulting and career development.
       }
       
       if (cv.professionalSummary?.yearsOfExperience) {
-        contextMessage += `with ${cv.professionalSummary.yearsOfExperience} of experience `;
+        contextMessage += `with ${cv.professionalSummary.yearsOfExperience} years of experience `;
       }
       
       contextMessage += "I can provide you with tailored advice for your career and consulting business.";
@@ -142,7 +142,7 @@ I help you with consulting and career development.
           context += `Current role: ${cv.professionalSummary.currentRole}. `;
         }
         if (cv.professionalSummary?.yearsOfExperience) {
-          context += `Experience: ${cv.professionalSummary.yearsOfExperience}. `;
+          context += `Experience: ${cv.professionalSummary.yearsOfExperience} years. `;
         }
         if (cv.professionalSummary?.seniorityLevel) {
           context += `Seniority level: ${cv.professionalSummary.seniorityLevel}. `;
