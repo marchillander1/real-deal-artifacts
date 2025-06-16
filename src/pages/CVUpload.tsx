@@ -25,6 +25,7 @@ export const CVUpload = () => {
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
   const navigate = useNavigate();
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -491,13 +492,22 @@ export const CVUpload = () => {
             onSubmit={handleSubmit}
           />
 
-          {/* Right Column - Analysis Results */}
+          {/* Right Column - Analysis Results and AI Chat */}
           <div className="space-y-6">
             <AnalysisResults
               analysisResults={analysisResults}
               isAnalyzing={isAnalyzing}
               analysisProgress={analysisProgress}
             />
+            
+            {/* AI Chat - Always visible */}
+            <div className="sticky top-4">
+              <MatchWiseChat
+                analysisResults={analysisResults}
+                isMinimized={isChatMinimized}
+                onToggleMinimize={() => setIsChatMinimized(!isChatMinimized)}
+              />
+            </div>
           </div>
         </div>
       </div>
