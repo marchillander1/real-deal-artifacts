@@ -43,6 +43,13 @@ const Index: React.FC = () => {
   const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
   const avgMatchTime = "12 seconds";
 
+  console.log('Dashboard stats:', {
+    totalConsultants,
+    networkConsultants: networkConsultants.length,
+    myConsultants: myConsultants.length,
+    successfulMatches
+  });
+
   const handleAssignmentCreated = (assignment: Assignment) => {
     addAssignment(assignment);
     console.log('Assignment created:', assignment);
