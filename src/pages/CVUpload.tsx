@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,19 +25,19 @@ export const CVUpload = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const navigate = useNavigate();
 
-  // Auto-start analysis when CV and LinkedIn URL are available
+  // Auto-start analysis when CV is uploaded
   useEffect(() => {
-    if (file && linkedinUrl && fullName && email && !isAnalyzing && !uploadComplete) {
+    if (file && !isAnalyzing && !analysisResults) {
       startAnalysis();
     }
-  }, [file, linkedinUrl, fullName, email]);
+  }, [file]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
         setFile(selectedFile);
-        toast.success('CV uploaded! Analysis will start automatically when all fields are filled.');
+        toast.success('CV uploaded! Starting analysis...');
       } else {
         toast.error('Please upload a PDF file or image');
       }
@@ -46,10 +45,10 @@ export const CVUpload = () => {
   };
 
   const startAnalysis = async () => {
-    if (!file || !linkedinUrl || !fullName || !email) return;
+    if (!file) return;
 
     setIsAnalyzing(true);
-    toast.info('Starting comprehensive analysis...');
+    toast.info('Analyzing your CV and extracting information...');
 
     try {
       // Convert file to base64
@@ -63,11 +62,7 @@ export const CVUpload = () => {
         body: {
           file: fileBase64,
           fileName: file.name,
-          fileType: file.type,
-          email,
-          fullName,
-          phoneNumber,
-          linkedinUrl
+          fileType: file.type
         }
       });
 
@@ -78,26 +73,52 @@ export const CVUpload = () => {
 
       console.log('CV parsed successfully:', parseData);
       
-      // Call LinkedIn analysis
-      let linkedinAnalysis = null;
-      try {
-        console.log('Analyzing LinkedIn profile...');
-        const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
-          body: {
-            linkedinUrl,
-            fullName,
-            email
-          }
-        });
-
-        if (linkedinError) {
-          console.warn('LinkedIn analysis error:', linkedinError);
-        } else {
-          linkedinAnalysis = linkedinData?.analysis;
-          console.log('LinkedIn analysis completed:', linkedinAnalysis);
+      // Auto-populate form fields from CV analysis
+      if (parseData.analysis?.personalInfo) {
+        const personalInfo = parseData.analysis.personalInfo;
+        
+        if (personalInfo.name && !fullName) {
+          setFullName(personalInfo.name);
         }
-      } catch (linkedinErr) {
-        console.warn('LinkedIn analysis failed:', linkedinErr);
+        if (personalInfo.email && !email) {
+          setEmail(personalInfo.email);
+        }
+        if (personalInfo.phone && !phoneNumber) {
+          setPhoneNumber(personalInfo.phone);
+        }
+        if (personalInfo.linkedinProfile && !linkedinUrl) {
+          // Ensure it's a full URL
+          const linkedinProfile = personalInfo.linkedinProfile.startsWith('http') 
+            ? personalInfo.linkedinProfile 
+            : `https://linkedin.com/in/${personalInfo.linkedinProfile}`;
+          setLinkedinUrl(linkedinProfile);
+        }
+      }
+
+      // Call LinkedIn analysis if LinkedIn URL is available
+      let linkedinAnalysis = null;
+      const linkedinToAnalyze = linkedinUrl || parseData.analysis?.personalInfo?.linkedinProfile;
+      
+      if (linkedinToAnalyze) {
+        try {
+          console.log('Analyzing LinkedIn profile...');
+          const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
+            body: {
+              linkedinUrl: linkedinToAnalyze,
+              fullName: fullName || parseData.analysis?.personalInfo?.name || 'Unknown',
+              email: email || parseData.analysis?.personalInfo?.email || 'unknown@email.com'
+            }
+          });
+
+          if (linkedinError) {
+            console.warn('LinkedIn analysis error:', linkedinError);
+          } else {
+            linkedinAnalysis = linkedinData?.analysis;
+            console.log('LinkedIn analysis completed:', linkedinAnalysis);
+          }
+        } catch (linkedinErr) {
+          console.warn('LinkedIn analysis failed:', linkedinErr);
+        }
       }
 
       // Set analysis results for display
@@ -106,7 +127,7 @@ export const CVUpload = () => {
         linkedinAnalysis: linkedinAnalysis
       });
 
-      toast.success('Analysis complete! Review your comprehensive profile below.');
+      toast.success('Analysis complete! Review your profile and complete the form to join our network.');
 
     } catch (error) {
       console.error('Analysis error:', error);
@@ -119,8 +140,8 @@ export const CVUpload = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
-    if (!file || !email || !fullName || !linkedinUrl || !agreeToTerms) {
-      toast.error('Please fill in all required fields, upload a file, add LinkedIn URL, and agree to terms');
+    if (!file || !email || !fullName || !agreeToTerms) {
+      toast.error('Please fill in all required fields, upload a file, and agree to terms');
       return;
     }
 
@@ -151,10 +172,7 @@ export const CVUpload = () => {
         cultural_fit: analysisResults.linkedinAnalysis?.culturalFit || 5,
         leadership: analysisResults.linkedinAnalysis?.leadership || (analysisResults.cvAnalysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3),
         certifications: analysisResults.cvAnalysis?.certifications?.development || [],
-        type: 'new',
-        // Store complete analysis data
-        cv_analysis: analysisResults.cvAnalysis,
-        linkedin_analysis: analysisResults.linkedinAnalysis
+        type: 'new'
       };
 
       const { data: insertData, error: insertError } = await supabase
@@ -521,17 +539,16 @@ export const CVUpload = () => {
           
           <div className="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-            AI-Powered Comprehensive Career Analysis
+            AI-Powered Instant CV Analysis
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Upload Your CV & LinkedIn Profile
+            Upload Your CV for Instant Analysis
           </h1>
           
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-            Get instant comprehensive AI analysis of your technical skills, leadership style, 
-            personality, and career potential. Upload your CV and add your LinkedIn profile 
-            to receive detailed insights and join our exclusive consultant network.
+            Ladda upp ditt CV och få omedelbar AI-analys av dina tekniska färdigheter, 
+            ledarskap och karriärpotential. Information från ditt CV fylls automatiskt i formuläret.
           </p>
           
           {/* Feature Icons */}
@@ -560,9 +577,9 @@ export const CVUpload = () => {
           <Card className="max-w-2xl mx-auto mb-8 shadow-xl">
             <CardContent className="p-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold mb-2">Analyzing Your Profile...</h3>
+              <h3 className="text-lg font-semibold mb-2">Analyzing Your CV...</h3>
               <p className="text-gray-600">
-                Vårt AI system analyserar ditt CV och LinkedIn-profil för att ge dig djupgående insikter.
+                Vårt AI system analyserar ditt CV och extraherar viktig information automatiskt.
               </p>
             </CardContent>
           </Card>
@@ -575,7 +592,7 @@ export const CVUpload = () => {
               <CardHeader className="text-center">
                 <CardTitle className="text-xl text-green-600">Analysis Complete!</CardTitle>
                 <CardDescription>
-                  Här är en förhandsvisning av din analys. Fyll i resterande information och acceptera villkoren för att spara din profil.
+                  Information från ditt CV har extraherats automatiskt. Kontrollera och fyll i eventuell saknad information.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -609,10 +626,10 @@ export const CVUpload = () => {
           <CardHeader className="text-center border-b">
             <div className="flex items-center justify-center mb-4">
               <Upload className="h-6 w-6 mr-2 text-purple-600" />
-              <CardTitle className="text-xl font-semibold">Start Your Comprehensive Analysis</CardTitle>
+              <CardTitle className="text-xl font-semibold">Upload CV for Instant Analysis</CardTitle>
             </div>
             <CardDescription className="text-gray-600">
-              Both CV and LinkedIn profile are required for complete professional analysis
+              Information från ditt CV fylls automatiskt i formuläret
             </CardDescription>
           </CardHeader>
           
@@ -637,7 +654,7 @@ export const CVUpload = () => {
                         <FileText className="h-8 w-8 text-green-600" />
                         <div>
                           <p className="font-medium text-green-700">{file.name}</p>
-                          <p className="text-sm text-gray-500">Click to change file</p>
+                          <p className="text-sm text-gray-500">Analysis started automatically</p>
                         </div>
                       </div>
                     ) : (
@@ -645,10 +662,10 @@ export const CVUpload = () => {
                         <Upload className="h-12 w-12 text-gray-400 mx-auto" />
                         <div>
                           <p className="text-base font-medium text-gray-700 mb-1">
-                            Välj fil
+                            Upload Your CV
                           </p>
                           <p className="text-sm text-gray-500">
-                            ingen fil vald
+                            PDF or image format - Analysis starts automatically
                           </p>
                         </div>
                       </div>
@@ -657,7 +674,7 @@ export const CVUpload = () => {
                 </div>
               </div>
 
-              {/* Personal Information */}
+              {/* Personal Information - Auto-populated from CV */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label htmlFor="fullName" className="text-base font-medium flex items-center">
@@ -667,7 +684,7 @@ export const CVUpload = () => {
                     id="fullName"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Your full name"
+                    placeholder="Auto-filled from CV"
                     className="h-12"
                     required
                   />
@@ -681,40 +698,34 @@ export const CVUpload = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
+                    placeholder="Auto-filled from CV"
                     className="h-12"
                     required
                   />
                 </div>
               </div>
 
-              {/* LinkedIn Profile Section */}
-              <div className="space-y-3">
-                <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
-                  LinkedIn Profile URL <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Input
-                  id="linkedin"
-                  value={linkedinUrl}
-                  onChange={(e) => setLinkedinUrl(e.target.value)}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  className="h-12"
-                  required
-                />
-                <p className="text-xs text-gray-500">
-                  Analysis will start automatically when all required fields are filled
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="phone" className="text-base font-medium">Phone</Label>
-                <Input
-                  id="phone"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+46 70 123 45 67"
-                  className="h-12"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="phone" className="text-base font-medium">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="Auto-filled from CV"
+                    className="h-12"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="linkedin" className="text-base font-medium">LinkedIn Profile</Label>
+                  <Input
+                    id="linkedin"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                    placeholder="Auto-filled from CV"
+                    className="h-12"
+                  />
+                </div>
               </div>
 
               {/* Terms and Conditions */}
@@ -741,12 +752,17 @@ export const CVUpload = () => {
               <Button 
                 type="submit" 
                 className="w-full h-14 text-lg bg-purple-600 hover:bg-purple-700" 
-                disabled={isUploading || !file || !email || !fullName || !linkedinUrl || !agreeToTerms || !analysisResults}
+                disabled={isUploading || !file || !email || !fullName || !agreeToTerms || isAnalyzing}
               >
                 {isUploading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                     Saving Profile...
+                  </>
+                ) : isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                    Analyzing CV...
                   </>
                 ) : analysisResults ? (
                   <>
@@ -756,7 +772,7 @@ export const CVUpload = () => {
                 ) : (
                   <>
                     <Upload className="mr-2 h-5 w-5" />
-                    Complete Analysis First
+                    Upload CV to Start
                   </>
                 )}
               </Button>
