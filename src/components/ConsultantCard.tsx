@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Star, Mail, Award, ChevronDown, ChevronUp } from 'lucide-react';
 import { Consultant } from '../types/consultant';
@@ -28,8 +27,15 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
 
   const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
 
-  // Check if consultant has analysis data
-  const hasAnalysis = consultant.cvAnalysis || consultant.linkedinAnalysis;
+  // Check if consultant has analysis data - more comprehensive check
+  const hasAnalysis = !!(consultant.cvAnalysis || consultant.linkedinAnalysis || consultant.communicationStyle || consultant.workStyle);
+
+  console.log('ConsultantCard:', consultant.name, 'hasAnalysis:', hasAnalysis, {
+    cvAnalysis: !!consultant.cvAnalysis,
+    linkedinAnalysis: !!consultant.linkedinAnalysis,
+    communicationStyle: !!consultant.communicationStyle,
+    workStyle: !!consultant.workStyle
+  });
 
   return (
     <div className={`bg-white rounded-xl shadow-sm ${borderColor} p-6 hover:shadow-lg transition-all`}>
@@ -105,12 +111,16 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
         </div>
       </div>
 
+      {/* AI Analysis Section - Always show if we have any analysis data */}
       {hasAnalysis && (
         <div className="mt-4 pt-4 border-t">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowAnalysis(!showAnalysis)}
+            onClick={() => {
+              console.log('Toggling analysis view for:', consultant.name, 'current state:', showAnalysis);
+              setShowAnalysis(!showAnalysis);
+            }}
             className="w-full flex items-center justify-between text-blue-600 hover:text-blue-800"
           >
             <span className="flex items-center gap-2">
