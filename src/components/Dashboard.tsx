@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Briefcase, TrendingUp, Clock, Star, FileText, Bot } from 'lucide-react';
-import { DemoConsultantsTab } from './DemoConsultantsTab';
+import { ConsultantsTab } from './ConsultantsTab';
 import AIMatchingPreview from './AIMatchingPreview';
 import { CVUploadForm } from './CVUploadForm';
 import { MatchWiseChat } from './MatchWiseChat';
@@ -176,7 +176,7 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <DemoConsultantsTab />
+            <ConsultantsTab />
           </TabsContent>
 
           <TabsContent value="matching">

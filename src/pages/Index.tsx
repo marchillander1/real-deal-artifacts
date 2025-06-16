@@ -5,8 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
-import { EnhancedConsultantsTab } from "../components/EnhancedConsultantsTab";
-import { DemoConsultantsTab } from "../components/DemoConsultantsTab";
+import { ConsultantsTab } from "../components/ConsultantsTab";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -244,6 +243,12 @@ const Index: React.FC = () => {
               >
                 Consultants
               </button>
+              <button 
+                className={`font-medium pb-2 ${activeTab === 'assignments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('assignments')}
+              >
+                Assignments
+              </button>
             </div>
             <div className="flex space-x-3">
               <div className="relative">
@@ -273,7 +278,20 @@ const Index: React.FC = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'dashboard' && renderDashboardContent()}
-        {activeTab === 'consultants' && <DemoConsultantsTab />}
+        {activeTab === 'consultants' && <ConsultantsTab />}
+        {activeTab === 'assignments' && (
+          <div className="text-center py-8">
+            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Assignment Management</h3>
+            <p className="text-gray-600 mb-4">Create and manage assignments with AI-powered matching</p>
+            <Button 
+              onClick={() => setShowCreateForm(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Create New Assignment
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Create Assignment Modal */}
