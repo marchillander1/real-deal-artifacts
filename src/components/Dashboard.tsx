@@ -6,8 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Briefcase, TrendingUp, Clock, Star, FileText, Bot } from 'lucide-react';
 import { DemoConsultantsTab } from './DemoConsultantsTab';
-import { CreateAssignmentForm } from './CreateAssignmentForm';
-import { AIMatchingPreview } from './AIMatchingPreview';
+import CreateAssignmentForm from './CreateAssignmentForm';
+import AIMatchingPreview from './AIMatchingPreview';
 import { CVUploadForm } from './CVUploadForm';
 import { MatchWiseChat } from './MatchWiseChat';
 
@@ -182,7 +182,10 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="assignments">
-            <CreateAssignmentForm />
+            <CreateAssignmentForm 
+              onAssignmentCreated={() => {}}
+              onCancel={() => {}}
+            />
           </TabsContent>
 
           <TabsContent value="matching">
@@ -190,7 +193,20 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="upload">
-            <CVUploadForm />
+            <CVUploadForm 
+              file={null}
+              email=""
+              fullName=""
+              phoneNumber=""
+              onEmailChange={() => {}}
+              onFullNameChange={() => {}}
+              onPhoneNumberChange={() => {}}
+              onFileChange={() => {}}
+              onAnalyze={() => {}}
+              isAnalyzing={false}
+              hasResults={false}
+              results={null}
+            />
           </TabsContent>
 
           <TabsContent value="chat">
