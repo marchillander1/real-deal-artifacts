@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import Logo from '@/components/Logo';
 import { Badge } from '@/components/ui/badge';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { AnalysisResults } from '@/components/AnalysisResults';
+import { MatchWiseChat } from '@/components/MatchWiseChat';
 import { performCVAnalysis } from '@/components/CVAnalysisLogic';
 
 export const CVUpload = () => {
