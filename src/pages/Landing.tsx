@@ -39,9 +39,9 @@ export default function Landing() {
       <section className="py-20 bg-slate-900/90 backdrop-blur-sm relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Se vår AI i funktion</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">See Our AI in Action</h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Upplev realtidsmatchning som analyserar hela personen på några sekunder
+              Experience real-time matching that analyzes the whole person in seconds
             </p>
           </div>
           <AIMatchingPreview />
@@ -51,13 +51,51 @@ export default function Landing() {
       <SolutionSection />
       <ComparisonSection />
 
-      {/* ROI Calculator Section */}
-      <section className="py-20 bg-slate-800/90 backdrop-blur-sm relative">
+      {/* About MatchWise Section */}
+      <section id="about" className="py-20 bg-slate-800/50 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Beräkna din ROI</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">About MatchWise</h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8">
+              Matching consultants with the right opportunities – based on both skills and personality.
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            <p className="text-lg text-slate-300 leading-relaxed">
+              At MatchWise, we believe that successful consulting engagements depend not only on experience, but on the right human connection. That's why we've built an AI-powered matchmaking platform that goes beyond the traditional CV.
+            </p>
+            
+            <p className="text-lg text-slate-300 leading-relaxed">
+              We help companies find top-tier consultants faster, and smarter – by factoring in soft values such as communication style, team dynamics, and culture fit. Meanwhile, consultants can showcase who they really are, not just what they've done.
+            </p>
+            
+            <div className="py-8">
+              <h3 className="text-2xl font-bold text-white mb-4">Our mission is simple:</h3>
+              <p className="text-lg text-slate-300 leading-relaxed">
+                To make finding and hiring consultants smoother, smarter, and more human.
+              </p>
+            </div>
+            
+            <p className="text-lg text-slate-300 leading-relaxed mb-8">
+              Whether you're a company looking for your next expert, or a consultant ready for your next challenge – MatchWise helps you connect with precision and purpose.
+            </p>
+            
+            <div className="text-center pt-8">
+              <p className="text-xl font-semibold text-white mb-2">Join the new era of consultant matchmaking.</p>
+              <p className="text-lg text-blue-400 font-medium">Smarter matches. Stronger results.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ROI Calculator Section */}
+      <section className="py-20 bg-slate-900/90 backdrop-blur-sm relative">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">Calculate Your ROI</h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Se exakt hur mycket MatchWise AI kan spara ditt företag
+              See exactly how much MatchWise AI can save your company
             </p>
           </div>
           <ROICalculator />

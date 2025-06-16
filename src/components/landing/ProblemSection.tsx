@@ -7,9 +7,9 @@ export default function ProblemSection() {
     <section id="solution" className="py-20 bg-slate-800/50 relative">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">Traditionell matchning missar det som spelar roll</h2>
+          <h2 className="text-4xl font-bold text-white mb-4">Traditional matching misses what matters</h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            60% av projektmisslyckanden beror på dålig mänsklig passform, inte tekniska brister
+            60% of project failures are due to poor human fit, not technical shortcomings
           </p>
         </div>
 
@@ -19,9 +19,9 @@ export default function ProblemSection() {
               <div className="w-16 h-16 bg-red-600/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <span className="text-3xl">🧠</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Endast färdighetsfokus</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Skills-Only Focus</h3>
               <p className="text-slate-300 leading-relaxed">
-                Traditionella metoder ignorerar personlighet, värderingar och kommunikationsstil som avgör verklig framgång
+                Traditional methods ignore personality, values, and communication style that determine real success
               </p>
             </CardContent>
           </Card>
@@ -31,9 +31,9 @@ export default function ProblemSection() {
               <div className="w-16 h-16 bg-orange-600/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <span className="text-3xl">💬</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Dålig teamkemi</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Poor Team Chemistry</h3>
               <p className="text-slate-300 leading-relaxed">
-                60% av projektproblem härrör från dålig personlig passform, vilket leder till kommunikationsbrott
+                60% of project issues stem from poor personal fit, leading to communication breakdowns
               </p>
             </CardContent>
           </Card>
@@ -43,9 +43,9 @@ export default function ProblemSection() {
               <div className="w-16 h-16 bg-yellow-600/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <span className="text-3xl">💰</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Massiva dolda kostnader</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Massive Hidden Costs</h3>
               <p className="text-slate-300 leading-relaxed">
-                Dålig mänsklig passform kostar 250K € årligen i projektstarter, förseningar och teamkonflikter
+                Poor human fit costs €250K annually in project restarts, delays, and team conflicts
               </p>
             </CardContent>
           </Card>

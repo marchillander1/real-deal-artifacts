@@ -45,14 +45,12 @@ export const demoConsultants: Consultant[] = [
         backendTechnologies: {
           frameworks: ["Express.js", "Fastify"],
           databases: ["PostgreSQL", "MongoDB", "Redis"],
-          apiDevelopment: ["REST", "GraphQL"],
-          microservices: ["Docker", "Kubernetes"]
+          apiDesign: ["REST", "GraphQL"]
         },
         cloudPlatforms: {
           aws: ["EC2", "S3", "Lambda", "RDS"],
           expertise: "Intermediate"
         },
-        skillLevel: "Senior",
         yearsOfExperience: "8"
       },
       workExperience: [
@@ -86,9 +84,7 @@ export const demoConsultants: Consultant[] = [
       personalityTraits: {
         communicationStyle: "Direct and collaborative",
         workStyle: "Agile-focused with strong problem-solving",
-        teamFit: "4.8",
-        adaptability: "4.6",
-        leadership: "4.2"
+        adaptability: "4.6"
       },
       improvementAreas: ["DevOps automation", "Cloud architecture patterns"]
     }
@@ -130,7 +126,6 @@ export const demoConsultants: Consultant[] = [
           styling: ["CSS", "Sass", "Stylus"],
           buildTools: ["Webpack", "Vite"]
         },
-        skillLevel: "Senior",
         yearsOfExperience: "6"
       },
       workExperience: [
@@ -155,9 +150,7 @@ export const demoConsultants: Consultant[] = [
       personalityTraits: {
         communicationStyle: "Diplomatic and detail-oriented",
         workStyle: "Design-focused with user-centric approach",
-        teamFit: "4.3",
-        adaptability: "4.5",
-        leadership: "3.8"
+        adaptability: "4.5"
       },
       improvementAreas: ["Backend development", "Mobile app development"]
     }
@@ -197,13 +190,12 @@ export const demoConsultants: Consultant[] = [
         backendTechnologies: {
           frameworks: ["Django", "FastAPI", "Flask"],
           databases: ["PostgreSQL", "MongoDB", "Redis"],
-          apiDevelopment: ["REST", "GraphQL"]
+          apiDesign: ["REST", "GraphQL"]
         },
         cloudPlatforms: {
           aws: ["EC2", "RDS", "Lambda", "S3"],
           expertise: "Expert"
         },
-        skillLevel: "Expert",
         yearsOfExperience: "10"
       },
       workExperience: [
@@ -229,9 +221,7 @@ export const demoConsultants: Consultant[] = [
       personalityTraits: {
         communicationStyle: "Technical and precise",
         workStyle: "Architecture-focused with performance mindset",
-        teamFit: "4.6",
-        adaptability: "4.4",
-        leadership: "4.7"
+        adaptability: "4.4"
       },
       improvementAreas: ["Frontend frameworks", "Mobile development"]
     }
