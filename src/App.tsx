@@ -12,7 +12,7 @@ import Auth from "./pages/Auth";
 import { PricingAuth } from "./components/PricingAuth";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
-import { CVUpload } from "./pages/CVUpload";
+import CVUpload from "./pages/CVUpload";
 
 const queryClient = new QueryClient();
 
