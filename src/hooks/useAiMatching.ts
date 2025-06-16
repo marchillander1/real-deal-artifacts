@@ -10,6 +10,7 @@ export const useAiMatching = () => {
     setIsMatching(true);
     
     try {
+      console.log('🤖 Starting AI matching for assignment:', assignmentId);
       toast.info('🤖 AI matchar konsulter...');
       
       const { data, error } = await supabase.functions.invoke('ai-matching', {
@@ -17,11 +18,18 @@ export const useAiMatching = () => {
       });
 
       if (error) {
+        console.error('Supabase function error:', error);
         throw new Error(error.message);
       }
 
-      toast.success(data.message || 'AI-matchning klar!');
-      return data;
+      console.log('AI matching function response:', data);
+
+      if (data && data.success) {
+        toast.success(data.message || 'AI-matchning klar!');
+        return data;
+      } else {
+        throw new Error(data?.error || 'AI-matchning misslyckades');
+      }
       
     } catch (error) {
       console.error('AI matching error:', error);
