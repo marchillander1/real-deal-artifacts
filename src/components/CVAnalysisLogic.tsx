@@ -132,29 +132,32 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
     overallStrategy: []
   };
 
-  // CV Improvement Tips
+  // CV Improvement Tips (in English)
   if (cvAnalysis) {
     if (!cvAnalysis.technicalExpertise?.programmingLanguages?.expert?.length) {
       tips.cvTips.push({
         category: 'Technical Skills',
-        tip: 'Clearly highlight your expert-level programming languages and frameworks at the top of your CV',
-        priority: 'High'
+        tip: 'Clearly highlight your expert-level programming languages and frameworks at the top of your CV to immediately catch recruiters\' attention',
+        priority: 'High',
+        action: 'Create a "Technical Expertise" section with tiered skill levels (Expert, Proficient, Familiar)'
       });
     }
 
-    if (!cvAnalysis.professionalSummary?.yearsOfExperience) {
+    if (!cvAnalysis.professionalSummary?.yearsOfExperience || cvAnalysis.professionalSummary.yearsOfExperience === 'Unknown') {
       tips.cvTips.push({
         category: 'Professional Summary',
-        tip: 'Add a clear statement of your years of experience and seniority level',
-        priority: 'High'
+        tip: 'Add a clear statement of your years of experience and seniority level in the first few lines',
+        priority: 'High',
+        action: 'Include "X+ years of experience as a [Role]" in your professional summary'
       });
     }
 
-    if (!cvAnalysis.certifications?.length) {
+    if (!cvAnalysis.certifications?.length && !cvAnalysis.certifications?.development?.length) {
       tips.cvTips.push({
         category: 'Certifications',
-        tip: 'Consider adding relevant technical certifications to boost your credibility',
-        priority: 'Medium'
+        tip: 'Consider adding relevant technical certifications to boost your credibility and market value',
+        priority: 'Medium',
+        action: 'Pursue cloud certifications (AWS, Azure, GCP) or framework-specific certifications'
       });
     }
 
@@ -162,56 +165,96 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
       tips.cvTips.push({
         category: 'Value Proposition',
         tip: 'Create a compelling unique value proposition that sets you apart from other consultants',
-        priority: 'High'
+        priority: 'High',
+        action: 'Write 2-3 sentences highlighting what makes you uniquely valuable to clients'
+      });
+    }
+
+    if (!cvAnalysis.professionalSummary?.specializations?.length) {
+      tips.cvTips.push({
+        category: 'Specialization',
+        tip: 'Clearly define your technical specializations and niche areas of expertise',
+        priority: 'Medium',
+        action: 'Add a "Specializations" section highlighting your key focus areas'
       });
     }
   }
 
-  // LinkedIn Improvement Tips
+  // LinkedIn Improvement Tips (in English)
   if (linkedinAnalysis) {
     if (linkedinAnalysis.culturalFit < 4) {
       tips.linkedinTips.push({
         category: 'Cultural Fit',
-        tip: 'Share more content about team collaboration and company culture alignment',
-        priority: 'Medium'
+        tip: 'Share more content about team collaboration, company culture, and your values alignment',
+        priority: 'Medium',
+        action: 'Post about successful team projects and what you value in workplace culture'
       });
     }
 
     if (linkedinAnalysis.leadership < 4) {
       tips.linkedinTips.push({
         category: 'Leadership',
-        tip: 'Post about leadership experiences, mentoring, and team management',
-        priority: 'High'
+        tip: 'Showcase your leadership experiences, mentoring activities, and team management skills',
+        priority: 'High',
+        action: 'Write posts about leading projects, mentoring junior developers, or driving technical decisions'
       });
     }
 
-    if (!linkedinAnalysis.communicationStyle || linkedinAnalysis.communicationStyle.includes('unknown')) {
+    if (!linkedinAnalysis.communicationStyle || linkedinAnalysis.communicationStyle.includes('unknown') || linkedinAnalysis.communicationStyle.includes('Unable')) {
       tips.linkedinTips.push({
         category: 'Communication',
-        tip: 'Be more active in posting and commenting to showcase your communication style',
-        priority: 'Medium'
+        tip: 'Be more active in posting and commenting to showcase your professional communication style',
+        priority: 'Medium',
+        action: 'Share technical insights, comment thoughtfully on industry posts, and engage with your network'
+      });
+    }
+
+    if (linkedinAnalysis.innovation < 4) {
+      tips.linkedinTips.push({
+        category: 'Innovation',
+        tip: 'Share content about innovative solutions, new technologies you\'re exploring, or creative problem-solving',
+        priority: 'Medium',
+        action: 'Post about new tools/technologies you\'re learning or innovative approaches you\'ve used'
       });
     }
   } else {
     tips.linkedinTips.push({
       category: 'LinkedIn Presence',
-      tip: 'Ensure your LinkedIn profile is public and accessible for analysis',
-      priority: 'High'
+      tip: 'Ensure your LinkedIn profile is public and accessible for proper analysis and visibility',
+      priority: 'High',
+      action: 'Update your LinkedIn privacy settings to allow public visibility of your profile'
+    });
+
+    tips.linkedinTips.push({
+      category: 'Professional Activity',
+      tip: 'Start building your professional presence on LinkedIn with regular posts and engagement',
+      priority: 'High',
+      action: 'Share weekly insights about your work, industry trends, or technical learnings'
     });
   }
 
-  // Overall Strategy Tips
+  // Overall Strategy Tips (in English)
   tips.overallStrategy.push({
-    category: 'Market Positioning',
-    tip: 'Align your CV technical skills with your LinkedIn professional narrative',
-    priority: 'High'
+    category: 'Cohesive Branding',
+    tip: 'Ensure your CV technical skills align perfectly with your LinkedIn professional narrative and posts',
+    priority: 'High',
+    action: 'Review both profiles to ensure consistent messaging about your expertise and career focus'
   });
 
   tips.overallStrategy.push({
     category: 'Network Building',
-    tip: 'Regularly engage with industry content and share insights to build your professional brand',
-    priority: 'Medium'
+    tip: 'Regularly engage with industry content and share insights to build your professional brand and visibility',
+    priority: 'Medium',
+    action: 'Set aside 15 minutes daily for LinkedIn engagement and monthly CV updates'
   });
 
+  tips.overallStrategy.push({
+    category: 'Market Positioning',
+    tip: 'Position yourself as a specialist in your strongest technical areas while showing adaptability',
+    priority: 'High',
+    action: 'Focus your content and CV on 2-3 core technical strengths while mentioning related skills'
+  });
+
+  console.log('📋 Generated improvement tips:', tips);
   return tips;
 };

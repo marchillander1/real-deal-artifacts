@@ -200,10 +200,10 @@ export const CVUpload = () => {
                 <CheckCircle2 className="h-16 w-16 text-green-500" />
               </div>
               <CardTitle className="text-2xl font-bold text-green-600">
-                Välkommen till vårt konsultnätverk!
+                Welcome to Our Consultant Network!
               </CardTitle>
               <CardDescription>
-                Din profil har analyserats och du är nu synlig i vårt konsultnätverk på /dashboard.
+                Your profile has been analyzed and you are now visible in our consultant network on /dashboard.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -216,25 +216,25 @@ export const CVUpload = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-blue-500" />
-                    Professionell Profil
+                    Professional Profile
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm text-gray-600">Nivå:</span>
+                      <span className="text-sm text-gray-600">Level:</span>
                       <p className="font-semibold">{cvAnalysis.professionalSummary.seniorityLevel}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Erfarenhet:</span>
+                      <span className="text-sm text-gray-600">Experience:</span>
                       <p className="font-semibold">{cvAnalysis.professionalSummary.yearsOfExperience}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Roll:</span>
+                      <span className="text-sm text-gray-600">Role:</span>
                       <p className="font-semibold">{cvAnalysis.professionalSummary.currentRole}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Karriärutveckling:</span>
+                      <span className="text-sm text-gray-600">Career Development:</span>
                       <p className="font-semibold text-green-600">{cvAnalysis.professionalSummary.careerTrajectory}</p>
                     </div>
                   </div>
@@ -248,13 +248,13 @@ export const CVUpload = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Code className="h-5 w-5 text-purple-500" />
-                    Teknisk Expertis
+                    Technical Expertise
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {cvAnalysis.technicalExpertise.programmingLanguages?.expert && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Expert färdigheter:</span>
+                      <span className="text-sm font-medium text-gray-700">Expert Skills:</span>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, idx: number) => (
                           <Badge key={idx} className="bg-green-100 text-green-800">{skill}</Badge>
@@ -272,29 +272,29 @@ export const CVUpload = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Brain className="h-5 w-5 text-blue-500" />
-                    LinkedIn Analys
+                    LinkedIn Analysis
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div>
-                      <span className="text-sm text-gray-600">Kommunikationsstil:</span>
+                      <span className="text-sm text-gray-600">Communication Style:</span>
                       <p className="font-semibold">{linkedinAnalysis.communicationStyle}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600">Ledarskapsansats:</span>
+                      <span className="text-sm text-gray-600">Leadership Approach:</span>
                       <p className="font-semibold">{linkedinAnalysis.leadershipStyle}</p>
                     </div>
                     <div className="grid grid-cols-3 gap-2 mt-4">
                       <div className="text-center">
-                        <p className="text-xs text-gray-600">Kulturell Passform</p>
+                        <p className="text-xs text-gray-600">Cultural Fit</p>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                           <div className="bg-blue-600 h-2 rounded-full" style={{width: `${(linkedinAnalysis.culturalFit/5)*100}%`}}></div>
                         </div>
                         <p className="text-xs font-bold text-blue-600 mt-1">{linkedinAnalysis.culturalFit}/5</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-gray-600">Ledarskap</p>
+                        <p className="text-xs text-gray-600">Leadership</p>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                           <div className="bg-orange-600 h-2 rounded-full" style={{width: `${(linkedinAnalysis.leadership/5)*100}%`}}></div>
                         </div>
@@ -319,24 +319,33 @@ export const CVUpload = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-green-500" />
-                    Förbättringstips
+                    Personalized Improvement Tips
                   </CardTitle>
+                  <CardDescription>
+                    Based on your CV and LinkedIn analysis, here are specific recommendations to enhance your profile
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* CV Tips */}
                     <div>
-                      <h4 className="font-semibold text-lg mb-3">CV Förbättringar</h4>
-                      <div className="space-y-3">
+                      <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <Award className="h-5 w-5 text-blue-500" />
+                        CV Improvements
+                      </h4>
+                      <div className="space-y-4">
                         {improvementTips.cvTips.map((tip: any, idx: number) => (
-                          <div key={idx} className="border-l-4 border-blue-500 pl-4">
-                            <div className="flex items-center gap-2 mb-1">
+                          <div key={idx} className="border-l-4 border-blue-500 pl-4 bg-blue-50 p-3 rounded-r-lg">
+                            <div className="flex items-center gap-2 mb-2">
                               <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
                                 {tip.priority}
                               </Badge>
-                              <span className="font-medium">{tip.category}</span>
+                              <span className="font-medium text-blue-800">{tip.category}</span>
                             </div>
-                            <p className="text-sm text-gray-600">{tip.tip}</p>
+                            <p className="text-sm text-gray-700 mb-2">{tip.tip}</p>
+                            {tip.action && (
+                              <p className="text-xs text-blue-600 font-medium">Action: {tip.action}</p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -344,17 +353,23 @@ export const CVUpload = () => {
 
                     {/* LinkedIn Tips */}
                     <div>
-                      <h4 className="font-semibold text-lg mb-3">LinkedIn Förbättringar</h4>
-                      <div className="space-y-3">
+                      <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <Brain className="h-5 w-5 text-purple-500" />
+                        LinkedIn Improvements
+                      </h4>
+                      <div className="space-y-4">
                         {improvementTips.linkedinTips.map((tip: any, idx: number) => (
-                          <div key={idx} className="border-l-4 border-purple-500 pl-4">
-                            <div className="flex items-center gap-2 mb-1">
+                          <div key={idx} className="border-l-4 border-purple-500 pl-4 bg-purple-50 p-3 rounded-r-lg">
+                            <div className="flex items-center gap-2 mb-2">
                               <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
                                 {tip.priority}
                               </Badge>
-                              <span className="font-medium">{tip.category}</span>
+                              <span className="font-medium text-purple-800">{tip.category}</span>
                             </div>
-                            <p className="text-sm text-gray-600">{tip.tip}</p>
+                            <p className="text-sm text-gray-700 mb-2">{tip.tip}</p>
+                            {tip.action && (
+                              <p className="text-xs text-purple-600 font-medium">Action: {tip.action}</p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -363,14 +378,25 @@ export const CVUpload = () => {
 
                   {/* Overall Strategy */}
                   <div className="mt-6">
-                    <h4 className="font-semibold text-lg mb-3">Övergripande Strategi</h4>
-                    <div className="space-y-2">
+                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      <Target className="h-5 w-5 text-green-500" />
+                      Overall Strategy
+                    </h4>
+                    <div className="space-y-3">
                       {improvementTips.overallStrategy.map((tip: any, idx: number) => (
-                        <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                          <Star className="h-5 w-5 text-green-500 mt-0.5" />
-                          <div>
-                            <span className="font-medium text-green-800">{tip.category}: </span>
-                            <span className="text-green-700">{tip.tip}</span>
+                        <div key={idx} className="flex items-start gap-3 p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                          <Star className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant={tip.priority === 'High' ? 'destructive' : 'secondary'}>
+                                {tip.priority}
+                              </Badge>
+                              <span className="font-medium text-green-800">{tip.category}</span>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-2">{tip.tip}</p>
+                            {tip.action && (
+                              <p className="text-xs text-green-600 font-medium">Action: {tip.action}</p>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -384,10 +410,10 @@ export const CVUpload = () => {
           {/* Next Steps */}
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-4">
-              Ett välkomstmail har skickats till {email}. Din profil är nu synlig i konsultnätverket.
+              A welcome email has been sent to {email}. Your profile is now visible in the consultant network.
             </p>
             <Button onClick={handleContinue} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3">
-              Gå till Plattformen
+              Go to Platform
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -407,36 +433,36 @@ export const CVUpload = () => {
           
           <div className="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-            AI-Driven Omfattande Karriäranalys
+            AI-Driven Comprehensive Career Analysis
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Ladda upp ditt CV & LinkedIn Profil
+            Upload Your CV & LinkedIn Profile
           </h1>
           
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-            Få omedelbar omfattande AI-analys av dina tekniska färdigheter, ledarskapsförmåga, 
-            personlighet och karriärpotential. Ladda upp ditt CV och lägg till din LinkedIn-profil 
-            för att få detaljerade insikter och bli synlig i vårt konsultnätverk.
+            Get instant comprehensive AI analysis of your technical skills, leadership capabilities, 
+            personality traits, and career potential. Upload your CV and add your LinkedIn profile 
+            to receive detailed insights and become visible in our consultant network.
           </p>
 
           {/* Feature highlights */}
           <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Code className="h-4 w-4 text-purple-500" />
-              Teknisk Expertis
+              Technical Expertise
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Users className="h-4 w-4 text-blue-500" />
-              Ledarskapsanalys
+              Leadership Analysis
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Target className="h-4 w-4 text-orange-500" />
-              Förbättringstips
+              Improvement Tips
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <BarChart3 className="h-4 w-4 text-green-500" />
-              Marknadspositionering
+              Market Positioning
             </div>
           </div>
         </div>
