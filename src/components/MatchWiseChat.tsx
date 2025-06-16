@@ -21,46 +21,30 @@ interface MatchWiseChatProps {
 }
 
 const formatMarkdown = (text: string) => {
-  // Convert markdown to JSX
+  // Clean up the text and convert markdown to JSX
   return text
-    // Headers
-    .replace(/^# (.*$)/gm, '<h1 class="text-xl font-bold text-gray-900 mb-3">$1</h1>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold text-gray-800 mb-2 mt-4">$1</h2>')
-    .replace(/^### (.*$)/gm, '<h3 class="text-md font-medium text-gray-700 mb-2 mt-3">$1</h3>')
+    // Remove excessive formatting symbols
+    .replace(/#{1,6}\s*/g, '')
+    .replace(/\*{2,}/g, '')
+    .replace(/_{2,}/g, '')
     
-    // Bold text
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+    // Convert headers to clean formatting
+    .replace(/^(.+)$/gm, (match, p1) => {
+      if (p1.trim().length < 50 && !p1.includes('.') && !p1.includes(',')) {
+        return `<h3 class="text-md font-semibold text-gray-800 mb-2 mt-3">${p1.trim()}</h3>`;
+      }
+      return match;
+    })
     
-    // Bullet points
-    .replace(/^- (.*$)/gm, '<li class="ml-4 mb-1">• $1</li>')
-    .replace(/^✅ (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">✅ $1</li>')
-    .replace(/^🔗 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">🔗 $1</li>')
-    .replace(/^🎯 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🎯 $1</li>')
-    .replace(/^📈 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">📈 $1</li>')
-    .replace(/^💬 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">💬 $1</li>')
-    .replace(/^🧩 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🧩 $1</li>')
-    .replace(/^🚀 (.*$)/gm, '<li class="ml-4 mb-1 text-orange-700">🚀 $1</li>')
-    .replace(/^🤝 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">🤝 $1</li>')
-    .replace(/^👑 (.*$)/gm, '<li class="ml-4 mb-1 text-yellow-700">👑 $1</li>')
-    .replace(/^🏢 (.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">🏢 $1</li>')
-    .replace(/^🔍 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">🔍 $1</li>')
-    .replace(/^📊 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">📊 $1</li>')
-    .replace(/^🧠 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🧠 $1</li>')
-    .replace(/^💡 (.*$)/gm, '<li class="ml-4 mb-1 text-yellow-700">💡 $1</li>')
-    .replace(/^💰 (.*$)/gm, '<li class="ml-4 mb-1 text-green-700">💰 $1</li>')
-    .replace(/^🏆 (.*$)/gm, '<li class="ml-4 mb-1 text-yellow-700">🏆 $1</li>')
-    .replace(/^📱 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">📱 $1</li>')
-    .replace(/^🔑 (.*$)/gm, '<li class="ml-4 mb-1 text-orange-700">🔑 $1</li>')
-    .replace(/^📖 (.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">📖 $1</li>')
-    .replace(/^🔄 (.*$)/gm, '<li class="ml-4 mb-1 text-blue-700">🔄 $1</li>')
-    .replace(/^💼 (.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">💼 $1</li>')
-    .replace(/^🤖 (.*$)/gm, '<li class="ml-4 mb-1 text-purple-700">🤖 $1</li>')
+    // Clean bullet points with emojis
+    .replace(/^[✅🔗🎯📈💬🧩🚀🤝👑🏢🔍📊🧠💡💰🏆📱🔑📖🔄💼🤖]\s*(.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">• $1</li>')
+    .replace(/^-\s*(.*$)/gm, '<li class="ml-4 mb-1 text-gray-700">• $1</li>')
     
-    // Horizontal rules
-    .replace(/^---$/gm, '<hr class="my-4 border-gray-200">')
+    // Clean horizontal rules
+    .replace(/^---+$/gm, '<hr class="my-3 border-gray-200">')
     
-    // Line breaks
-    .replace(/\n\n/g, '</p><p class="mb-2">')
+    // Convert line breaks
+    .replace(/\n\n/g, '</p><p class="mb-2 text-gray-700">')
     .replace(/\n/g, '<br>');
 };
 
@@ -72,11 +56,16 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: `# Hello! I'm the MatchWise AI assistant 🤖
+      text: `Hej! Jag är MatchWise AI-assistenten 🤖
 
-I can help you with questions about MatchWise and give tips to improve your CV and LinkedIn profile.
+Jag hjälper dig med konsultverksamhet och karriärutveckling. 
 
-**What can I help you with today?**`,
+**Vad kan jag hjälpa dig med?**
+- Karriärutveckling och teknisk progression
+- Prissättning och förhandling
+- CV och LinkedIn optimering  
+- Kundrelationer och nätverk
+- MatchWise plattformen`,
       sender: 'bot',
       timestamp: new Date()
     }
@@ -93,6 +82,37 @@ I can help you with questions about MatchWise and give tips to improve your CV a
     scrollToBottom();
   }, [messages]);
 
+  // Auto-fill context from analysis results
+  useEffect(() => {
+    if (analysisResults?.cvAnalysis && messages.length === 1) {
+      const cv = analysisResults.cvAnalysis;
+      let contextMessage = "👋 Jag ser att du har laddat upp ditt CV! ";
+      
+      if (cv.personalInfo?.name) {
+        contextMessage += `Hej ${cv.personalInfo.name}! `;
+      }
+      
+      if (cv.professionalSummary?.currentRole) {
+        contextMessage += `Som ${cv.professionalSummary.currentRole} `;
+      }
+      
+      if (cv.professionalSummary?.yearsOfExperience) {
+        contextMessage += `med ${cv.professionalSummary.yearsOfExperience} års erfarenhet `;
+      }
+      
+      contextMessage += "kan jag ge dig skräddarsydda råd för din karriär och konsultverksamhet.";
+      
+      const contextMsg: Message = {
+        id: '2',
+        text: contextMessage,
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, contextMsg]);
+    }
+  }, [analysisResults]);
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
@@ -108,19 +128,39 @@ I can help you with questions about MatchWise and give tips to improve your CV a
     setIsLoading(true);
 
     try {
-      // Prepare context from analysis results
+      // Prepare detailed context from analysis results
       let context = '';
       if (analysisResults?.cvAnalysis) {
         const cv = analysisResults.cvAnalysis;
-        context = `CV uploaded. `;
+        context += `Användarens CV-data: `;
+        
+        if (cv.personalInfo?.name) context += `Namn: ${cv.personalInfo.name}. `;
+        if (cv.personalInfo?.email) context += `Email: ${cv.personalInfo.email}. `;
+        if (cv.personalInfo?.location) context += `Plats: ${cv.personalInfo.location}. `;
+        
         if (cv.professionalSummary?.currentRole) {
-          context += `Current role: ${cv.professionalSummary.currentRole}. `;
+          context += `Nuvarande roll: ${cv.professionalSummary.currentRole}. `;
         }
         if (cv.professionalSummary?.yearsOfExperience) {
-          context += `Experience: ${cv.professionalSummary.yearsOfExperience}. `;
+          context += `Erfarenhet: ${cv.professionalSummary.yearsOfExperience}. `;
         }
-        if (cv.technicalExpertise?.programmingLanguages?.expert?.length > 0) {
-          context += `Expert skills: ${cv.technicalExpertise.programmingLanguages.expert.join(', ')}. `;
+        if (cv.professionalSummary?.seniorityLevel) {
+          context += `Senioritetsnivå: ${cv.professionalSummary.seniorityLevel}. `;
+        }
+        
+        if (cv.technicalSkillsAnalysis?.programmingLanguages?.expert?.length > 0) {
+          context += `Expert färdigheter: ${cv.technicalSkillsAnalysis.programmingLanguages.expert.join(', ')}. `;
+        }
+        if (cv.technicalSkillsAnalysis?.programmingLanguages?.proficient?.length > 0) {
+          context += `Proficient färdigheter: ${cv.technicalSkillsAnalysis.programmingLanguages.proficient.join(', ')}. `;
+        }
+        
+        if (cv.marketPositioning?.salaryBenchmarks?.stockholm) {
+          context += `Marknadslön Stockholm: ${cv.marketPositioning.salaryBenchmarks.stockholm}. `;
+        }
+        
+        if (cv.careerPotential?.currentLevel) {
+          context += `Karriärnivå: ${cv.careerPotential.currentLevel}. `;
         }
       }
 
@@ -143,11 +183,11 @@ I can help you with questions about MatchWise and give tips to improve your CV a
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      toast.error('Could not send message. Please try again.');
+      toast.error('Kunde inte skicka meddelandet. Försök igen.');
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'Sorry, I couldn\'t respond right now. Please try again later.',
+        text: 'Ursäkta, jag kunde inte svara just nu. Försök igen senare.',
         sender: 'bot',
         timestamp: new Date()
       };
@@ -165,11 +205,11 @@ I can help you with questions about MatchWise and give tips to improve your CV a
   };
 
   const quickQuestions = [
-    "What is MatchWise?",
-    "How does the CV analysis work?",
-    "Tips to improve my CV",
-    "What happens after I submit my CV?",
-    "How do you match consultants with assignments?"
+    "Hur kan jag öka min timlön?",
+    "Tips för att förbättra mitt CV",
+    "Vilka certifieringar bör jag ta?",
+    "Hur fungerar MatchWise?",
+    "Karriärutveckling inom tech"
   ];
 
   const handleQuickQuestion = (question: string) => {
@@ -194,7 +234,7 @@ I can help you with questions about MatchWise and give tips to improve your CV a
       <CardHeader className="border-b flex flex-row items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-purple-600" />
-          <CardTitle className="text-lg">MatchWise AI Assistant</CardTitle>
+          <CardTitle className="text-lg">MatchWise AI</CardTitle>
         </div>
         {onToggleMinimize && (
           <Button
@@ -245,7 +285,11 @@ I can help you with questions about MatchWise and give tips to improve your CV a
               <div className="bg-gray-50 border rounded-lg p-4 max-w-[85%]">
                 <div className="flex items-center gap-3">
                   <Bot className="h-5 w-5 text-purple-600" />
-                  <div className="text-sm text-gray-600">Thinking...</div>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -254,9 +298,9 @@ I can help you with questions about MatchWise and give tips to improve your CV a
         </div>
 
         {/* Quick Questions */}
-        {messages.length === 1 && (
+        {messages.length <= 2 && (
           <div className="p-4 border-t bg-gray-50">
-            <p className="text-xs text-gray-600 mb-3 font-medium">Popular questions:</p>
+            <p className="text-xs text-gray-600 mb-3 font-medium">Populära frågor:</p>
             <div className="flex flex-wrap gap-2">
               {quickQuestions.map((question, idx) => (
                 <Button
@@ -280,7 +324,7 @@ I can help you with questions about MatchWise and give tips to improve your CV a
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about MatchWise..."
+              placeholder="Fråga mig om konsultverksamhet..."
               disabled={isLoading}
               className="flex-1"
             />

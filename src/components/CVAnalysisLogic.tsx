@@ -18,7 +18,7 @@ export const performCVAnalysis = async (
   setAnalysisProgress(10);
   
   try {
-    toast.info('📄 Processing CV file...');
+    toast.info('📄 Bearbetar CV-filen...');
     
     // Create FormData to send file properly
     const formData = new FormData();
@@ -28,40 +28,62 @@ export const performCVAnalysis = async (
     console.log('✅ File prepared for analysis, calling parse-cv function...');
     
     // Call CV analysis function
-    toast.info('🧠 AI analyzing CV...');
+    toast.info('🧠 AI analyserar CV...');
     const { data: cvData, error: cvError } = await supabase.functions.invoke('parse-cv', {
       body: formData
     });
 
     if (cvError) {
       console.error('❌ CV analysis failed:', cvError);
-      throw new Error(`CV analysis failed: ${cvError.message}`);
+      throw new Error(`CV-analys misslyckades: ${cvError.message}`);
     }
 
     console.log('✅ CV analysis completed:', cvData);
     setAnalysisProgress(50);
     
-    // Auto-fill form fields if available
+    // Auto-fill form fields with better validation and formatting
     if (cvData?.analysis?.personalInfo) {
       const info = cvData.analysis.personalInfo;
-      if (info.name) {
-        setFullName(info.name);
+      
+      if (info.name && info.name.trim() && info.name !== 'Unknown') {
+        setFullName(info.name.trim());
         console.log('📝 Auto-filled name:', info.name);
+        toast.success(`✅ Hittade namn: ${info.name}`);
       }
-      if (info.email) {
-        setEmail(info.email);
+      
+      if (info.email && info.email.includes('@') && info.email !== 'Unknown') {
+        setEmail(info.email.trim());
         console.log('📝 Auto-filled email:', info.email);
+        toast.success(`✅ Hittade email: ${info.email}`);
       }
-      if (info.phone) {
-        setPhoneNumber(info.phone);
-        console.log('📝 Auto-filled phone:', info.phone);
+      
+      if (info.phone && info.phone.trim() && info.phone !== 'Unknown' && info.phone.length > 5) {
+        // Clean up phone number format
+        const cleanedPhone = info.phone.replace(/[^\d+\-\s]/g, '').trim();
+        setPhoneNumber(cleanedPhone);
+        console.log('📝 Auto-filled phone:', cleanedPhone);
+        toast.success(`✅ Hittade telefon: ${cleanedPhone}`);
       }
-      if (info.linkedinProfile) {
-        const linkedinProfile = info.linkedinProfile.startsWith('http') 
-          ? info.linkedinProfile 
-          : `https://linkedin.com/in/${info.linkedinProfile}`;
+      
+      if (info.linkedinProfile && info.linkedinProfile.trim() && info.linkedinProfile !== 'Unknown') {
+        let linkedinProfile = info.linkedinProfile.trim();
+        
+        // Ensure proper LinkedIn URL format
+        if (!linkedinProfile.startsWith('http')) {
+          if (linkedinProfile.startsWith('linkedin.com/in/')) {
+            linkedinProfile = `https://${linkedinProfile}`;
+          } else if (linkedinProfile.startsWith('/in/')) {
+            linkedinProfile = `https://linkedin.com${linkedinProfile}`;
+          } else if (!linkedinProfile.includes('linkedin.com')) {
+            linkedinProfile = `https://linkedin.com/in/${linkedinProfile}`;
+          } else {
+            linkedinProfile = `https://${linkedinProfile}`;
+          }
+        }
+        
         setLinkedinUrl(linkedinProfile);
         console.log('📝 Auto-filled LinkedIn:', linkedinProfile);
+        toast.success(`✅ Hittade LinkedIn: ${linkedinProfile}`);
       }
     }
 
@@ -71,9 +93,9 @@ export const performCVAnalysis = async (
     let linkedinAnalysis = null;
     const finalLinkedInUrl = linkedinUrl || cvData?.analysis?.personalInfo?.linkedinProfile;
     
-    if (finalLinkedInUrl) {
+    if (finalLinkedInUrl && finalLinkedInUrl.includes('linkedin.com')) {
       try {
-        toast.info('🔗 Analyzing LinkedIn profile...');
+        toast.info('🔗 Analyserar LinkedIn-profil...');
         console.log('🔗 Starting LinkedIn analysis for:', finalLinkedInUrl);
         
         const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
@@ -82,15 +104,15 @@ export const performCVAnalysis = async (
         
         if (linkedinError) {
           console.warn('⚠️ LinkedIn analysis failed:', linkedinError);
-          toast.warning('LinkedIn analysis failed, but CV analysis succeeded');
+          toast.warning('LinkedIn-analys misslyckades, men CV-analys lyckades');
         } else {
           linkedinAnalysis = linkedinData?.analysis;
           console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
-          toast.success('🎉 LinkedIn analysis completed!');
+          toast.success('🎉 LinkedIn-analys klar!');
         }
       } catch (linkedinErr) {
         console.warn('⚠️ LinkedIn analysis error:', linkedinErr);
-        toast.warning('LinkedIn analysis encountered an error');
+        toast.warning('LinkedIn-analys stötte på ett problem');
       }
     }
 
@@ -111,12 +133,12 @@ export const performCVAnalysis = async (
     setAnalysisResults(finalResults);
     setAnalysisProgress(100);
     
-    toast.success('🎉 Complete CV and LinkedIn analysis completed successfully!');
+    toast.success('🎉 Komplett CV- och LinkedIn-analys klar!');
 
   } catch (error) {
     console.error('❌ Analysis failed:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
-    toast.error(`Analysis failed: ${errorMessage}`);
+    const errorMessage = error instanceof Error ? error.message : 'Analys misslyckades';
+    toast.error(`Analys misslyckades: ${errorMessage}`);
     setAnalysisResults(null);
   } finally {
     setIsAnalyzing(false);
@@ -134,72 +156,42 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
   // CV Improvement Tips - More specific and actionable
   if (cvAnalysis) {
     // Technical Skills Section
-    if (!cvAnalysis.technicalExpertise?.programmingLanguages?.expert?.length) {
+    if (!cvAnalysis.technicalSkillsAnalysis?.programmingLanguages?.expert?.length) {
       tips.cvTips.push({
-        category: 'Technical Skills Section',
-        tip: 'Add a dedicated "Technical Skills" section at the top of your CV with clear skill levels (Expert, Proficient, Familiar). List programming languages, frameworks, and tools you use daily.',
-        priority: 'High',
-        action: 'Create sections: "Expert: [languages]", "Proficient: [frameworks]", "Tools: [software/platforms]"'
+        category: 'Tekniska färdigheter',
+        tip: 'Lägg till en dedikerad "Tekniska färdigheter"-sektion med tydliga färdighetsnivåer (Expert, Skicklig, Bekant).',
+        priority: 'Hög',
+        action: 'Skapa sektioner: "Expert: [språk]", "Skicklig: [ramverk]", "Verktyg: [programvara/plattformar]"'
       });
     }
 
     // Professional Summary
     if (!cvAnalysis.professionalSummary?.yearsOfExperience || cvAnalysis.professionalSummary.yearsOfExperience === 'Unknown') {
       tips.cvTips.push({
-        category: 'Professional Summary',
-        tip: 'Add a 3-4 line professional summary at the top stating your years of experience, core expertise, and what type of consultant you are.',
-        priority: 'High',
-        action: 'Write: "Experienced [X-year] [role] specializing in [technologies]. Proven track record in [key achievements]. Available for consulting assignments in [focus areas]."'
+        category: 'Professionell sammanfattning',
+        tip: 'Lägg till en 3-4 raders professionell sammanfattning som beskriver din erfarenhet och expertis.',
+        priority: 'Hög',
+        action: 'Skriv: "Erfaren [X-årig] [roll] specialiserad på [teknologier]. Bevisad track record inom [nyckelframgångar]. Tillgänglig för konsultuppdrag inom [fokusområden]."'
       });
     }
 
     // Work Experience
     if (!cvAnalysis.workExperience?.length || cvAnalysis.workExperience.length < 3) {
       tips.cvTips.push({
-        category: 'Work Experience',
-        tip: 'Expand your work experience section with specific achievements, technologies used, and quantifiable results for each role.',
-        priority: 'High',
-        action: 'For each role, add: Technologies used, Key achievements with numbers (improved performance by X%, delivered Y projects), Team size if you led people'
+        category: 'Arbetslivserfarenhet',
+        tip: 'Utvidga din arbetslivserfarenhet med specifika framgångar, använda teknologier och mätbara resultat.',
+        priority: 'Hög',
+        action: 'För varje roll, lägg till: Använda teknologier, Nyckelframgångar med siffror, Teamstorlek om du lett människor'
       });
     }
 
     // Missing certifications
-    if (!cvAnalysis.certifications?.length) {
+    if (!cvAnalysis.education?.certifications?.length) {
       tips.cvTips.push({
-        category: 'Certifications & Education',
-        tip: 'Add a "Certifications" section to showcase your continuous learning and expertise validation.',
+        category: 'Certifieringar',
+        tip: 'Lägg till en "Certifieringar"-sektion för att visa kontinuerlig kompetensutveckling.',
         priority: 'Medium',
-        action: 'Include: Professional certifications (AWS, Azure, GCP), Framework certifications (React, Angular), Industry certifications (Scrum, PMP)'
-      });
-    }
-
-    // Projects section
-    if (!cvAnalysis.projects?.length) {
-      tips.cvTips.push({
-        category: 'Key Projects',
-        tip: 'Add a "Key Projects" section highlighting 3-4 significant projects with technologies used and business impact.',
-        priority: 'High',
-        action: 'For each project: Project name, Technologies used, Your role, Duration, Key achievements/impact'
-      });
-    }
-
-    // Contact information
-    if (!cvAnalysis.personalInfo?.email || !cvAnalysis.personalInfo?.phone) {
-      tips.cvTips.push({
-        category: 'Contact Information',
-        tip: 'Ensure your contact information is complete and prominently displayed at the top of your CV.',
-        priority: 'High',
-        action: 'Include: Full name, Professional email, Phone number, LinkedIn profile, Location (city, country)'
-      });
-    }
-
-    // Language skills
-    if (!cvAnalysis.personalInfo?.languages?.length) {
-      tips.cvTips.push({
-        category: 'Language Skills',
-        tip: 'Add a "Languages" section showing your proficiency levels, especially important for international consulting.',
-        priority: 'Medium',
-        action: 'List languages with levels: "Swedish (Native), English (Fluent), [Other] (Conversational)"'
+        action: 'Inkludera: Professionella certifieringar (AWS, Azure, GCP), Ramverkscertifieringar, Branschcertifieringar'
       });
     }
   }
@@ -208,66 +200,43 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
   if (linkedinAnalysis) {
     if (linkedinAnalysis.culturalFit < 4) {
       tips.linkedinTips.push({
-        category: 'Professional Presence',
-        tip: 'Share more content about your work philosophy, team collaboration experiences, and professional values.',
+        category: 'Professionell närvaro',
+        tip: 'Dela mer innehåll om din arbetsfilosofi och professionella värderingar.',
         priority: 'Medium',
-        action: 'Post weekly about: Successful projects, Team collaboration stories, Professional insights, Industry trends you\'re following'
+        action: 'Posta veckovis om: Framgångsrika projekt, Teamsamarbete, Professionella insikter, Branchtrender'
       });
     }
 
     if (linkedinAnalysis.leadership < 4) {
       tips.linkedinTips.push({
-        category: 'Leadership Content',
-        tip: 'Showcase leadership experiences through posts about mentoring, technical decision-making, and project management.',
-        priority: 'High',
-        action: 'Share stories about: Leading technical projects, Mentoring team members, Making architectural decisions, Solving complex problems'
-      });
-    }
-
-    if (!linkedinAnalysis.communicationStyle || linkedinAnalysis.communicationStyle.includes('unknown')) {
-      tips.linkedinTips.push({
-        category: 'Active Communication',
-        tip: 'Increase your LinkedIn activity by posting technical insights and engaging meaningfully with others\' content.',
-        priority: 'Medium',
-        action: 'Weekly: Share 1 technical insight, Comment thoughtfully on 5-10 posts, Engage with your network\'s content'
+        category: 'Ledarskapsinnehåll',
+        tip: 'Visa ledarskapsexempel genom inlägg om mentorskap och tekniska beslut.',
+        priority: 'Hög',
+        action: 'Dela berättelser om: Ledning av tekniska projekt, Mentorskap, Arkitekturbeslut, Problemlösning'
       });
     }
   } else {
     tips.linkedinTips.push({
-      category: 'LinkedIn Profile Setup',
-      tip: 'Ensure your LinkedIn profile is public and complete with a professional headline and detailed experience section.',
-      priority: 'High',
-      action: 'Update: Professional headline with your expertise, Detailed work experience, Skills section, Public profile settings'
-    });
-
-    tips.linkedinTips.push({
-      category: 'Professional Network',
-      tip: 'Start building your professional network and sharing relevant content to establish your expertise.',
-      priority: 'High',
-      action: 'Connect with colleagues, Share industry insights, Join relevant professional groups, Post about your work'
+      category: 'LinkedIn-profil',
+      tip: 'Se till att din LinkedIn-profil är offentlig och komplett.',
+      priority: 'Hög',
+      action: 'Uppdatera: Professionell rubrik, Detaljerad arbetserfarenhet, Färdighetssektion, Offentliga profilinställningar'
     });
   }
 
   // Overall Strategy Tips
   tips.overallStrategy.push({
-    category: 'Consistent Branding',
-    tip: 'Ensure your CV and LinkedIn profile tell the same professional story with consistent information and messaging.',
-    priority: 'High',
-    action: 'Align: Job titles and dates, Skills and technologies, Professional summary/headline, Key achievements'
+    category: 'Konsekvent varumärke',
+    tip: 'Se till att ditt CV och LinkedIn berättar samma professionella historia.',
+    priority: 'Hög',
+    action: 'Anpassa: Jobbtitlar och datum, Färdigheter och teknologier, Professionell sammanfattning, Nyckelframgångar'
   });
 
   tips.overallStrategy.push({
-    category: 'Consultant Positioning',
-    tip: 'Position yourself clearly as a consultant by emphasizing project-based work, client impact, and specialized expertise.',
-    priority: 'High',
-    action: 'Highlight: Consulting experience, Client outcomes, Specialized skills, Availability for assignments'
-  });
-
-  tips.overallStrategy.push({
-    category: 'Market Readiness',
-    tip: 'Ensure both your CV and LinkedIn clearly communicate your current availability and areas of interest for consulting work.',
-    priority: 'Medium',
-    action: 'Add: "Available for consulting assignments", Preferred project types, Remote/on-site preferences, Expected start date'
+    category: 'Konsultpositionering',
+    tip: 'Positionera dig tydligt som konsult genom att betona projektbaserat arbete.',
+    priority: 'Hög',
+    action: 'Framhäv: Konsulterfarenhet, Kundresultat, Specialiserade färdigheter, Tillgänglighet för uppdrag'
   });
 
   console.log('📋 Generated detailed improvement tips:', tips);
