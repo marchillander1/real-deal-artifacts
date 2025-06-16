@@ -28,7 +28,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hej! Jag är MatchWise AI-assistenten. Jag kan hjälpa dig med frågor om MatchWise och ge tips för att förbättra ditt CV. Vad kan jag hjälpa dig med?',
+      text: 'Hello! I\'m the MatchWise AI assistant. I can help you with questions about MatchWise and give tips to improve your CV. What can I help you with?',
       sender: 'bot',
       timestamp: new Date()
     }
@@ -64,15 +64,15 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
       let context = '';
       if (analysisResults?.cvAnalysis) {
         const cv = analysisResults.cvAnalysis;
-        context = `CV laddat upp. `;
+        context = `CV uploaded. `;
         if (cv.professionalSummary?.currentRole) {
-          context += `Nuvarande roll: ${cv.professionalSummary.currentRole}. `;
+          context += `Current role: ${cv.professionalSummary.currentRole}. `;
         }
         if (cv.professionalSummary?.yearsOfExperience) {
-          context += `Erfarenhet: ${cv.professionalSummary.yearsOfExperience}. `;
+          context += `Experience: ${cv.professionalSummary.yearsOfExperience}. `;
         }
         if (cv.technicalExpertise?.programmingLanguages?.expert?.length > 0) {
-          context += `Expertkunskaper: ${cv.technicalExpertise.programmingLanguages.expert.join(', ')}. `;
+          context += `Expert skills: ${cv.technicalExpertise.programmingLanguages.expert.join(', ')}. `;
         }
       }
 
@@ -95,11 +95,11 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      toast.error('Kunde inte skicka meddelandet. Försök igen.');
+      toast.error('Could not send message. Please try again.');
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'Ursäkta, jag kunde inte svara just nu. Försök igen senare.',
+        text: 'Sorry, I couldn\'t respond right now. Please try again later.',
         sender: 'bot',
         timestamp: new Date()
       };
@@ -117,11 +117,11 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
   };
 
   const quickQuestions = [
-    "Vad är MatchWise?",
-    "Hur fungerar CV-analysen?",
-    "Tips för att förbättra mitt CV",
-    "Vad händer efter jag skickat in mitt CV?",
-    "Hur matchar ni konsulter med uppdrag?"
+    "What is MatchWise?",
+    "How does the CV analysis work?",
+    "Tips to improve my CV",
+    "What happens after I submit my CV?",
+    "How do you match consultants with assignments?"
   ];
 
   const handleQuickQuestion = (question: string) => {
@@ -146,7 +146,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
       <CardHeader className="border-b flex flex-row items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-purple-600" />
-          <CardTitle className="text-lg">MatchWise AI-assistent</CardTitle>
+          <CardTitle className="text-lg">MatchWise AI Assistant</CardTitle>
         </div>
         {onToggleMinimize && (
           <Button
@@ -192,7 +192,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
               <div className="bg-gray-100 rounded-lg p-3 max-w-[80%]">
                 <div className="flex items-center gap-2">
                   <Bot className="h-4 w-4 text-purple-600" />
-                  <div className="text-sm text-gray-600">Skriver...</div>
+                  <div className="text-sm text-gray-600">Typing...</div>
                 </div>
               </div>
             </div>
@@ -203,7 +203,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
         {/* Quick Questions */}
         {messages.length === 1 && (
           <div className="p-4 border-t bg-gray-50">
-            <p className="text-xs text-gray-600 mb-2">Vanliga frågor:</p>
+            <p className="text-xs text-gray-600 mb-2">Common questions:</p>
             <div className="flex flex-wrap gap-2">
               {quickQuestions.map((question, idx) => (
                 <Button
@@ -227,7 +227,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Skriv din fråga här..."
+              placeholder="Type your question here..."
               disabled={isLoading}
               className="flex-1"
             />
