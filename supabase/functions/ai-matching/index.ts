@@ -1,4 +1,5 @@
 
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.10';
@@ -84,13 +85,14 @@ serve(async (req) => {
 
     console.log(`Found ${consultants.length} consultants to match against`);
 
-    // Calculate matches for each consultant - optimized for speed
-    const matches = consultants.map(consultant => {
+    // Calculate matches for each consultant using Groq AI
+    const matches = [];
+    for (const consultant of consultants) {
       const matchScore = calculateMatchScore(consultant, assignment);
       const humanFactorsScore = calculateHumanFactors(consultant);
-      const coverLetter = generateQuickCoverLetter(consultant, assignment, matchScore);
+      const coverLetter = await generateCoverLetterWithGroq(consultant, assignment, matchScore);
 
-      return {
+      const match = {
         id: crypto.randomUUID(),
         consultant_id: consultant.id,
         assignment_id: assignmentId,
@@ -105,7 +107,9 @@ serve(async (req) => {
         cover_letter: coverLetter,
         status: 'pending'
       };
-    });
+
+      matches.push(match);
+    }
 
     // Save matches to database (only for real assignments, not demo)
     if (!assignmentId.startsWith('demo-')) {
@@ -121,7 +125,7 @@ serve(async (req) => {
     // Sort by match score
     matches.sort((a, b) => b.match_score - a.match_score);
 
-    console.log(`Generated ${matches.length} matches in optimized mode`);
+    console.log(`Generated ${matches.length} matches with Groq AI`);
 
     return new Response(JSON.stringify({
       success: true,
@@ -180,13 +184,85 @@ function getMatchedSkills(consultantSkills: string[], requiredSkills: string[]):
   );
 }
 
-// Quick cover letter generation without OpenAI API
-function generateQuickCoverLetter(consultant: any, assignment: any, matchScore: number): string {
+async function generateCoverLetterWithGroq(consultant: any, assignment: any, matchScore: number): Promise<string> {
+  const groqApiKey = Deno.env.get('GROQ_API_KEY');
+  
+  if (!groqApiKey) {
+    console.log('No Groq API key found, using fallback cover letter');
+    return generateFallbackCoverLetter(consultant, assignment, matchScore);
+  }
+
+  try {
+    const matchedSkills = getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []);
+    
+    const prompt = `Skriv ett professionellt motivationsbrev på svenska för ${consultant.name} som ${consultant.roles?.[0] || 'Konsult'} för positionen "${assignment.title}" på ${assignment.company}.
+
+Konsultens information:
+- Namn: ${consultant.name}
+- Erfarenhet: ${consultant.experience_years || 'Flera'} år
+- Kompetenser: ${(consultant.skills || []).slice(0, 5).join(', ')}
+- Matchande kompetenser: ${matchedSkills.join(', ')}
+- Betyg: ${consultant.rating || 5}/5
+
+Uppdragsinformation:
+- Titel: ${assignment.title}
+- Företag: ${assignment.company}
+- Bransch: ${assignment.industry}
+- Beskrivning: ${assignment.description}
+
+Match score: ${matchScore}%
+
+Skriv ett kortfattat men övertygande motivationsbrev (max 200 ord) som betonar:
+1. Relevanta kompetenser för uppdraget
+2. Erfarenhet inom branschen
+3. Värde konsulten kan tillföra
+
+Börja med "Hej ${assignment.company}!" och avsluta med "Med vänliga hälsningar, ${consultant.name}".`;
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${groqApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama3-8b-8192', // Fast and free Groq model
+        messages: [
+          { 
+            role: 'system', 
+            content: 'Du är en expert på att skriva professionella motivationsbrev för konsulter. Skriv kortfattat, övertygande och på svenska.' 
+          },
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 300,
+        temperature: 0.7,
+        top_p: 0.9
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`Groq API error: ${response.status} ${response.statusText}`);
+      throw new Error(`Groq API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const generatedLetter = data.choices[0].message.content;
+    
+    console.log('Successfully generated cover letter with Groq AI');
+    return generatedLetter;
+
+  } catch (error) {
+    console.error('Error generating cover letter with Groq:', error);
+    return generateFallbackCoverLetter(consultant, assignment, matchScore);
+  }
+}
+
+function generateFallbackCoverLetter(consultant: any, assignment: any, matchScore: number): string {
   const matchedSkills = getMatchedSkills(consultant.skills || [], assignment.requiredSkills || []);
   
   return `Hej ${assignment.company}!
 
-Som en erfaren ${consultant.roles?.[0] || 'konsult'} med ${consultant.experience_years || 'flera'} års erfarenhet är jag mycket intresserad av er ${assignment.title}-position.
+Som erfaren ${consultant.roles?.[0] || 'konsult'} med ${consultant.experience_years || 'flera'} års erfarenhet är jag mycket intresserad av er ${assignment.title}-position.
 
 Min expertis inom ${matchedSkills.slice(0, 3).join(', ')} gör mig till en perfekt kandidat för detta uppdrag. Med en matchning på ${matchScore}% och ett betyg på ${consultant.rating || 5}/5 från tidigare kunder, är jag redo att leverera exceptionella resultat från dag ett.
 
@@ -197,3 +273,4 @@ Jag ser fram emot att diskutera hur jag kan bidra till ert teams framgång och h
 Med vänliga hälsningar,
 ${consultant.name}`;
 }
+
