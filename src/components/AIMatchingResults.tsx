@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,21 +58,55 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({ assignment
 
       if (matchesError) throw matchesError;
 
-      // Combine matches with consultant data
-      const enrichedMatches = matchesData.map(match => ({
-        id: match.id,
-        consultant_id: match.consultant_id,
-        match_score: match.match_score,
-        matched_skills: match.matched_skills || [],
-        human_factors_score: match.human_factors_score || 0,
-        cultural_match: match.cultural_match || 0,
-        communication_match: match.communication_match || 0,
-        values_alignment: match.values_alignment || 0,
-        response_time_hours: match.response_time_hours || 0,
-        estimated_savings: match.estimated_savings || 0,
-        cover_letter: match.cover_letter || '',
-        consultant: consultants.find(c => c.id === match.consultant_id)
-      }));
+      // Combine matches with consultant data and properly map to Consultant interface
+      const enrichedMatches = matchesData.map(match => {
+        const supabaseConsultant = consultants.find(c => c.id === match.consultant_id);
+        
+        // Map Supabase consultant data to Consultant interface
+        const mappedConsultant: Consultant | undefined = supabaseConsultant ? {
+          id: supabaseConsultant.id,
+          name: supabaseConsultant.name,
+          email: supabaseConsultant.email,
+          phone: supabaseConsultant.phone || '',
+          location: supabaseConsultant.location || '',
+          skills: supabaseConsultant.skills || [],
+          experience: `${supabaseConsultant.experience_years || 0} years`,
+          rate: `${supabaseConsultant.hourly_rate || 0} SEK`,
+          availability: supabaseConsultant.availability || 'Available',
+          cv: supabaseConsultant.cv_file_path || '',
+          communicationStyle: supabaseConsultant.communication_style || '',
+          rating: supabaseConsultant.rating || 5,
+          projects: supabaseConsultant.projects_completed || 0,
+          lastActive: supabaseConsultant.last_active || 'Today',
+          roles: supabaseConsultant.roles || [],
+          certifications: supabaseConsultant.certifications || [],
+          type: (supabaseConsultant.type as 'existing' | 'new') || 'existing',
+          languages: supabaseConsultant.languages || [],
+          workStyle: supabaseConsultant.work_style,
+          values: supabaseConsultant.values || [],
+          personalityTraits: supabaseConsultant.personality_traits || [],
+          teamFit: supabaseConsultant.team_fit,
+          culturalFit: supabaseConsultant.cultural_fit || 5,
+          adaptability: supabaseConsultant.adaptability || 5,
+          leadership: supabaseConsultant.leadership || 3,
+          linkedinUrl: supabaseConsultant.linkedin_url
+        } : undefined;
+
+        return {
+          id: match.id,
+          consultant_id: match.consultant_id,
+          match_score: match.match_score,
+          matched_skills: match.matched_skills || [],
+          human_factors_score: match.human_factors_score || 0,
+          cultural_match: match.cultural_match || 0,
+          communication_match: match.communication_match || 0,
+          values_alignment: match.values_alignment || 0,
+          response_time_hours: match.response_time_hours || 0,
+          estimated_savings: match.estimated_savings || 0,
+          cover_letter: match.cover_letter || '',
+          consultant: mappedConsultant
+        };
+      });
 
       setMatches(enrichedMatches);
       toast({
