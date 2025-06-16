@@ -1,0 +1,123 @@
+
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { Resend } from "npm:resend@2.0.0";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface NotificationRequest {
+  consultantEmail: string;
+  consultantName: string;
+  assignmentTitle: string;
+  company: string;
+  coverLetter?: string;
+}
+
+const handler = async (req: Request): Promise<Response> => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { consultantEmail, consultantName, assignmentTitle, company, coverLetter }: NotificationRequest = await req.json();
+
+    const emailResponse = await resend.emails.send({
+      from: "MatchWise AI <noreply@matchwiseai.com>",
+      to: [consultantEmail],
+      subject: `New Assignment Opportunity: ${assignmentTitle} at ${company}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">🎯 New Assignment Match!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">You've been selected for an exciting opportunity</p>
+          </div>
+          
+          <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #374151; margin-top: 0;">Hello ${consultantName}! 👋</h2>
+            
+            <p style="color: #6b7280; line-height: 1.6;">
+              Great news! Our AI matching system has identified you as an excellent fit for a new assignment opportunity:
+            </p>
+            
+            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
+              <h3 style="color: #374151; margin-top: 0;">${assignmentTitle}</h3>
+              <p style="color: #6b7280; margin: 5px 0;"><strong>Company:</strong> ${company}</p>
+              <p style="color: #6b7280; margin: 5px 0;"><strong>Status:</strong> Available Now</p>
+            </div>
+            
+            ${coverLetter ? `
+            <div style="margin: 25px 0;">
+              <h3 style="color: #374151;">Personalized Introduction Letter</h3>
+              <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; border: 1px solid #d1d5db;">
+                <div style="color: #4b5563; line-height: 1.6; max-height: 200px; overflow-y: auto;">
+                  ${coverLetter.substring(0, 500).replace(/\n/g, '<br>')}...
+                </div>
+              </div>
+            </div>
+            ` : ''}
+            
+            <div style="margin: 30px 0;">
+              <h3 style="color: #374151;">What happens next?</h3>
+              <ul style="color: #6b7280; line-height: 1.8; padding-left: 20px;">
+                <li>The client team will review your profile and the AI-generated introduction</li>
+                <li>If there's mutual interest, they'll reach out to schedule an initial conversation</li>
+                <li>You'll receive all project details and can decide if it's the right fit</li>
+                <li>No commitment required at this stage - this is just an introduction</li>
+              </ul>
+            </div>
+            
+            <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; border: 1px solid #d1fae5; margin: 25px 0;">
+              <h4 style="color: #065f46; margin-top: 0;">💡 Why were you selected?</h4>
+              <p style="color: #047857; margin-bottom: 0; line-height: 1.6;">
+                Our AI analyzed both your technical expertise and soft skills to determine compatibility with this specific role and team culture. You scored highly on multiple matching criteria!
+              </p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://matchwiseai.com/cv-upload" 
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                View Full Opportunity Details
+              </a>
+            </div>
+            
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px;">
+              <p style="color: #9ca3af; font-size: 14px; margin-bottom: 10px;">
+                <strong>Questions or concerns?</strong> Reply to this email or contact our support team.
+              </p>
+              <p style="color: #9ca3af; font-size: 12px; margin-bottom: 0;">
+                This opportunity was generated by MatchWise AI's intelligent matching system. 
+                If you're not interested in receiving these notifications, you can update your preferences in your profile.
+              </p>
+            </div>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log("Interest notification sent successfully:", emailResponse);
+
+    return new Response(JSON.stringify(emailResponse), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error in send-interest-notification function:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
+  }
+};
+
+serve(handler);

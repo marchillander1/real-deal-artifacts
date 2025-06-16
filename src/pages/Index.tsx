@@ -1,11 +1,11 @@
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "lucide-react";
+import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus, Brain } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { ConsultantsTab } from "../components/ConsultantsTab";
+import { AIMatchingResults } from "../components/AIMatchingResults";
 import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 import { useDemoAssignments } from "@/hooks/useDemoAssignments";
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedAssignmentForMatching, setSelectedAssignmentForMatching] = useState<Assignment | null>(null);
   const { consultants } = useSupabaseConsultants();
   const { assignments, addAssignment } = useDemoAssignments();
 
@@ -114,8 +115,12 @@ const Index: React.FC = () => {
                 <div className="text-sm text-gray-500">
                   {assignment.remote} • {assignment.teamSize} • {assignment.industry}
                 </div>
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  Find Matches
+                <Button 
+                  onClick={() => setSelectedAssignmentForMatching(assignment)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <Brain className="h-4 w-4 mr-2" />
+                  AI Match Consultants
                 </Button>
               </div>
             </CardContent>
@@ -303,6 +308,14 @@ const Index: React.FC = () => {
             setShowCreateForm(false);
           }}
           onCancel={() => setShowCreateForm(false)}
+        />
+      )}
+
+      {/* AI Matching Results Modal */}
+      {selectedAssignmentForMatching && (
+        <AIMatchingResults
+          assignment={selectedAssignmentForMatching}
+          onClose={() => setSelectedAssignmentForMatching(null)}
         />
       )}
     </div>

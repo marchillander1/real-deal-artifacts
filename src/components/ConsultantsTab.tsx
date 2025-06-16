@@ -20,19 +20,19 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   showDeleteForMyConsultants = false,
   showRemoveDuplicates = true
 }) => {
-  const { consultants, isLoading, refetch } = useSupabaseConsultants();
+  const { consultants, isLoading, updateConsultant } = useSupabaseConsultants();
   const [activeSubTab, setActiveSubTab] = useState<'network' | 'my'>('network');
   const { toast } = useToast();
 
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const networkConsultants = consultants.filter(c => c.type === 'new');
 
-  const handleDeleteConsultant = async (consultantId: string) => {
+  const handleDeleteConsultant = async (consultantId: string | number) => {
     try {
       const { error } = await supabase
         .from('consultants')
         .delete()
-        .eq('id', consultantId);
+        .eq('id', String(consultantId));
 
       if (error) {
         console.error('Error deleting consultant:', error);
@@ -49,7 +49,8 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         description: "Consultant deleted successfully",
       });
       
-      refetch();
+      // Trigger a refresh by updating a dummy field
+      updateConsultant({ id: String(consultantId), updated_at: new Date().toISOString() });
     } catch (error) {
       console.error('Error deleting consultant:', error);
       toast({
