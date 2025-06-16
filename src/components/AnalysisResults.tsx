@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -91,16 +92,16 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Code className="h-5 w-5 text-blue-500" />
-              Teknisk Kompetensanalys
+              Technical Skills Assessment
             </CardTitle>
             <CardDescription>
-              Djupgående bedömning av tekniska färdigheter och marknadspotential
+              In-depth evaluation of technical skills and market potential
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Technical Maturity Scores */}
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Teknisk Mognadsgrad</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">Technical Maturity Level</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <p className="text-xs text-gray-600 mb-1">Frontend</p>
@@ -133,19 +134,19 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
               </div>
               <div className="text-center mt-4">
                 <Badge className="bg-indigo-100 text-indigo-800 text-sm px-3 py-1">
-                  Övergripande nivå: {technicalAssessment.technicalMaturity.overallLevel}
+                  Overall Level: {technicalAssessment.technicalMaturity.overallLevel}
                 </Badge>
               </div>
             </div>
 
             {/* Skills Gap Analysis */}
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Kompetensanalys</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">Skills Analysis</h4>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm font-medium text-green-700">Starka områden</span>
+                    <span className="text-sm font-medium text-green-700">Strong Areas</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {technicalAssessment.skillsGapAnalysis.strengths?.map((skill: string, idx: number) => (
@@ -156,7 +157,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-500" />
-                    <span className="text-sm font-medium text-red-700">Saknade färdigheter</span>
+                    <span className="text-sm font-medium text-red-700">Missing Skills</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {technicalAssessment.skillsGapAnalysis.missing?.map((skill: string, idx: number) => (
@@ -170,7 +171,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             {/* Improvement Priorities */}
             {technicalAssessment.improvementPriority?.length > 0 && (
               <div>
-                <h4 className="font-semibold text-gray-800 mb-3">Förbättringsrekommendationer</h4>
+                <h4 className="font-semibold text-gray-800 mb-3">Improvement Recommendations</h4>
                 <div className="space-y-3">
                   {technicalAssessment.improvementPriority.map((item: any, idx: number) => (
                     <div key={idx} className="border border-orange-200 rounded-lg p-3 bg-orange-50">
@@ -182,8 +183,8 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                       </div>
                       <p className="text-sm text-gray-700 mb-2">{item.reason}</p>
                       <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>Kompetenser: {item.skills?.join(', ')}</span>
-                        <span>Tidslinje: {item.timeline}</span>
+                        <span>Skills: {item.skills?.join(', ')}</span>
+                        <span>Timeline: {item.timeline}</span>
                       </div>
                     </div>
                   ))}
@@ -200,10 +201,10 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-purple-500" />
-              Optimeringsguide: Förbättra innan du laddar upp
+              Optimization Guide: Improve Before Upload
             </CardTitle>
             <CardDescription>
-              Konkreta tips för att maximera dina chanser att få jobb
+              Actionable tips to maximize your chances of getting hired
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -211,11 +212,11 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             <div>
               <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <BookOpen className="h-4 w-4" />
-                CV-optimering
+                CV Optimization
               </h4>
               <div className="space-y-3">
                 <div>
-                  <span className="text-sm font-medium text-gray-700 mb-2 block">Omedelbar förbättring:</span>
+                  <span className="text-sm font-medium text-gray-700 mb-2 block">Immediate Improvements:</span>
                   {preUploadGuidance.cvOptimization.immediate?.map((tip: any, idx: number) => (
                     <div key={idx} className="border-l-4 border-blue-500 pl-4 mb-3">
                       <div className="flex items-center justify-between mb-1">
@@ -223,7 +224,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                         <Badge className="bg-blue-100 text-blue-800 text-xs">{tip.impact}</Badge>
                       </div>
                       <p className="text-sm text-gray-700 mb-2">{tip.action}</p>
-                      <p className="text-xs text-gray-500 italic">Mall: {tip.template}</p>
+                      <p className="text-xs text-gray-500 italic">Template: {tip.template}</p>
                     </div>
                   ))}
                 </div>
@@ -234,7 +235,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             <div>
               <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <Building className="h-4 w-4" />
-                LinkedIn-optimering
+                LinkedIn Optimization
               </h4>
               <div className="space-y-3">
                 {preUploadGuidance.linkedinOptimization.profile?.map((tip: any, idx: number) => (
@@ -244,7 +245,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                       <Badge className="bg-green-100 text-green-800 text-xs">{tip.impact}</Badge>
                     </div>
                     <p className="text-sm text-gray-700 mb-2">{tip.action}</p>
-                    <p className="text-xs text-gray-500 italic">Mall: {tip.template}</p>
+                    <p className="text-xs text-gray-500 italic">Template: {tip.template}</p>
                   </div>
                 ))}
               </div>
@@ -254,19 +255,19 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             <div>
               <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Optimeringstidslinje
+                Optimization Timeline
               </h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <Badge className="bg-red-100 text-red-800">Vecka 1</Badge>
+                  <Badge className="bg-red-100 text-red-800">Week 1</Badge>
                   <span className="text-sm text-gray-700">{preUploadGuidance.timeline?.week1?.join(', ')}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge className="bg-orange-100 text-orange-800">Vecka 2</Badge>
+                  <Badge className="bg-orange-100 text-orange-800">Week 2</Badge>
                   <span className="text-sm text-gray-700">{preUploadGuidance.timeline?.week2?.join(', ')}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge className="bg-blue-100 text-blue-800">Månad 1</Badge>
+                  <Badge className="bg-blue-100 text-blue-800">Month 1</Badge>
                   <span className="text-sm text-gray-700">{preUploadGuidance.timeline?.month1?.join(', ')}</span>
                 </div>
               </div>
