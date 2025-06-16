@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -163,7 +162,7 @@ export default function Landing() {
 
                   <p className="text-gray-400 mb-6">Real-time insights and performance metrics</p>
 
-                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="mb-6">
                     <Card className="bg-gray-700/50 border-gray-600">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">
@@ -174,19 +173,6 @@ export default function Landing() {
                         </div>
                         <div className="text-2xl font-bold text-white mb-1">{totalNetworkConsultants}</div>
                         <div className="text-green-400 text-xs">+{Math.max(1, Math.floor(totalNetworkConsultants * 0.15))} this week</div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-gray-700/50 border-gray-600">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-gray-300 text-sm">Open Assignments</span>
-                          <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs">📋</span>
-                          </div>
-                        </div>
-                        <div className="text-2xl font-bold text-white mb-1">3</div>
-                        <div className="text-green-400 text-xs">+5 today</div>
                       </CardContent>
                     </Card>
                   </div>
