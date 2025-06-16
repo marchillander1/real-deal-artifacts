@@ -72,6 +72,16 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
                 </div>
               </div>
             )}
+            {consultant.cvAnalysis.technicalExpertise.programmingLanguages?.proficient && (
+              <div>
+                <span className="text-sm font-medium text-gray-700">Proficient Level:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {consultant.cvAnalysis.technicalExpertise.programmingLanguages.proficient.map((skill: string, idx: number) => (
+                    <Badge key={idx} className="bg-blue-100 text-blue-800 text-xs">{skill}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
             {consultant.cvAnalysis.technicalExpertise.cloudAndInfrastructure?.platforms && (
               <div>
                 <span className="text-sm font-medium text-gray-700">Cloud Platforms:</span>
@@ -86,7 +96,75 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
         </div>
       )}
 
-      {/* Key Strengths */}
+      {/* LinkedIn Analysis & Soft Skills */}
+      {consultant.linkedinAnalysis && (
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Brain className="h-4 w-4 text-blue-500" />
+            LinkedIn Analysis & Soft Skills
+          </h5>
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Communication Style:</span>
+                <p className="font-medium mt-1">{consultant.linkedinAnalysis.communicationStyle}</p>
+              </div>
+              <div>
+                <span className="text-gray-600">Leadership Style:</span>
+                <p className="font-medium mt-1">{consultant.linkedinAnalysis.leadershipStyle}</p>
+              </div>
+              <div>
+                <span className="text-gray-600">Problem Solving:</span>
+                <p className="font-medium mt-1">{consultant.linkedinAnalysis.problemSolving}</p>
+              </div>
+              <div>
+                <span className="text-gray-600">Business Acumen:</span>
+                <p className="font-medium mt-1">{consultant.linkedinAnalysis.businessAcumen}</p>
+              </div>
+            </div>
+            
+            {/* Human Factors Scoring */}
+            <div className="bg-white p-4 rounded-lg space-y-3">
+              <h6 className="font-semibold text-gray-800">Human Factors Assessment</h6>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Cultural Fit:</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={culturalMatch} className="w-20 h-2" />
+                    <span className="text-sm font-semibold text-blue-600">{consultant.linkedinAnalysis.culturalFit}/5</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Leadership:</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={leadershipScore} className="w-20 h-2" />
+                    <span className="text-sm font-semibold text-blue-600">{consultant.linkedinAnalysis.leadership}/5</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Innovation:</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(consultant.linkedinAnalysis.innovation || 4) * 20} className="w-20 h-2" />
+                    <span className="text-sm font-semibold text-blue-600">{consultant.linkedinAnalysis.innovation || 4}/5</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Team Collaboration:</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={88} className="w-20 h-2" />
+                    <span className="text-sm font-semibold text-blue-600">4.4/5</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Key Strengths from CV Analysis */}
       {consultant.cvAnalysis?.detailedStrengthsAnalysis && (
         <div>
           <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -137,81 +215,6 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Human Factors & Cultural Fit */}
-      <div>
-        <h5 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Users className="h-4 w-4 text-purple-500" />
-          Human Factors & Cultural Fit
-        </h5>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Cultural Match:</span>
-              <div className="flex items-center gap-2">
-                <Progress value={culturalMatch} className="w-20 h-2" />
-                <span className="text-sm font-semibold text-blue-600">{culturalMatch}%</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Communication:</span>
-              <div className="flex items-center gap-2">
-                <Progress value={communicationMatch} className="w-20 h-2" />
-                <span className="text-sm font-semibold text-blue-600">{communicationMatch}%</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Values Alignment:</span>
-              <div className="flex items-center gap-2">
-                <Progress value={valuesAlignment} className="w-20 h-2" />
-                <span className="text-sm font-semibold text-blue-600">{valuesAlignment}%</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Leadership:</span>
-              <div className="flex items-center gap-2">
-                <Progress value={leadershipScore} className="w-20 h-2" />
-                <span className="text-sm font-semibold text-blue-600">{leadershipScore}%</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <span className="text-sm text-gray-600">Communication Style:</span>
-              <p className="text-sm font-medium mt-1">{consultant.communicationStyle || "Direct and collaborative"}</p>
-            </div>
-            <div>
-              <span className="text-sm text-gray-600">Work Style:</span>
-              <p className="text-sm font-medium mt-1">{consultant.workStyle || "Agile and iterative"}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* LinkedIn Analysis */}
-      {consultant.linkedinAnalysis && (
-        <div>
-          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Users className="h-4 w-4 text-blue-500" />
-            LinkedIn Analysis
-          </h5>
-          <div className="grid md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600">Leadership Style:</span>
-              <p className="font-medium mt-1">{consultant.linkedinAnalysis.leadershipStyle}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Problem Solving:</span>
-              <p className="font-medium mt-1">{consultant.linkedinAnalysis.problemSolving}</p>
-            </div>
           </div>
         </div>
       )}
@@ -272,6 +275,25 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
               <span>{cert}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Work Style and Communication */}
+      <div className="bg-white p-4 rounded-lg">
+        <h5 className="font-semibold text-gray-900 mb-3">Work Style & Communication</h5>
+        <div className="space-y-2 text-sm">
+          <div>
+            <span className="text-gray-600">Communication Style:</span>
+            <p className="font-medium">{consultant.communicationStyle || "Professional and collaborative"}</p>
+          </div>
+          <div>
+            <span className="text-gray-600">Work Style:</span>
+            <p className="font-medium">{consultant.workStyle || "Agile and iterative"}</p>
+          </div>
+          <div>
+            <span className="text-gray-600">Team Fit:</span>
+            <p className="font-medium">{consultant.teamFit || "Strong collaborative partner"}</p>
+          </div>
         </div>
       </div>
     </div>
