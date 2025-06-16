@@ -18,8 +18,8 @@ export default function Landing() {
   const { user } = useAuth();
   const { consultants } = useSupabaseConsultantsDedup();
 
-  // Count only network consultants
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'existing');
+  // Count all network consultants (not limited for display on landing page)
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
   const totalNetworkConsultants = networkConsultants.length;
 
   return (

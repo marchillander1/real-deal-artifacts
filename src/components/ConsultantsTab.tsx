@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
 
   // Limit consultants to specific amounts for clean display
   const existingConsultants = consultants.filter(c => c.type === 'existing').slice(0, 5);
-  const networkConsultants = consultants.filter(c => c.type === 'new').slice(0, 3);
+  const networkConsultants = consultants.filter(c => c.type === 'new').slice(0, 1); // Only 1 network consultant
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
     try {
@@ -107,7 +106,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <p className="text-gray-600">External consultants who joined through our platform</p>
             </div>
             <Badge className="bg-green-100 text-green-800">
-              {networkConsultants.length} consultants
+              {networkConsultants.length} consultant
             </Badge>
           </div>
           
