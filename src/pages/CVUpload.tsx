@@ -526,11 +526,10 @@ export const CVUpload = () => {
             </div>
           </div>
 
-          {/* Requirements Notice */}
+          {/* Requirements Notice - Shortened */}
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
             <p className="text-amber-800 text-sm">
-              <strong>Comprehensive Analysis Requirements:</strong> Both CV file and LinkedIn profile URL are required. 
-              We analyze your 30 most recent LinkedIn posts and bio/summary for complete professional insights.
+              <strong>Requirements:</strong> Both CV file and LinkedIn profile URL are required for complete analysis.
             </p>
           </div>
         </div>

@@ -1,3 +1,4 @@
+
 import { Consultant } from '@/types/consultant';
 
 export const demoConsultants: Consultant[] = [
@@ -12,7 +13,7 @@ export const demoConsultants: Consultant[] = [
     location: "Stockholm",
     rating: 4.9,
     profileImage: "/placeholder.svg",
-    type: "demo",
+    type: "existing",
     email: "anna.svensson@example.com",
     phone: "+46 70 123 4567",
     linkedinUrl: "https://linkedin.com/in/annasvensson",
@@ -26,13 +27,15 @@ export const demoConsultants: Consultant[] = [
         cloud: ["AWS", "Docker", "Kubernetes"],
         tools: ["Git", "Webpack", "Jest", "Cypress"]
       },
-      personalityTraits: [
-        "Analytisk och detaljorienterad",
-        "Stark problemlösningsförmåga", 
-        "Teamorienterad och samarbetsvillig",
-        "Proaktiv och initiativtagande",
-        "Fokuserad på kodkvalitet och best practices"
-      ],
+      personalityTraits: {
+        problemSolvingApproach: "Analytisk och detaljorienterad",
+        communicationStyle: "Direkt och tydlig kommunikation",
+        workStyle: "Agile/Scrum-fokuserad med stark betoning på kvalitet",
+        adaptability: "Stark problemlösningsförmåga",
+        initiativeTaking: "Proaktiv och initiativtagande",
+        attentionToDetail: "Fokuserad på kodkvalitet och best practices",
+        continuousLearning: "Teamorienterad och samarbetsvillig"
+      },
       workStyle: "Agile/Scrum-fokuserad med stark betoning på kvalitet och kontinuerlig förbättring. Föredrar kollaborativa miljöer med tydlig kommunikation.",
       communicationStyle: "Direkt och tydlig kommunikation. Bra på att förklara tekniska koncept för icke-tekniska intressenter.",
       leadershipExperience: "Lett utvecklingsteam på 4-5 personer i 2 år. Mentor för junior utvecklare.",
@@ -41,31 +44,31 @@ export const demoConsultants: Consultant[] = [
         "Implementerade CI/CD pipeline som minskade deployment-tid med 70%",
         "Utvecklade designsystem som används av 3 produktteam"
       ],
-      education: "MSc Computer Science, KTH Royal Institute of Technology",
-      certifications: ["AWS Certified Developer", "React Professional Certificate"],
+      education: {
+        formal: [
+          {
+            degree: "MSc Computer Science",
+            institution: "KTH Royal Institute of Technology",
+            year: "2015"
+          }
+        ],
+        certifications: ["AWS Certified Developer", "React Professional Certificate"]
+      },
       languages: ["Svenska (modersmål)", "Engelska (flyt)", "Tyska (grundläggande)"],
       interests: ["Open source bidrag", "Tech meetups", "UX/UI design", "Hållbar utveckling"]
     },
 
     // LinkedIn Analysis  
     linkedinAnalysis: {
-      professionalSummary: "Erfaren frontend-utvecklare med passion för att skapa användarvänliga och performanta webbapplikationer. Stark bakgrund inom React och TypeScript med fokus på skalbar arkitektur.",
-      currentRole: "Senior Frontend Developer på TechCorp AB",
-      careerProgression: "Konsekvent karriärutveckling från Junior till Senior på 8 år med ökande ansvar för arkitektur och teamledning.",
-      networkQuality: "Starkt nätverk inom tech-communityn med 500+ kontakter, aktiv på LinkedIn med regelbundna posts om frontend-utveckling.",
-      recommendationsReceived: [
-        "Anna är en exceptionell utvecklare med djup teknisk kunskap och förmåga att leverera kvalitet under press - Maria Lindqvist, Tech Lead",
-        "Annas mentorskap har varit ovärderligt för mitt utvecklande som utvecklare - Erik Johansson, Junior Developer"
-      ],
-      endorsements: {
-        "React": 45,
-        "TypeScript": 38,
-        "JavaScript": 52,
-        "Team Leadership": 23,
-        "Problem Solving": 34
-      },
-      activityLevel: "Hög aktivitet med 2-3 posts per vecka, delar tekniska insights och branschartiklar",
-      companyConnections: "Välkopplad inom tech-sektorn med kontakter på Google, Microsoft, Spotify och andra ledande företag"
+      communicationStyle: "Erfaren frontend-utvecklare med passion för att skapa användarvänliga och performanta webbapplikationer",
+      leadershipStyle: "Konsekvent karriärutveckling från Junior till Senior på 8 år med ökande ansvar",
+      culturalFit: 5,
+      leadership: 4,
+      innovation: 4,
+      problemSolving: "Starkt nätverk inom tech-communityn med 500+ kontakter",
+      businessAcumen: "Aktiv på LinkedIn med regelbundna posts om frontend-utveckling",
+      teamCollaboration: "Anna är en exceptionell utvecklare med djup teknisk kunskap - Maria Lindqvist",
+      adaptability: 5
     }
   },
   
@@ -80,7 +83,7 @@ export const demoConsultants: Consultant[] = [
     location: "Göteborg",
     rating: 4.7,
     profileImage: "/placeholder.svg",
-    type: "demo",
+    type: "existing",
     email: "erik.johansson@example.com",
     phone: "+46 70 234 5678",
     linkedinUrl: "https://linkedin.com/in/erikjohansson",
@@ -92,13 +95,15 @@ export const demoConsultants: Consultant[] = [
         cloud: ["Docker", "AWS", "GCP"],
         tools: ["Git", "Jenkins", "Pytest", "Postman"]
       },
-      personalityTraits: [
-        "Systematisk och metodisk approach",
-        "Stark fokus på kod-kvalitet och testning",
-        "Självständig men bra teamspelare",
-        "Nyfiken och lärvillig",
-        "Balanserad mellan frontend och backend"
-      ],
+      personalityTraits: {
+        problemSolvingApproach: "Systematisk och metodisk approach",
+        communicationStyle: "Lugn och reflekterande kommunikationsstil",
+        workStyle: "Test-driven development med fokus på ren kod",
+        adaptability: "Självständig men bra teamspelare",
+        initiativeTaking: "Nyfiken och lärvillig",
+        attentionToDetail: "Stark fokus på kod-kvalitet och testning",
+        continuousLearning: "Balanserad mellan frontend och backend"
+      },
       workStyle: "Test-driven development med fokus på ren, underhållbar kod. Föredrar iterativ utveckling med kontinuerlig feedback.",
       communicationStyle: "Lugn och reflekterande kommunikationsstil. Bra på att lyssna och ställa rätt frågor.",
       leadershipExperience: "Teknisk lead för mindre projekt. Mentor för praktikanter.",
@@ -107,29 +112,30 @@ export const demoConsultants: Consultant[] = [
         "Implementerade automatiserad testing som minskade bugs med 60%",
         "Utvecklade internal tools som sparar 10h/vecka för teamet"
       ],
-      education: "BSc Software Engineering, Chalmers University",
-      certifications: ["AWS Solutions Architect Associate", "Python Professional Certificate"],
+      education: {
+        formal: [
+          {
+            degree: "BSc Software Engineering",
+            institution: "Chalmers University",
+            year: "2018"
+          }
+        ],
+        certifications: ["AWS Solutions Architect Associate", "Python Professional Certificate"]
+      },
       languages: ["Svenska (modersmål)", "Engelska (flyt)", "Spanska (konversation)"],
       interests: ["Machine Learning", "Hiking", "Photography", "Sustainable tech"]
     },
 
     linkedinAnalysis: {
-      professionalSummary: "Full-stack utvecklare med stark passion för backend-utveckling och systemarkitektur. Älskar att lösa komplexa tekniska utmaningar.",
-      currentRole: "Senior Developer på DataSolutions AB",
-      careerProgression: "Steady growth från trainee till senior på 5 år, med fokus på både teknisk djupkunskap och projektledning.",
-      networkQuality: "Växande nätverk med 300+ kontakter, aktiv i Python- och Django-communities.",
-      recommendationsReceived: [
-        "Erik levererar alltid kod av högsta kvalitet och är en problemlösare av rang - Anna Petersson, Project Manager"
-      ],
-      endorsements: {
-        "Python": 32,
-        "Django": 28,
-        "PostgreSQL": 24,
-        "Problem Solving": 18,
-        "System Design": 15
-      },
-      activityLevel: "Måttlig aktivitet, delar mest tekniska artiklar och lärdommar från projekt",
-      companyConnections: "Starka kopplingar inom fintech och healthtech-sektorn"
+      communicationStyle: "Full-stack utvecklare med stark passion för backend-utveckling och systemarkitektur",
+      leadershipStyle: "Steady growth från trainee till senior på 5 år",
+      culturalFit: 4,
+      leadership: 3,
+      innovation: 4,
+      problemSolving: "Växande nätverk med 300+ kontakter",
+      businessAcumen: "Aktiv i Python- och Django-communities",
+      teamCollaboration: "Erik levererar alltid kod av högsta kvalitet - Anna Petersson",
+      adaptability: 4
     }
   },
 
@@ -144,7 +150,7 @@ export const demoConsultants: Consultant[] = [
     location: "Stockholm",
     rating: 4.8,
     profileImage: "/placeholder.svg",
-    type: "demo",
+    type: "existing",
     email: "maria.lindqvist@example.com",
     phone: "+46 70 345 6789",
     linkedinUrl: "https://linkedin.com/in/marialindqvist",
@@ -157,13 +163,15 @@ export const demoConsultants: Consultant[] = [
         scripting: ["Python", "Bash", "PowerShell"],
         databases: ["PostgreSQL", "MongoDB", "Redis"]
       },
-      personalityTraits: [
-        "Extremt strukturerad och organiserad",
-        "Stark fokus på automation och effektivitet", 
-        "Proaktiv problemlösare",
-        "Säkerhetsfokuserad mindset",
-        "Utmärkt under press och vid incidenter"
-      ],
+      personalityTraits: {
+        problemSolvingApproach: "Extremt strukturerad och organiserad",
+        communicationStyle: "Tydlig och faktabaserad kommunikation",
+        workStyle: "Infrastructure as Code-fokuserad",
+        adaptability: "Stark fokus på automation och effektivitet",
+        initiativeTaking: "Proaktiv problemlösare",
+        attentionToDetail: "Säkerhetsfokuserad mindset",
+        continuousLearning: "Utmärkt under press och vid incidenter"
+      },
       workStyle: "Infrastructure as Code-fokuserad med stark betoning på säkerhet och skalbarhet. Föredrar automatiserade lösningar över manuella processer.",
       communicationStyle: "Tydlig och faktabaserad kommunikation. Excellent på att dokumentera och dela kunskap.",
       leadershipExperience: "DevOps lead för infrastruktur-team på 6 personer. Lett flera cloud migration-projekt.",
@@ -172,29 +180,30 @@ export const demoConsultants: Consultant[] = [
         "Implementerade CI/CD pipeline som minskade deployment-tid från 2h till 10min",
         "Byggde monitoring-system som förbättrade incident response-tid med 75%"
       ],
-      education: "MSc Systems Engineering, Linköping University",
-      certifications: ["AWS Solutions Architect Professional", "Certified Kubernetes Administrator", "Terraform Associate"],
+      education: {
+        formal: [
+          {
+            degree: "MSc Systems Engineering",
+            institution: "Linköping University",
+            year: "2017"
+          }
+        ],
+        certifications: ["AWS Solutions Architect Professional", "Certified Kubernetes Administrator", "Terraform Associate"]
+      },
       languages: ["Svenska (modersmål)", "Engelska (flyt)", "Norska (flyt)"],
       interests: ["Cloud architecture", "Automation", "Security", "Mentoring women in tech"]
     },
 
     linkedinAnalysis: {
-      professionalSummary: "DevOps engineer med djup expertis inom cloud infrastructure och automation. Passionate om att bygga stabila, skalbara system.",
-      currentRole: "Senior DevOps Engineer på CloudFirst AB",
-      careerProgression: "Snabb utveckling från system administrator till senior DevOps på 6 år, med flera större projektledningsuppdrag.",
-      networkQuality: "Starkt nätverk inom DevOps och cloud communities med 450+ kontakter.",
-      recommendationsReceived: [
-        "Maria är den bästa DevOps engineer jag arbetat med - hennes tekniska skills och ledarskap är outstanding - Peter Nilsson, CTO"
-      ],
-      endorsements: {
-        "Kubernetes": 38,
-        "AWS": 42,
-        "Terraform": 29,
-        "DevOps": 35,
-        "Team Leadership": 20
-      },
-      activityLevel: "Mycket aktiv med regelbundna posts om cloud trends och DevOps best practices",
-      companyConnections: "Excellent kontakter inom enterprise och startup-världen"
+      communicationStyle: "DevOps engineer med djup expertis inom cloud infrastructure och automation",
+      leadershipStyle: "Snabb utveckling från system administrator till senior DevOps på 6 år",
+      culturalFit: 5,
+      leadership: 5,
+      innovation: 4,
+      problemSolving: "Starkt nätverk inom DevOps och cloud communities med 450+ kontakter",
+      businessAcumen: "Passionate om att bygga stabila, skalbara system",
+      teamCollaboration: "Maria är den bästa DevOps engineer jag arbetat med - Peter Nilsson, CTO",
+      adaptability: 5
     }
   }
 ];

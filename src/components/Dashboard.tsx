@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Briefcase, TrendingUp, Clock, Star, FileText, Bot } from 'lucide-react';
 import { DemoConsultantsTab } from './DemoConsultantsTab';
-import CreateAssignmentForm from './CreateAssignmentForm';
 import AIMatchingPreview from './AIMatchingPreview';
 import { CVUploadForm } from './CVUploadForm';
 import { MatchWiseChat } from './MatchWiseChat';
@@ -23,10 +22,9 @@ export default function Dashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="consultants">Consultants</TabsTrigger>
-            <TabsTrigger value="assignments">Assignments</TabsTrigger>
             <TabsTrigger value="matching">AI Matching</TabsTrigger>
             <TabsTrigger value="upload">CV Upload</TabsTrigger>
             <TabsTrigger value="chat">MatchWise Chat</TabsTrigger>
@@ -139,16 +137,7 @@ export default function Dashboard() {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <Button 
-                    onClick={() => setActiveTab('assignments')}
-                    className="h-20 flex flex-col gap-2"
-                  >
-                    <Briefcase className="h-6 w-6" />
-                    <span className="text-xs">New Assignment</span>
-                  </Button>
-                  
-                  <Button 
                     onClick={() => setActiveTab('upload')}
-                    variant="outline"
                     className="h-20 flex flex-col gap-2"
                   >
                     <FileText className="h-6 w-6" />
@@ -172,6 +161,15 @@ export default function Dashboard() {
                     <Users className="h-6 w-6" />
                     <span className="text-xs">View Consultants</span>
                   </Button>
+
+                  <Button 
+                    onClick={() => setActiveTab('chat')}
+                    variant="outline"
+                    className="h-20 flex flex-col gap-2"
+                  >
+                    <Bot className="h-6 w-6" />
+                    <span className="text-xs">MatchWise Chat</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -179,13 +177,6 @@ export default function Dashboard() {
 
           <TabsContent value="consultants">
             <DemoConsultantsTab />
-          </TabsContent>
-
-          <TabsContent value="assignments">
-            <CreateAssignmentForm 
-              onAssignmentCreated={() => {}}
-              onCancel={() => {}}
-            />
           </TabsContent>
 
           <TabsContent value="matching">
@@ -198,14 +189,18 @@ export default function Dashboard() {
               email=""
               fullName=""
               phoneNumber=""
+              linkedinUrl=""
+              agreeToTerms={false}
+              isUploading={false}
+              analysisResults={null}
+              isAnalyzing={false}
+              onFileChange={() => {}}
               onEmailChange={() => {}}
               onFullNameChange={() => {}}
               onPhoneNumberChange={() => {}}
-              onFileChange={() => {}}
-              onAnalyze={() => {}}
-              isAnalyzing={false}
-              hasResults={false}
-              results={null}
+              onLinkedinUrlChange={() => {}}
+              onAgreeToTermsChange={() => {}}
+              onSubmit={() => {}}
             />
           </TabsContent>
 

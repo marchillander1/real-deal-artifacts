@@ -59,6 +59,10 @@ export default function ROICalculator() {
     }));
   };
 
+  const handleCalculateClick = () => {
+    setShowResults(true);
+  };
+
   return (
     <Card className="bg-gray-800/50 border-gray-700">
       <CardContent className="p-8">
@@ -131,7 +135,7 @@ export default function ROICalculator() {
             </div>
 
             <Button 
-              onClick={() => setShowResults(true)}
+              onClick={handleCalculateClick}
               className="w-full bg-green-600 hover:bg-green-700"
             >
               <Calculator className="mr-2 h-4 w-4" />

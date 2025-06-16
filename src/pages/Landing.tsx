@@ -36,12 +36,12 @@ export default function Landing() {
       <ProblemSection />
       
       {/* Live AI Matching Demo */}
-      <section className="py-20 bg-slate-900/50 relative">
+      <section className="py-20 bg-slate-900/80 backdrop-blur-sm relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">See Our AI in Action</h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Experience real-time human-first matching that analyzes the whole person in seconds
+            <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Se vår AI i funktion</h2>
+            <p className="text-xl text-slate-100 max-w-3xl mx-auto drop-shadow-md">
+              Upplev realtidsmatchning som analyserar hela personen på några sekunder
             </p>
           </div>
           <AIMatchingPreview />
@@ -52,12 +52,12 @@ export default function Landing() {
       <ComparisonSection />
 
       {/* ROI Calculator Section */}
-      <section className="py-20 relative">
+      <section className="py-20 bg-slate-800/90 backdrop-blur-sm relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Calculate Your ROI</h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              See exactly how much MatchWise AI can save your company
+            <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Beräkna din ROI</h2>
+            <p className="text-xl text-slate-100 max-w-3xl mx-auto drop-shadow-md">
+              Se exakt hur mycket MatchWise AI kan spara ditt företag
             </p>
           </div>
           <ROICalculator />
