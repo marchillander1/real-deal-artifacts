@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -105,6 +104,8 @@ export const performCVAnalysis = async (
     const enhancedImprovementTips = generateEnhancedImprovementTips(cvData?.analysis, linkedinAnalysis);
     const certificationRecommendations = generateCertificationRecommendations(cvData?.analysis, linkedinAnalysis);
     const roiPredictions = generateROIPredictions(cvData?.analysis, linkedinAnalysis);
+    const technicalAssessment = generateTechnicalAssessment(cvData?.analysis, linkedinAnalysis);
+    const preUploadGuidance = generatePreUploadGuidance(cvData?.analysis, linkedinAnalysis);
     
     const finalResults = {
       cvAnalysis: cvData?.analysis || null,
@@ -112,6 +113,8 @@ export const performCVAnalysis = async (
       improvementTips: enhancedImprovementTips,
       certificationRecommendations: certificationRecommendations,
       roiPredictions: roiPredictions,
+      technicalAssessment: technicalAssessment,
+      preUploadGuidance: preUploadGuidance,
       timestamp: new Date().toISOString()
     };
     
@@ -131,6 +134,216 @@ export const performCVAnalysis = async (
     setIsAnalyzing(false);
     setTimeout(() => setAnalysisProgress(0), 2000);
   }
+};
+
+const generateTechnicalAssessment = (cvAnalysis: any, linkedinAnalysis: any) => {
+  const assessment = {
+    skillsGapAnalysis: {
+      missing: [],
+      outdated: [],
+      emerging: [],
+      strengths: []
+    },
+    technicalMaturity: {
+      frontendScore: 0,
+      backendScore: 0,
+      devopsScore: 0,
+      dataScore: 0,
+      overallLevel: 'Junior'
+    },
+    marketDemandAnalysis: {
+      highDemandSkills: [],
+      growingSkills: [],
+      decliningSkills: [],
+      futureSkills: []
+    },
+    improvementPriority: []
+  };
+
+  // Analyze current skills
+  const allSkills = [];
+  if (cvAnalysis?.technicalExpertise?.programmingLanguages?.expert) {
+    allSkills.push(...cvAnalysis.technicalExpertise.programmingLanguages.expert);
+  }
+  if (cvAnalysis?.technicalExpertise?.frameworks) {
+    allSkills.push(...cvAnalysis.technicalExpertise.frameworks);
+  }
+  if (cvAnalysis?.technicalExpertise?.tools) {
+    allSkills.push(...cvAnalysis.technicalExpertise.tools);
+  }
+
+  // High demand skills in Swedish market 2024
+  const highDemandSkills = ['React', 'Node.js', 'Python', 'AWS', 'Docker', 'Kubernetes', 'TypeScript', 'Azure', 'PostgreSQL', 'Git'];
+  const emergingSkills = ['Next.js', 'GraphQL', 'Terraform', 'Golang', 'Rust', 'Machine Learning', 'AI/ML', 'Microservices'];
+  const decliningSkills = ['jQuery', 'AngularJS', 'Flash', 'PHP 5', 'Internet Explorer'];
+
+  // Identify gaps
+  assessment.skillsGapAnalysis.missing = highDemandSkills.filter(skill => 
+    !allSkills.some(userSkill => userSkill.toLowerCase().includes(skill.toLowerCase()))
+  );
+
+  assessment.skillsGapAnalysis.strengths = allSkills.filter(skill => 
+    highDemandSkills.some(demandSkill => skill.toLowerCase().includes(demandSkill.toLowerCase()))
+  );
+
+  assessment.skillsGapAnalysis.emerging = emergingSkills.filter(skill => 
+    allSkills.some(userSkill => userSkill.toLowerCase().includes(skill.toLowerCase()))
+  );
+
+  // Calculate technical maturity scores
+  const frontendSkills = ['React', 'Vue', 'Angular', 'JavaScript', 'TypeScript', 'CSS', 'HTML'];
+  const backendSkills = ['Node.js', 'Python', 'Java', 'C#', 'Go', 'Rust'];
+  const devopsSkills = ['Docker', 'Kubernetes', 'AWS', 'Azure', 'Terraform', 'Jenkins'];
+  const dataSkills = ['SQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Elasticsearch'];
+
+  assessment.technicalMaturity.frontendScore = calculateSkillScore(allSkills, frontendSkills);
+  assessment.technicalMaturity.backendScore = calculateSkillScore(allSkills, backendSkills);
+  assessment.technicalMaturity.devopsScore = calculateSkillScore(allSkills, devopsSkills);
+  assessment.technicalMaturity.dataScore = calculateSkillScore(allSkills, dataSkills);
+
+  const averageScore = (assessment.technicalMaturity.frontendScore + 
+                       assessment.technicalMaturity.backendScore + 
+                       assessment.technicalMaturity.devopsScore + 
+                       assessment.technicalMaturity.dataScore) / 4;
+
+  if (averageScore >= 8) assessment.technicalMaturity.overallLevel = 'Expert';
+  else if (averageScore >= 6) assessment.technicalMaturity.overallLevel = 'Senior';
+  else if (averageScore >= 4) assessment.technicalMaturity.overallLevel = 'Mid-level';
+  else assessment.technicalMaturity.overallLevel = 'Junior';
+
+  // Generate improvement priorities
+  if (assessment.skillsGapAnalysis.missing.length > 0) {
+    assessment.improvementPriority.push({
+      category: 'Critical Skills Gap',
+      priority: 'High',
+      skills: assessment.skillsGapAnalysis.missing.slice(0, 3),
+      reason: 'These skills are in high demand but missing from your profile',
+      timeline: '3-6 months'
+    });
+  }
+
+  if (assessment.technicalMaturity.devopsScore < 5) {
+    assessment.improvementPriority.push({
+      category: 'DevOps & Cloud',
+      priority: 'High',
+      skills: ['Docker', 'AWS', 'Kubernetes'],
+      reason: 'DevOps skills are essential for modern development',
+      timeline: '2-4 months'
+    });
+  }
+
+  return assessment;
+};
+
+const calculateSkillScore = (userSkills: string[], categorySkills: string[]): number => {
+  const matches = userSkills.filter(userSkill => 
+    categorySkills.some(catSkill => userSkill.toLowerCase().includes(catSkill.toLowerCase()))
+  );
+  return Math.min(10, (matches.length / categorySkills.length) * 10);
+};
+
+const generatePreUploadGuidance = (cvAnalysis: any, linkedinAnalysis: any) => {
+  return {
+    cvOptimization: {
+      immediate: [
+        {
+          area: 'Technical Skills Section',
+          action: 'Add a dedicated "Technical Skills" section with clear categorization',
+          template: 'Expert: [3-5 languages], Proficient: [5-8 frameworks/tools], Familiar: [2-4 emerging tech]',
+          impact: 'High - Makes technical competence immediately visible'
+        },
+        {
+          area: 'Professional Summary',
+          action: 'Write a 3-4 line summary highlighting years of experience and key technologies',
+          template: 'Experienced [X-year] [role] specializing in [main tech stack]. Proven track record in [key achievements]. Available for consulting in [focus areas].',
+          impact: 'High - First impression optimization'
+        },
+        {
+          area: 'Quantified Achievements',
+          action: 'Add numbers to your accomplishments in each role',
+          template: 'Led team of X developers, Reduced load time by X%, Implemented solution serving X users',
+          impact: 'Medium - Demonstrates measurable impact'
+        }
+      ],
+      advanced: [
+        {
+          area: 'Project Portfolios',
+          action: 'Add 2-3 detailed project descriptions with tech stack and results',
+          template: 'Project: [Name] | Tech: [Stack] | Role: [Your role] | Result: [Business impact]',
+          impact: 'High - Shows practical application'
+        },
+        {
+          area: 'Certifications Section',
+          action: 'List all relevant certifications with dates',
+          template: 'AWS Certified Solutions Architect (2024), Certified Kubernetes Administrator (2023)',
+          impact: 'Medium - Validates expertise'
+        }
+      ]
+    },
+    linkedinOptimization: {
+      profile: [
+        {
+          area: 'Headline Optimization',
+          action: 'Update headline to include key technologies and "Available for Consulting"',
+          template: '[Role] | [Key Tech Stack] | Available for Consulting Projects',
+          impact: 'High - Search visibility'
+        },
+        {
+          area: 'About Section',
+          action: 'Write compelling about section with client focus',
+          template: 'I help companies [solve specific problems] using [technologies]. [X years] experience in [industries]. Available for [project types].',
+          impact: 'High - Client attraction'
+        },
+        {
+          area: 'Skills Section',
+          action: 'Add and get endorsements for top 10 most relevant skills',
+          template: 'Focus on skills that match job descriptions you want',
+          impact: 'Medium - Algorithm boost'
+        }
+      ],
+      content: [
+        {
+          area: 'Weekly Tech Posts',
+          action: 'Share 1-2 posts per week about technology trends or learnings',
+          template: 'Technical insights, project learnings, industry observations',
+          impact: 'High - Thought leadership'
+        },
+        {
+          area: 'Case Study Posts',
+          action: 'Write about projects you\'ve worked on (anonymized)',
+          template: 'Challenge → Solution → Result format with technical details',
+          impact: 'High - Demonstrates expertise'
+        }
+      ]
+    },
+    marketPositioning: [
+      {
+        strategy: 'Niche Specialization',
+        action: 'Focus on 2-3 specific technology combinations',
+        example: 'React + Node.js + AWS for e-commerce platforms',
+        timeline: '1-2 months to establish positioning'
+      },
+      {
+        strategy: 'Industry Focus',
+        action: 'Target specific industries where your experience fits',
+        example: 'Fintech, E-commerce, SaaS, or HealthTech',
+        timeline: '2-3 months to build industry credibility'
+      },
+      {
+        strategy: 'Thought Leadership',
+        action: 'Start sharing insights and building personal brand',
+        example: 'Write about technology trends, best practices, lessons learned',
+        timeline: '3-6 months to see results'
+      }
+    ],
+    timeline: {
+      week1: ['Update CV technical skills section', 'Optimize LinkedIn headline and about section'],
+      week2: ['Add quantified achievements to CV', 'Start posting technical content on LinkedIn'],
+      month1: ['Complete CV optimization', 'Build consistent LinkedIn presence'],
+      month2: ['Focus on niche positioning', 'Engage with industry discussions'],
+      month3: ['Establish thought leadership', 'Start receiving inbound opportunities']
+    }
+  };
 };
 
 const generateEnhancedImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {

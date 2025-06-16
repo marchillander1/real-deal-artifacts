@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Code, Users, Brain, DollarSign, TrendingUp, Award, Target, Star, CheckCircle2, Loader2, Zap, Trophy, Lightbulb, BookOpen, Briefcase, Building, Rocket, TrendingDown, Clock, ArrowUp } from 'lucide-react';
+import { Code, Users, Brain, DollarSign, TrendingUp, Award, Target, Star, CheckCircle2, Loader2, Zap, Trophy, Lightbulb, BookOpen, Briefcase, Building, Rocket, TrendingDown, Clock, ArrowUp, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 interface AnalysisResultsProps {
   analysisResults: any;
@@ -24,7 +24,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             Enhanced AI Analysis in Progress
           </CardTitle>
           <CardDescription>
-            Analyzing CV, LinkedIn profile, market positioning, and team fit
+            Analyzing CV, LinkedIn profile, technical skills, and market positioning
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -37,8 +37,8 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             <div className="text-sm text-gray-600">
               {analysisProgress < 30 && "Processing CV file..."}
               {analysisProgress >= 30 && analysisProgress < 60 && "Extracting professional information..."}
-              {analysisProgress >= 60 && analysisProgress < 80 && "Analyzing LinkedIn profile and market positioning..."}
-              {analysisProgress >= 80 && "Generating insights, ROI predictions, and recommendations..."}
+              {analysisProgress >= 60 && analysisProgress < 80 && "Analyzing LinkedIn profile and technical skills..."}
+              {analysisProgress >= 80 && "Generating insights, improvement tips, and recommendations..."}
             </div>
           </div>
         </CardContent>
@@ -52,7 +52,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         <CardHeader className="text-center">
           <CardTitle className="text-gray-500">Enhanced AI Analysis</CardTitle>
           <CardDescription>
-            Upload your CV to start comprehensive analysis with market insights
+            Upload your CV to start comprehensive analysis with technical assessment and improvement tips
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center py-8">
@@ -67,6 +67,8 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   const linkedinAnalysis = analysisResults.linkedinAnalysis;
   const roiPredictions = analysisResults.roiPredictions;
   const certificationRecommendations = analysisResults.certificationRecommendations;
+  const technicalAssessment = analysisResults.technicalAssessment;
+  const preUploadGuidance = analysisResults.preUploadGuidance;
 
   return (
     <div className="space-y-6">
@@ -78,12 +80,202 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           </div>
           <CardTitle className="text-green-700">Enhanced Analysis Complete!</CardTitle>
           <CardDescription className="text-green-600">
-            Comprehensive professional profile with market insights and ROI predictions
+            Comprehensive professional profile with technical assessment and optimization guidance
           </CardDescription>
         </CardHeader>
       </Card>
 
-      {/* ROI Predictions - New Feature */}
+      {/* Technical Skills Assessment - NEW */}
+      {technicalAssessment && (
+        <Card className="shadow-lg border-blue-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Code className="h-5 w-5 text-blue-500" />
+              Teknisk Kompetensanalys
+            </CardTitle>
+            <CardDescription>
+              Djupgående bedömning av tekniska färdigheter och marknadspotential
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Technical Maturity Scores */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">Teknisk Mognadsgrad</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <p className="text-xs text-gray-600 mb-1">Frontend</p>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-blue-600 h-3 rounded-full" style={{width: `${technicalAssessment.technicalMaturity.frontendScore * 10}%`}}></div>
+                  </div>
+                  <p className="text-xs font-bold text-blue-600 mt-1">{technicalAssessment.technicalMaturity.frontendScore}/10</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-600 mb-1">Backend</p>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-green-600 h-3 rounded-full" style={{width: `${technicalAssessment.technicalMaturity.backendScore * 10}%`}}></div>
+                  </div>
+                  <p className="text-xs font-bold text-green-600 mt-1">{technicalAssessment.technicalMaturity.backendScore}/10</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-600 mb-1">DevOps</p>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-purple-600 h-3 rounded-full" style={{width: `${technicalAssessment.technicalMaturity.devopsScore * 10}%`}}></div>
+                  </div>
+                  <p className="text-xs font-bold text-purple-600 mt-1">{technicalAssessment.technicalMaturity.devopsScore}/10</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-600 mb-1">Data</p>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-orange-600 h-3 rounded-full" style={{width: `${technicalAssessment.technicalMaturity.dataScore * 10}%`}}></div>
+                  </div>
+                  <p className="text-xs font-bold text-orange-600 mt-1">{technicalAssessment.technicalMaturity.dataScore}/10</p>
+                </div>
+              </div>
+              <div className="text-center mt-4">
+                <Badge className="bg-indigo-100 text-indigo-800 text-sm px-3 py-1">
+                  Övergripande nivå: {technicalAssessment.technicalMaturity.overallLevel}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Skills Gap Analysis */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">Kompetensanalys</h4>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm font-medium text-green-700">Starka områden</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {technicalAssessment.skillsGapAnalysis.strengths?.map((skill: string, idx: number) => (
+                      <Badge key={idx} className="bg-green-100 text-green-800 text-xs">{skill}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="h-4 w-4 text-red-500" />
+                    <span className="text-sm font-medium text-red-700">Saknade färdigheter</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {technicalAssessment.skillsGapAnalysis.missing?.map((skill: string, idx: number) => (
+                      <Badge key={idx} className="bg-red-100 text-red-800 text-xs">{skill}</Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Improvement Priorities */}
+            {technicalAssessment.improvementPriority?.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-3">Förbättringsrekommendationer</h4>
+                <div className="space-y-3">
+                  {technicalAssessment.improvementPriority.map((item: any, idx: number) => (
+                    <div key={idx} className="border border-orange-200 rounded-lg p-3 bg-orange-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-orange-800">{item.category}</span>
+                        <Badge className={item.priority === 'High' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}>
+                          {item.priority}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-2">{item.reason}</p>
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <span>Kompetenser: {item.skills?.join(', ')}</span>
+                        <span>Tidslinje: {item.timeline}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Pre-Upload Optimization Guide - NEW */}
+      {preUploadGuidance && (
+        <Card className="shadow-lg border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-purple-500" />
+              Optimeringsguide: Förbättra innan du laddar upp
+            </CardTitle>
+            <CardDescription>
+              Konkreta tips för att maximera dina chanser att få jobb
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* CV Optimization */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                CV-optimering
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <span className="text-sm font-medium text-gray-700 mb-2 block">Omedelbar förbättring:</span>
+                  {preUploadGuidance.cvOptimization.immediate?.map((tip: any, idx: number) => (
+                    <div key={idx} className="border-l-4 border-blue-500 pl-4 mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-blue-800">{tip.area}</span>
+                        <Badge className="bg-blue-100 text-blue-800 text-xs">{tip.impact}</Badge>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-2">{tip.action}</p>
+                      <p className="text-xs text-gray-500 italic">Mall: {tip.template}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* LinkedIn Optimization */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <Building className="h-4 w-4" />
+                LinkedIn-optimering
+              </h4>
+              <div className="space-y-3">
+                {preUploadGuidance.linkedinOptimization.profile?.map((tip: any, idx: number) => (
+                  <div key={idx} className="border-l-4 border-green-500 pl-4 mb-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-green-800">{tip.area}</span>
+                      <Badge className="bg-green-100 text-green-800 text-xs">{tip.impact}</Badge>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-2">{tip.action}</p>
+                    <p className="text-xs text-gray-500 italic">Mall: {tip.template}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Optimeringstidslinje
+              </h4>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-red-100 text-red-800">Vecka 1</Badge>
+                  <span className="text-sm text-gray-700">{preUploadGuidance.timeline?.week1?.join(', ')}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-orange-100 text-orange-800">Vecka 2</Badge>
+                  <span className="text-sm text-gray-700">{preUploadGuidance.timeline?.week2?.join(', ')}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-blue-100 text-blue-800">Månad 1</Badge>
+                  <span className="text-sm text-gray-700">{preUploadGuidance.timeline?.month1?.join(', ')}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ROI Predictions */}
       {roiPredictions && (
         <Card className="shadow-lg border-green-200">
           <CardHeader>
@@ -142,7 +334,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </Card>
       )}
 
-      {/* Team Fit Assessment - New Feature */}
+      {/* Team Fit Assessment */}
       {linkedinAnalysis?.teamFitAssessment && (
         <Card className="shadow-lg">
           <CardHeader>
@@ -206,7 +398,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </Card>
       )}
 
-      {/* Market Positioning - New Feature */}
+      {/* Market Positioning */}
       {linkedinAnalysis?.marketPositioning && (
         <Card className="shadow-lg">
           <CardHeader>
@@ -238,7 +430,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </Card>
       )}
 
-      {/* Certification Recommendations - New Feature */}
+      {/* Certification Recommendations */}
       {certificationRecommendations && (
         <Card className="shadow-lg">
           <CardHeader>
@@ -300,6 +492,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </Card>
       )}
 
+      {/* Current Market Rate Estimate */}
       {cvAnalysis?.marketPositioning?.hourlyRateEstimate && (
         <Card className="shadow-lg border-green-200">
           <CardHeader>
@@ -329,6 +522,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </Card>
       )}
 
+      {/* Professional Profile */}
       {cvAnalysis?.professionalSummary && (
         <Card className="shadow-lg">
           <CardHeader>
