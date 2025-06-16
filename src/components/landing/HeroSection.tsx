@@ -19,38 +19,38 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div className="relative z-10">
-            <Badge className="mb-6 bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border-blue-400/50 hover:bg-blue-500/30 backdrop-blur-sm">
+            <Badge className="mb-6 bg-blue-600/20 text-blue-300 border-blue-500/30 hover:bg-blue-600/30 backdrop-blur-sm">
               <Heart className="w-3 h-3 mr-1" />
               Human-First AI Matching
             </Badge>
             
             <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Match the
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500 block animate-pulse">
-                Whole Person
+              Matcha hela
+              <span className="text-blue-400 block">
+                personen
               </span>
-              <span className="text-white">not just the CV</span>
+              <span className="text-white">inte bara CV:t</span>
             </h1>
             
             <p className="text-xl text-slate-300 mb-8 max-w-2xl leading-relaxed">
-              MatchWise AI revolutionizes consultant matching by analyzing both technical skills AND soft factors 
-              like values, communication style, and personal fit - delivering perfect matches in just 12 seconds.
+              MatchWise AI revolutionerar konsultmatchning genom att analysera både tekniska färdigheter 
+              OCH mjuka faktorer som värderingar, kommunikationsstil och personlig passform.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               {user ? (
                 <Link to="/matchwiseai">
-                  <Button size="lg" className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-600/25 group">
-                    <Zap className="mr-2 h-5 w-5 group-hover:animate-pulse" />
-                    Go to Dashboard
+                  <Button size="lg" className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-lg group">
+                    <Zap className="mr-2 h-5 w-5" />
+                    Gå till Dashboard
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth">
-                  <Button size="lg" className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-600/25 group">
-                    <Zap className="mr-2 h-5 w-5 group-hover:animate-pulse" />
-                    Start Free Trial
+                  <Button size="lg" className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-lg group">
+                    <Zap className="mr-2 h-5 w-5" />
+                    Starta gratis test
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -58,7 +58,7 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
               
               <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-slate-600 text-white hover:bg-slate-800 bg-slate-900/50 backdrop-blur-sm">
                 <Target className="mr-2 h-5 w-5" />
-                Calculate ROI
+                Beräkna ROI
               </Button>
             </div>
 
@@ -66,8 +66,8 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
             <div className="grid grid-cols-3 gap-6">
               <div className="text-center group hover:scale-105 transition-transform">
                 <div className="flex items-center justify-center mb-3">
-                  <div className="p-3 bg-gradient-to-br from-pink-500/20 to-pink-600/20 rounded-xl backdrop-blur-sm border border-pink-400/30">
-                    <Heart className="h-6 w-6 text-pink-400" />
+                  <div className="p-3 bg-blue-600/20 rounded-xl backdrop-blur-sm border border-blue-500/30">
+                    <Heart className="h-6 w-6 text-blue-400" />
                   </div>
                 </div>
                 <span className="text-white font-medium block">Human-First</span>
@@ -75,28 +75,28 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
               </div>
               <div className="text-center group hover:scale-105 transition-transform">
                 <div className="flex items-center justify-center mb-3">
-                  <div className="p-3 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl backdrop-blur-sm border border-blue-400/30">
+                  <div className="p-3 bg-blue-600/20 rounded-xl backdrop-blur-sm border border-blue-500/30">
                     <Clock className="h-6 w-6 text-blue-400" />
                   </div>
                 </div>
-                <span className="text-white font-medium block">12-Second</span>
-                <span className="text-slate-400 text-sm">Analysis</span>
+                <span className="text-white font-medium block">12 sekunder</span>
+                <span className="text-slate-400 text-sm">Analys</span>
               </div>
               <div className="text-center group hover:scale-105 transition-transform">
                 <div className="flex items-center justify-center mb-3">
-                  <div className="p-3 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl backdrop-blur-sm border border-purple-400/30">
-                    <Shield className="h-6 w-6 text-purple-400" />
+                  <div className="p-3 bg-blue-600/20 rounded-xl backdrop-blur-sm border border-blue-500/30">
+                    <Shield className="h-6 w-6 text-blue-400" />
                   </div>
                 </div>
                 <span className="text-white font-medium block">GDPR</span>
-                <span className="text-slate-400 text-sm">Secure</span>
+                <span className="text-slate-400 text-sm">Säker</span>
               </div>
             </div>
           </div>
 
           {/* Right side - Enhanced Dashboard Preview */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl"></div>
+            <div className="absolute inset-0 bg-blue-600/20 rounded-3xl blur-xl"></div>
             <Card className="bg-slate-800/80 border-slate-700 backdrop-blur-sm shadow-2xl relative z-10 hover:scale-105 transition-transform duration-500">
               <CardContent className="p-8">
                 <div className="flex items-center justify-between mb-6">
@@ -116,40 +116,40 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
                 <div className="space-y-6">
                   {/* Stats Row */}
                   <div className="grid grid-cols-2 gap-4">
-                    <Card className="bg-gradient-to-br from-blue-600/20 to-blue-700/20 border-blue-500/30">
+                    <Card className="bg-blue-600/20 border-blue-500/30">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">
                           <Users className="h-5 w-5 text-blue-400" />
                           <span className="text-xs text-blue-300">+15%</span>
                         </div>
                         <div className="text-xl font-bold text-white">{totalNetworkConsultants}</div>
-                        <div className="text-xs text-blue-300">Network Consultants</div>
+                        <div className="text-xs text-blue-300">Nätverkskonsulter</div>
                       </CardContent>
                     </Card>
 
-                    <Card className="bg-gradient-to-br from-emerald-600/20 to-emerald-700/20 border-emerald-500/30">
+                    <Card className="bg-emerald-600/20 border-emerald-500/30">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">
                           <TrendingUp className="h-5 w-5 text-emerald-400" />
                           <span className="text-xs text-emerald-300">96%</span>
                         </div>
                         <div className="text-xl font-bold text-white">12s</div>
-                        <div className="text-xs text-emerald-300">Match Time</div>
+                        <div className="text-xs text-emerald-300">Matchtid</div>
                       </CardContent>
                     </Card>
                   </div>
 
                   {/* AI Engine Status */}
-                  <Card className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/30">
+                  <Card className="bg-blue-600/20 border-blue-500/30">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                             <span className="text-white text-lg">🧠</span>
                           </div>
                           <div>
                             <div className="text-white font-medium">AI Matching Engine</div>
-                            <div className="text-purple-300 text-sm">95% accuracy • Real-time analysis</div>
+                            <div className="text-blue-300 text-sm">95% precision • Realtidsanalys</div>
                           </div>
                         </div>
                         <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>

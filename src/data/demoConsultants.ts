@@ -3,7 +3,7 @@ import { Consultant } from '@/types/consultant';
 
 export const demoConsultants: Consultant[] = [
   {
-    id: 1,
+    id: "1",
     name: "Erik Andersson",
     email: "erik.andersson@example.com",
     phone: "+46 70 123 4567",
@@ -30,32 +30,50 @@ export const demoConsultants: Consultant[] = [
         languages: ["Swedish", "English", "German"]
       },
       technicalSkillsAnalysis: {
-        primarySkills: ["React", "TypeScript", "Node.js"],
-        secondarySkills: ["AWS", "GraphQL", "Docker"],
-        frameworks: ["React", "Express.js", "Next.js"],
-        databases: ["PostgreSQL", "MongoDB", "Redis"],
-        tools: ["Git", "Docker", "Kubernetes", "Jenkins"],
-        certifications: ["AWS Solutions Architect", "React Certified Developer"],
+        programmingLanguages: {
+          expert: ["JavaScript", "TypeScript"],
+          proficient: ["Python", "Java"],
+          familiar: ["Go", "Rust"]
+        },
+        frontendTechnologies: {
+          frameworks: ["React", "Next.js"],
+          styling: ["CSS", "Tailwind CSS", "Styled Components"],
+          stateManagement: ["Redux", "Zustand"],
+          buildTools: ["Webpack", "Vite"],
+          testingFrameworks: ["Jest", "Cypress"]
+        },
+        backendTechnologies: {
+          frameworks: ["Express.js", "Fastify"],
+          databases: ["PostgreSQL", "MongoDB", "Redis"],
+          apiDevelopment: ["REST", "GraphQL"],
+          microservices: ["Docker", "Kubernetes"]
+        },
+        cloudPlatforms: {
+          aws: ["EC2", "S3", "Lambda", "RDS"],
+          expertise: "Intermediate"
+        },
         skillLevel: "Senior",
-        yearsOfExperience: 8
+        yearsOfExperience: "8"
       },
       workExperience: [
         {
+          title: "Senior Full-Stack Developer",
           company: "Tech Solutions AB",
-          position: "Senior Full-Stack Developer",
           duration: "2019-2024",
           responsibilities: ["Led development of React applications", "Mentored junior developers"],
           technologies: ["React", "Node.js", "AWS"]
         }
       ],
-      education: [
-        {
-          institution: "KTH Royal Institute of Technology",
-          degree: "Master of Science in Computer Science",
-          year: "2016",
-          gpa: "4.2/5.0"
-        }
-      ],
+      education: {
+        formal: [
+          {
+            degree: "Master of Science in Computer Science",
+            institution: "KTH Royal Institute of Technology",
+            year: "2016"
+          }
+        ],
+        certifications: ["AWS Solutions Architect", "React Certified Developer"]
+      },
       projects: [
         {
           name: "E-commerce Platform",
@@ -68,15 +86,15 @@ export const demoConsultants: Consultant[] = [
       personalityTraits: {
         communicationStyle: "Direct and collaborative",
         workStyle: "Agile-focused with strong problem-solving",
-        teamFit: 4.8,
-        adaptability: 4.6,
-        leadership: 4.2
+        teamFit: "4.8",
+        adaptability: "4.6",
+        leadership: "4.2"
       },
       improvementAreas: ["DevOps automation", "Cloud architecture patterns"]
     }
   },
   {
-    id: 2,
+    id: "2",
     name: "Maria Lindqvist",
     email: "maria.lindqvist@example.com",
     phone: "+46 70 234 5678",
@@ -102,42 +120,50 @@ export const demoConsultants: Consultant[] = [
         languages: ["Swedish", "English", "Danish"]
       },
       technicalSkillsAnalysis: {
-        primarySkills: ["Vue.js", "JavaScript", "CSS"],
-        secondarySkills: ["Figma", "Adobe XD", "Sass"],
-        frameworks: ["Vue.js", "Nuxt.js", "Vuetify"],
-        tools: ["Figma", "Adobe Creative Suite", "Git", "Webpack"],
+        programmingLanguages: {
+          expert: ["JavaScript", "CSS"],
+          proficient: ["TypeScript", "HTML"],
+          familiar: ["Python"]
+        },
+        frontendTechnologies: {
+          frameworks: ["Vue.js", "Nuxt.js"],
+          styling: ["CSS", "Sass", "Stylus"],
+          buildTools: ["Webpack", "Vite"]
+        },
         skillLevel: "Senior",
-        yearsOfExperience: 6
+        yearsOfExperience: "6"
       },
       workExperience: [
         {
+          title: "Senior Frontend Developer",
           company: "Design Studio Nordic",
-          position: "Senior Frontend Developer",
           duration: "2018-2024",
           responsibilities: ["UI/UX design and development", "Client consultation"],
           technologies: ["Vue.js", "CSS", "Figma"]
         }
       ],
-      education: [
-        {
-          institution: "Chalmers University of Technology",
-          degree: "Bachelor in Interaction Design",
-          year: "2018"
-        }
-      ],
+      education: {
+        formal: [
+          {
+            degree: "Bachelor in Interaction Design",
+            institution: "Chalmers University of Technology",
+            year: "2018"
+          }
+        ]
+      },
       softSkills: ["Creative thinking", "User empathy", "Detail-oriented", "Client communication"],
       personalityTraits: {
         communicationStyle: "Diplomatic and detail-oriented",
         workStyle: "Design-focused with user-centric approach",
-        teamFit: 4.3,
-        adaptability: 4.5,
-        leadership: 3.8
+        teamFit: "4.3",
+        adaptability: "4.5",
+        leadership: "3.8"
       },
       improvementAreas: ["Backend development", "Mobile app development"]
     }
   },
   {
-    id: 3,
+    id: "3",
     name: "Johan Svensson",
     email: "johan.svensson@example.com",
     phone: "+46 70 345 6789",
@@ -163,38 +189,49 @@ export const demoConsultants: Consultant[] = [
         languages: ["Swedish", "English"]
       },
       technicalSkillsAnalysis: {
-        primarySkills: ["Python", "Django", "PostgreSQL"],
-        secondarySkills: ["Docker", "AWS", "Redis"],
-        frameworks: ["Django", "FastAPI", "Flask"],
-        databases: ["PostgreSQL", "MongoDB", "Redis"],
-        tools: ["Docker", "Kubernetes", "Git", "Jenkins"],
-        certifications: ["AWS Solutions Architect Professional"],
+        programmingLanguages: {
+          expert: ["Python"],
+          proficient: ["JavaScript", "SQL"],
+          familiar: ["Go", "Rust"]
+        },
+        backendTechnologies: {
+          frameworks: ["Django", "FastAPI", "Flask"],
+          databases: ["PostgreSQL", "MongoDB", "Redis"],
+          apiDevelopment: ["REST", "GraphQL"]
+        },
+        cloudPlatforms: {
+          aws: ["EC2", "RDS", "Lambda", "S3"],
+          expertise: "Expert"
+        },
         skillLevel: "Expert",
-        yearsOfExperience: 10
+        yearsOfExperience: "10"
       },
       workExperience: [
         {
+          title: "Senior Backend Developer",
           company: "CloudTech Solutions",
-          position: "Senior Backend Developer",
           duration: "2014-2024",
           responsibilities: ["System architecture", "Performance optimization"],
           technologies: ["Python", "Django", "AWS"]
         }
       ],
-      education: [
-        {
-          institution: "Lund University",
-          degree: "Master of Science in Computer Science",
-          year: "2014"
-        }
-      ],
+      education: {
+        formal: [
+          {
+            degree: "Master of Science in Computer Science",
+            institution: "Lund University",
+            year: "2014"
+          }
+        ],
+        certifications: ["AWS Solutions Architect Professional"]
+      },
       softSkills: ["System thinking", "Performance optimization", "Mentoring", "Architecture design"],
       personalityTraits: {
         communicationStyle: "Technical and precise",
         workStyle: "Architecture-focused with performance mindset",
-        teamFit: 4.6,
-        adaptability: 4.4,
-        leadership: 4.7
+        teamFit: "4.6",
+        adaptability: "4.4",
+        leadership: "4.7"
       },
       improvementAreas: ["Frontend frameworks", "Mobile development"]
     }

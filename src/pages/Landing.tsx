@@ -23,12 +23,12 @@ export default function Landing() {
   const totalNetworkConsultants = networkConsultants.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-40 -left-40 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-40 right-40 w-60 h-60 bg-pink-600/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-40 -left-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       <Navbar />
@@ -36,11 +36,11 @@ export default function Landing() {
       <ProblemSection />
       
       {/* Live AI Matching Demo */}
-      <section className="py-20 bg-slate-900/80 backdrop-blur-sm relative">
+      <section className="py-20 bg-slate-900/90 backdrop-blur-sm relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Se vår AI i funktion</h2>
-            <p className="text-xl text-slate-100 max-w-3xl mx-auto drop-shadow-md">
+            <h2 className="text-4xl font-bold text-white mb-4">Se vår AI i funktion</h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Upplev realtidsmatchning som analyserar hela personen på några sekunder
             </p>
           </div>
@@ -55,8 +55,8 @@ export default function Landing() {
       <section className="py-20 bg-slate-800/90 backdrop-blur-sm relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Beräkna din ROI</h2>
-            <p className="text-xl text-slate-100 max-w-3xl mx-auto drop-shadow-md">
+            <h2 className="text-4xl font-bold text-white mb-4">Beräkna din ROI</h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Se exakt hur mycket MatchWise AI kan spara ditt företag
             </p>
           </div>
