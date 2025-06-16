@@ -16,24 +16,23 @@ export const performCVAnalysis = async (
   phoneNumber: string,
   linkedinUrl: string
 ) => {
-  console.log('🚀 Starting comprehensive CV and LinkedIn analysis for:', file.name);
+  console.log('🚀 Starting CV analysis for file:', file.name);
   
   setIsAnalyzing(true);
-  setAnalysisProgress(5);
+  setAnalysisProgress(10);
   
   try {
-    // Convert file to base64
-    setAnalysisProgress(10);
     toast.info('📄 Processing CV file...');
     
+    // Convert file to base64
     const fileBuffer = await file.arrayBuffer();
     const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
     
-    setAnalysisProgress(25);
-    console.log('✅ File converted to base64, starting CV parsing...');
+    setAnalysisProgress(30);
+    console.log('✅ File converted to base64, starting analysis...');
     
-    // Step 1: Parse CV
-    toast.info('🧠 AI analyzing CV content...');
+    // Call CV analysis function
+    toast.info('🧠 AI analyzing CV...');
     const { data: cvData, error: cvError } = await supabase.functions.invoke('parse-cv', {
       body: {
         file: fileBase64,
@@ -43,57 +42,52 @@ export const performCVAnalysis = async (
     });
 
     if (cvError) {
-      console.error('❌ CV parsing failed:', cvError);
+      console.error('❌ CV analysis failed:', cvError);
       throw new Error(`CV analysis failed: ${cvError.message}`);
     }
 
-    if (!cvData?.analysis) {
-      throw new Error('No CV analysis data received');
-    }
-
-    console.log('✅ CV analysis completed:', cvData.analysis);
-    setAnalysisProgress(50);
+    console.log('✅ CV analysis completed:', cvData);
+    setAnalysisProgress(60);
     
-    // Auto-populate form fields from CV
-    const personalInfo = cvData.analysis.personalInfo;
-    if (personalInfo) {
-      if (personalInfo.name && !fullName) {
-        setFullName(personalInfo.name);
-        console.log('📝 Auto-filled name:', personalInfo.name);
+    // Auto-fill form fields if available
+    if (cvData?.analysis?.personalInfo) {
+      const info = cvData.analysis.personalInfo;
+      if (info.name && !fullName) {
+        setFullName(info.name);
+        console.log('📝 Auto-filled name:', info.name);
       }
-      if (personalInfo.email && !email) {
-        setEmail(personalInfo.email);
-        console.log('📝 Auto-filled email:', personalInfo.email);
+      if (info.email && !email) {
+        setEmail(info.email);
+        console.log('📝 Auto-filled email:', info.email);
       }
-      if (personalInfo.phone && !phoneNumber) {
-        setPhoneNumber(personalInfo.phone);
-        console.log('📝 Auto-filled phone:', personalInfo.phone);
+      if (info.phone && !phoneNumber) {
+        setPhoneNumber(info.phone);
+        console.log('📝 Auto-filled phone:', info.phone);
       }
-      if (personalInfo.linkedinProfile && !linkedinUrl) {
-        const linkedinProfile = personalInfo.linkedinProfile.startsWith('http') 
-          ? personalInfo.linkedinProfile 
-          : `https://linkedin.com/in/${personalInfo.linkedinProfile}`;
+      if (info.linkedinProfile && !linkedinUrl) {
+        const linkedinProfile = info.linkedinProfile.startsWith('http') 
+          ? info.linkedinProfile 
+          : `https://linkedin.com/in/${info.linkedinProfile}`;
         setLinkedinUrl(linkedinProfile);
         console.log('📝 Auto-filled LinkedIn:', linkedinProfile);
       }
     }
 
-    setAnalysisProgress(60);
-    
-    // Step 2: LinkedIn Analysis
+    // LinkedIn analysis if URL is available
     let linkedinAnalysis = null;
-    const linkedinToAnalyze = linkedinUrl || personalInfo?.linkedinProfile;
+    const linkedinToAnalyze = linkedinUrl || cvData?.analysis?.personalInfo?.linkedinProfile;
     
     if (linkedinToAnalyze) {
       try {
-        toast.info('🔗 Analyzing LinkedIn profile and recent posts...');
+        setAnalysisProgress(70);
+        toast.info('🔗 Analyzing LinkedIn profile...');
         console.log('🔗 Starting LinkedIn analysis for:', linkedinToAnalyze);
         
         const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
           body: {
             linkedinUrl: linkedinToAnalyze,
-            fullName: fullName || personalInfo?.name || 'Unknown',
-            email: email || personalInfo?.email || 'unknown@email.com'
+            fullName: fullName || cvData?.analysis?.personalInfo?.name || 'Unknown',
+            email: email || cvData?.analysis?.personalInfo?.email || 'unknown@email.com'
           }
         });
 
@@ -103,35 +97,32 @@ export const performCVAnalysis = async (
         } else if (linkedinData?.analysis) {
           linkedinAnalysis = linkedinData.analysis;
           console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
-          toast.success('LinkedIn analysis completed successfully!');
+          toast.success('LinkedIn analysis completed!');
         }
-      } catch (linkedinErr) {
-        console.error('⚠️ LinkedIn analysis exception:', linkedinErr);
+      } catch (error) {
+        console.error('⚠️ LinkedIn analysis exception:', error);
         toast.warning('LinkedIn analysis failed, continuing with CV only');
       }
-    } else {
-      console.log('ℹ️ No LinkedIn URL provided, skipping LinkedIn analysis');
-      toast.info('No LinkedIn URL provided - add LinkedIn for complete analysis');
     }
 
     setAnalysisProgress(90);
     
     // Combine results
-    const completeAnalysis = {
-      cvAnalysis: cvData.analysis,
+    const finalResults = {
+      cvAnalysis: cvData?.analysis || null,
       linkedinAnalysis: linkedinAnalysis,
       timestamp: new Date().toISOString()
     };
     
-    console.log('✅ Complete analysis ready:', completeAnalysis);
-    setAnalysisResults(completeAnalysis);
+    console.log('✅ Analysis complete:', finalResults);
+    setAnalysisResults(finalResults);
     setAnalysisProgress(100);
     
-    toast.success('🎉 Complete professional analysis finished! Ready to submit.');
+    toast.success('🎉 Analysis completed successfully!');
 
   } catch (error) {
     console.error('❌ Analysis failed:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
     toast.error(`Analysis failed: ${errorMessage}`);
     setAnalysisResults(null);
   } finally {

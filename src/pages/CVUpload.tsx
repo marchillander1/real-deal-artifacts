@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,6 @@ export const CVUpload = () => {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const navigate = useNavigate();
   
-  // Keep track of analyzed files to prevent re-analysis
   const analyzedFiles = useRef<Set<string>>(new Set());
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,33 +38,43 @@ export const CVUpload = () => {
       return;
     }
 
+    console.log('📂 File selected:', selectedFile.name, selectedFile.type);
+    
     const fileId = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
     setFile(selectedFile);
+    
+    // Reset previous analysis
+    setAnalysisResults(null);
     
     // Only analyze if this file hasn't been analyzed before
     if (!analyzedFiles.current.has(fileId)) {
       analyzedFiles.current.add(fileId);
-      setAnalysisResults(null);
       
-      console.log('🎯 New file detected, starting analysis...');
-      toast.success('CV uploaded! Starting comprehensive analysis...');
+      console.log('🎯 Starting analysis for new file...');
+      toast.success('CV uploaded! Starting analysis...');
       
       // Start analysis immediately
-      await performCVAnalysis(
-        selectedFile,
-        setIsAnalyzing,
-        setAnalysisProgress,
-        setAnalysisResults,
-        setFullName,
-        setEmail,
-        setPhoneNumber,
-        setLinkedinUrl,
-        fullName,
-        email,
-        phoneNumber,
-        linkedinUrl
-      );
+      try {
+        await performCVAnalysis(
+          selectedFile,
+          setIsAnalyzing,
+          setAnalysisProgress,
+          setAnalysisResults,
+          setFullName,
+          setEmail,
+          setPhoneNumber,
+          setLinkedinUrl,
+          fullName,
+          email,
+          phoneNumber,
+          linkedinUrl
+        );
+      } catch (error) {
+        console.error('❌ Analysis error in handleFileChange:', error);
+        toast.error('Analysis failed to start');
+      }
     } else {
+      console.log('ℹ️ File already analyzed');
       toast.info('This file has already been analyzed');
     }
   };
@@ -85,7 +95,7 @@ export const CVUpload = () => {
     setIsUploading(true);
 
     try {
-      // Prepare comprehensive consultant data
+      // Prepare consultant data
       const consultantData = {
         name: fullName,
         email: email,
@@ -99,7 +109,6 @@ export const CVUpload = () => {
         availability: 'Available now',
         cv_file_path: `cv_${Date.now()}_${file.name}`,
         
-        // Enhanced soft skills and human factors
         communication_style: analysisResults.linkedinAnalysis?.communicationStyle || 
                            analysisResults.cvAnalysis?.softSkills?.communication?.[0] || 
                            'Professional and clear communication',
@@ -110,13 +119,11 @@ export const CVUpload = () => {
         personality_traits: analysisResults.cvAnalysis?.softSkills?.problemSolving || 
                           ['Analytical', 'Solution-oriented', 'Creative', 'Collaborative'],
         
-        // Human factors scoring
         cultural_fit: analysisResults.linkedinAnalysis?.culturalFit || 5,
         leadership: analysisResults.linkedinAnalysis?.leadership || 
                    (analysisResults.cvAnalysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3),
         adaptability: analysisResults.linkedinAnalysis?.adaptability || 5,
         
-        // Professional data
         certifications: analysisResults.cvAnalysis?.certifications?.development || 
                        analysisResults.cvAnalysis?.certifications || [],
         roles: analysisResults.cvAnalysis?.marketPositioning?.targetRoles?.slice(0, 3) || 
@@ -129,7 +136,6 @@ export const CVUpload = () => {
         projects_completed: 0,
         last_active: 'Today',
         
-        // Store complete analysis data
         cvAnalysis: analysisResults.cvAnalysis,
         linkedinAnalysis: analysisResults.linkedinAnalysis
       };
