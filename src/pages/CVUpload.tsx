@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, ArrowRight, Code, Users, Target, TrendingUp, Brain, Award, Star, BarChart3 } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Code, Users, Target, TrendingUp, Brain, Award, Star, BarChart3, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -245,6 +245,31 @@ export const CVUpload = () => {
               </Card>
             )}
 
+            {/* Market Rate Estimate */}
+            {cvAnalysis?.marketPositioning?.hourlyRateEstimate && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-green-500" />
+                    Market Rate Estimate
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-600 mb-2">
+                      {cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} {cvAnalysis.marketPositioning.hourlyRateEstimate.currency}/h
+                    </div>
+                    <div className="text-sm text-gray-600 mb-4">
+                      Range: {cvAnalysis.marketPositioning.hourlyRateEstimate.min} - {cvAnalysis.marketPositioning.hourlyRateEstimate.max} {cvAnalysis.marketPositioning.hourlyRateEstimate.currency}/h
+                    </div>
+                    <p className="text-xs text-gray-500 italic">
+                      {cvAnalysis.marketPositioning.hourlyRateEstimate.explanation}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Technical Expertise */}
             {cvAnalysis?.technicalExpertise && (
               <Card className="shadow-lg">
@@ -275,7 +300,7 @@ export const CVUpload = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Brain className="h-5 w-5 text-blue-500" />
-                    LinkedIn Analysis
+                    Communication & Leadership
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
