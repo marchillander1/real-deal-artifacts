@@ -15,6 +15,8 @@ const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedAssignmentForMatching, setSelectedAssignmentForMatching] = useState<Assignment | null>(null);
+  const [aiMatchingResults, setAiMatchingResults] = useState<any>(null);
+  const [isMatching, setIsMatching] = useState(false);
   const { consultants } = useSupabaseConsultantsWithDemo();
   const { assignments, addAssignment } = useDemoAssignments();
 
@@ -52,6 +54,54 @@ const Index: React.FC = () => {
       // Navigate to CV upload page with context that this should go to "My Consultants"
       window.location.href = '/cv-upload?source=my-consultants';
     }
+  };
+
+  const handleAIMatching = async (assignment: Assignment) => {
+    setSelectedAssignmentForMatching(assignment);
+    setIsMatching(true);
+    
+    // Simulate AI matching process
+    setTimeout(() => {
+      const mockMatches = consultants.slice(0, 3).map((consultant, index) => ({
+        consultant,
+        match_score: 95 - (index * 5),
+        matched_skills: assignment.requiredSkills || ['React', 'TypeScript', 'Node.js'],
+        technical_analysis: {
+          frontend_score: 8 + index,
+          backend_score: 7 + index,
+          architecture_score: 6 + index
+        },
+        cultural_match: 85 + (index * 3),
+        communication_match: 90 - (index * 2),
+        values_alignment: 88 + index,
+        personality_analysis: {
+          communication_style: 'Direct and collaborative',
+          work_approach: 'Methodical and detail-oriented'
+        },
+        industry_analysis: {
+          relevant_industries: [assignment.industry || 'Fintech', 'E-commerce', 'SaaS'],
+          domain_expertise: 8 + index
+        },
+        project_metrics: {
+          success_rate: 94 - index,
+          delivery_speed: 15 + index,
+          similar_projects: [
+            'E-commerce platform (React/Node.js)',
+            'Fintech dashboard (TypeScript/AWS)',
+            'SaaS migration (Docker/Kubernetes)'
+          ],
+          onboarding_time: '1-2 weeks',
+          first_delivery: '2-3 weeks',
+          full_productivity: '3-4 weeks'
+        },
+        estimated_savings: 150000 + (index * 20000),
+        confidence_score: 92 - (index * 2),
+        analysis_factors: 'technical skills, personality fit, industry experience, and project history'
+      }));
+      
+      setAiMatchingResults(mockMatches);
+      setIsMatching(false);
+    }, 3000);
   };
 
   const renderAssignmentsContent = () => (
@@ -119,7 +169,7 @@ const Index: React.FC = () => {
                   {assignment.remote} • {assignment.teamSize} • {assignment.industry}
                 </div>
                 <Button 
-                  onClick={() => setSelectedAssignmentForMatching(assignment)}
+                  onClick={() => handleAIMatching(assignment)}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
                   <Brain className="h-4 w-4 mr-2" />
@@ -318,7 +368,12 @@ const Index: React.FC = () => {
       {selectedAssignmentForMatching && (
         <AIMatchingResults
           assignment={selectedAssignmentForMatching}
-          onClose={() => setSelectedAssignmentForMatching(null)}
+          matches={aiMatchingResults || []}
+          isLoading={isMatching}
+          onClose={() => {
+            setSelectedAssignmentForMatching(null);
+            setAiMatchingResults(null);
+          }}
         />
       )}
     </div>
