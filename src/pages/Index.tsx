@@ -41,7 +41,25 @@ const initialConsultants: Consultant[] = [
     culturalFit: 5,
     adaptability: 4,
     leadership: 5,
-    linkedinUrl: "https://linkedin.com/in/anna-lindqvist"
+    linkedinUrl: "https://linkedin.com/in/anna-lindqvist",
+    cvAnalysis: {
+      experience: "8+ years in frontend development",
+      seniorityLevel: "Senior",
+      strengths: ["React expertise", "UX leadership", "Team management"],
+      marketPosition: "Top-tier frontend developer with strong UX background",
+      technicalDepth: "Deep expertise in modern frontend technologies",
+      improvementAreas: ["Backend development", "Cloud architecture"]
+    },
+    linkedinAnalysis: {
+      communicationStyle: "Collaborative and mentoring-focused",
+      leadershipStyle: "Servant leadership with strong technical guidance",
+      culturalFit: 5,
+      leadership: 5,
+      innovation: 4,
+      problemSolving: "Analytical and user-centered approach",
+      businessAcumen: "Strong understanding of product development",
+      teamCollaboration: "Excellent cross-functional collaboration"
+    }
   },
   {
     id: 2,
@@ -69,7 +87,15 @@ const initialConsultants: Consultant[] = [
     culturalFit: 4,
     adaptability: 5,
     leadership: 3,
-    linkedinUrl: "https://linkedin.com/in/marcus-johansson"
+    linkedinUrl: "https://linkedin.com/in/marcus-johansson",
+    cvAnalysis: {
+      experience: "6 years in backend and DevOps",
+      seniorityLevel: "Mid-Senior",
+      strengths: ["Cloud architecture", "Microservices", "DevOps practices"],
+      marketPosition: "Strong backend engineer with DevOps expertise",
+      technicalDepth: "Deep knowledge of scalable systems",
+      improvementAreas: ["Frontend development", "Management skills"]
+    }
   },
   {
     id: 3,
@@ -97,7 +123,17 @@ const initialConsultants: Consultant[] = [
     culturalFit: 5,
     adaptability: 5,
     leadership: 5,
-    linkedinUrl: "https://linkedin.com/in/sofia-andersson"
+    linkedinUrl: "https://linkedin.com/in/sofia-andersson",
+    linkedinAnalysis: {
+      communicationStyle: "Strategic and inspirational leadership",
+      leadershipStyle: "Transformational leadership with focus on empowerment",
+      culturalFit: 5,
+      leadership: 5,
+      innovation: 5,
+      problemSolving: "Data-driven and strategic approach",
+      businessAcumen: "Exceptional business and market understanding",
+      teamCollaboration: "Outstanding stakeholder management"
+    }
   },
   {
     id: 4,
@@ -125,7 +161,15 @@ const initialConsultants: Consultant[] = [
     culturalFit: 4,
     adaptability: 4,
     leadership: 3,
-    linkedinUrl: "https://linkedin.com/in/erik-nilsson"
+    linkedinUrl: "https://linkedin.com/in/erik-nilsson",
+    cvAnalysis: {
+      experience: "4 years + PhD in Machine Learning",
+      seniorityLevel: "Mid-level with advanced expertise",
+      strengths: ["Deep Learning", "Research background", "AI implementation"],
+      marketPosition: "Specialized AI expert with academic credentials",
+      technicalDepth: "Exceptional theoretical and practical ML knowledge",
+      improvementAreas: ["Business development", "Team leadership"]
+    }
   },
   {
     id: 5,
@@ -181,7 +225,15 @@ const initialConsultants: Consultant[] = [
     culturalFit: 4,
     adaptability: 5,
     leadership: 3,
-    linkedinUrl: "https://linkedin.com/in/david-chen-dev"
+    linkedinUrl: "https://linkedin.com/in/david-chen-dev",
+    cvAnalysis: {
+      experience: "5 years full-stack development",
+      seniorityLevel: "Mid-level",
+      strengths: ["Full-stack capabilities", "Clean code", "Problem solving"],
+      marketPosition: "Versatile developer with broad skill set",
+      technicalDepth: "Good balance of frontend and backend skills",
+      improvementAreas: ["Leadership experience", "Specialized expertise"]
+    }
   },
   {
     id: 7,
@@ -209,7 +261,17 @@ const initialConsultants: Consultant[] = [
     culturalFit: 4,
     adaptability: 5,
     leadership: 4,
-    linkedinUrl: "https://linkedin.com/in/maria-rodriguez-marketing"
+    linkedinUrl: "https://linkedin.com/in/maria-rodriguez-marketing",
+    linkedinAnalysis: {
+      communicationStyle: "Energetic and results-focused communication",
+      leadershipStyle: "Collaborative leadership with focus on growth",
+      culturalFit: 4,
+      leadership: 4,
+      innovation: 4,
+      problemSolving: "Creative and data-driven approach",
+      businessAcumen: "Strong understanding of digital marketing ROI",
+      teamCollaboration: "Excellent cross-functional marketing collaboration"
+    }
   }
 ];
 

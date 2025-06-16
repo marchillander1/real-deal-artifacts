@@ -28,6 +28,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
 
   const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
 
+  // Check if consultant has analysis data
   const hasAnalysis = consultant.cvAnalysis || consultant.linkedinAnalysis;
 
   return (
@@ -134,7 +135,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
         </div>
         <div className="flex items-center space-x-1">
           <Award className={`h-3 w-3 ${certificationColor}`} />
-          <span className={`${certificationTextColor} font-medium`}>{consultant.certifications[0]}</span>
+          <span className={`text-xs ${certificationTextColor} font-medium`}>{consultant.certifications[0]}</span>
         </div>
       </div>
     </div>
