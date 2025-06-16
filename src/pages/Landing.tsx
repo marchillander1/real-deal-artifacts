@@ -6,6 +6,9 @@ import { ArrowRight, Play, Heart, Clock, Shield, Star, TrendingUp, LogIn, Upload
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
+import AIMatchingPreview from '@/components/AIMatchingPreview';
+import ROICalculator from '@/components/ROICalculator';
+import BookMeetingButton from '@/components/BookMeetingButton';
 
 export default function Landing() {
   const { user } = useAuth();
@@ -245,6 +248,20 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Live AI Matching Demo */}
+      <section className="py-20 bg-gray-800/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">See Our AI in Action</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Experience real-time human-first matching that analyzes the whole person in seconds
+            </p>
+          </div>
+
+          <AIMatchingPreview />
+        </div>
+      </section>
+
       {/* Solution Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -326,6 +343,141 @@ export default function Landing() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Enhanced Match Explanation Section */}
+      <section className="py-20 bg-gray-800/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">Why Our Matches Are Better</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Traditional CV-based matching vs. MatchWise AI's human-first approach
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* Traditional Matching */}
+            <Card className="bg-red-900/20 border-red-500/50">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-white mb-6">Traditional CV Matching</h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✗</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">Skills-Only Focus</h4>
+                      <p className="text-gray-300 text-sm">Matches based purely on technical competencies, ignoring personality and cultural fit</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✗</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">High Failure Rate</h4>
+                      <p className="text-gray-300 text-sm">40% of projects fail due to poor team chemistry and communication issues</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✗</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">Time Consuming</h4>
+                      <p className="text-gray-300 text-sm">15+ hours per hire with multiple interview rounds and assessments</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✗</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">Expensive Mistakes</h4>
+                      <p className="text-gray-300 text-sm">Poor fits cost €250K annually in project restarts and delays</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* MatchWise AI */}
+            <Card className="bg-green-900/20 border-green-500/50">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-white mb-6">MatchWise AI Human-First</h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">Holistic Analysis</h4>
+                      <p className="text-gray-300 text-sm">Analyzes technical skills + personality + values + communication style for perfect fit</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">96% Success Rate</h4>
+                      <p className="text-gray-300 text-sm">Superior human fit leads to better team chemistry and project outcomes</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">12-Second Analysis</h4>
+                      <p className="text-gray-300 text-sm">AI processes years of experience and personality data instantly</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">Massive Savings</h4>
+                      <p className="text-gray-300 text-sm">Save €210K annually through better human fit and reduced failures</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-12">
+            <Card className="bg-blue-600/20 border-blue-500 inline-block">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-white mb-2">75x Faster</div>
+                <div className="text-blue-300">with 36% higher satisfaction</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* ROI Calculator Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">Calculate Your ROI</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              See exactly how much MatchWise AI can save your company
+            </p>
+          </div>
+
+          <ROICalculator />
         </div>
       </section>
 
@@ -542,19 +694,22 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Enhanced CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-white mb-4">Ready to Transform Your Consultant Matching?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join leading companies saving $210K annually with 95% human fit
+            Join leading companies saving €210K annually with 96% human fit
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <BookMeetingButton />
+            
             <Button size="lg" variant="secondary" className="px-8 py-3 text-lg">
               <Play className="mr-2 h-5 w-5" />
               Watch 2-Min Demo
             </Button>
+            
             {!user && (
               <Link to="/auth">
                 <Button size="lg" className="px-8 py-3 text-lg bg-white text-blue-600 hover:bg-gray-100">
@@ -564,6 +719,10 @@ export default function Landing() {
               </Link>
             )}
           </div>
+          
+          <p className="text-blue-100 mt-6 text-sm">
+            🚀 Get your first perfect match in under 60 seconds
+          </p>
         </div>
       </section>
 

@@ -18,6 +18,31 @@ const AppContent = () => {
   const location = useLocation();
   const showNavbar = location.pathname !== '/';
 
+  // Set up API route for book-meeting
+  React.useEffect(() => {
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      const [url, options] = args;
+      
+      if (typeof url === 'string' && url.startsWith('/api/book-meeting')) {
+        const supabaseUrl = 'https://sxqmqnfopqzcdqwtjcpd.supabase.co/functions/v1/book-meeting';
+        return originalFetch(supabaseUrl, {
+          ...options,
+          headers: {
+            ...options?.headers,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+        });
+      }
+      
+      return originalFetch.apply(this, args);
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {showNavbar && <Navbar />}
