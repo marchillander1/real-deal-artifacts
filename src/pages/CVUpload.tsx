@@ -136,17 +136,6 @@ export const CVUpload = () => {
     navigate('/pricing');
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
-        setFile(selectedFile);
-      } else {
-        toast.error('Please upload a PDF file or image');
-      }
-    }
-  };
-
   if (uploadComplete && analysisResults) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
