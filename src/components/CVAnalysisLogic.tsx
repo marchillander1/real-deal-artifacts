@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -132,129 +131,145 @@ const generateImprovementTips = (cvAnalysis: any, linkedinAnalysis: any) => {
     overallStrategy: []
   };
 
-  // CV Improvement Tips (in English)
+  // CV Improvement Tips - More specific and actionable
   if (cvAnalysis) {
+    // Technical Skills Section
     if (!cvAnalysis.technicalExpertise?.programmingLanguages?.expert?.length) {
       tips.cvTips.push({
-        category: 'Technical Skills',
-        tip: 'Clearly highlight your expert-level programming languages and frameworks at the top of your CV to immediately catch recruiters\' attention',
+        category: 'Technical Skills Section',
+        tip: 'Add a dedicated "Technical Skills" section at the top of your CV with clear skill levels (Expert, Proficient, Familiar). List programming languages, frameworks, and tools you use daily.',
         priority: 'High',
-        action: 'Create a "Technical Expertise" section with tiered skill levels (Expert, Proficient, Familiar)'
+        action: 'Create sections: "Expert: [languages]", "Proficient: [frameworks]", "Tools: [software/platforms]"'
       });
     }
 
+    // Professional Summary
     if (!cvAnalysis.professionalSummary?.yearsOfExperience || cvAnalysis.professionalSummary.yearsOfExperience === 'Unknown') {
       tips.cvTips.push({
         category: 'Professional Summary',
-        tip: 'Add a clear statement of your years of experience and seniority level in the first few lines',
+        tip: 'Add a 3-4 line professional summary at the top stating your years of experience, core expertise, and what type of consultant you are.',
         priority: 'High',
-        action: 'Include "X+ years of experience as a [Role]" in your professional summary'
+        action: 'Write: "Experienced [X-year] [role] specializing in [technologies]. Proven track record in [key achievements]. Available for consulting assignments in [focus areas]."'
       });
     }
 
-    if (!cvAnalysis.certifications?.length && !cvAnalysis.certifications?.development?.length) {
+    // Work Experience
+    if (!cvAnalysis.workExperience?.length || cvAnalysis.workExperience.length < 3) {
       tips.cvTips.push({
-        category: 'Certifications',
-        tip: 'Consider adding relevant technical certifications to boost your credibility and market value',
-        priority: 'Medium',
-        action: 'Pursue cloud certifications (AWS, Azure, GCP) or framework-specific certifications'
-      });
-    }
-
-    if (!cvAnalysis.marketPositioning?.uniqueValueProposition) {
-      tips.cvTips.push({
-        category: 'Value Proposition',
-        tip: 'Create a compelling unique value proposition that sets you apart from other consultants',
+        category: 'Work Experience',
+        tip: 'Expand your work experience section with specific achievements, technologies used, and quantifiable results for each role.',
         priority: 'High',
-        action: 'Write 2-3 sentences highlighting what makes you uniquely valuable to clients'
+        action: 'For each role, add: Technologies used, Key achievements with numbers (improved performance by X%, delivered Y projects), Team size if you led people'
       });
     }
 
-    if (!cvAnalysis.professionalSummary?.specializations?.length) {
+    // Missing certifications
+    if (!cvAnalysis.certifications?.length) {
       tips.cvTips.push({
-        category: 'Specialization',
-        tip: 'Clearly define your technical specializations and niche areas of expertise',
+        category: 'Certifications & Education',
+        tip: 'Add a "Certifications" section to showcase your continuous learning and expertise validation.',
         priority: 'Medium',
-        action: 'Add a "Specializations" section highlighting your key focus areas'
+        action: 'Include: Professional certifications (AWS, Azure, GCP), Framework certifications (React, Angular), Industry certifications (Scrum, PMP)'
+      });
+    }
+
+    // Projects section
+    if (!cvAnalysis.projects?.length) {
+      tips.cvTips.push({
+        category: 'Key Projects',
+        tip: 'Add a "Key Projects" section highlighting 3-4 significant projects with technologies used and business impact.',
+        priority: 'High',
+        action: 'For each project: Project name, Technologies used, Your role, Duration, Key achievements/impact'
+      });
+    }
+
+    // Contact information
+    if (!cvAnalysis.personalInfo?.email || !cvAnalysis.personalInfo?.phone) {
+      tips.cvTips.push({
+        category: 'Contact Information',
+        tip: 'Ensure your contact information is complete and prominently displayed at the top of your CV.',
+        priority: 'High',
+        action: 'Include: Full name, Professional email, Phone number, LinkedIn profile, Location (city, country)'
+      });
+    }
+
+    // Language skills
+    if (!cvAnalysis.personalInfo?.languages?.length) {
+      tips.cvTips.push({
+        category: 'Language Skills',
+        tip: 'Add a "Languages" section showing your proficiency levels, especially important for international consulting.',
+        priority: 'Medium',
+        action: 'List languages with levels: "Swedish (Native), English (Fluent), [Other] (Conversational)"'
       });
     }
   }
 
-  // LinkedIn Improvement Tips (in English)
+  // LinkedIn Improvement Tips
   if (linkedinAnalysis) {
     if (linkedinAnalysis.culturalFit < 4) {
       tips.linkedinTips.push({
-        category: 'Cultural Fit',
-        tip: 'Share more content about team collaboration, company culture, and your values alignment',
+        category: 'Professional Presence',
+        tip: 'Share more content about your work philosophy, team collaboration experiences, and professional values.',
         priority: 'Medium',
-        action: 'Post about successful team projects and what you value in workplace culture'
+        action: 'Post weekly about: Successful projects, Team collaboration stories, Professional insights, Industry trends you\'re following'
       });
     }
 
     if (linkedinAnalysis.leadership < 4) {
       tips.linkedinTips.push({
-        category: 'Leadership',
-        tip: 'Showcase your leadership experiences, mentoring activities, and team management skills',
+        category: 'Leadership Content',
+        tip: 'Showcase leadership experiences through posts about mentoring, technical decision-making, and project management.',
         priority: 'High',
-        action: 'Write posts about leading projects, mentoring junior developers, or driving technical decisions'
+        action: 'Share stories about: Leading technical projects, Mentoring team members, Making architectural decisions, Solving complex problems'
       });
     }
 
-    if (!linkedinAnalysis.communicationStyle || linkedinAnalysis.communicationStyle.includes('unknown') || linkedinAnalysis.communicationStyle.includes('Unable')) {
+    if (!linkedinAnalysis.communicationStyle || linkedinAnalysis.communicationStyle.includes('unknown')) {
       tips.linkedinTips.push({
-        category: 'Communication',
-        tip: 'Be more active in posting and commenting to showcase your professional communication style',
+        category: 'Active Communication',
+        tip: 'Increase your LinkedIn activity by posting technical insights and engaging meaningfully with others\' content.',
         priority: 'Medium',
-        action: 'Share technical insights, comment thoughtfully on industry posts, and engage with your network'
-      });
-    }
-
-    if (linkedinAnalysis.innovation < 4) {
-      tips.linkedinTips.push({
-        category: 'Innovation',
-        tip: 'Share content about innovative solutions, new technologies you\'re exploring, or creative problem-solving',
-        priority: 'Medium',
-        action: 'Post about new tools/technologies you\'re learning or innovative approaches you\'ve used'
+        action: 'Weekly: Share 1 technical insight, Comment thoughtfully on 5-10 posts, Engage with your network\'s content'
       });
     }
   } else {
     tips.linkedinTips.push({
-      category: 'LinkedIn Presence',
-      tip: 'Ensure your LinkedIn profile is public and accessible for proper analysis and visibility',
+      category: 'LinkedIn Profile Setup',
+      tip: 'Ensure your LinkedIn profile is public and complete with a professional headline and detailed experience section.',
       priority: 'High',
-      action: 'Update your LinkedIn privacy settings to allow public visibility of your profile'
+      action: 'Update: Professional headline with your expertise, Detailed work experience, Skills section, Public profile settings'
     });
 
     tips.linkedinTips.push({
-      category: 'Professional Activity',
-      tip: 'Start building your professional presence on LinkedIn with regular posts and engagement',
+      category: 'Professional Network',
+      tip: 'Start building your professional network and sharing relevant content to establish your expertise.',
       priority: 'High',
-      action: 'Share weekly insights about your work, industry trends, or technical learnings'
+      action: 'Connect with colleagues, Share industry insights, Join relevant professional groups, Post about your work'
     });
   }
 
-  // Overall Strategy Tips (in English)
+  // Overall Strategy Tips
   tips.overallStrategy.push({
-    category: 'Cohesive Branding',
-    tip: 'Ensure your CV technical skills align perfectly with your LinkedIn professional narrative and posts',
+    category: 'Consistent Branding',
+    tip: 'Ensure your CV and LinkedIn profile tell the same professional story with consistent information and messaging.',
     priority: 'High',
-    action: 'Review both profiles to ensure consistent messaging about your expertise and career focus'
+    action: 'Align: Job titles and dates, Skills and technologies, Professional summary/headline, Key achievements'
   });
 
   tips.overallStrategy.push({
-    category: 'Network Building',
-    tip: 'Regularly engage with industry content and share insights to build your professional brand and visibility',
+    category: 'Consultant Positioning',
+    tip: 'Position yourself clearly as a consultant by emphasizing project-based work, client impact, and specialized expertise.',
+    priority: 'High',
+    action: 'Highlight: Consulting experience, Client outcomes, Specialized skills, Availability for assignments'
+  });
+
+  tips.overallStrategy.push({
+    category: 'Market Readiness',
+    tip: 'Ensure both your CV and LinkedIn clearly communicate your current availability and areas of interest for consulting work.',
     priority: 'Medium',
-    action: 'Set aside 15 minutes daily for LinkedIn engagement and monthly CV updates'
+    action: 'Add: "Available for consulting assignments", Preferred project types, Remote/on-site preferences, Expected start date'
   });
 
-  tips.overallStrategy.push({
-    category: 'Market Positioning',
-    tip: 'Position yourself as a specialist in your strongest technical areas while showing adaptability',
-    priority: 'High',
-    action: 'Focus your content and CV on 2-3 core technical strengths while mentioning related skills'
-  });
-
-  console.log('📋 Generated improvement tips:', tips);
+  console.log('📋 Generated detailed improvement tips:', tips);
   return tips;
 };
