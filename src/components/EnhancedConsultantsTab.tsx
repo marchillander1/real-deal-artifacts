@@ -73,7 +73,7 @@ export const EnhancedConsultantsTab: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Upload className="h-5 w-5 text-purple-600" />
               <div>
-                <p className="text-sm text-gray-600">Nya</p>
+                <p className="text-sm text-gray-600">Network konsulter</p>
                 <p className="text-2xl font-bold">{newConsultants.length}</p>
               </div>
             </div>
@@ -127,16 +127,16 @@ export const EnhancedConsultantsTab: React.FC = () => {
       </Card>
 
       {/* Consultants List */}
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue="network" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="all">Alla ({consultants.length})</TabsTrigger>
+          <TabsTrigger value="network">Network konsulter ({newConsultants.length})</TabsTrigger>
           <TabsTrigger value="existing">Befintliga ({existingConsultants.length})</TabsTrigger>
-          <TabsTrigger value="new">Nya ({newConsultants.length})</TabsTrigger>
+          <TabsTrigger value="all">Alla ({consultants.length})</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="all" className="space-y-4">
+        <TabsContent value="network" className="space-y-4">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(consultants).map((consultant) => (
+            {filterConsultants(newConsultants).map((consultant) => (
               <div key={consultant.id} className="relative">
                 <ConsultantCard consultant={consultant} />
                 <div className="absolute top-2 right-2">
@@ -148,6 +148,13 @@ export const EnhancedConsultantsTab: React.FC = () => {
               </div>
             ))}
           </div>
+          {newConsultants.length === 0 && (
+            <div className="text-center py-8">
+              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">Inga network konsulter hittades</p>
+              <p className="text-sm text-gray-500">Konsulter som laddar upp CV kommer visas här</p>
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="existing" className="space-y-4">
@@ -166,9 +173,9 @@ export const EnhancedConsultantsTab: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="new" className="space-y-4">
+        <TabsContent value="all" className="space-y-4">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(newConsultants).map((consultant) => (
+            {filterConsultants(consultants).map((consultant) => (
               <div key={consultant.id} className="relative">
                 <ConsultantCard consultant={consultant} />
                 <div className="absolute top-2 right-2">

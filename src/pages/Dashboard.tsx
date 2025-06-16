@@ -5,8 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
-import { EnhancedConsultantsTabDedup } from "../components/EnhancedConsultantsTabDedup";
-import { useSupabaseConsultantsDedup } from "@/hooks/useSupabaseConsultantsDedup";
+import { EnhancedConsultantsTab } from "../components/EnhancedConsultantsTab";
+import { useSupabaseConsultants } from "@/hooks/useSupabaseConsultants";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,7 +27,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [matchResults, setMatchResults] = useState<any[]>([]);
   const [showMatchResults, setShowMatchResults] = useState(false);
-  const { consultants } = useSupabaseConsultantsDedup();
+  const { consultants } = useSupabaseConsultants();
 
   // Fetch matches data for stats
   const { data: matchesData = [] } = useQuery({
@@ -46,8 +46,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   });
 
   // Real dashboard stats using actual data
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'existing');
-  const totalConsultants = networkConsultants.length;
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
+  const totalConsultants = consultants.length;
   const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
   const avgMatchTime = "12 seconds";
 
@@ -152,7 +152,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </div>
               </div>
               <div className="text-2xl font-bold text-gray-900 mb-1">{totalConsultants}</div>
-              <div className="text-sm font-medium text-gray-900 mb-1">Network Consultants</div>
+              <div className="text-sm font-medium text-gray-900 mb-1">Total Consultants</div>
               <div className="text-sm text-green-600">↗ +{Math.max(1, Math.floor(totalConsultants * 0.15))} this week</div>
             </CardContent>
           </Card>
@@ -275,7 +275,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'dashboard' && renderDashboardContent()}
-        {activeTab === 'consultants' && <EnhancedConsultantsTabDedup />}
+        {activeTab === 'consultants' && <EnhancedConsultantsTab />}
       </div>
 
       {/* Create Assignment Modal */}
