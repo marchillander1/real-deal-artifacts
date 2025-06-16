@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -298,7 +299,18 @@ const generateCertificationRecommendations = (cvAnalysis: any, linkedinAnalysis:
 };
 
 const generateROIPredictions = (cvAnalysis: any, linkedinAnalysis: any) => {
-  const baseRate = parseInt(cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended?.replace(/\D/g, '') || '800');
+  // Fix: Handle both string and number values for hourly rate
+  let baseRate = 800; // Default fallback
+  
+  if (cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended) {
+    const recommended = cvAnalysis.marketPositioning.hourlyRateEstimate.recommended;
+    
+    if (typeof recommended === 'number') {
+      baseRate = recommended;
+    } else if (typeof recommended === 'string') {
+      baseRate = parseInt(recommended.replace(/\D/g, '')) || 800;
+    }
+  }
   
   return {
     currentMarketValue: {
