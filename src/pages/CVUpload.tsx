@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -27,23 +27,7 @@ export const CVUpload = () => {
   const navigate = useNavigate();
   
   // Use ref to track if analysis has been started for current file
-  const analysisStartedRef = useRef<string | null>(null);
-  const isAnalysisRunningRef = useRef(false);
-
-  // Start analysis when CV is uploaded (only once per file)
-  useEffect(() => {
-    if (file && !isAnalysisRunningRef.current && !analysisResults) {
-      const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
-      
-      // Only start analysis if we haven't already started for this specific file
-      if (analysisStartedRef.current !== fileKey) {
-        console.log('Starting automatic comprehensive analysis of uploaded CV...');
-        analysisStartedRef.current = fileKey;
-        isAnalysisRunningRef.current = true;
-        startAnalysis();
-      }
-    }
-  }, [file?.name, file?.size, file?.lastModified]); // Use file properties instead of file object
+  const lastAnalyzedFileRef = useRef<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -51,29 +35,32 @@ export const CVUpload = () => {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
         setFile(selectedFile);
         setAnalysisResults(null);
-        analysisStartedRef.current = null; // Reset analysis state for new file
-        isAnalysisRunningRef.current = false;
-        toast.success('CV uploaded! Starting comprehensive AI analysis...');
+        
+        // Create unique file identifier
+        const fileKey = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
+        
+        // Only start analysis if this is a new file
+        if (lastAnalyzedFileRef.current !== fileKey) {
+          lastAnalyzedFileRef.current = fileKey;
+          toast.success('CV uploaded! Starting comprehensive AI analysis...');
+          startAnalysisForFile(selectedFile);
+        }
       } else {
         toast.error('Please upload a PDF file or image');
       }
     }
   };
 
-  const startAnalysis = async () => {
-    if (!file) {
-      console.error('No file available for analysis');
-      isAnalysisRunningRef.current = false;
-      return;
-    }
-
+  const startAnalysisForFile = async (fileToAnalyze: File) => {
+    console.log('Starting automatic comprehensive analysis of uploaded CV...');
+    
     setIsAnalyzing(true);
     setAnalysisProgress(10);
     toast.info('🧠 AI analyzing your CV and extracting comprehensive professional information...');
 
     try {
       // Convert file to base64
-      const fileBuffer = await file.arrayBuffer();
+      const fileBuffer = await fileToAnalyze.arrayBuffer();
       const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
 
       console.log('Sending CV for comprehensive parsing...');
@@ -83,8 +70,8 @@ export const CVUpload = () => {
       const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-cv', {
         body: {
           file: fileBase64,
-          fileName: file.name,
-          fileType: file.type
+          fileName: fileToAnalyze.name,
+          fileType: fileToAnalyze.type
         }
       });
 
@@ -173,12 +160,10 @@ export const CVUpload = () => {
     } catch (error) {
       console.error('Analysis error:', error);
       toast.error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
-      analysisStartedRef.current = null; // Allow retry
-      isAnalysisRunningRef.current = false;
+      lastAnalyzedFileRef.current = null; // Allow retry
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
-      isAnalysisRunningRef.current = false;
     }
   };
 
@@ -420,7 +405,7 @@ export const CVUpload = () => {
                         <p className="text-xs font-bold text-orange-600 mt-1">{linkedinAnalysis.leadership}/5</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-gray-600">Mentorship</p>
+                        <p className="text-xs text-gray-600">Innovation</p>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                           <div className="bg-green-600 h-2 rounded-full" style={{width: `${((linkedinAnalysis.innovation || 4)/5)*100}%`}}></div>
                         </div>
