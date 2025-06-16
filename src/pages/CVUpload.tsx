@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
+import { performCVAnalysis } from '@/components/CVAnalysisLogic';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Navbar } from '@/components/Navbar';
@@ -17,6 +18,7 @@ const CVUpload: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
   const [isMyConsultant, setIsMyConsultant] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(true);
   const { toast } = useToast();
@@ -28,74 +30,22 @@ const CVUpload: React.FC = () => {
     setIsMyConsultant(source === 'my-consultants');
   }, []);
 
+  // Auto-trigger analysis when both file and LinkedIn URL are provided
   useEffect(() => {
     if (file && linkedinUrl.includes('linkedin.com') && !isAnalyzing && !analysisResults) {
-      handleAnalysis();
+      performCVAnalysis(
+        file,
+        setIsAnalyzing,
+        setAnalysisProgress,
+        setAnalysisResults,
+        setFullName,
+        setEmail,
+        setPhoneNumber,
+        setLinkedinUrl,
+        linkedinUrl
+      );
     }
-  }, [file, linkedinUrl]);
-
-  const handleAnalysis = async () => {
-    if (!file || !linkedinUrl.includes('linkedin.com')) return;
-
-    setIsAnalyzing(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const { data: cvData, error: cvError } = await supabase.functions.invoke('parse-cv', {
-        body: formData,
-      });
-
-      if (cvError) throw cvError;
-
-      const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
-        body: { linkedinUrl }
-      });
-
-      if (linkedinError) throw linkedinError;
-
-      const combinedResults = {
-        cvAnalysis: cvData,
-        linkedinAnalysis: linkedinData,
-        cv: cvData,
-        linkedin: linkedinData,
-        combined: {
-          name: cvData.name || linkedinData.name || '',
-          email: cvData.email || linkedinData.email || '',
-          phone: cvData.phone || '',
-          location: cvData.location || linkedinData.location || '',
-          skills: [...(cvData.skills || []), ...(linkedinData.skills || [])],
-          experience: cvData.experience || linkedinData.experience || '',
-          roles: [...(cvData.roles || []), ...(linkedinData.roles || [])],
-          certifications: cvData.certifications || [],
-          workStyle: linkedinData.workStyle || '',
-          values: linkedinData.values || [],
-          personalityTraits: linkedinData.personalityTraits || [],
-          teamFit: linkedinData.teamFit || '',
-          culturalFit: linkedinData.culturalFit || 5,
-          adaptability: linkedinData.adaptability || 5,
-          leadership: linkedinData.leadership || 3,
-        }
-      };
-
-      setAnalysisResults(combinedResults);
-      
-      // Auto-fill form fields
-      if (combinedResults.combined.name) setFullName(combinedResults.combined.name);
-      if (combinedResults.combined.email) setEmail(combinedResults.combined.email);
-      if (combinedResults.combined.phone) setPhoneNumber(combinedResults.combined.phone);
-
-    } catch (error) {
-      console.error('Analysis error:', error);
-      toast({
-        title: "Analysis Error",
-        description: "Failed to analyze CV or LinkedIn profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
+  }, [file, linkedinUrl, isAnalyzing, analysisResults]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -132,22 +82,24 @@ const CVUpload: React.FC = () => {
         name: fullName,
         email: email,
         phone: phoneNumber,
-        location: analysisResults.combined.location,
-        skills: analysisResults.combined.skills,
-        experience_years: analysisResults.combined.experience ? parseInt(analysisResults.combined.experience) : null,
+        location: analysisResults.cvAnalysis?.personalInfo?.location || '',
+        skills: analysisResults.cvAnalysis?.technicalExpertise?.allSkills || [],
+        experience_years: analysisResults.cvAnalysis?.professionalSummary?.yearsOfExperience ? 
+          parseInt(analysisResults.cvAnalysis.professionalSummary.yearsOfExperience) : null,
         availability: 'Available',
-        communication_style: analysisResults.combined.workStyle,
-        roles: analysisResults.combined.roles,
-        certifications: analysisResults.combined.certifications,
+        communication_style: analysisResults.linkedinAnalysis?.communicationStyle || '',
+        roles: analysisResults.cvAnalysis?.professionalSummary?.currentRole ? 
+          [analysisResults.cvAnalysis.professionalSummary.currentRole] : [],
+        certifications: analysisResults.cvAnalysis?.education?.certifications || [],
         linkedin_url: linkedinUrl,
-        languages: analysisResults.combined.languages || [],
-        work_style: analysisResults.combined.workStyle,
-        values: analysisResults.combined.values,
-        personality_traits: analysisResults.combined.personalityTraits,
-        team_fit: analysisResults.combined.teamFit,
-        cultural_fit: analysisResults.combined.culturalFit,
-        adaptability: analysisResults.combined.adaptability,
-        leadership: analysisResults.combined.leadership,
+        languages: analysisResults.cvAnalysis?.personalInfo?.languages || [],
+        work_style: analysisResults.linkedinAnalysis?.teamFitAssessment?.workStyle || '',
+        values: analysisResults.linkedinAnalysis?.marketPositioning?.competitiveAdvantages || [],
+        personality_traits: analysisResults.linkedinAnalysis?.marketPositioning?.marketDifferentiators || [],
+        team_fit: analysisResults.linkedinAnalysis?.teamFitAssessment?.projectApproach || '',
+        cultural_fit: analysisResults.linkedinAnalysis?.culturalFit || 5,
+        adaptability: analysisResults.linkedinAnalysis?.adaptability || 5,
+        leadership: analysisResults.linkedinAnalysis?.leadership || 3,
         user_id: userId // This determines if it goes to "My Consultants" or "Network"
       };
 
@@ -269,10 +221,10 @@ const CVUpload: React.FC = () => {
                 />
               ) : (
                 <div className="space-y-6">
-                  {/* Enhanced Analysis Results with tips and detailed insights */}
+                  {/* Enhanced Analysis Results with comprehensive insights */}
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold text-gray-900">AI-Driven Comprehensive Analysis</h2>
+                      <h2 className="text-2xl font-bold text-gray-900">🤖 Comprehensive CV & LinkedIn Analysis</h2>
                       <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                         Analysis Complete ✓
                       </div>
@@ -280,20 +232,20 @@ const CVUpload: React.FC = () => {
 
                     {/* Professional Summary */}
                     <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-500">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Professional Summary</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">📋 Professional Summary</h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-sm text-gray-600">Experience Level</p>
-                          <p className="font-semibold">{analysisResults.combined.experience || '5+'} years</p>
+                          <p className="font-semibold">{analysisResults.cvAnalysis?.professionalSummary?.yearsOfExperience || '5+'} years</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Primary Role</p>
-                          <p className="font-semibold">{analysisResults.combined.roles?.[0] || 'Developer'}</p>
+                          <p className="font-semibold">{analysisResults.cvAnalysis?.professionalSummary?.currentRole || 'Developer'}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Market Rate</p>
                           <p className="font-semibold text-green-600">
-                            {analysisResults.cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended || '1000'} SEK/h
+                            {analysisResults.roiPredictions?.currentMarketValue?.hourlyRate || 1000} SEK/h
                           </p>
                         </div>
                       </div>
@@ -301,12 +253,14 @@ const CVUpload: React.FC = () => {
 
                     {/* Technical Skills Analysis */}
                     <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🔧 Technical Expertise</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🔧 Technical Expertise Analysis</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-gray-50 p-4 rounded-lg">
                           <h4 className="font-medium text-gray-900 mb-3">Core Skills</h4>
                           <div className="flex flex-wrap gap-2">
-                            {(analysisResults.combined.skills || []).slice(0, 8).map((skill: string, index: number) => (
+                            {(analysisResults.technicalAssessment?.skillsGapAnalysis?.strengths || 
+                              analysisResults.cvAnalysis?.technicalExpertise?.programmingLanguages?.expert || 
+                              ['React', 'TypeScript', 'Node.js', 'AWS']).slice(0, 8).map((skill: string, index: number) => (
                               <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
                                 {skill}
                               </span>
@@ -314,100 +268,257 @@ const CVUpload: React.FC = () => {
                           </div>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-gray-900 mb-3">Certifications</h4>
-                          <div className="space-y-1">
-                            {(analysisResults.combined.certifications || ['AWS Certified', 'Professional Scrum Master']).map((cert: string, index: number) => (
-                              <p key={index} className="text-sm text-gray-700">• {cert}</p>
+                          <h4 className="font-medium text-gray-900 mb-3">Technical Maturity</h4>
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-600">Frontend</span>
+                              <span className="font-medium">{analysisResults.technicalAssessment?.technicalMaturity?.frontendScore || 8}/10</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-600">Backend</span>
+                              <span className="font-medium">{analysisResults.technicalAssessment?.technicalMaturity?.backendScore || 7}/10</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-600">DevOps</span>
+                              <span className="font-medium">{analysisResults.technicalAssessment?.technicalMaturity?.devopsScore || 6}/10</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Skills Gap Analysis */}
+                      {analysisResults.technicalAssessment?.skillsGapAnalysis?.missing?.length > 0 && (
+                        <div className="mt-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                          <h4 className="font-medium text-gray-900 mb-2">🎯 High-Demand Skills to Add</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResults.technicalAssessment.skillsGapAnalysis.missing.slice(0, 5).map((skill: string, index: number) => (
+                              <span key={index} className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                                + {skill}
+                              </span>
                             ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* LinkedIn Analysis Based on Posts & Bio */}
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🔗 LinkedIn Analysis (30 Recent Posts + Bio)</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-linkedin-blue bg-opacity-10 p-4 rounded-lg border border-blue-200">
+                          <h4 className="font-medium text-gray-900 mb-3">Content Analysis</h4>
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Post Frequency</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.postFrequency || 'Medium'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Content Quality</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.contentQuality || 'Good'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Thought Leadership</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.thoughtLeadership || 'Moderate'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Engagement Level</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.recentPostsAnalysis?.engagementLevel || 'Medium'}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-medium text-gray-900 mb-3">Professional Bio Analysis</h4>
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Bio Clarity</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.bioAnalysis?.clarity || 'Good'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Consultant Positioning</span>
+                              <span className="font-medium">{analysisResults.linkedinAnalysis?.bioAnalysis?.consultantPositioning || 'Moderate'}</span>
+                            </div>
+                            <div className="mt-3">
+                              <p className="text-sm text-gray-600 mb-1">Key Strengths:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {(analysisResults.linkedinAnalysis?.bioAnalysis?.keyStrengths || ['Technical expertise', 'Clear communication']).map((strength: string, index: number) => (
+                                  <span key={index} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                                    {strength}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Leadership & Personality Analysis */}
+                    {/* Leadership & Team Fit Analysis */}
                     <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">👥 Leadership & Personality</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">👥 Leadership & Team Fit Assessment</h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="text-center p-4 bg-purple-50 rounded-lg">
-                          <div className="text-2xl font-bold text-purple-600">{analysisResults.combined.leadership || 7}/10</div>
+                          <div className="text-2xl font-bold text-purple-600">{analysisResults.linkedinAnalysis?.leadership || 7}/10</div>
                           <p className="text-sm text-gray-600">Leadership Score</p>
                         </div>
                         <div className="text-center p-4 bg-green-50 rounded-lg">
-                          <div className="text-2xl font-bold text-green-600">{analysisResults.combined.culturalFit || 8}/10</div>
+                          <div className="text-2xl font-bold text-green-600">{analysisResults.linkedinAnalysis?.culturalFit || 8}/10</div>
                           <p className="text-sm text-gray-600">Cultural Fit</p>
                         </div>
                         <div className="text-center p-4 bg-orange-50 rounded-lg">
-                          <div className="text-2xl font-bold text-orange-600">{analysisResults.combined.adaptability || 9}/10</div>
+                          <div className="text-2xl font-bold text-orange-600">{analysisResults.linkedinAnalysis?.adaptability || 9}/10</div>
                           <p className="text-sm text-gray-600">Adaptability</p>
                         </div>
                       </div>
                       
                       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Work Style</h4>
+                          <h4 className="font-medium text-gray-900 mb-2">Work Style Analysis</h4>
                           <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
-                            {analysisResults.combined.workStyle || 'Collaborativ och resultatinriktad. Trivs i team-miljöer med tydliga mål och öppen kommunikation.'}
+                            {analysisResults.linkedinAnalysis?.communicationStyle || 
+                             'Professional and structured communication with clear technical explanations and collaborative approach'}
                           </p>
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Key Values</h4>
-                          <div className="flex flex-wrap gap-1">
-                            {(analysisResults.combined.values || ['Innovation', 'Kvalitet', 'Teamwork']).map((value: string, index: number) => (
-                              <span key={index} className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded">
-                                {value}
-                              </span>
-                            ))}
-                          </div>
+                          <h4 className="font-medium text-gray-900 mb-2">Team Collaboration</h4>
+                          <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
+                            {analysisResults.linkedinAnalysis?.teamCollaboration || 
+                             'Strong collaborative partner focused on knowledge sharing and cross-functional teamwork'}
+                          </p>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Certification Recommendations */}
+                    <div className="mb-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-l-4 border-indigo-500">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">🏆 Certification Recommendations</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(analysisResults.certificationRecommendations?.technical || [
+                          {
+                            certification: 'AWS Solutions Architect',
+                            priority: 'High',
+                            reason: 'Enhance cloud consulting capabilities',
+                            timeToComplete: '2-3 months',
+                            marketValue: 'High demand in enterprise consulting'
+                          },
+                          {
+                            certification: 'Google Professional Cloud Developer',
+                            priority: 'Medium',
+                            reason: 'Complement frontend skills with cloud backend',
+                            timeToComplete: '1-2 months',
+                            marketValue: 'Growing demand for full-stack cloud developers'
+                          }
+                        ]).map((cert: any, index: number) => (
+                          <div key={index} className="bg-white p-4 rounded border">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-gray-900">{cert.certification}</h4>
+                              <span className={`text-xs px-2 py-1 rounded-full ${
+                                cert.priority === 'High' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {cert.priority} Priority
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{cert.reason}</p>
+                            <div className="text-xs text-gray-500">
+                              <p>⏱️ Time: {cert.timeToComplete}</p>
+                              <p>💼 Value: {cert.marketValue}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
                     {/* Improvement Tips */}
                     <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border-l-4 border-orange-500">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">💡 Career Enhancement Tips</h3>
-                      <div className="space-y-3">
-                        <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                          <p className="text-sm text-gray-700">
-                            <strong>Skill Development:</strong> Consider adding Docker and Kubernetes to your toolkit för increased market value (+15% rate increase potential)
-                          </p>
+                      <div className="space-y-4">
+                        
+                        {/* CV Tips */}
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-2">📄 CV Optimization</h4>
+                          <div className="space-y-2">
+                            {(analysisResults.improvementTips?.cvTips || [
+                              {
+                                category: 'Technical Skills',
+                                tip: 'Add a dedicated "Technical Skills" section with clear proficiency levels',
+                                priority: 'High'
+                              }
+                            ]).slice(0, 2).map((tip: any, index: number) => (
+                              <div key={index} className="flex items-start space-x-3">
+                                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">{tip.category}</p>
+                                  <p className="text-sm text-gray-700">{tip.tip}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                          <p className="text-sm text-gray-700">
-                            <strong>Leadership Growth:</strong> Your technical skills are strong - consider formal leadership training to unlock architect-level roles
-                          </p>
-                        </div>
-                        <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                          <p className="text-sm text-gray-700">
-                            <strong>Portfolio:</strong> Document 2-3 key projects with business impact metrics to strengthen consultant positioning
-                          </p>
+
+                        {/* LinkedIn Tips */}
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-2">🔗 LinkedIn Optimization</h4>
+                          <div className="space-y-2">
+                            {(analysisResults.improvementTips?.linkedinTips || [
+                              {
+                                category: 'Consulting Readiness',
+                                tip: 'Improve your consulting positioning with client-focused content',
+                                priority: 'High'
+                              }
+                            ]).slice(0, 2).map((tip: any, index: number) => (
+                              <div key={index} className="flex items-start space-x-3">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">{tip.category}</p>
+                                  <p className="text-sm text-gray-700">{tip.tip}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Market Positioning */}
+                    {/* ROI Predictions */}
                     <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-l-4 border-green-500">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 Market Positioning</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 Market Positioning & ROI Predictions</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Rate Recommendation</h4>
+                          <h4 className="font-medium text-gray-900 mb-3">Current Market Position</h4>
                           <div className="bg-white p-4 rounded border">
-                            <p className="text-2xl font-bold text-green-600">
-                              {analysisResults.cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended || 1000} SEK/h
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              Range: {analysisResults.cvAnalysis?.marketPositioning?.hourlyRateEstimate?.min || 800} - {analysisResults.cvAnalysis?.marketPositioning?.hourlyRateEstimate?.max || 1200} SEK/h
-                            </p>
+                            <div className="text-center">
+                              <p className="text-2xl font-bold text-green-600">
+                                {analysisResults.roiPredictions?.currentMarketValue?.hourlyRate || 1000} SEK/h
+                              </p>
+                              <p className="text-sm text-gray-600">Current Market Rate</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Monthly: {(analysisResults.roiPredictions?.currentMarketValue?.monthlyPotential || 160000).toLocaleString()} SEK
+                              </p>
+                            </div>
                           </div>
                         </div>
+                        
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Competitive Advantages</h4>
-                          <div className="space-y-1">
-                            {(analysisResults.combined.skills?.slice(0, 4) || ['React', 'TypeScript', 'AWS', 'Leadership']).map((advantage: string, index: number) => (
-                              <p key={index} className="text-sm text-gray-700">✓ {advantage} expertise</p>
-                            ))}
+                          <h4 className="font-medium text-gray-900 mb-3">Growth Potential</h4>
+                          <div className="space-y-2">
+                            <div className="bg-white p-3 rounded border">
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">6 months improvement</span>
+                                <span className="font-medium text-green-600">
+                                  {analysisResults.roiPredictions?.improvementPotential?.with6MonthsImprovement?.hourlyRate || 1150} SEK/h
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500">LinkedIn optimization + certification</p>
+                            </div>
+                            <div className="bg-white p-3 rounded border">
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">1 year improvement</span>
+                                <span className="font-medium text-green-600">
+                                  {analysisResults.roiPredictions?.improvementPotential?.with1YearImprovement?.hourlyRate || 1300} SEK/h
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500">Technical certs + thought leadership</p>
+                            </div>
                           </div>
                         </div>
                       </div>
