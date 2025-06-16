@@ -145,40 +145,6 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
         </div>
       )}
 
-      {/* Estimated Impact */}
-      <div>
-        <h5 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-green-500" />
-          Estimated Impact
-        </h5>
-        
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <DollarSign className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium text-gray-700">Cost savings:</span>
-            </div>
-            <div className="text-lg font-bold text-green-600">26052 SEK/month</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Clock className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">Expected response:</span>
-            </div>
-            <div className="text-lg font-bold text-blue-600">6h</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <TrendingUp className="h-4 w-4 text-purple-500" />
-              <span className="text-sm font-medium text-gray-700">Success probability:</span>
-            </div>
-            <div className="text-lg font-bold text-purple-600">85%</div>
-          </div>
-        </div>
-      </div>
-
       {/* Values & Personality Traits */}
       <div className="grid md:grid-cols-2 gap-6">
         <div>
@@ -258,22 +224,6 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-4 pt-4 border-t">
-        <button className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2">
-          <CheckCircle className="h-4 w-4" />
-          Select This Match
-        </button>
-        <button className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2">
-          <Mail className="h-4 w-4" />
-          Send Email
-        </button>
-        <button className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2">
-          <FileDown className="h-4 w-4" />
-          Export PDF
-        </button>
       </div>
     </div>
   );
