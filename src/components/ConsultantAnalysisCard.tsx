@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Users, Target, TrendingUp, Star, Award } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Brain, Users, Target, TrendingUp, Star, Award, Heart, DollarSign, Clock, CheckCircle, Mail, FileDown } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 
 interface ConsultantAnalysisCardProps {
@@ -17,166 +18,263 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
     workStyle: consultant.workStyle
   });
 
+  // Calculate scores for display
+  const culturalMatch = consultant.culturalFit ? Math.round((consultant.culturalFit / 5) * 100) : 85;
+  const communicationMatch = 88;
+  const valuesAlignment = 92;
+  const leadershipScore = consultant.leadership ? Math.round((consultant.leadership / 5) * 100) : 80;
+
   return (
-    <div className="space-y-4">
-      {/* CV Analysis */}
-      {consultant.cvAnalysis && (
-        <Card className="border border-blue-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-blue-800 flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              CV Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <span className="font-medium text-gray-700">Experience:</span>
-                <div className="text-blue-700 font-medium">{consultant.cvAnalysis.experience}</div>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">Level:</span>
-                <div className="text-blue-700 font-medium">{consultant.cvAnalysis.seniorityLevel}</div>
+    <div className="space-y-6 bg-gray-50 p-6 rounded-lg">
+      {/* Main Profile Info */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Experience:</span>
+            <span className="font-semibold">{consultant.experience}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Rate:</span>
+            <span className="font-semibold text-green-600">{consultant.rate}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Availability:</span>
+            <Badge className="bg-green-100 text-green-800 text-xs">{consultant.availability}</Badge>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Projects:</span>
+            <span className="font-semibold">{consultant.projects} completed</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Rating:</span>
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 text-yellow-500 fill-current" />
+              <span className="font-semibold">{consultant.rating}/5.0</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Skills */}
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <CheckCircle className="h-4 w-4 text-green-500" />
+            Matching Skills
+          </h5>
+          <div className="flex flex-wrap gap-2">
+            {consultant.skills.slice(0, 6).map((skill, idx) => (
+              <Badge key={idx} className="bg-green-100 text-green-800 text-xs">
+                ✓ {skill}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Human Factors & Cultural Fit */}
+      <div>
+        <h5 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Users className="h-4 w-4 text-purple-500" />
+          Human Factors & Cultural Fit
+        </h5>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Cultural Match:</span>
+              <div className="flex items-center gap-2">
+                <Progress value={culturalMatch} className="w-20 h-2" />
+                <span className="text-sm font-semibold text-blue-600">{culturalMatch}%</span>
               </div>
             </div>
-            {consultant.cvAnalysis.strengths && consultant.cvAnalysis.strengths.length > 0 && (
-              <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">Key Strengths</h4>
-                <div className="flex flex-wrap gap-1">
-                  {consultant.cvAnalysis.strengths.slice(0, 3).map((strength, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs">
-                      {strength}
-                    </Badge>
-                  ))}
-                </div>
+            
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Communication:</span>
+              <div className="flex items-center gap-2">
+                <Progress value={communicationMatch} className="w-20 h-2" />
+                <span className="text-sm font-semibold text-blue-600">{communicationMatch}%</span>
               </div>
-            )}
-            {consultant.cvAnalysis.marketPosition && (
-              <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">Market Position</h4>
-                <p className="text-xs text-gray-600">{consultant.cvAnalysis.marketPosition}</p>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Values Alignment:</span>
+              <div className="flex items-center gap-2">
+                <Progress value={valuesAlignment} className="w-20 h-2" />
+                <span className="text-sm font-semibold text-blue-600">{valuesAlignment}%</span>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Leadership:</span>
+              <div className="flex items-center gap-2">
+                <Progress value={leadershipScore} className="w-20 h-2" />
+                <span className="text-sm font-semibold text-blue-600">{leadershipScore}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <span className="text-sm text-gray-600">Communication Style:</span>
+              <p className="text-sm font-medium mt-1">{consultant.communicationStyle || "Direct and collaborative"}</p>
+            </div>
+            <div>
+              <span className="text-sm text-gray-600">Work Style:</span>
+              <p className="text-sm font-medium mt-1">{consultant.workStyle || "Agile and iterative"}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* LinkedIn Analysis */}
       {consultant.linkedinAnalysis && (
-        <Card className="border border-green-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-green-800 flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              LinkedIn Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {consultant.linkedinAnalysis.communicationStyle && (
-              <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">Communication Style</h4>
-                <p className="text-xs text-gray-600">{consultant.linkedinAnalysis.communicationStyle}</p>
-              </div>
-            )}
-            {consultant.linkedinAnalysis.leadershipStyle && (
-              <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">Leadership Style</h4>
-                <p className="text-xs text-gray-600">{consultant.linkedinAnalysis.leadershipStyle}</p>
-              </div>
-            )}
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              {consultant.linkedinAnalysis.culturalFit && (
-                <div>
-                  <span className="font-medium text-gray-700">Cultural Fit:</span>
-                  <div className="flex items-center gap-1">
-                    <div className="w-full bg-gray-200 rounded-full h-1">
-                      <div 
-                        className="bg-green-600 h-1 rounded-full" 
-                        style={{ width: `${(consultant.linkedinAnalysis.culturalFit / 5) * 100}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-xs">{consultant.linkedinAnalysis.culturalFit}/5</span>
-                  </div>
-                </div>
-              )}
-              {consultant.linkedinAnalysis.leadership && (
-                <div>
-                  <span className="font-medium text-gray-700">Leadership:</span>
-                  <div className="flex items-center gap-1">
-                    <div className="w-full bg-gray-200 rounded-full h-1">
-                      <div 
-                        className="bg-orange-600 h-1 rounded-full" 
-                        style={{ width: `${(consultant.linkedinAnalysis.leadership / 5) * 100}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-xs">{consultant.linkedinAnalysis.leadership}/5</span>
-                  </div>
-                </div>
-              )}
-              {consultant.linkedinAnalysis.innovation && (
-                <div>
-                  <span className="font-medium text-gray-700">Innovation:</span>
-                  <div className="flex items-center gap-1">
-                    <div className="w-full bg-gray-200 rounded-full h-1">
-                      <div 
-                        className="bg-purple-600 h-1 rounded-full" 
-                        style={{ width: `${(consultant.linkedinAnalysis.innovation / 5) * 100}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-xs">{consultant.linkedinAnalysis.innovation}/5</span>
-                  </div>
-                </div>
-              )}
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Users className="h-4 w-4 text-blue-500" />
+            LinkedIn Analysis
+          </h5>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600">Leadership Style:</span>
+              <p className="font-medium mt-1">{consultant.linkedinAnalysis.leadershipStyle}</p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <span className="text-gray-600">Problem Solving:</span>
+              <p className="font-medium mt-1">{consultant.linkedinAnalysis.problemSolving}</p>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Work Preferences - Show even if we only have basic consultant data */}
-      {(consultant.workStyle || consultant.communicationStyle || (consultant.values && consultant.values.length > 0)) && (
-        <Card className="border border-purple-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-purple-800 flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              Work Preferences
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {consultant.workStyle && (
-              <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">Work Style</h4>
-                <p className="text-xs text-gray-600">{consultant.workStyle}</p>
-              </div>
-            )}
-            {consultant.communicationStyle && (
-              <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">Communication Style</h4>
-                <p className="text-xs text-gray-600">{consultant.communicationStyle}</p>
-              </div>
-            )}
-            {consultant.values && consultant.values.length > 0 && (
-              <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">Values</h4>
-                <div className="flex flex-wrap gap-1">
-                  {consultant.values.slice(0, 4).map((value, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs">
-                      {value}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* Estimated Impact */}
+      <div>
+        <h5 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-green-500" />
+          Estimated Impact
+        </h5>
+        
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <DollarSign className="h-4 w-4 text-green-500" />
+              <span className="text-sm font-medium text-gray-700">Cost savings:</span>
+            </div>
+            <div className="text-lg font-bold text-green-600">26052 SEK/month</div>
+          </div>
+          
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Clock className="h-4 w-4 text-blue-500" />
+              <span className="text-sm font-medium text-gray-700">Expected response:</span>
+            </div>
+            <div className="text-lg font-bold text-blue-600">6h</div>
+          </div>
+          
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <TrendingUp className="h-4 w-4 text-purple-500" />
+              <span className="text-sm font-medium text-gray-700">Success probability:</span>
+            </div>
+            <div className="text-lg font-bold text-purple-600">85%</div>
+          </div>
+        </div>
+      </div>
 
-      {/* Fallback message if no analysis data is available */}
-      {!consultant.cvAnalysis && !consultant.linkedinAnalysis && !consultant.workStyle && !consultant.communicationStyle && (!consultant.values || consultant.values.length === 0) && (
-        <Card className="border border-gray-200">
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-gray-500">No analysis data available for this consultant yet.</p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Values & Personality Traits */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Heart className="h-4 w-4 text-red-500" />
+            Core Values
+          </h5>
+          <div className="flex flex-wrap gap-2">
+            {consultant.values?.map((value, idx) => (
+              <Badge key={idx} variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                {value}
+              </Badge>
+            )) || (
+              <>
+                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">Innovation</Badge>
+                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">Quality</Badge>
+                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">Teamwork</Badge>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Brain className="h-4 w-4 text-purple-500" />
+            Personality Traits
+          </h5>
+          <div className="flex flex-wrap gap-2">
+            {consultant.personalityTraits?.map((trait, idx) => (
+              <Badge key={idx} variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                {trait}
+              </Badge>
+            )) || (
+              <>
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">Collaborative</Badge>
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">Detail-oriented</Badge>
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">Proactive</Badge>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Certifications */}
+      <div>
+        <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Award className="h-4 w-4 text-yellow-500" />
+          Certifications
+        </h5>
+        <div className="grid md:grid-cols-2 gap-2">
+          {consultant.certifications.slice(0, 4).map((cert, idx) => (
+            <div key={idx} className="flex items-center gap-2 text-sm">
+              <CheckCircle className="h-3 w-3 text-green-500" />
+              <span>{cert}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* AI Generated Cover Letter Preview */}
+      <div>
+        <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Mail className="h-4 w-4 text-blue-500" />
+          AI-Generated Cover Letter Preview
+        </h5>
+        <div className="bg-white rounded-lg border p-4">
+          <div className="text-sm text-gray-700 space-y-2">
+            <p><strong>Application: Senior React Developer - E-commerce Platform | {consultant.name}</strong></p>
+            <p>Hello TechStore Nordic AB Team! 👋</p>
+            <p>I'm {consultant.name}, a {consultant.roles[0]} with {consultant.experience} of hands-on experience. Your Senior React Developer - E-commerce Platform project perfectly aligns with my expertise and career goals.</p>
+            <p className="text-red-600"><strong>🎯 Why I'm Perfect for This Role:</strong></p>
+            <p><strong>Technical Match (100%):</strong></p>
+            <div className="pl-4 space-y-1">
+              {consultant.skills.slice(0, 4).map((skill, idx) => (
+                <p key={idx} className="text-green-600">✅ Expert in {skill}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-4 pt-4 border-t">
+        <button className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2">
+          <CheckCircle className="h-4 w-4" />
+          Select This Match
+        </button>
+        <button className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2">
+          <Mail className="h-4 w-4" />
+          Send Email
+        </button>
+        <button className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2">
+          <FileDown className="h-4 w-4" />
+          Export PDF
+        </button>
+      </div>
     </div>
   );
 };

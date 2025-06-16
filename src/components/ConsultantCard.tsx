@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Star, Mail, Award, ChevronDown, ChevronUp } from 'lucide-react';
 import { Consultant } from '../types/consultant';
@@ -11,7 +12,11 @@ interface ConsultantCardProps {
 }
 
 const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = false }) => {
-  const [showAnalysis, setShowAnalysis] = useState(false);
+  // Check if consultant has analysis data - more comprehensive check
+  const hasAnalysis = !!(consultant.cvAnalysis || consultant.linkedinAnalysis || consultant.communicationStyle || consultant.workStyle);
+  
+  // Show analysis by default if it exists
+  const [showAnalysis, setShowAnalysis] = useState(hasAnalysis);
   
   const borderColor = isNew ? 'border-2 border-green-100' : 'border';
   const badgeColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
@@ -26,9 +31,6 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   };
 
   const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
-
-  // Check if consultant has analysis data - more comprehensive check
-  const hasAnalysis = !!(consultant.cvAnalysis || consultant.linkedinAnalysis || consultant.communicationStyle || consultant.workStyle);
 
   console.log('ConsultantCard:', consultant.name, 'hasAnalysis:', hasAnalysis, {
     cvAnalysis: !!consultant.cvAnalysis,
@@ -125,7 +127,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           >
             <span className="flex items-center gap-2">
               <Star className="h-4 w-4" />
-              View AI Analysis
+              AI Analysis & LinkedIn Profile
             </span>
             {showAnalysis ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
