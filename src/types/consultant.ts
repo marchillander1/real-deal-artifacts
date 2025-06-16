@@ -1,3 +1,4 @@
+
 export interface Consultant {
   id: string | number;
   name: string;
@@ -32,6 +33,12 @@ export interface Consultant {
     marketPosition: string;
     technicalDepth: string;
     improvementAreas: string[];
+    personalInfo?: any;
+    professionalSummary?: any;
+    technicalExpertise?: any;
+    detailedStrengthsAnalysis?: any[];
+    comprehensiveImprovementAreas?: any[];
+    marketPositioning?: any;
   };
   linkedinAnalysis?: {
     communicationStyle: string;

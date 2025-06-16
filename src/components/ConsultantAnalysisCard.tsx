@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Brain, Users, Target, TrendingUp, Star, Award, Heart, DollarSign, Clock, CheckCircle, Mail, FileDown } from 'lucide-react';
+import { Brain, Users, Target, TrendingUp, Star, Award, Heart, DollarSign, Clock, CheckCircle, Mail, FileDown, Code } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 
 interface ConsultantAnalysisCardProps {
@@ -26,49 +26,120 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
 
   return (
     <div className="space-y-6 bg-gray-50 p-6 rounded-lg">
-      {/* Main Profile Info */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Experience:</span>
-            <span className="font-semibold">{consultant.experience}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Rate:</span>
-            <span className="font-semibold text-green-600">{consultant.rate}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Availability:</span>
-            <Badge className="bg-green-100 text-green-800 text-xs">{consultant.availability}</Badge>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Projects:</span>
-            <span className="font-semibold">{consultant.projects} completed</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Rating:</span>
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-yellow-500 fill-current" />
-              <span className="font-semibold">{consultant.rating}/5.0</span>
+      {/* Professional Summary from CV Analysis */}
+      {consultant.cvAnalysis?.professionalSummary && (
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Users className="h-4 w-4 text-blue-500" />
+            Professional Summary
+          </h5>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600">Seniority Level:</span>
+              <p className="font-semibold">{consultant.cvAnalysis.professionalSummary.seniorityLevel}</p>
+            </div>
+            <div>
+              <span className="text-gray-600">Experience:</span>
+              <p className="font-semibold">{consultant.cvAnalysis.professionalSummary.yearsOfExperience}</p>
+            </div>
+            <div>
+              <span className="text-gray-600">Current Role:</span>
+              <p className="font-semibold">{consultant.cvAnalysis.professionalSummary.currentRole}</p>
+            </div>
+            <div>
+              <span className="text-gray-600">Career Trajectory:</span>
+              <p className="font-semibold text-green-600">{consultant.cvAnalysis.professionalSummary.careerTrajectory}</p>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Skills */}
+      {/* Technical Expertise */}
+      {consultant.cvAnalysis?.technicalExpertise && (
         <div>
           <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            Matching Skills
+            <Code className="h-4 w-4 text-purple-500" />
+            Technical Expertise
           </h5>
-          <div className="flex flex-wrap gap-2">
-            {consultant.skills.slice(0, 6).map((skill, idx) => (
-              <Badge key={idx} className="bg-green-100 text-green-800 text-xs">
-                ✓ {skill}
-              </Badge>
+          <div className="space-y-3">
+            {consultant.cvAnalysis.technicalExpertise.programmingLanguages?.expert && (
+              <div>
+                <span className="text-sm font-medium text-gray-700">Expert Level:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {consultant.cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, idx: number) => (
+                    <Badge key={idx} className="bg-green-100 text-green-800 text-xs">{skill}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            {consultant.cvAnalysis.technicalExpertise.cloudAndInfrastructure?.platforms && (
+              <div>
+                <span className="text-sm font-medium text-gray-700">Cloud Platforms:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {consultant.cvAnalysis.technicalExpertise.cloudAndInfrastructure.platforms.map((platform: string, idx: number) => (
+                    <Badge key={idx} className="bg-blue-100 text-blue-800 text-xs">{platform}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Key Strengths */}
+      {consultant.cvAnalysis?.detailedStrengthsAnalysis && (
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-green-500" />
+            Key Strengths
+          </h5>
+          <div className="space-y-3">
+            {consultant.cvAnalysis.detailedStrengthsAnalysis.slice(0, 2).map((strength: any, idx: number) => (
+              <div key={idx} className="border-l-4 border-green-500 pl-3 bg-white p-3 rounded">
+                <h6 className="font-semibold text-green-700 text-sm">{strength.category}</h6>
+                <p className="text-xs text-gray-600 mt-1">{strength.description}</p>
+                <p className="text-xs text-green-600 mt-1 font-medium">{strength.marketValue}</p>
+              </div>
             ))}
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Market Position */}
+      {consultant.cvAnalysis?.marketPositioning && (
+        <div>
+          <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Award className="h-4 w-4 text-purple-500" />
+            Market Position
+          </h5>
+          <div className="bg-white p-4 rounded-lg space-y-3">
+            <div>
+              <span className="text-sm text-gray-600">Unique Value Proposition:</span>
+              <p className="text-sm font-medium">{consultant.cvAnalysis.marketPositioning.uniqueValueProposition}</p>
+            </div>
+            <div>
+              <span className="text-sm text-gray-600">Market Competitiveness:</span>
+              <p className="text-sm font-semibold text-blue-600">{consultant.cvAnalysis.marketPositioning.competitiveness}</p>
+            </div>
+            {consultant.cvAnalysis.marketPositioning.salaryBenchmarks && (
+              <div className="grid grid-cols-3 gap-2 mt-3">
+                <div className="text-center p-2 bg-blue-50 rounded">
+                  <p className="text-xs text-gray-600">Stockholm</p>
+                  <p className="text-xs font-bold text-blue-600">{consultant.cvAnalysis.marketPositioning.salaryBenchmarks.stockholm}</p>
+                </div>
+                <div className="text-center p-2 bg-green-50 rounded">
+                  <p className="text-xs text-gray-600">Europe</p>
+                  <p className="text-xs font-bold text-green-600">{consultant.cvAnalysis.marketPositioning.salaryBenchmarks.europeanTech}</p>
+                </div>
+                <div className="text-center p-2 bg-purple-50 rounded">
+                  <p className="text-xs text-gray-600">Remote</p>
+                  <p className="text-xs font-bold text-purple-600">{consultant.cvAnalysis.marketPositioning.salaryBenchmarks.remoteGlobal}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Human Factors & Cultural Fit */}
       <div>
