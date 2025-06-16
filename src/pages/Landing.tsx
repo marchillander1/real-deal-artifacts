@@ -18,8 +18,8 @@ export default function Landing() {
   const { user } = useAuth();
   const { consultants } = useSupabaseConsultantsDedup();
 
-  // Count network consultants accurately
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
+  // Count only network consultants (type === 'new') and limit to 1 for display
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new').slice(0, 1);
   const totalNetworkConsultants = networkConsultants.length;
 
   console.log('Total consultants:', consultants.length);
@@ -93,8 +93,89 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Contact Section */}
+      <section id="contact" className="py-20 bg-slate-900/90 backdrop-blur-sm relative">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">Contact Us</h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              Ready to transform your consultant matching? Get in touch with us today.
+            </p>
+          </div>
+          
+          <div className="max-w-2xl mx-auto">
+            <form className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Your name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label htmlFor="company" className="block text-sm font-medium text-slate-300 mb-2">
+                  Company
+                </label>
+                <input
+                  type="text"
+                  id="company"
+                  name="company"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Your company"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={5}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Tell us about your consultant matching needs..."
+                  required
+                ></textarea>
+              </div>
+              
+              <div className="text-center">
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg"
+                >
+                  Send Message
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
       {/* ROI Calculator Section */}
-      <section className="py-20 bg-slate-900/90 backdrop-blur-sm relative">
+      <section className="py-20 bg-slate-800/50 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Calculate Your ROI</h2>

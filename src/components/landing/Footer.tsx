@@ -3,6 +3,13 @@ import React from 'react';
 import Logo from '@/components/Logo';
 
 export default function Footer() {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="border-t border-slate-700 bg-slate-900/80 py-12 backdrop-blur-sm">
       <div className="container mx-auto px-4">
@@ -16,17 +23,45 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">Product</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Features</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Pricing</a></li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('about')}
+                  className="text-slate-400 hover:text-white transition-colors text-left"
+                >
+                  Features
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => window.location.href = '/pricing'}
+                  className="text-slate-400 hover:text-white transition-colors text-left"
+                >
+                  Pricing
+                </button>
+              </li>
               <li><a href="#" className="text-slate-400 hover:text-white transition-colors">API</a></li>
             </ul>
           </div>
           <div>
             <h3 className="text-white font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('about')}
+                  className="text-slate-400 hover:text-white transition-colors text-left"
+                >
+                  About Us
+                </button>
+              </li>
               <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Contact</a></li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('contact')}
+                  className="text-slate-400 hover:text-white transition-colors text-left"
+                >
+                  Contact
+                </button>
+              </li>
             </ul>
           </div>
           <div>
