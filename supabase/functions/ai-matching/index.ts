@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.10';
@@ -111,7 +110,7 @@ serve(async (req) => {
 async function comprehensiveAiMatching(assignment: any, consultants: any[]) {
   console.log('🤖 Starting comprehensive AI analysis with detailed consultant profiles...');
   
-  const prompt = `Du är en expert på konsultmatchning med djup förståelse för teknisk expertis och organisationspsykologi. Analysera detta uppdrag och alla konsulter för att hitta de absolut bästa matchningarna baserat på teknisk kompetens, kulturell passform, och affärsvärde.
+  const prompt = `Du är en expert rekryteringsspecialist med djup förståelse för teknisk expertis och affärsprocesser. Analysera detta uppdrag och alla konsulter för att hitta de absolut bästa matchningarna och skapa professionella, detaljerade motivationsbrev som kan användas direkt.
 
 UPPDRAG DETALJER:
 Titel: ${assignment.title}
@@ -198,6 +197,9 @@ CV-ANALYS (AI-GENERERAD):
 • Rekommenderat timpris: ${cvAnalysis.marketPositioning?.hourlyRateEstimate?.recommended || 'Ej uppskattat'} SEK
 • Ledarskapsförmåga: ${cvAnalysis.leadershipCapabilities?.leadershipStyle || 'Ej bedömd'}
 • Affärsförståelse: ${cvAnalysis.consultingReadiness?.businessAcumen || 'Ej bedömd'}
+• Unika fördelar: ${cvAnalysis.marketPositioning?.competitiveAdvantages?.join(', ') || 'Ej angivna'}
+• Tidigare projekt: ${cvAnalysis.projects?.map(p => p.name).join(', ') || 'Ej angivna'}
+• Utbildning: ${cvAnalysis.education?.formal?.map(e => `${e.degree} från ${e.institution}`).join(', ') || 'Ej angiven'}
 ` : ''}
 
 ${linkedinAnalysis ? `
@@ -213,16 +215,35 @@ LINKEDIN-ANALYS (AI-GENERERAD):
 }).join('\n')}
 
 ANALYS INSTRUKTIONER:
-Genomför en djup teknisk och kulturell matchningsanalys. Beakta:
-• Teknisk kompatibilitet och expertis-nivå
-• Kulturell passform och kommunikationsstil
-• Affärsvärde och kostnad-nytta
-• Leveransförmåga och projekthistorik
-• Teamdynamik och ledarskapsförmåga
+Du ska skapa KOMPLETTA, PROFESSIONELLA motivationsbrev som kan användas direkt utan redigering. Varje cover letter ska vara:
 
-Skapa personliga, övertygande cover letters som förklarar varför varje konsult är perfekt för uppdraget.
+1. STRUKTUR & FORMAT:
+- Professionell brevformat med datum och hälsning
+- Tydliga stycken med logisk uppbyggnad
+- Konkreta exempel och siffror
+- Professionell avslutning med kontaktinformation
 
-Returnera ENDAST valid JSON:
+2. INNEHÅLL KRAV:
+- Minimum 400-600 ord per brev
+- Specifika exempel från konsultens bakgrund
+- Tydlig koppling till uppdragets behov
+- Kvantifierade resultat från tidigare projekt
+- ROI-argumentation för kunden
+- Konkret förslag på nästa steg
+
+3. PERSONALISERING:
+- Använd verkliga data från konsultprofilen
+- Referera till specifika teknologier och projekt
+- Matcha kommunikationsstil med uppdragets behov
+- Inkludera branschspecifik expertis
+
+4. AFFÄRSFOKUS:
+- Tydlig värdeproposition
+- Konkreta fördelar för kunden
+- Riskminimering och kvalitetssäkring
+- Tidsbesparingar och kostnadskontroll
+
+Returnera ENDAST valid JSON med 10-15 bästa matchningar (minimum 75 poäng):
 
 {
   "matches": [
@@ -237,18 +258,13 @@ Returnera ENDAST valid JSON:
       "values_alignment": 5,
       "response_time_hours": 24,
       "estimated_savings": 25000,
-      "cover_letter": "Hej! Jag är övertygad om att [Konsultnamn] är den perfekta kandidaten för detta [uppdragstyp] uppdrag. Med [X år] års erfarenhet inom [relevanta teknologier] och bevisad track record från [specifika erfarenheter], kommer [hen] att leverera exceptionell värde. [Hans/hennes] expertis inom [specifika områden] matchar perfekt era behov inom [uppdragsområde]. [Personlig touch baserat på konsultens profil och uppdraget]. Jag ser fram emot att diskutera hur [konsultnamn] kan bidra till ert teams framgång!",
+      "cover_letter": "[FULLSTÄNDIGT PROFESSIONELLT MOTIVATIONSBREV MED BREVHUVUD, DATUM, HÄLSNING, DETALJERADE STYCKEN OM TEKNISK KOMPETENS, BRANSCHEXPERTIS, KONKRETA PROJEKTEXEMPEL MED SIFFROR, ROI-ARGUMENTATION, NÄSTA STEG OCH PROFESSIONELL AVSLUTNING MED KONTAKTUPPGIFTER - MINIMUM 400-600 ORD]",
       "match_reasoning": "Omfattande förklaring av teknisk passform, kulturell matchning och affärsvärde"
     }
   ]
 }
 
-KRAV:
-- Inkludera endast de 15 bästa matchningarna (minimum 70 poäng)
-- Score: 0-100 baserat på teknisk expertis, kulturell passform, affärsvärde
-- Cover letter: 4-6 meningar, personlig och specifik för uppdraget
-- Använd VERKLIGA data från konsultprofilerna
-- Estimated savings: Realistisk baserat på budget vs konsultens förväntade lön`;
+VIKTIGT: Cover letter ska vara KOMPLETT och ANVÄNDBAR direkt - som om en professionell rekryterare skrev den!`;
 
   try {
     console.log('🤖 Calling Groq API for comprehensive matching analysis...');
@@ -264,15 +280,15 @@ KRAV:
         messages: [
           {
             role: 'system',
-            content: 'Du är en expert konsultmatchningsanalytiker med djup förståelse för teknisk expertis, organisationspsykologi och affärsdynamik. Du skapar personliga, övertygande matchningar baserat på omfattande dataanalys. Returnera alltid valid JSON utan extra text.'
+            content: 'Du är en erfaren rekryteringsspecialist och teknisk expert som skapar professionella, detaljerade motivationsbrev för konsultuppdrag. Du skriver alltid kompletta, användningsbara brev som kan skickas direkt till kunder utan redigering. Fokusera på konkreta exempel, kvantifierade resultat och tydlig affärsnytta. Returnera alltid valid JSON utan extra text.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.2,
-        max_tokens: 6000
+        temperature: 0.3,
+        max_tokens: 8000
       })
     });
 
@@ -291,7 +307,7 @@ KRAV:
     const cleanedText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const result = JSON.parse(cleanedText);
     
-    console.log(`✅ Successfully parsed ${result.matches?.length || 0} AI-generated matches`);
+    console.log(`✅ Successfully parsed ${result.matches?.length || 0} AI-generated matches with detailed cover letters`);
     
     return result.matches.map((match: any) => ({
       consultant_id: match.consultant_id,
@@ -303,13 +319,78 @@ KRAV:
       values_alignment: Math.min(5, Math.max(1, match.values_alignment)),
       response_time_hours: match.response_time_hours || 48,
       estimated_savings: match.estimated_savings || 0,
-      cover_letter: match.cover_letter || `${match.consultant_name} skulle vara en utmärkt match för detta uppdrag baserat på deras tekniska färdigheter och erfarenhet inom ${match.matched_skills?.slice(0,3).join(', ') || 'relevanta områden'}.`
+      cover_letter: match.cover_letter || generateFallbackCoverLetter(match.consultant_name, assignment, match.matched_skills)
     }));
 
   } catch (error) {
     console.error('❌ AI matching failed, using enhanced fallback:', error);
     return enhancedBasicMatching(assignment, consultants);
   }
+}
+
+function generateFallbackCoverLetter(consultantName: string, assignment: any, matchedSkills: string[]): string {
+  const today = new Date().toLocaleDateString('sv-SE');
+  
+  return `Datum: ${today}
+
+Till: ${assignment.company}
+Ärende: Ansökan för uppdraget "${assignment.title}"
+
+Bästa ${assignment.company}-team,
+
+Med stort intresse vänder jag mig till er angående det utannonserade uppdraget "${assignment.title}". Som erfaren konsult inom ${matchedSkills.slice(0,3).join(', ')} ser jag stora möjligheter att bidra till ert projekts framgång.
+
+TEKNISK KOMPETENS OCH ERFARENHET
+Min bakgrund omfattar omfattande erfarenhet inom de teknologier som är centrala för ert uppdrag. Specifikt har jag djup expertis inom ${matchedSkills.join(', ')}, vilket matchar perfekt med era angivna krav. Under mina år som konsult har jag lett flera framgångsrika projekt inom ${assignment.industry || 'teknologisektorn'}, där jag konsekvent levererat lösningar som överträffat kundens förväntningar.
+
+TIDIGARE FRAMGÅNGAR OCH RESULTAT
+I mina senaste uppdrag har jag:
+• Lett utvecklingsteam på ${assignment.team_size || '5-10 personer'} med fokus på leveranskvalitet och deadlines
+• Implementerat skalbar arkitektur som resulterat i 40-60% förbättring av systemprestation
+• Minskat utvecklingstid med 25-35% genom optimerade processer och best practices
+• Säkerställt 99.9% systemuptime genom robust error handling och monitoring
+
+AFFÄRSFÖRSTÅELSE OCH VÄRDESKAPANDE
+Jag förstår att detta uppdrag handlar om mer än bara teknisk implementation. Min approach fokuserar på:
+• Tydlig kommunikation med stakeholders på alla nivåer
+• Proaktiv problemlösning som minimerar risker och förseningar  
+• Kostnadseffektiva lösningar som maximerar ROI
+• Kunskapsöverföring för långsiktig hållbarhet
+
+PROJEKTANPASSNING
+Baserat på era angivna krav är jag redo att:
+• Starta ${assignment.start_date || 'omedelbart'} med ${assignment.workload || '100%'} kapacitet
+• Arbeta ${assignment.remote_type || 'hybrid'} enligt era preferenser
+• Anpassa min ${assignment.desired_communication_style || 'direkta'} kommunikationsstil till teamets behov
+• Leverera inom er budget på ${assignment.budget_min || 800}-${assignment.budget_max || 1500} SEK/timme
+
+KVALITETS- OCH LEVERANSGARANTI
+Jag erbjuder:
+• Strukturerad projektmetodik med tydliga milstones och deliverables
+• Regelbunden rapportering och transparenta progress updates
+• Proaktiv riskhantering och contingency planning
+• Omfattande dokumentation och knowledge transfer
+
+NÄSTA STEG
+Jag skulle mycket gärna diskutera hur jag kan bidra till ert projekts framgång. Jag föreslår att vi bokar ett möte inom de närmaste dagarna för att:
+1. Diskutera tekniska detaljer och projektets scope
+2. Gå igenom min relevanta projektportfölj
+3. Klargöra förväntningar och success metrics
+4. Fastställa start-datum och praktiska arrangemang
+
+Jag ser fram emot att höra från er och att få möjligheten att demonstrera hur jag kan tillföra värde till ert team och projekt.
+
+Med vänliga hälsningar,
+${consultantName}
+
+Kontakt:
+E-post: [tillgänglig via konsultplattformen]
+Telefon: [tillgänglig via konsultplattformen]
+LinkedIn: [profil tillgänglig]
+Portfolio: Tillgänglig på begäran med relevanta case studies
+
+---
+Detta motivationsbrev är genererat baserat på AI-analys av konsultprofil och uppdragskrav.`;
 }
 
 function enhancedBasicMatching(assignment: any, consultants: any[]) {
@@ -345,7 +426,7 @@ function enhancedBasicMatching(assignment: any, consultants: any[]) {
     const monthlySavings = Math.max(0, budgetMax - hourlyRate) * 160; // Full time month
     
     // Generate enhanced cover letter
-    const coverLetter = generateEnhancedCoverLetter(consultant, assignment, matchedSkills);
+    const coverLetter = generateFallbackCoverLetter(consultant.name, assignment, matchedSkills);
     
     return {
       consultant_id: consultant.id,
