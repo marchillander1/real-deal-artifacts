@@ -16,22 +16,25 @@ export const performCVAnalysis = async (
   phoneNumber: string,
   linkedinUrl: string
 ) => {
-  console.log('Starting comprehensive analysis for file:', file.name);
+  console.log('🚀 Starting comprehensive CV and LinkedIn analysis for:', file.name);
   
   setIsAnalyzing(true);
-  setAnalysisProgress(10);
-  toast.info('🧠 AI analyzing your CV and extracting comprehensive professional information...');
-
+  setAnalysisProgress(5);
+  
   try {
     // Convert file to base64
+    setAnalysisProgress(10);
+    toast.info('📄 Processing CV file...');
+    
     const fileBuffer = await file.arrayBuffer();
     const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
-
-    console.log('Sending CV for comprehensive parsing...');
-    setAnalysisProgress(30);
     
-    // Call the parse-cv edge function
-    const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-cv', {
+    setAnalysisProgress(25);
+    console.log('✅ File converted to base64, starting CV parsing...');
+    
+    // Step 1: Parse CV
+    toast.info('🧠 AI analyzing CV content...');
+    const { data: cvData, error: cvError } = await supabase.functions.invoke('parse-cv', {
       body: {
         file: fileBase64,
         fileName: file.name,
@@ -39,90 +42,100 @@ export const performCVAnalysis = async (
       }
     });
 
-    if (parseError) {
-      console.error('Parse error:', parseError);
-      throw new Error(`CV parsing failed: ${parseError.message}`);
+    if (cvError) {
+      console.error('❌ CV parsing failed:', cvError);
+      throw new Error(`CV analysis failed: ${cvError.message}`);
     }
 
-    if (!parseData || !parseData.analysis) {
-      throw new Error('No analysis data returned from CV parsing');
+    if (!cvData?.analysis) {
+      throw new Error('No CV analysis data received');
     }
 
-    console.log('CV analyzed successfully with comprehensive data:', parseData);
-    setAnalysisProgress(60);
+    console.log('✅ CV analysis completed:', cvData.analysis);
+    setAnalysisProgress(50);
     
-    // Auto-populate form fields from CV analysis
-    if (parseData.analysis?.personalInfo) {
-      const personalInfo = parseData.analysis.personalInfo;
-      
+    // Auto-populate form fields from CV
+    const personalInfo = cvData.analysis.personalInfo;
+    if (personalInfo) {
       if (personalInfo.name && !fullName) {
         setFullName(personalInfo.name);
-        console.log('Auto-filled name:', personalInfo.name);
+        console.log('📝 Auto-filled name:', personalInfo.name);
       }
       if (personalInfo.email && !email) {
         setEmail(personalInfo.email);
-        console.log('Auto-filled email:', personalInfo.email);
+        console.log('📝 Auto-filled email:', personalInfo.email);
       }
       if (personalInfo.phone && !phoneNumber) {
         setPhoneNumber(personalInfo.phone);
-        console.log('Auto-filled phone:', personalInfo.phone);
+        console.log('📝 Auto-filled phone:', personalInfo.phone);
       }
       if (personalInfo.linkedinProfile && !linkedinUrl) {
         const linkedinProfile = personalInfo.linkedinProfile.startsWith('http') 
           ? personalInfo.linkedinProfile 
           : `https://linkedin.com/in/${personalInfo.linkedinProfile}`;
         setLinkedinUrl(linkedinProfile);
-        console.log('Auto-filled LinkedIn:', linkedinProfile);
+        console.log('📝 Auto-filled LinkedIn:', linkedinProfile);
       }
     }
 
-    setAnalysisProgress(80);
-
-    // Call LinkedIn analysis
+    setAnalysisProgress(60);
+    
+    // Step 2: LinkedIn Analysis
     let linkedinAnalysis = null;
-    const linkedinToAnalyze = linkedinUrl || parseData.analysis?.personalInfo?.linkedinProfile;
+    const linkedinToAnalyze = linkedinUrl || personalInfo?.linkedinProfile;
     
     if (linkedinToAnalyze) {
       try {
-        console.log('Analyzing LinkedIn profile for comprehensive soft skills analysis...', linkedinToAnalyze);
+        toast.info('🔗 Analyzing LinkedIn profile and recent posts...');
+        console.log('🔗 Starting LinkedIn analysis for:', linkedinToAnalyze);
+        
         const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
           body: {
             linkedinUrl: linkedinToAnalyze,
-            fullName: fullName || parseData.analysis?.personalInfo?.name || 'Unknown',
-            email: email || parseData.analysis?.personalInfo?.email || 'unknown@email.com'
+            fullName: fullName || personalInfo?.name || 'Unknown',
+            email: email || personalInfo?.email || 'unknown@email.com'
           }
         });
 
         if (linkedinError) {
-          console.error('LinkedIn analysis error:', linkedinError);
-          console.warn('Continuing with CV analysis only - LinkedIn analysis failed');
+          console.error('⚠️ LinkedIn analysis error:', linkedinError);
+          toast.warning('LinkedIn analysis failed, continuing with CV only');
         } else if (linkedinData?.analysis) {
           linkedinAnalysis = linkedinData.analysis;
-          console.log('LinkedIn analysis completed with comprehensive soft skills:', linkedinAnalysis);
+          console.log('✅ LinkedIn analysis completed:', linkedinAnalysis);
+          toast.success('LinkedIn analysis completed successfully!');
         }
       } catch (linkedinErr) {
-        console.error('LinkedIn analysis failed:', linkedinErr);
-        console.warn('Continuing with CV analysis only');
+        console.error('⚠️ LinkedIn analysis exception:', linkedinErr);
+        toast.warning('LinkedIn analysis failed, continuing with CV only');
       }
+    } else {
+      console.log('ℹ️ No LinkedIn URL provided, skipping LinkedIn analysis');
+      toast.info('No LinkedIn URL provided - add LinkedIn for complete analysis');
     }
 
-    setAnalysisProgress(100);
-
-    // Set comprehensive analysis results
+    setAnalysisProgress(90);
+    
+    // Combine results
     const completeAnalysis = {
-      cvAnalysis: parseData.analysis,
-      linkedinAnalysis: linkedinAnalysis
+      cvAnalysis: cvData.analysis,
+      linkedinAnalysis: linkedinAnalysis,
+      timestamp: new Date().toISOString()
     };
     
+    console.log('✅ Complete analysis ready:', completeAnalysis);
     setAnalysisResults(completeAnalysis);
+    setAnalysisProgress(100);
     
-    toast.success('🎉 Comprehensive analysis completed! Review your complete professional profile and join our network.');
+    toast.success('🎉 Complete professional analysis finished! Ready to submit.');
 
   } catch (error) {
-    console.error('Analysis error:', error);
-    toast.error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+    console.error('❌ Analysis failed:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    toast.error(`Analysis failed: ${errorMessage}`);
+    setAnalysisResults(null);
   } finally {
     setIsAnalyzing(false);
-    setAnalysisProgress(0);
+    setTimeout(() => setAnalysisProgress(0), 2000);
   }
 };

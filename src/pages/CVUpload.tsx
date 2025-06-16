@@ -30,39 +30,42 @@ export const CVUpload = () => {
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
-        const fileId = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
-        
-        setFile(selectedFile);
-        
-        // Only analyze if this file hasn't been analyzed before
-        if (!analyzedFiles.current.has(fileId)) {
-          analyzedFiles.current.add(fileId);
-          setAnalysisResults(null);
-          toast.success('CV uploaded! Starting comprehensive AI analysis...');
-          
-          // Start analysis immediately
-          await performCVAnalysis(
-            selectedFile,
-            setIsAnalyzing,
-            setAnalysisProgress,
-            setAnalysisResults,
-            setFullName,
-            setEmail,
-            setPhoneNumber,
-            setLinkedinUrl,
-            fullName,
-            email,
-            phoneNumber,
-            linkedinUrl
-          );
-        } else {
-          toast.info('This file has already been analyzed');
-        }
-      } else {
-        toast.error('Please upload a PDF file or image');
-      }
+    if (!selectedFile) return;
+
+    // Validate file type
+    if (!selectedFile.type.includes('pdf') && !selectedFile.type.startsWith('image/')) {
+      toast.error('Please upload a PDF file or image');
+      return;
+    }
+
+    const fileId = `${selectedFile.name}-${selectedFile.size}-${selectedFile.lastModified}`;
+    setFile(selectedFile);
+    
+    // Only analyze if this file hasn't been analyzed before
+    if (!analyzedFiles.current.has(fileId)) {
+      analyzedFiles.current.add(fileId);
+      setAnalysisResults(null);
+      
+      console.log('🎯 New file detected, starting analysis...');
+      toast.success('CV uploaded! Starting comprehensive analysis...');
+      
+      // Start analysis immediately
+      await performCVAnalysis(
+        selectedFile,
+        setIsAnalyzing,
+        setAnalysisProgress,
+        setAnalysisResults,
+        setFullName,
+        setEmail,
+        setPhoneNumber,
+        setLinkedinUrl,
+        fullName,
+        email,
+        phoneNumber,
+        linkedinUrl
+      );
+    } else {
+      toast.info('This file has already been analyzed');
     }
   };
 
@@ -131,41 +134,38 @@ export const CVUpload = () => {
         linkedinAnalysis: analysisResults.linkedinAnalysis
       };
 
-      console.log('Saving consultant data with comprehensive analysis:', consultantData);
+      console.log('💾 Saving consultant data:', consultantData);
 
       const { data: insertData, error: insertError } = await supabase
         .from('consultants')
         .insert(consultantData);
 
       if (insertError) {
-        console.error('Insert error:', insertError);
+        console.error('❌ Database insert error:', insertError);
         throw new Error(`Failed to save profile: ${insertError.message}`);
       }
 
-      console.log('Consultant saved to database successfully');
+      console.log('✅ Consultant saved successfully');
 
       // Send welcome email
       try {
         const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-          body: {
-            email,
-            name: fullName
-          }
+          body: { email, name: fullName }
         });
         
         if (emailError) {
-          console.error('Welcome email error:', emailError);
+          console.error('⚠️ Welcome email error:', emailError);
         }
       } catch (emailErr) {
-        console.error('Error sending welcome email:', emailErr);
+        console.error('⚠️ Email service error:', emailErr);
       }
 
       setUploadComplete(true);
-      toast.success('🎉 Comprehensive profile saved! You are now part of our consultant network.');
+      toast.success('🎉 Profile saved! Welcome to our consultant network.');
 
     } catch (error) {
-      console.error('Save error:', error);
-      toast.error(`Failed to save profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      console.error('❌ Save error:', error);
+      toast.error(`Failed to save profile: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }
@@ -195,8 +195,7 @@ export const CVUpload = () => {
                 Welcome to our consultant network!
               </CardTitle>
               <CardDescription>
-                Your comprehensive professional profile has been analyzed and you are now part of our network. 
-                You can now receive matching assignments based on your complete skills and experience profile.
+                Your comprehensive professional profile has been analyzed and you are now part of our network.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -251,16 +250,6 @@ export const CVUpload = () => {
                       <div className="flex flex-wrap gap-2 mt-2">
                         {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, idx: number) => (
                           <Badge key={idx} className="bg-green-100 text-green-800">{skill}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {cvAnalysis.technicalExpertise.cloudAndInfrastructure?.platforms && (
-                    <div className="mt-3">
-                      <span className="text-sm font-medium text-gray-700">Cloud Platforms:</span>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {cvAnalysis.technicalExpertise.cloudAndInfrastructure.platforms.map((platform: string, idx: number) => (
-                          <Badge key={idx} className="bg-blue-100 text-blue-800">{platform}</Badge>
                         ))}
                       </div>
                     </div>
@@ -334,87 +323,15 @@ export const CVUpload = () => {
                     <span className="text-sm text-gray-600">Competitiveness:</span>
                     <p className="text-sm font-semibold text-blue-600">{cvAnalysis.marketPositioning.competitiveness}</p>
                   </div>
-                  {cvAnalysis.marketPositioning.salaryBenchmarks && (
-                    <div className="space-y-2">
-                      <span className="text-sm font-medium text-gray-700">Salary Range:</span>
-                      <div className="text-center p-2 bg-blue-50 rounded">
-                        <p className="text-xs text-gray-600">Stockholm Market</p>
-                        <p className="text-sm font-bold text-blue-600">{cvAnalysis.marketPositioning.salaryBenchmarks.stockholm}</p>
-                      </div>
-                    </div>
-                  )}
-                  {cvAnalysis.marketPositioning.targetRoles && (
-                    <div>
-                      <span className="text-sm font-medium text-gray-700">Target Roles:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {cvAnalysis.marketPositioning.targetRoles.slice(0, 3).map((role: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs">{role}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             )}
           </div>
 
-          {/* Detailed Strengths Analysis */}
-          {cvAnalysis?.detailedStrengthsAnalysis && (
-            <Card className="shadow-lg mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                  Detailed Strengths Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {cvAnalysis.detailedStrengthsAnalysis.slice(0, 4).map((strength: any, idx: number) => (
-                    <div key={idx} className="border-l-4 border-green-500 pl-3 bg-green-50 p-3 rounded">
-                      <h6 className="font-semibold text-green-700 text-sm">{strength.category}</h6>
-                      <p className="text-xs text-gray-600 mt-1">{strength.description}</p>
-                      <p className="text-xs text-green-600 mt-1 font-medium">Market Value: {strength.marketValue}</p>
-                      <p className="text-xs text-blue-600 mt-1">Growth Potential: {strength.growthPotential}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Development Roadmap */}
-          {cvAnalysis?.comprehensiveImprovementAreas && (
-            <Card className="shadow-lg mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-orange-500" />
-                  Development Opportunities
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {cvAnalysis.comprehensiveImprovementAreas.slice(0, 3).map((area: any, idx: number) => (
-                    <div key={idx} className="border border-orange-200 p-3 rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <h6 className="font-semibold text-orange-700 text-sm">{area.area}</h6>
-                        <Badge className={`text-xs ${area.improvementPriority === 'High Priority' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                          {area.improvementPriority}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-gray-600 mb-1">{area.currentState}</p>
-                      <p className="text-xs text-orange-600 font-medium">Expected Impact: {area.expectedImpact}</p>
-                      <p className="text-xs text-blue-600">Time to Implement: {area.timeToImplement}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Next Steps */}
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-4">
-              A welcome email has been sent to {email} with your comprehensive analysis. You can now explore the platform.
+              A welcome email has been sent to {email}. You can now explore the platform.
             </p>
             <Button onClick={handleContinue} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3">
               Continue to Platform
