@@ -11,7 +11,7 @@ export const useAiMatching = () => {
     
     try {
       console.log('🤖 Starting AI matching for assignment:', assignmentId);
-      toast.info('🤖 AI matchar konsulter...');
+      toast.info('🤖 AI is matching consultants...');
       
       const { data, error } = await supabase.functions.invoke('ai-matching', {
         body: { assignmentId }
@@ -25,16 +25,16 @@ export const useAiMatching = () => {
       console.log('AI matching function response:', data);
 
       if (data && data.success) {
-        toast.success(data.message || 'AI-matchning klar!');
+        toast.success(data.message || 'AI matching complete!');
         return data;
       } else {
-        throw new Error(data?.error || 'AI-matchning misslyckades');
+        throw new Error(data?.error || 'AI matching failed');
       }
       
     } catch (error) {
       console.error('AI matching error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'AI-matchning misslyckades';
-      toast.error(`Fel vid AI-matchning: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : 'AI matching failed';
+      toast.error(`AI matching error: ${errorMessage}`);
       throw error;
     } finally {
       setIsMatching(false);
