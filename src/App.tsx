@@ -27,11 +27,13 @@ const AppContent = () => {
       
       if (typeof url === 'string' && url.startsWith('/api/book-meeting')) {
         const supabaseUrl = 'https://sxqmqnfopqzcdqwtjcpd.supabase.co/functions/v1/book-meeting';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4cW1xbmZvcHF6Y2Rxd3RqY3BkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM5MzgwNjcsImV4cCI6MjA0OTUxNDA2N30.3WsOOOiJJvB5wDCFHcI7Y4aGi-V-tNHvTGdNNKSA5ic';
+        
         return originalFetch(supabaseUrl, {
           ...options,
           headers: {
             ...options?.headers,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Authorization': `Bearer ${supabaseAnonKey}`,
           },
         });
       }
