@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -99,7 +100,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   // Dashboard stats - only show network consultants
   const networkConsultants = consultants.filter(consultant => consultant.type === 'existing');
   const totalConsultants = networkConsultants.length;
-  const activeAssignments = allAssignments.length;
   const successfulMatches = 156;
   const avgMatchTime = "12 seconds";
 
@@ -194,7 +194,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         <h2 className="text-xl font-bold text-gray-900 mb-2">Platform Overview</h2>
         <p className="text-gray-600 mb-6">Real-time insights and performance metrics</p>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - Only 3 cards now, no assignments */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Card className="bg-white border border-gray-200">
             <CardContent className="p-6">
