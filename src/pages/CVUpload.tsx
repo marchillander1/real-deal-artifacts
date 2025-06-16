@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Upload, FileText, CheckCircle2, ArrowRight, Code, Users, Target, TrendingUp, Brain, Award, Star, Loader2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, ArrowRight, Code, Users, Target, TrendingUp, Brain, Award, Star, Loader2, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -30,7 +30,7 @@ export const CVUpload = () => {
   // Auto-start analysis immediately when CV is uploaded
   useEffect(() => {
     if (file && !isAnalyzing && !analysisResults) {
-      console.log('Starting automatic analysis of uploaded CV...');
+      console.log('Starting automatic comprehensive analysis of uploaded CV...');
       startAnalysis();
     }
   }, [file]);
@@ -41,7 +41,7 @@ export const CVUpload = () => {
       if (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/')) {
         setFile(selectedFile);
         setAnalysisResults(null);
-        toast.success('CV uploaded! Starting AI analysis...');
+        toast.success('CV uploaded! Starting comprehensive AI analysis...');
       } else {
         toast.error('Please upload a PDF file or image');
       }
@@ -53,14 +53,14 @@ export const CVUpload = () => {
 
     setIsAnalyzing(true);
     setAnalysisProgress(10);
-    toast.info('🧠 AI analyzing your CV and extracting professional information...');
+    toast.info('🧠 AI analyzing your CV and extracting comprehensive professional information...');
 
     try {
       // Convert file to base64
       const fileBuffer = await file.arrayBuffer();
       const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
 
-      console.log('Sending CV for parsing...');
+      console.log('Sending CV for comprehensive parsing...');
       setAnalysisProgress(30);
       
       // Call the parse-cv edge function
@@ -77,7 +77,7 @@ export const CVUpload = () => {
         throw parseError;
       }
 
-      console.log('CV analyzed successfully:', parseData);
+      console.log('CV analyzed successfully with comprehensive data:', parseData);
       setAnalysisProgress(60);
       
       // Auto-populate form fields from CV analysis
@@ -108,13 +108,13 @@ export const CVUpload = () => {
 
       setAnalysisProgress(80);
 
-      // Call LinkedIn analysis - THIS IS REQUIRED
+      // Call LinkedIn analysis - THIS IS REQUIRED FOR COMPREHENSIVE ANALYSIS
       let linkedinAnalysis = null;
       const linkedinToAnalyze = linkedinUrl || parseData.analysis?.personalInfo?.linkedinProfile;
       
       if (linkedinToAnalyze) {
         try {
-          console.log('Analyzing LinkedIn profile (REQUIRED)...', linkedinToAnalyze);
+          console.log('Analyzing LinkedIn profile for comprehensive soft skills analysis...', linkedinToAnalyze);
           const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
             body: {
               linkedinUrl: linkedinToAnalyze,
@@ -125,25 +125,25 @@ export const CVUpload = () => {
 
           if (linkedinError) {
             console.error('LinkedIn analysis error:', linkedinError);
-            toast.error('LinkedIn analysis failed - this is required for registration');
+            toast.error('LinkedIn analysis failed - this is required for comprehensive analysis');
             return;
           } else {
             linkedinAnalysis = linkedinData?.analysis;
-            console.log('LinkedIn analysis completed:', linkedinAnalysis);
+            console.log('LinkedIn analysis completed with comprehensive soft skills:', linkedinAnalysis);
           }
         } catch (linkedinErr) {
           console.error('LinkedIn analysis failed:', linkedinErr);
-          toast.error('LinkedIn analysis failed - this is required for registration');
+          toast.error('LinkedIn analysis failed - this is required for comprehensive analysis');
           return;
         }
       } else {
-        toast.error('LinkedIn profile is required for registration');
+        toast.error('LinkedIn profile is required for comprehensive professional analysis');
         return;
       }
 
       setAnalysisProgress(100);
 
-      // Set analysis results for immediate display
+      // Set comprehensive analysis results for immediate display
       const completeAnalysis = {
         cvAnalysis: parseData.analysis,
         linkedinAnalysis: linkedinAnalysis
@@ -151,7 +151,7 @@ export const CVUpload = () => {
       
       setAnalysisResults(completeAnalysis);
       
-      toast.success('🎉 Analysis completed! Your professional profile has been analyzed. Review and join our network.');
+      toast.success('🎉 Comprehensive analysis completed! Your complete professional profile has been analyzed. Review and join our network.');
 
     } catch (error) {
       console.error('Analysis error:', error);
@@ -171,19 +171,19 @@ export const CVUpload = () => {
     }
 
     if (!analysisResults) {
-      toast.error('Please wait for analysis to complete');
+      toast.error('Please wait for comprehensive analysis to complete');
       return;
     }
 
     if (!analysisResults.linkedinAnalysis) {
-      toast.error('LinkedIn analysis is required - please ensure you have a valid LinkedIn profile');
+      toast.error('LinkedIn analysis is required for comprehensive professional analysis');
       return;
     }
 
     setIsUploading(true);
 
     try {
-      // Prepare comprehensive consultant data with full analysis integration
+      // Prepare comprehensive consultant data with complete analysis integration
       const consultantData = {
         name: fullName,
         email: email,
@@ -197,7 +197,7 @@ export const CVUpload = () => {
         availability: 'Available now',
         cv_file_path: `cv_${Date.now()}_${file.name}`,
         
-        // Enhanced soft skills and human factors from both CV and LinkedIn analysis
+        // Enhanced soft skills and human factors from comprehensive LinkedIn analysis
         communication_style: analysisResults.linkedinAnalysis?.communicationStyle || 
                            analysisResults.cvAnalysis?.softSkills?.communication?.[0] || 
                            'Professional and clear communication',
@@ -208,13 +208,13 @@ export const CVUpload = () => {
         personality_traits: analysisResults.cvAnalysis?.softSkills?.problemSolving || 
                           ['Analytical', 'Solution-oriented', 'Creative', 'Collaborative'],
         
-        // Human factors scoring from LinkedIn analysis
+        // Human factors scoring from comprehensive LinkedIn analysis
         cultural_fit: analysisResults.linkedinAnalysis?.culturalFit || 5,
         leadership: analysisResults.linkedinAnalysis?.leadership || 
                    (analysisResults.cvAnalysis?.professionalSummary?.seniorityLevel === 'Senior' ? 4 : 3),
         adaptability: analysisResults.linkedinAnalysis?.adaptability || 5,
         
-        // Professional data
+        // Professional data from comprehensive CV analysis
         certifications: analysisResults.cvAnalysis?.certifications?.development || 
                        analysisResults.cvAnalysis?.certifications || [],
         roles: analysisResults.cvAnalysis?.marketPositioning?.targetRoles?.slice(0, 3) || 
@@ -227,12 +227,12 @@ export const CVUpload = () => {
         projects_completed: 0,
         last_active: 'Today',
         
-        // Store complete analysis data for searchability and matching
+        // Store complete comprehensive analysis data for advanced searchability and matching
         cvAnalysis: analysisResults.cvAnalysis,
         linkedinAnalysis: analysisResults.linkedinAnalysis
       };
 
-      console.log('Saving consultant data with complete analysis:', consultantData);
+      console.log('Saving consultant data with comprehensive analysis:', consultantData);
 
       const { data: insertData, error: insertError } = await supabase
         .from('consultants')
@@ -243,7 +243,7 @@ export const CVUpload = () => {
         throw insertError;
       }
 
-      console.log('Consultant saved to database successfully');
+      console.log('Consultant saved to database successfully with comprehensive profile');
 
       // Send welcome email
       try {
@@ -262,11 +262,11 @@ export const CVUpload = () => {
       }
 
       setUploadComplete(true);
-      toast.success('🎉 Profile saved! You are now part of our consultant network and can receive assignments.');
+      toast.success('🎉 Comprehensive profile saved! You are now part of our consultant network with complete professional analysis.');
 
     } catch (error) {
       console.error('Save error:', error);
-      toast.error('Failed to save profile. Please try again.');
+      toast.error('Failed to save comprehensive profile. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -282,7 +282,7 @@ export const CVUpload = () => {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
           {/* Success Header */}
           <Card className="mb-8 text-center shadow-xl">
             <CardHeader>
@@ -296,94 +296,217 @@ export const CVUpload = () => {
                 Welcome to our consultant network!
               </CardTitle>
               <CardDescription>
-                Your profile has been analyzed and you are now part of our network. You can now receive matching assignments based on your skills and experience.
+                Your comprehensive professional profile has been analyzed and you are now part of our network. 
+                You can now receive matching assignments based on your complete skills and experience profile.
               </CardDescription>
             </CardHeader>
           </Card>
 
-          {/* Professional Summary */}
-          {cvAnalysis?.professionalSummary && (
+          {/* Comprehensive Analysis Results Grid */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Professional Summary */}
+            {cvAnalysis?.professionalSummary && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-blue-500" />
+                    Professional Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm text-gray-600">Level:</span>
+                      <p className="font-semibold">{cvAnalysis.professionalSummary.seniorityLevel}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Experience:</span>
+                      <p className="font-semibold">{cvAnalysis.professionalSummary.yearsOfExperience}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Role:</span>
+                      <p className="font-semibold">{cvAnalysis.professionalSummary.currentRole}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Trajectory:</span>
+                      <p className="font-semibold text-green-600">{cvAnalysis.professionalSummary.careerTrajectory}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Technical Expertise */}
+            {cvAnalysis?.technicalExpertise && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Code className="h-5 w-5 text-purple-500" />
+                    Technical Expertise
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {cvAnalysis.technicalExpertise.programmingLanguages?.expert && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Expert Skills:</span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, idx: number) => (
+                          <Badge key={idx} className="bg-green-100 text-green-800">{skill}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {cvAnalysis.technicalExpertise.cloudAndInfrastructure?.platforms && (
+                    <div className="mt-3">
+                      <span className="text-sm font-medium text-gray-700">Cloud Platforms:</span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {cvAnalysis.technicalExpertise.cloudAndInfrastructure.platforms.map((platform: string, idx: number) => (
+                          <Badge key={idx} className="bg-blue-100 text-blue-800">{platform}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Leadership Analysis */}
+            {linkedinAnalysis && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-blue-500" />
+                    Communication & Leadership
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm text-gray-600">Communication Style:</span>
+                      <p className="font-semibold">{linkedinAnalysis.communicationStyle}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Leadership Approach:</span>
+                      <p className="font-semibold">{linkedinAnalysis.leadershipStyle}</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mt-4">
+                      <div className="text-center">
+                        <p className="text-xs text-gray-600">Cultural Fit</p>
+                        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                          <div className="bg-blue-600 h-2 rounded-full" style={{width: `${(linkedinAnalysis.culturalFit/5)*100}%`}}></div>
+                        </div>
+                        <p className="text-xs font-bold text-blue-600 mt-1">{linkedinAnalysis.culturalFit}/5</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-600">Leadership</p>
+                        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                          <div className="bg-orange-600 h-2 rounded-full" style={{width: `${(linkedinAnalysis.leadership/5)*100}%`}}></div>
+                        </div>
+                        <p className="text-xs font-bold text-orange-600 mt-1">{linkedinAnalysis.leadership}/5</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-600">Mentorship</p>
+                        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                          <div className="bg-green-600 h-2 rounded-full" style={{width: `${((linkedinAnalysis.innovation || 4)/5)*100}%`}}></div>
+                        </div>
+                        <p className="text-xs font-bold text-green-600 mt-1">{linkedinAnalysis.innovation || 4}/5</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Market Positioning */}
+            {cvAnalysis?.marketPositioning && (
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-purple-500" />
+                    Market Positioning
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <span className="text-sm text-gray-600">Unique Value:</span>
+                    <p className="text-sm font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-600">Competitiveness:</span>
+                    <p className="text-sm font-semibold text-blue-600">{cvAnalysis.marketPositioning.competitiveness}</p>
+                  </div>
+                  {cvAnalysis.marketPositioning.salaryBenchmarks && (
+                    <div className="space-y-2">
+                      <span className="text-sm font-medium text-gray-700">Salary Range:</span>
+                      <div className="text-center p-2 bg-blue-50 rounded">
+                        <p className="text-xs text-gray-600">Stockholm Market</p>
+                        <p className="text-sm font-bold text-blue-600">{cvAnalysis.marketPositioning.salaryBenchmarks.stockholm}</p>
+                      </div>
+                    </div>
+                  )}
+                  {cvAnalysis.marketPositioning.targetRoles && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Target Roles:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {cvAnalysis.marketPositioning.targetRoles.slice(0, 3).map((role: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-xs">{role}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Detailed Strengths Analysis */}
+          {cvAnalysis?.detailedStrengthsAnalysis && (
             <Card className="shadow-lg mb-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-blue-500" />
-                  Professional Summary
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                  Detailed Strengths Analysis
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm text-gray-600">Seniority Level:</span>
-                    <p className="font-semibold">{cvAnalysis.professionalSummary.seniorityLevel}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Years of Experience:</span>
-                    <p className="font-semibold">{cvAnalysis.professionalSummary.yearsOfExperience}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Current Role:</span>
-                    <p className="font-semibold">{cvAnalysis.professionalSummary.currentRole}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Career Trajectory:</span>
-                    <p className="font-semibold text-green-600">{cvAnalysis.professionalSummary.careerTrajectory}</p>
-                  </div>
+                  {cvAnalysis.detailedStrengthsAnalysis.slice(0, 4).map((strength: any, idx: number) => (
+                    <div key={idx} className="border-l-4 border-green-500 pl-3 bg-green-50 p-3 rounded">
+                      <h6 className="font-semibold text-green-700 text-sm">{strength.category}</h6>
+                      <p className="text-xs text-gray-600 mt-1">{strength.description}</p>
+                      <p className="text-xs text-green-600 mt-1 font-medium">Market Value: {strength.marketValue}</p>
+                      <p className="text-xs text-blue-600 mt-1">Growth Potential: {strength.growthPotential}</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Technical Skills */}
-          {cvAnalysis?.technicalExpertise && (
+          {/* Development Roadmap */}
+          {cvAnalysis?.comprehensiveImprovementAreas && (
             <Card className="shadow-lg mb-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Code className="h-5 w-5 text-purple-500" />
-                  Technical Skills
+                  <Target className="h-5 w-5 text-orange-500" />
+                  Development Opportunities
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {cvAnalysis.technicalExpertise.programmingLanguages?.expert && (
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Expert Skills:</span>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, idx: number) => (
-                        <Badge key={idx} className="bg-green-100 text-green-800">{skill}</Badge>
-                      ))}
+                <div className="space-y-3">
+                  {cvAnalysis.comprehensiveImprovementAreas.slice(0, 3).map((area: any, idx: number) => (
+                    <div key={idx} className="border border-orange-200 p-3 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <h6 className="font-semibold text-orange-700 text-sm">{area.area}</h6>
+                        <Badge className={`text-xs ${area.improvementPriority === 'High Priority' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          {area.improvementPriority}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-1">{area.currentState}</p>
+                      <p className="text-xs text-orange-600 font-medium">Expected Impact: {area.expectedImpact}</p>
+                      <p className="text-xs text-blue-600">Time to Implement: {area.timeToImplement}</p>
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* LinkedIn Analysis Results */}
-          {linkedinAnalysis && (
-            <Card className="shadow-lg mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-blue-500" />
-                  LinkedIn Analysis & Soft Skills
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm text-gray-600">Communication Style:</span>
-                    <p className="font-semibold">{linkedinAnalysis.communicationStyle}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Leadership Style:</span>
-                    <p className="font-semibold">{linkedinAnalysis.leadershipStyle}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Cultural Fit Score:</span>
-                    <p className="font-semibold text-blue-600">{linkedinAnalysis.culturalFit}/5</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Team Collaboration:</span>
-                    <p className="font-semibold">{linkedinAnalysis.teamCollaboration}</p>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -392,7 +515,7 @@ export const CVUpload = () => {
           {/* Next Steps */}
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-4">
-              A welcome email has been sent to {email} with next steps. You can now explore the platform.
+              A welcome email has been sent to {email} with your comprehensive analysis. You can now explore the platform.
             </p>
             <Button onClick={handleContinue} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3">
               Continue to Platform
@@ -415,17 +538,38 @@ export const CVUpload = () => {
           
           <div className="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-            AI-driven instant CV & LinkedIn analysis
+            AI-Powered Comprehensive Career Analysis
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Join Our Consultant Network
+            Upload Your CV & LinkedIn Profile
           </h1>
           
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-            Upload your CV for instant AI analysis and join our exclusive consultant network. 
-            Get matched with relevant assignments based on your skills and experience. LinkedIn profile is required.
+            Get instant comprehensive AI analysis of your technical skills, leadership style, 
+            personality, and career potential. Upload your CV and add your LinkedIn profile 
+            to receive detailed insights and join our exclusive consultant network.
           </p>
+
+          {/* Feature highlights matching your screenshots */}
+          <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Code className="h-4 w-4 text-purple-500" />
+              Technical Expertise
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Users className="h-4 w-4 text-blue-500" />
+              Leadership Analysis
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Target className="h-4 w-4 text-orange-500" />
+              Career Strategy
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <BarChart3 className="h-4 w-4 text-green-500" />
+              Market Positioning
+            </div>
+          </div>
         </div>
 
         {/* Analysis in Progress */}
@@ -438,7 +582,8 @@ export const CVUpload = () => {
               <h3 className="text-lg font-semibold mb-4">Analyzing your CV & LinkedIn...</h3>
               <Progress value={analysisProgress} className="w-full mb-4" />
               <p className="text-gray-600">
-                Our AI is analyzing your CV and LinkedIn profile, extracting skills, experience and creating your professional profile.
+                Our AI is performing comprehensive analysis of your CV and LinkedIn profile, 
+                extracting technical skills, soft skills, leadership qualities and creating your complete professional profile.
               </p>
             </CardContent>
           </Card>
@@ -451,46 +596,70 @@ export const CVUpload = () => {
               <CardHeader className="text-center">
                 <CardTitle className="text-xl text-green-600 flex items-center justify-center gap-2">
                   <CheckCircle2 className="h-6 w-6" />
-                  Analysis Complete!
+                  Comprehensive Analysis Complete!
                 </CardTitle>
                 <CardDescription>
                   Your CV and LinkedIn have been analyzed successfully. Complete the form below to join our network.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Quick Preview */}
-                {analysisResults.cvAnalysis?.professionalSummary && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 mb-2">Professional Summary</h4>
-                    <p className="text-sm text-blue-700">
-                      {analysisResults.cvAnalysis.professionalSummary.seniorityLevel} • 
-                      {analysisResults.cvAnalysis.professionalSummary.yearsOfExperience} • 
-                      {analysisResults.cvAnalysis.professionalSummary.currentRole}
-                    </p>
-                  </div>
-                )}
-                
-                {analysisResults.cvAnalysis?.technicalExpertise?.programmingLanguages?.expert && (
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-green-800 mb-2">Detected Expert Skills</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {analysisResults.cvAnalysis.technicalExpertise.programmingLanguages.expert.slice(0, 6).map((skill: string, idx: number) => (
-                        <Badge key={idx} className="bg-green-100 text-green-800 text-xs">{skill}</Badge>
-                      ))}
+                {/* Quick Preview Grid */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  {analysisResults.cvAnalysis?.professionalSummary && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Professional Profile
+                      </h4>
+                      <p className="text-sm text-blue-700">
+                        {analysisResults.cvAnalysis.professionalSummary.seniorityLevel} • 
+                        {analysisResults.cvAnalysis.professionalSummary.yearsOfExperience} • 
+                        {analysisResults.cvAnalysis.professionalSummary.currentRole}
+                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
+                  
+                  {analysisResults.cvAnalysis?.technicalExpertise?.programmingLanguages?.expert && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                        <Code className="h-4 w-4" />
+                        Technical Expertise
+                      </h4>
+                      <div className="flex flex-wrap gap-1">
+                        {analysisResults.cvAnalysis.technicalExpertise.programmingLanguages.expert.slice(0, 6).map((skill: string, idx: number) => (
+                          <Badge key={idx} className="bg-green-100 text-green-800 text-xs">{skill}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                {analysisResults.linkedinAnalysis && (
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-purple-800 mb-2">LinkedIn Analysis</h4>
-                    <p className="text-sm text-purple-700">
-                      Communication: {analysisResults.linkedinAnalysis.communicationStyle} • 
-                      Cultural Fit: {analysisResults.linkedinAnalysis.culturalFit}/5 • 
-                      Leadership: {analysisResults.linkedinAnalysis.leadership}/5
-                    </p>
-                  </div>
-                )}
+                  {analysisResults.linkedinAnalysis && (
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                        <Brain className="h-4 w-4" />
+                        Leadership Analysis
+                      </h4>
+                      <p className="text-sm text-purple-700">
+                        Communication: {analysisResults.linkedinAnalysis.communicationStyle} • 
+                        Cultural Fit: {analysisResults.linkedinAnalysis.culturalFit}/5 • 
+                        Leadership: {analysisResults.linkedinAnalysis.leadership}/5
+                      </p>
+                    </div>
+                  )}
+
+                  {analysisResults.cvAnalysis?.marketPositioning && (
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-orange-800 mb-2 flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4" />
+                        Market Position
+                      </h4>
+                      <p className="text-sm text-orange-700">
+                        {analysisResults.cvAnalysis.marketPositioning.competitiveness} • 
+                        Salary: {analysisResults.cvAnalysis.marketPositioning.salaryBenchmarks?.stockholm || 'Competitive'}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -501,10 +670,10 @@ export const CVUpload = () => {
           <CardHeader className="text-center border-b">
             <div className="flex items-center justify-center mb-4">
               <Upload className="h-6 w-6 mr-2 text-purple-600" />
-              <CardTitle className="text-xl font-semibold">Upload Your CV</CardTitle>
+              <CardTitle className="text-xl font-semibold">Start Your Comprehensive Analysis</CardTitle>
             </div>
             <CardDescription className="text-gray-600">
-              Information will be automatically extracted from your CV and LinkedIn
+              Both CV and LinkedIn profile are required for complete professional analysis
             </CardDescription>
           </CardHeader>
           
@@ -542,7 +711,7 @@ export const CVUpload = () => {
                             Upload Your CV
                           </p>
                           <p className="text-sm text-gray-500">
-                            PDF or image format - Analysis starts automatically
+                            PDF or image format - Comprehensive analysis starts automatically
                           </p>
                         </div>
                       </div>
@@ -551,7 +720,7 @@ export const CVUpload = () => {
                 </div>
               </div>
 
-              {/* Personal Information - Auto-populated from CV */}
+              {/* Personal Information - Auto-populated from comprehensive CV analysis */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label htmlFor="fullName" className="text-base font-medium flex items-center">
@@ -601,7 +770,7 @@ export const CVUpload = () => {
                     id="linkedin"
                     value={linkedinUrl}
                     onChange={(e) => setLinkedinUrl(e.target.value)}
-                    placeholder="Required for analysis"
+                    placeholder="Required for comprehensive analysis"
                     className="h-12"
                     required
                   />
@@ -618,11 +787,11 @@ export const CVUpload = () => {
                 />
                 <div className="text-sm text-gray-600">
                   <Label htmlFor="terms" className="cursor-pointer">
-                    <span className="font-medium">I agree to join the consultant network</span>
+                    <span className="font-medium">I agree to comprehensive analysis and network joining</span>
                   </Label>
                   <p className="mt-1">
-                    I consent to MatchWise storing and processing my information for consultant matching. 
-                    This allows me to receive relevant assignment opportunities based on my skills and experience.
+                    I consent to MatchWise storing and processing my comprehensive professional information for advanced consultant matching. 
+                    This allows me to receive highly relevant assignment opportunities based on my complete skills, experience and personality profile.
                   </p>
                 </div>
               </div>
@@ -636,29 +805,29 @@ export const CVUpload = () => {
                 {isUploading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Saving Profile...
+                    Saving Comprehensive Profile...
                   </>
                 ) : isAnalyzing ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Analyzing CV & LinkedIn...
+                    Comprehensive Analysis in Progress...
                   </>
                 ) : analysisResults ? (
                   <>
                     <CheckCircle2 className="mr-2 h-5 w-5" />
-                    Join Consultant Network
+                    Submit & Join Network
                   </>
                 ) : (
                   <>
                     <Upload className="mr-2 h-5 w-5" />
-                    Upload CV to Start
+                    Upload CV to Start Analysis
                   </>
                 )}
               </Button>
               
               {!linkedinUrl && (
                 <p className="text-center text-sm text-red-500">
-                  LinkedIn profile is required for comprehensive analysis
+                  LinkedIn profile is required for comprehensive professional analysis
                 </p>
               )}
             </form>
