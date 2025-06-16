@@ -53,7 +53,7 @@ export default function BookMeetingButton() {
       if (response.ok) {
         setIsSubmitted(true);
         toast({
-          title: "Meeting request sent!",
+          title: "Demo request sent!",
           description: "Marc will get back to you within 24 hours.",
         });
         
@@ -69,12 +69,12 @@ export default function BookMeetingButton() {
           });
         }, 3000);
       } else {
-        throw new Error('Failed to send meeting request');
+        throw new Error('Failed to send demo request');
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to send meeting request. Please try again.",
+        description: "Failed to send demo request. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -87,18 +87,18 @@ export default function BookMeetingButton() {
       <DialogTrigger asChild>
         <Button size="lg" className="px-8 py-3 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
           <Calendar className="mr-2 h-5 w-5" />
-          Book Meeting Now
+          Book Demo Now
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] bg-gray-800 border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-white text-xl">Book a Meeting with Marc</DialogTitle>
+          <DialogTitle className="text-white text-xl">Book a Demo with Marc</DialogTitle>
         </DialogHeader>
         
         {isSubmitted ? (
           <div className="text-center py-8">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Meeting Request Sent!</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">Demo Request Sent!</h3>
             <p className="text-gray-300">Marc will get back to you within 24 hours to schedule your demo.</p>
           </div>
         ) : (
@@ -176,7 +176,7 @@ export default function BookMeetingButton() {
               ) : (
                 <>
                   <Send className="mr-2 h-4 w-4" />
-                  Send Meeting Request
+                  Send Demo Request
                 </>
               )}
             </Button>

@@ -17,7 +17,7 @@ interface BookMeetingRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log("🚀 Book meeting function started");
+  console.log("🚀 Book demo function started");
   console.log("📋 Request method:", req.method);
   
   if (req.method === "OPTIONS") {
@@ -54,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { name, email, company, phone, message } = requestData;
 
-    console.log("📧 Sending meeting request email for:", name, "from company:", company);
+    console.log("📧 Sending demo request email for:", name, "from company:", company);
 
     // Validate required fields
     if (!name || !email || !company) {
@@ -81,9 +81,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-        <h2 style="color: #2563eb;">New Meeting Request - MatchWise AI</h2>
+        <h2 style="color: #2563eb;">New Demo Request - MatchWise AI</h2>
         
-        <p><strong>A new meeting has been requested through the MatchWise website.</strong></p>
+        <p><strong>A new demo has been requested through the MatchWise website.</strong></p>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="color: #2563eb; margin-top: 0;">Contact Information</h3>
@@ -102,30 +102,30 @@ const handler = async (req: Request): Promise<Response> => {
         
         <p style="margin-top: 30px;">
           <strong>Next steps:</strong><br>
-          Reply to this email to schedule the meeting, or contact ${name} directly at ${email}.
+          Reply to this email to schedule the demo, or contact ${name} directly at ${email}.
         </p>
         
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
         
         <p style="color: #666; font-size: 14px;">
-          This meeting request was submitted through the MatchWise AI landing page.<br>
-          <a href="https://www.matchwise.tech">www.matchwise.tech</a>
+          This demo request was submitted through the MatchWise AI landing page.<br>
+          <a href="https://www.matchwise.ai">www.matchwise.ai</a>
         </p>
       </div>
     `;
 
     console.log("📝 Email HTML prepared");
 
-    // Send meeting request email to Marc
+    // Send demo request email to Marc
     const emailResponse = await resend.emails.send({
-      from: "MatchWise Meeting Requests <marc@matchwise.tech>",
-      to: ["marc@matchwise.tech"],
+      from: "MatchWise Demo Requests <marc@matchwise.ai>",
+      to: ["marc@matchwise.ai"],
       replyTo: [email],
-      subject: `New Meeting Request from ${name} (${company})`,
+      subject: `New Demo Request from ${name} (${company})`,
       html: emailHtml,
     });
 
-    console.log("📤 Meeting request email sent successfully:", emailResponse);
+    console.log("📤 Demo request email sent successfully:", emailResponse);
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
@@ -135,7 +135,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("❌ Error sending meeting request email:", error);
+    console.error("❌ Error sending demo request email:", error);
     console.error("❌ Error details:", {
       message: error.message,
       stack: error.stack,

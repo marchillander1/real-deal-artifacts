@@ -8,7 +8,7 @@ export const demoConsultants: Consultant[] = [
     email: "erik.andersson@example.com",
     phone: "+46 70 123 4567",
     skills: ["React", "TypeScript", "Node.js", "AWS", "GraphQL"],
-    experience: 8,
+    experience: "8",
     hourlyRate: 950,
     availability: "available",
     location: "Stockholm",
@@ -46,12 +46,7 @@ export const demoConsultants: Consultant[] = [
           frameworks: ["Express.js", "Fastify"],
           databases: ["PostgreSQL", "MongoDB", "Redis"],
           apiDesign: ["REST", "GraphQL"]
-        },
-        cloudPlatforms: {
-          aws: ["EC2", "S3", "Lambda", "RDS"],
-          expertise: "Intermediate"
-        },
-        yearsOfExperience: "8"
+        }
       },
       workExperience: [
         {
@@ -95,7 +90,7 @@ export const demoConsultants: Consultant[] = [
     email: "maria.lindqvist@example.com",
     phone: "+46 70 234 5678",
     skills: ["Vue.js", "JavaScript", "CSS", "Figma", "UX Design"],
-    experience: 6,
+    experience: "6",
     hourlyRate: 850,
     availability: "partially_available",
     location: "Göteborg",
@@ -125,8 +120,7 @@ export const demoConsultants: Consultant[] = [
           frameworks: ["Vue.js", "Nuxt.js"],
           styling: ["CSS", "Sass", "Stylus"],
           buildTools: ["Webpack", "Vite"]
-        },
-        yearsOfExperience: "6"
+        }
       },
       workExperience: [
         {
@@ -161,7 +155,7 @@ export const demoConsultants: Consultant[] = [
     email: "johan.svensson@example.com",
     phone: "+46 70 345 6789",
     skills: ["Python", "Django", "PostgreSQL", "Docker", "AWS"],
-    experience: 10,
+    experience: "10",
     hourlyRate: 1100,
     availability: "available",
     location: "Malmö",
@@ -191,12 +185,7 @@ export const demoConsultants: Consultant[] = [
           frameworks: ["Django", "FastAPI", "Flask"],
           databases: ["PostgreSQL", "MongoDB", "Redis"],
           apiDesign: ["REST", "GraphQL"]
-        },
-        cloudPlatforms: {
-          aws: ["EC2", "RDS", "Lambda", "S3"],
-          expertise: "Expert"
-        },
-        yearsOfExperience: "10"
+        }
       },
       workExperience: [
         {
