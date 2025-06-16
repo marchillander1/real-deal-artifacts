@@ -1,8 +1,10 @@
 
-import React from 'react';
-import { Star, Mail, Award } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, Mail, Award, ChevronDown, ChevronUp } from 'lucide-react';
 import { Consultant } from '../types/consultant';
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ConsultantAnalysisCard } from './ConsultantAnalysisCard';
 
 interface ConsultantCardProps {
   consultant: Consultant;
@@ -10,6 +12,8 @@ interface ConsultantCardProps {
 }
 
 const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = false }) => {
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  
   const borderColor = isNew ? 'border-2 border-green-100' : 'border';
   const badgeColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
   const badgeText = isNew ? 'New Member' : 'Verified';
@@ -23,6 +27,8 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   };
 
   const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
+
+  const hasAnalysis = consultant.cvAnalysis || consultant.linkedinAnalysis;
 
   return (
     <div className={`bg-white rounded-xl shadow-sm ${borderColor} p-6 hover:shadow-lg transition-all`}>
@@ -97,6 +103,29 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           )}
         </div>
       </div>
+
+      {hasAnalysis && (
+        <div className="mt-4 pt-4 border-t">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAnalysis(!showAnalysis)}
+            className="w-full flex items-center justify-between text-blue-600 hover:text-blue-800"
+          >
+            <span className="flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              View AI Analysis
+            </span>
+            {showAnalysis ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
+          
+          {showAnalysis && (
+            <div className="mt-4">
+              <ConsultantAnalysisCard consultant={consultant} />
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-4 pt-4 border-t flex items-center justify-between">
         <div className="flex items-center space-x-2 text-xs text-gray-500">

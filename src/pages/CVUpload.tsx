@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, CheckCircle, Brain, User, Star, Target, Trophy, BookOpen, Code, Users, TrendingUp, Lightbulb, Award, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -138,6 +138,7 @@ export const CVUpload = () => {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [linkedinAnalysis, setLinkedinAnalysis] = useState<LinkedInAnalysis | null>(null);
   const [cvAnalysis, setCvAnalysis] = useState<EnhancedCVAnalysis | null>(null);
+  const [dataConsent, setDataConsent] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -284,6 +285,11 @@ export const CVUpload = () => {
 
     if (!cvAnalysis) {
       toast.error('Please wait for CV analysis to complete before submitting');
+      return;
+    }
+
+    if (!dataConsent) {
+      toast.error('You must agree to data storage to continue');
       return;
     }
 
@@ -630,10 +636,32 @@ export const CVUpload = () => {
                     />
                   </div>
 
+                  {/* Data Consent Checkbox */}
+                  <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <Checkbox 
+                      id="dataConsent"
+                      checked={dataConsent}
+                      onCheckedChange={(checked) => setDataConsent(checked as boolean)}
+                      className="mt-1"
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label 
+                        htmlFor="dataConsent"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Jag godkänner datalagring
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Jag samtycker till att MatchWise lagrar och behandlar mina personuppgifter, CV-data och LinkedIn-information för matchningsändamål. 
+                        Data används endast för att koppla mig till relevanta uppdrag och kan raderas på begäran.
+                      </p>
+                    </div>
+                  </div>
+
                   <Button 
                     type="submit" 
                     className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium" 
-                    disabled={isUploading || !linkedinAnalysis || !file || !cvAnalysis}
+                    disabled={isUploading || !linkedinAnalysis || !file || !cvAnalysis || !dataConsent}
                   >
                     {isUploading ? (
                       <>
