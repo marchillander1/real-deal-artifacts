@@ -101,6 +101,7 @@ export type Database = {
           communication_style: string | null
           created_at: string | null
           cultural_fit: number | null
+          cv_analysis_data: Json | null
           cv_file_path: string | null
           email: string
           experience_years: number | null
@@ -109,6 +110,7 @@ export type Database = {
           languages: string[] | null
           last_active: string | null
           leadership: number | null
+          linkedin_analysis_data: Json | null
           linkedin_url: string | null
           location: string | null
           name: string
@@ -132,6 +134,7 @@ export type Database = {
           communication_style?: string | null
           created_at?: string | null
           cultural_fit?: number | null
+          cv_analysis_data?: Json | null
           cv_file_path?: string | null
           email: string
           experience_years?: number | null
@@ -140,6 +143,7 @@ export type Database = {
           languages?: string[] | null
           last_active?: string | null
           leadership?: number | null
+          linkedin_analysis_data?: Json | null
           linkedin_url?: string | null
           location?: string | null
           name: string
@@ -163,6 +167,7 @@ export type Database = {
           communication_style?: string | null
           created_at?: string | null
           cultural_fit?: number | null
+          cv_analysis_data?: Json | null
           cv_file_path?: string | null
           email?: string
           experience_years?: number | null
@@ -171,6 +176,7 @@ export type Database = {
           languages?: string[] | null
           last_active?: string | null
           leadership?: number | null
+          linkedin_analysis_data?: Json | null
           linkedin_url?: string | null
           location?: string | null
           name?: string
