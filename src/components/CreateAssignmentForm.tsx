@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +25,7 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
     industry: '',
     teamSize: '',
     remote: '',
-    urgency: '',
+    urgency: '' as 'Low' | 'Medium' | 'High' | '',
     teamCulture: '',
     desiredCommunicationStyle: '',
     requiredValues: ''
@@ -65,13 +64,15 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({
       industry: formData.industry,
       teamSize: formData.teamSize,
       remote: formData.remote,
-      urgency: formData.urgency,
+      urgency: (formData.urgency as 'Low' | 'Medium' | 'High') || 'Medium',
       clientLogo: '/placeholder.svg',
       teamCulture: formData.teamCulture,
       desiredCommunicationStyle: formData.desiredCommunicationStyle,
       requiredValues: formData.requiredValues.split(',').map(value => value.trim()).filter(value => value),
       leadershipLevel: 3,
-      teamDynamics: formData.teamCulture
+      teamDynamics: formData.teamCulture,
+      status: 'open' as const,
+      createdAt: new Date().toISOString().split('T')[0]
     };
 
     onAssignmentCreated(newAssignment);

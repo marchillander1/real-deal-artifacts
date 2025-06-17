@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { CVAnalysisLogic } from '@/components/CVAnalysisLogic';
@@ -357,7 +356,7 @@ const CVUpload: React.FC = () => {
                   
                   {/* CVAnalysisLogic component - waits for both CV and LinkedIn URL */}
                   <CVAnalysisLogic
-                    cvFile={file}
+                    file={file}
                     linkedinUrl={linkedinUrl}
                     formEmail={email}
                     formName={fullName}
