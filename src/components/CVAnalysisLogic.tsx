@@ -158,24 +158,26 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // 🔥 FIXED: Use form email as primary, fall back to CV email only if form email is empty
+      // 🔥 CRITICAL FIX: Always use FORM EMAIL as the primary email for everything
       const cvData = cvResponse.data?.analysis;
-      const autoName = formName || cvData?.personalInfo?.name || 'Unknown Name';
-      const primaryEmail = formEmail || cvData?.personalInfo?.email || 'analysis@example.com';
-
-      console.log('📝 Using PRIMARY email from FORM:', {
-        formEmail,
+      const finalName = formName || cvData?.personalInfo?.name || 'Unknown Name';
+      
+      // 🚨 ALWAYS USE FORM EMAIL - Never fall back to CV email for notifications
+      const finalEmail = formEmail || 'analysis@example.com';
+      
+      console.log('📧 EMAIL ROUTING - CRITICAL CHECK:', {
+        formEmailProvided: !!formEmail,
+        formEmail: formEmail,
         cvEmail: cvData?.personalInfo?.email,
-        finalEmail: primaryEmail,
-        autoName,
-        cvPersonalInfo: cvData?.personalInfo
+        finalEmailForNotifications: finalEmail,
+        willSendNotificationsTo: finalEmail
       });
 
       // Step 4: Create consultant profile in database - ALL analyses go to Network Consultants
       console.log('💾 Creating network consultant profile...');
       const consultantData = {
-        name: autoName,
-        email: primaryEmail, // 🔥 Use form email as primary
+        name: finalName,
+        email: finalEmail, // 🔥 ALWAYS use form email for database
         phone: cvData?.personalInfo?.phone || '',
         location: cvData?.personalInfo?.location || 'Location not specified',
         skills: cvData?.technicalExpertise?.programmingLanguages?.expert || [],
@@ -221,18 +223,19 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // Step 5: Send notifications using FORM EMAIL - IMPROVED ERROR HANDLING
-      console.log('📧 Starting email sending process...');
-      console.log('📧 Will send welcome email to FORM EMAIL:', primaryEmail);
-      console.log('📧 Consultant name for email:', autoName);
+      // Step 5: Send notifications using FORM EMAIL ONLY - FINAL FIX
+      console.log('📧 🚨 FINAL EMAIL CHECK - Starting email sending process...');
+      console.log('📧 🔥 Will send welcome email to FORM EMAIL ONLY:', finalEmail);
+      console.log('📧 📝 Consultant name for email:', finalName);
+      console.log('📧 ⚠️ CV email will be IGNORED:', cvData?.personalInfo?.email);
 
       try {
-        // 🔥 Send welcome email to the FORM EMAIL address (not CV email)
-        console.log('📧 Calling send-welcome-email function...');
+        // 🔥 🚨 Send welcome email to the FORM EMAIL address ONLY
+        console.log('📧 🚀 Calling send-welcome-email function with FORM EMAIL...');
         const welcomeEmailResponse = await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: primaryEmail, // 🔥 Use form email
-            consultantName: autoName,
+            consultantEmail: finalEmail, // 🔥 🚨 ALWAYS use form email
+            consultantName: finalName,
             isMyConsultant: false
           }
         });
@@ -251,7 +254,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           console.log('📧 Email response data:', welcomeEmailResponse.data);
           toast({
             title: "Welcome email sent!",
-            description: `Welcome email sent to ${primaryEmail}`,
+            description: `Welcome email sent to ${finalEmail}`,
             variant: "default",
           });
         } else {
@@ -267,8 +270,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         console.log('📧 Sending admin notification...');
         const adminNotificationResponse = await supabase.functions.invoke('send-registration-notification', {
           body: {
-            consultantName: autoName,
-            consultantEmail: primaryEmail, // 🔥 Use form email
+            consultantName: finalName,
+            consultantEmail: finalEmail, // 🔥 🚨 ALWAYS use form email
             isMyConsultant: false
           }
         });
@@ -302,7 +305,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis completed!",
-        description: `Profile created for ${autoName}`,
+        description: `Profile created for ${finalName}`,
       });
 
     } catch (error: any) {
