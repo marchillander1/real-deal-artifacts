@@ -157,11 +157,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // Step 4: Create consultant profile in database with correct type
-      console.log(`💾 Creating ${isMyConsultant ? 'my' : 'network'} consultant profile...`);
+      // Step 4: Create consultant profile in database - ALLA analyser ska synas i Network Consultants
+      console.log('💾 Creating network consultant profile (all analyses go to network)...');
       const consultantData = {
         name: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-        email: formEmail || cvResponse.data?.analysis?.personalInfo?.email || '',
+        email: formEmail || '', // ANVÄND ALLTID formEmail först
         phone: cvResponse.data?.analysis?.personalInfo?.phone || '',
         location: cvResponse.data?.analysis?.personalInfo?.location || 'Location not specified',
         skills: cvResponse.data?.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
@@ -174,8 +174,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         projects_completed: 0,
         roles: cvResponse.data?.analysis?.technicalExpertise?.frameworks || ['Consultant'],
         certifications: cvResponse.data?.analysis?.education?.certifications || [],
-        type: isMyConsultant ? 'existing' : 'new', // Set type based on source
-        user_id: null, // Both types start with no user_id
+        type: 'new', // ALLA analyser ska synas som 'new' i Network Consultants
+        user_id: null,
         languages: cvResponse.data?.analysis?.languages || [],
         work_style: cvResponse.data?.analysis?.softSkills?.teamwork?.[0] || '',
         values: cvResponse.data?.analysis?.softSkills?.leadership || [],
@@ -200,18 +200,19 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`Failed to save consultant: ${insertError.message}`);
       }
 
-      console.log(`✅ ${isMyConsultant ? 'My' : 'Network'} consultant created successfully:`, insertedConsultant);
+      console.log('✅ Network consultant created successfully:', insertedConsultant);
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // Step 5: Send notifications using the FORM EMAIL (not CV email)
-      console.log('📧 Sending notifications to form email:', formEmail);
+      // Step 5: Send notifications using the FORM EMAIL (VIKTIGT!)
+      console.log('📧 Sending notifications to FORM EMAIL:', formEmail);
       try {
-        // Send welcome email to the email address from the form
+        // Send welcome email to the email address from the form (NOT CV email)
         await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: formEmail, // Use form email, not CV email
-            consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name'
+            consultantEmail: formEmail, // ANVÄND formEmail - detta är nyckeln!
+            consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
+            isMyConsultant: false // Alla analyser går till network nu
           }
         });
 
@@ -219,12 +220,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         await supabase.functions.invoke('send-registration-notification', {
           body: {
             consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-            consultantEmail: formEmail, // Use form email for admin notification too
-            isMyConsultant: isMyConsultant // Pass the correct flag
+            consultantEmail: formEmail, // Använd formEmail för admin-notifiering också
+            isMyConsultant: false // Alla analyser går till network nu
           }
         });
 
-        console.log('✅ Notifications sent successfully to:', formEmail);
+        console.log('✅ Notifications sent successfully to FORM EMAIL:', formEmail);
       } catch (emailError) {
         console.warn('⚠️ Email sending failed:', emailError);
         // Don't fail the whole process if emails fail
@@ -241,9 +242,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis completed successfully!",
-        description: isMyConsultant 
-          ? "Consultant has been added to your team."
-          : "Your profile has been added to our network of consultants.",
+        description: "Your profile has been added to our network of consultants and will be visible in Network Consultants.",
       });
 
     } catch (error: any) {
