@@ -11,9 +11,9 @@ interface ConsultantAnalysisDisplayProps {
 }
 
 export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps> = ({ consultant }) => {
-  const cvAnalysis = consultant.cvAnalysis?.analysis || consultant.cv_analysis_data?.analysis;
-  const linkedinAnalysis = consultant.linkedinAnalysis?.analysis || consultant.linkedin_analysis_data?.analysis;
-  const enhancedAnalysisResults = consultant.cvAnalysis?.enhancedAnalysisResults || consultant.cv_analysis_data?.enhancedAnalysisResults;
+  const cvAnalysis = consultant.cvAnalysis?.analysis;
+  const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
+  const enhancedAnalysisResults = consultant.cvAnalysis?.enhancedAnalysisResults;
 
   console.log('🔍 ConsultantAnalysisDisplay - Analysis data check:', {
     consultantName: consultant.name,
