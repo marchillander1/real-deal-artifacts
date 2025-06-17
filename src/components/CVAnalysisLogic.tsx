@@ -105,8 +105,15 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       return;
     }
 
+    // 🔥 CRITICAL: Validate that we have form email before starting analysis
+    if (!formEmail || formEmail.trim() === '') {
+      console.error('❌ No form email provided for analysis');
+      onError('Email address is required for registration');
+      return;
+    }
+
     try {
-      console.log('🚀 Starting CV and LinkedIn analysis...');
+      console.log('🚀 Starting CV and LinkedIn analysis with email:', formEmail, 'and name:', formName);
       setIsAnalyzing(true);
       onAnalysisStart();
       onAnalysisProgress(10);
@@ -161,7 +168,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('💾 Creating network consultant profile (all analyses go to network)...');
       const consultantData = {
         name: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-        email: formEmail || '', // ANVÄND ALLTID formEmail först
+        email: formEmail, // 🔥 ANVÄND ALLTID formEmail - detta är nyckeln!
         phone: cvResponse.data?.analysis?.personalInfo?.phone || '',
         location: cvResponse.data?.analysis?.personalInfo?.location || 'Location not specified',
         skills: cvResponse.data?.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
@@ -187,7 +194,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_url: linkedinUrl || ''
       };
 
-      console.log('💾 Inserting consultant data:', consultantData);
+      console.log('💾 Inserting consultant data with email:', consultantData.email);
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
@@ -207,16 +214,24 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Step 5: Send notifications using the FORM EMAIL (VIKTIGT!)
       console.log('📧 Sending notifications to FORM EMAIL:', formEmail);
       try {
+        // 🔥 CRITICAL: Validate email before sending
+        if (!formEmail || formEmail.trim() === '' || !formEmail.includes('@')) {
+          console.error('❌ Invalid email address for notifications:', formEmail);
+          throw new Error('Invalid email address for notifications');
+        }
+
         // Send welcome email to the email address from the form (NOT CV email)
+        console.log('📧 Sending welcome email to:', formEmail);
         await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: formEmail, // ANVÄND formEmail - detta är nyckeln!
+            consultantEmail: formEmail, // 🔥 ANVÄND formEmail - detta är nyckeln!
             consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
             isMyConsultant: false // Alla analyser går till network nu
           }
         });
 
         // Send registration notification to admin
+        console.log('📧 Sending admin notification for:', formEmail);
         await supabase.functions.invoke('send-registration-notification', {
           body: {
             consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',

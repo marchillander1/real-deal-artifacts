@@ -79,13 +79,13 @@ const CVUpload: React.FC = () => {
         setFullName(cvData.personalInfo.name);
       }
       
-      // Auto-fill email if not already filled and CV has valid email
+      // 🔥 VIKTIGT: Only auto-fill email if it's empty - preserve user input
       if (cvData.personalInfo?.email && 
           cvData.personalInfo.email !== 'analysis@example.com' && 
           cvData.personalInfo.email !== 'consultant@example.com' &&
           cvData.personalInfo.email !== 'johndoe@email.com' &&
           cvData.personalInfo.email.includes('@') && 
-          (!email.trim() || email === 'analysis@example.com')) {
+          !email.trim()) {
         console.log('📧 Auto-filling email from CV:', cvData.personalInfo.email);
         setEmail(cvData.personalInfo.email);
       }
@@ -352,12 +352,12 @@ const CVUpload: React.FC = () => {
                     onSubmit={handleSubmit}
                   />
                   
-                  {/* CVAnalysisLogic component - waits for both CV and LinkedIn URL, uses form email */}
+                  {/* 🔥 KRITISK FIX: Skicka alltid email och fullName som de faktiskt är */}
                   <CVAnalysisLogic
                     file={file}
                     linkedinUrl={linkedinUrl}
-                    formEmail={email}
-                    formName={fullName}
+                    formEmail={email || ''}
+                    formName={fullName || ''}
                     onAnalysisComplete={handleAnalysisComplete}
                     onError={handleAnalysisError}
                     onAnalysisStart={handleAnalysisStart}
