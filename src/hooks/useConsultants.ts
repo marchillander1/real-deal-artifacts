@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Consultant } from '../types/consultant';
 
@@ -28,7 +27,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Excellent mentor and team player",
     culturalFit: 4.8,
     adaptability: 4.7,
-    leadership: 4.9
+    leadership: 4.9,
+    linkedinUrl: "https://linkedin.com/in/anna-andersson"
   },
   {
     id: 2,
@@ -55,7 +55,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Strong technical contributor",
     culturalFit: 4.5,
     adaptability: 4.6,
-    leadership: 4.2
+    leadership: 4.2,
+    linkedinUrl: "https://linkedin.com/in/erik-johansson"
   },
   {
     id: 3,
@@ -82,7 +83,8 @@ const initialConsultants: Consultant[] = [
     teamFit: "Bridge between tech and business",
     culturalFit: 4.9,
     adaptability: 4.8,
-    leadership: 4.4
+    leadership: 4.4,
+    linkedinUrl: "https://linkedin.com/in/maria-nilsson"
   }
 ];
 
@@ -112,7 +114,8 @@ const demoUploadedConsultants: Consultant[] = [
     teamFit: "Strong backend contributor",
     culturalFit: 4.1,
     adaptability: 4.3,
-    leadership: 3.9
+    leadership: 3.9,
+    linkedinUrl: "https://linkedin.com/in/lars-svensson"
   },
   {
     id: 1002,
@@ -139,7 +142,8 @@ const demoUploadedConsultants: Consultant[] = [
     teamFit: "Great UI/UX collaborator",
     culturalFit: 4.4,
     adaptability: 4.6,
-    leadership: 3.7
+    leadership: 3.7,
+    linkedinUrl: "https://linkedin.com/in/emma-lindstrom"
   },
   {
     id: 1003,
@@ -166,7 +170,8 @@ const demoUploadedConsultants: Consultant[] = [
     teamFit: "Infrastructure backbone",
     culturalFit: 4.2,
     adaptability: 4.4,
-    leadership: 4.1
+    leadership: 4.1,
+    linkedinUrl: "https://linkedin.com/in/david-karlsson"
   },
   {
     id: 1004,
@@ -193,7 +198,8 @@ const demoUploadedConsultants: Consultant[] = [
     teamFit: "Bridge between business and tech",
     culturalFit: 4.7,
     adaptability: 4.8,
-    leadership: 4.6
+    leadership: 4.6,
+    linkedinUrl: "https://linkedin.com/in/sofia-persson"
   }
 ];
 
@@ -249,7 +255,8 @@ export const useConsultants = () => {
         teamFit: "Adaptable team member",
         culturalFit: 4.2,
         adaptability: 4.5,
-        leadership: 3.8
+        leadership: 3.8,
+        linkedinUrl: ""
       };
       
       // Update both state and localStorage
