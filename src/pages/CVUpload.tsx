@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { CVAnalysisLogic } from '@/components/CVAnalysisLogic';
@@ -32,32 +33,50 @@ const CVUpload: React.FC = () => {
     setIsMyConsultant(source === 'my-consultants');
   }, []);
 
+  // Reset analysis when file or URL changes
+  useEffect(() => {
+    console.log('🔄 File or LinkedIn URL changed, resetting analysis');
+    setAnalysisResults(null);
+    setIsAnalyzing(false);
+    setAnalysisProgress(0);
+  }, [file, linkedinUrl]);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
+    console.log('📁 File selected:', selectedFile?.name);
     if (selectedFile) {
       setFile(selectedFile);
     }
   };
 
+  const handleLinkedinUrlChange = (value: string) => {
+    console.log('🔗 LinkedIn URL changed:', value);
+    setLinkedinUrl(value);
+  };
+
   const handleAnalysisComplete = (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any }) => {
-    console.log('Analysis complete:', analysis);
+    console.log('✅ Analysis complete received in CVUpload:', analysis);
     setAnalysisResults(analysis);
     setIsAnalyzing(false);
     setAnalysisProgress(100);
     
     // Auto-fill form fields from CV analysis
-    if (analysis.cvAnalysis?.analysis?.personalInfo?.name) {
+    if (analysis.cvAnalysis?.analysis?.personalInfo?.name && !fullName) {
+      console.log('📝 Auto-filling name from CV');
       setFullName(analysis.cvAnalysis.analysis.personalInfo.name);
     }
-    if (analysis.cvAnalysis?.analysis?.personalInfo?.email) {
+    if (analysis.cvAnalysis?.analysis?.personalInfo?.email && !email) {
+      console.log('📧 Auto-filling email from CV');
       setEmail(analysis.cvAnalysis.analysis.personalInfo.email);
     }
-    if (analysis.cvAnalysis?.analysis?.personalInfo?.phone) {
+    if (analysis.cvAnalysis?.analysis?.personalInfo?.phone && !phoneNumber) {
+      console.log('📞 Auto-filling phone from CV');
       setPhoneNumber(analysis.cvAnalysis.analysis.personalInfo.phone);
     }
   };
 
   const handleAnalysisError = (message: string) => {
+    console.error('❌ Analysis error in CVUpload:', message);
     setIsAnalyzing(false);
     setAnalysisProgress(0);
     toast({
@@ -68,16 +87,20 @@ const CVUpload: React.FC = () => {
   };
 
   const handleAnalysisStart = () => {
+    console.log('🚀 Analysis starting in CVUpload');
     setIsAnalyzing(true);
     setAnalysisProgress(0);
   };
 
   const handleAnalysisProgress = (progress: number) => {
+    console.log('📊 Analysis progress:', progress);
     setAnalysisProgress(progress);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    
+    console.log('🎯 Submit initiated with:', { email, fullName, analysisResults: !!analysisResults });
     
     // 🔥 CRITICAL: Validate email before proceeding
     if (!email || email.trim() === '') {
@@ -102,6 +125,7 @@ const CVUpload: React.FC = () => {
 
     try {
       // Show success message since consultant is already created
+      console.log('✅ Showing success message');
       setShowSuccessMessage(true);
     } catch (error) {
       console.error('Submit error:', error);
@@ -220,6 +244,13 @@ const CVUpload: React.FC = () => {
     );
   }
 
+  console.log('🎨 Rendering CVUpload with:', { 
+    hasFile: !!file, 
+    hasLinkedIn: !!linkedinUrl, 
+    isAnalyzing, 
+    hasResults: !!analysisResults 
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -280,12 +311,12 @@ const CVUpload: React.FC = () => {
                     onEmailChange={setEmail}
                     onFullNameChange={setFullName}
                     onPhoneNumberChange={setPhoneNumber}
-                    onLinkedinUrlChange={setLinkedinUrl}
+                    onLinkedinUrlChange={handleLinkedinUrlChange}
                     onAgreeToTermsChange={setAgreeToTerms}
                     onSubmit={handleSubmit}
                   />
                   
-                  {/* 🔥 CRITICAL: Pass current email and name values to CVAnalysisLogic */}
+                  {/* 🔥 CRITICAL: CVAnalysisLogic component with proper props */}
                   <CVAnalysisLogic
                     cvFile={file}
                     linkedinUrl={linkedinUrl}

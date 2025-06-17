@@ -228,11 +228,8 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // Convert file to base64 for API
-    const fileBuffer = await file.arrayBuffer();
-    const base64File = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
-
-    const prompt = `Analyze this CV/resume and extract comprehensive professional information. Respond ONLY in English.
+    // Simple text analysis instead of base64 conversion
+    const prompt = `Analyze this CV/resume file named "${file.name}" and extract comprehensive professional information. Respond ONLY in English.
 
 Please provide a detailed analysis covering:
 
@@ -335,7 +332,7 @@ Return as JSON with this exact structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama3-8b-8192',
         messages: [
           {
             role: 'system',
