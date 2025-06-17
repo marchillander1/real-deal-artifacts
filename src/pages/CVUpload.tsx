@@ -21,6 +21,8 @@ const CVUpload: React.FC = () => {
   const [isMyConsultant, setIsMyConsultant] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(true);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
   const { toast } = useToast();
 
   // Check if we're uploading for "My Consultants"
@@ -40,6 +42,8 @@ const CVUpload: React.FC = () => {
   const handleAnalysisComplete = (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any }) => {
     console.log('Analysis complete:', analysis);
     setAnalysisResults(analysis);
+    setIsAnalyzing(false);
+    setAnalysisProgress(100);
     
     // Auto-fill form fields from CV analysis
     if (analysis.cvAnalysis?.personalInfo?.name) {
@@ -54,11 +58,22 @@ const CVUpload: React.FC = () => {
   };
 
   const handleAnalysisError = (message: string) => {
+    setIsAnalyzing(false);
+    setAnalysisProgress(0);
     toast({
       title: "Analysis Error",
       description: message,
       variant: "destructive",
     });
+  };
+
+  const handleAnalysisStart = () => {
+    setIsAnalyzing(true);
+    setAnalysisProgress(0);
+  };
+
+  const handleAnalysisProgress = (progress: number) => {
+    setAnalysisProgress(progress);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -250,7 +265,7 @@ const CVUpload: React.FC = () => {
                     agreeToTerms={agreeToTerms}
                     isUploading={isUploading}
                     analysisResults={analysisResults}
-                    isAnalyzing={false}
+                    isAnalyzing={isAnalyzing}
                     onFileChange={handleFileChange}
                     onEmailChange={setEmail}
                     onFullNameChange={setFullName}
@@ -266,12 +281,18 @@ const CVUpload: React.FC = () => {
                     linkedinUrl={linkedinUrl}
                     onAnalysisComplete={handleAnalysisComplete}
                     onError={handleAnalysisError}
+                    onAnalysisStart={handleAnalysisStart}
+                    onAnalysisProgress={handleAnalysisProgress}
                   />
                 </div>
               ) : (
                 <div className="space-y-6">
                   {/* Analysis Results */}
-                  <AnalysisResults analysisResults={analysisResults} />
+                  <AnalysisResults 
+                    analysisResults={analysisResults}
+                    isAnalyzing={isAnalyzing}
+                    analysisProgress={analysisProgress}
+                  />
                   
                   {/* Form for final submission */}
                   <div className="bg-white rounded-lg shadow-lg p-6">
