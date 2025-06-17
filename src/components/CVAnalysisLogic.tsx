@@ -156,8 +156,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         rating: 5.0,
         projects_completed: 0,
         last_active: 'Today',
-        type: 'new', // This makes it a network consultant
-        user_id: null // Network consultant should have null user_id - CRITICAL for showing in Network Consultants tab
+        type: 'new', // CRITICAL: This makes it a network consultant
+        user_id: null // CRITICAL: Network consultant should have null user_id - this ensures it shows in Network Consultants tab
       };
 
       console.log('Creating network consultant profile with data:', consultantData);
@@ -176,15 +176,16 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('Network consultant created successfully:', consultant);
       onAnalysisProgress?.(90);
 
-      // Send welcome email with the actual email from form - CRITICAL: Use formEmail not extractedEmail
-      if (formEmail && formEmail.trim() !== '') {
+      // Send welcome email - CRITICAL: Always use formEmail if provided
+      const emailToUse = formEmail || extractedEmail;
+      if (emailToUse && emailToUse.trim() !== '') {
         try {
-          console.log(`Sending welcome email to: ${formEmail} for consultant: ${extractedName}`);
+          console.log(`Sending welcome email to: ${emailToUse} for consultant: ${extractedName}`);
           const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
             body: {
               consultantName: extractedName,
-              consultantEmail: formEmail, // Use form email directly
-              isMyConsultant: false
+              consultantEmail: emailToUse, // Use the email we determined above
+              isMyConsultant: false // This is a network consultant
             }
           });
 
