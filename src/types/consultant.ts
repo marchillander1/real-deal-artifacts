@@ -49,6 +49,11 @@ export interface Assignment {
   industry: string;
   status: 'open' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: string;
+  startDate?: string;
+  desiredCommunicationStyle?: string;
+  requiredValues?: string[];
+  leadershipLevel?: number;
+  teamDynamics?: string;
 }
 
 export interface MatchResult {
