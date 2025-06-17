@@ -88,16 +88,20 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(80);
 
+      // Extract name and email from CV analysis
+      const extractedName = cvAnalysisData?.analysis?.personalInfo?.name || 'Unknown Professional';
+      const extractedEmail = cvAnalysisData?.analysis?.personalInfo?.email || '';
+
       // Create consultant profile using correct column names
       const consultantData = {
-        name: cvAnalysisData?.analysis?.personalInfo?.name || 'Unknown',
-        email: cvAnalysisData?.analysis?.personalInfo?.email || '',
+        name: extractedName,
+        email: extractedEmail,
         phone: cvAnalysisData?.analysis?.personalInfo?.phone || '',
         linkedin_url: linkedinUrl || '',
         skills: cvAnalysisData?.analysis?.technicalExpertise?.frameworks || [],
         experience_years: parseInt(cvAnalysisData?.analysis?.professionalSummary?.yearsOfExperience) || 0,
         hourly_rate: cvAnalysisData?.analysis?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
-        availability: 'Available', // Using 'availability' not 'availability_status'
+        availability: 'Available',
         communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 'Professional',
         cultural_fit: linkedinAnalysisData?.analysis?.culturalFit || 5,
         adaptability: linkedinAnalysisData?.analysis?.adaptability || 5,
@@ -120,22 +124,20 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('Consultant created successfully:', consultant);
       onAnalysisProgress?.(90);
 
-      // Send welcome email
+      // Send welcome email with correct parameters
       try {
         const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantId: consultant.id,
-            email: consultant.email,
-            fullName: consultant.name,
-            analysisResults: {
-              cvAnalysis: cvAnalysisData,
-              linkedinAnalysis: linkedinAnalysisData
-            }
+            consultantName: extractedName,
+            consultantEmail: extractedEmail,
+            isMyConsultant: false
           }
         });
 
         if (emailError) {
           console.warn('Failed to send welcome email:', emailError);
+        } else {
+          console.log('Welcome email sent successfully to:', extractedEmail);
         }
       } catch (emailError) {
         console.warn('Error sending welcome email:', emailError);

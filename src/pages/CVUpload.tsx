@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { CVAnalysisLogic } from '@/components/CVAnalysisLogic';
@@ -46,14 +47,14 @@ const CVUpload: React.FC = () => {
     setAnalysisProgress(100);
     
     // Auto-fill form fields from CV analysis
-    if (analysis.cvAnalysis?.personalInfo?.name) {
-      setFullName(analysis.cvAnalysis.personalInfo.name);
+    if (analysis.cvAnalysis?.analysis?.personalInfo?.name) {
+      setFullName(analysis.cvAnalysis.analysis.personalInfo.name);
     }
-    if (analysis.cvAnalysis?.personalInfo?.email) {
-      setEmail(analysis.cvAnalysis.personalInfo.email);
+    if (analysis.cvAnalysis?.analysis?.personalInfo?.email) {
+      setEmail(analysis.cvAnalysis.analysis.personalInfo.email);
     }
-    if (analysis.cvAnalysis?.personalInfo?.phone) {
-      setPhoneNumber(analysis.cvAnalysis.personalInfo.phone);
+    if (analysis.cvAnalysis?.analysis?.personalInfo?.phone) {
+      setPhoneNumber(analysis.cvAnalysis.analysis.personalInfo.phone);
     }
   };
 
