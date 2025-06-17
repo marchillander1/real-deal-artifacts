@@ -89,30 +89,29 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(80);
 
-      // Create consultant profile in database - matching the database schema
+      // Create consultant profile in database - matching the expected schema
       const consultantData = {
-        name: cvAnalysisData?.personalInfo?.name || 'Unknown', // Using 'name' not 'full_name'
-        email: cvAnalysisData?.personalInfo?.email || '',
-        phone: cvAnalysisData?.personalInfo?.phone || '',
+        name: cvAnalysisData?.analysis?.personalInfo?.name || 'Unknown',
+        email: cvAnalysisData?.analysis?.personalInfo?.email || '',
+        phone: cvAnalysisData?.analysis?.personalInfo?.phone || '',
         linkedin_url: linkedinUrl || '',
-        skills: cvAnalysisData?.technicalSkills || [],
-        experience_years: cvAnalysisData?.professionalSummary?.yearsOfExperience || 0,
-        hourly_rate: cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
-        availability: 'Available',
-        communication_style: linkedinAnalysisData?.communicationStyle || 'Professional',
-        cultural_fit: linkedinAnalysisData?.culturalFit || 5,
-        adaptability: linkedinAnalysisData?.adaptability || 5,
-        leadership: linkedinAnalysisData?.leadership || 3,
-        // Store analysis data as JSONB - this will be added to the consultant object after creation
-        cv_analysis: cvAnalysisData,
-        linkedin_analysis: linkedinAnalysisData
+        technical_skills: cvAnalysisData?.analysis?.technicalExpertise?.frameworks || [],
+        experience_years: parseInt(cvAnalysisData?.analysis?.professionalSummary?.yearsOfExperience) || 0,
+        seniority_level: cvAnalysisData?.analysis?.professionalSummary?.seniorityLevel || 'Mid-level',
+        current_role: cvAnalysisData?.analysis?.professionalSummary?.currentRole || 'Consultant',
+        hourly_rate: cvAnalysisData?.analysis?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
+        availability_status: 'Available',
+        communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 'Professional',
+        cultural_fit: linkedinAnalysisData?.analysis?.culturalFit || 5,
+        adaptability: linkedinAnalysisData?.analysis?.adaptability || 5,
+        leadership: linkedinAnalysisData?.analysis?.leadership || 3
       };
 
       console.log('Creating consultant profile with data:', consultantData);
 
       const { data: consultant, error: consultantError } = await supabase
         .from('consultants')
-        .insert([consultantData])
+        .insert(consultantData)
         .select()
         .single();
 
@@ -130,7 +129,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           body: {
             consultantId: consultant.id,
             email: consultant.email,
-            fullName: consultant.name, // Using 'name' from the consultant object
+            fullName: consultant.name,
             analysisResults: {
               cvAnalysis: cvAnalysisData,
               linkedinAnalysis: linkedinAnalysisData
@@ -154,10 +153,10 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         cvAnalysis: cvAnalysisData,
         linkedinAnalysis: linkedinAnalysisData,
         consultant: consultant,
-        roiPredictions: cvAnalysisData?.roiPredictions,
-        certificationRecommendations: cvAnalysisData?.certificationRecommendations,
-        technicalAssessment: cvAnalysisData?.technicalAssessment,
-        preUploadGuidance: cvAnalysisData?.preUploadGuidance
+        roiPredictions: cvAnalysisData?.analysis?.roiPredictions,
+        certificationRecommendations: cvAnalysisData?.analysis?.certificationRecommendations,
+        technicalAssessment: cvAnalysisData?.analysis?.technicalAssessment,
+        preUploadGuidance: cvAnalysisData?.analysis?.preUploadGuidance
       };
 
       console.log('Analysis complete, calling onAnalysisComplete with:', analysisResults);
