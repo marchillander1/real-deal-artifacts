@@ -46,6 +46,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const [hasTriggeredAnalysis, setHasTriggeredAnalysis] = useState(false);
   const { toast } = useToast();
 
+  // Check if we're uploading for "My Consultants"
+  const isMyConsultant = new URLSearchParams(window.location.search).get('source') === 'my-consultants';
+
   // Auto-trigger analysis when both file and LinkedIn URL are present
   useEffect(() => {
     if (file && linkedinUrl && !isAnalyzing && !hasTriggeredAnalysis && !analysis) {
@@ -122,8 +125,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // Step 4: Create consultant profile in database as NETWORK consultant
-      console.log('💾 Creating network consultant profile...');
+      // Step 4: Create consultant profile in database with correct type
+      console.log(`💾 Creating ${isMyConsultant ? 'my' : 'network'} consultant profile...`);
       const consultantData = {
         name: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
         email: formEmail || cvResponse.data?.analysis?.personalInfo?.email || '',
@@ -139,8 +142,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         projects_completed: 0,
         roles: cvResponse.data?.analysis?.technicalExpertise?.frameworks || ['Consultant'],
         certifications: cvResponse.data?.analysis?.education?.certifications || [],
-        type: 'new', // This makes it a NETWORK consultant
-        user_id: null, // Network consultants don't have user_id
+        type: isMyConsultant ? 'existing' : 'new', // Set type based on source
+        user_id: null, // Both types start with no user_id
         languages: cvResponse.data?.analysis?.languages || [],
         work_style: cvResponse.data?.analysis?.softSkills?.teamwork?.[0] || '',
         values: cvResponse.data?.analysis?.softSkills?.leadership || [],
@@ -166,7 +169,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`Failed to save consultant: ${insertError.message}`);
       }
 
-      console.log('✅ Network consultant created successfully:', insertedConsultant);
+      console.log(`✅ ${isMyConsultant ? 'My' : 'Network'} consultant created successfully:`, insertedConsultant);
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
@@ -186,7 +189,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           body: {
             consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
             consultantEmail: formEmail, // Use form email for admin notification too
-            isMyConsultant: false // This is a network consultant
+            isMyConsultant: isMyConsultant // Pass the correct flag
           }
         });
 
@@ -207,7 +210,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis completed successfully!",
-        description: "Your profile has been added to our network of consultants.",
+        description: isMyConsultant 
+          ? "Consultant has been added to your team."
+          : "Your profile has been added to our network of consultants.",
       });
 
     } catch (error: any) {
