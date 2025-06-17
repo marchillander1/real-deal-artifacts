@@ -1,6 +1,8 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { Resend } from "npm:resend@2.0.0";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,6 +17,8 @@ interface WelcomeEmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log('🎯 Welcome email function called');
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -22,20 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { consultantName, consultantEmail, isMyConsultant }: WelcomeEmailRequest = await req.json();
 
-    console.log("Welcome email request:", { consultantName, consultantEmail, isMyConsultant });
-
-    // Configure SMTP client
-    const client = new SMTPClient({
-      connection: {
-        hostname: Deno.env.get("SMTP_HOST")!,
-        port: parseInt(Deno.env.get("SMTP_PORT")!),
-        tls: true,
-        auth: {
-          username: Deno.env.get("SMTP_USERNAME")!,
-          password: Deno.env.get("SMTP_PASSWORD")!,
-        },
-      },
-    });
+    console.log("📧 Sending welcome email:", { consultantName, consultantEmail, isMyConsultant });
 
     // Different email content based on whether it's "My Consultant" or network registration
     const emailContent = isMyConsultant ? {
@@ -143,20 +134,21 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    // Send welcome email to consultant using only content strings (no replaceAll)
-    await client.send({
-      from: Deno.env.get("SMTP_USERNAME")!,
-      to: consultantEmail,
+    // Send welcome email to consultant using Resend
+    const emailResponse = await resend.emails.send({
+      from: "MatchWise AI <noreply@matchwiseai.se>",
+      to: [consultantEmail],
       subject: emailContent.subject,
-      content: emailHtml,
-      html: true,
+      html: emailHtml,
     });
 
-    await client.close();
+    console.log(`✅ Welcome email sent successfully to ${consultantEmail} (${isMyConsultant ? 'My Consultant' : 'Network'})`);
+    console.log("Email response:", emailResponse);
 
-    console.log(`Welcome email sent successfully to ${consultantEmail} (${isMyConsultant ? 'My Consultant' : 'Network'})`);
-
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      emailId: emailResponse.data?.id 
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -164,9 +156,12 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error sending welcome email:", error);
+    console.error("❌ Error sending welcome email:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

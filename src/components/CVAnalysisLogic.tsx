@@ -53,6 +53,7 @@ export const performCVAnalysis = async (
           for (let i = 1; i <= pdfDocument.numPages; i++) {
             const page = await pdfDocument.getPage(i);
             const textContent = await page.getTextContent();
+            // Fix TypeScript error by properly filtering TextItem objects
             const pageText = textContent.items
               .filter((item): item is any => 'str' in item)
               .map(item => item.str)
@@ -165,7 +166,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
             for (let i = 1; i <= pdfDocument.numPages; i++) {
               const page = await pdfDocument.getPage(i);
               const textContent = await page.getTextContent();
-              const pageText = textContent.items.map(item => item.str).join(' ');
+              // Fix TypeScript error by properly filtering TextItem objects
+              const pageText = textContent.items
+                .filter((item): item is any => 'str' in item)
+                .map(item => item.str)
+                .join(' ');
               fullText += pageText + '\n';
             }
 
