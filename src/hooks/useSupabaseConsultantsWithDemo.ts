@@ -17,7 +17,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Fetch ALL consultants from database (efter att vi tog bort network consultants är alla "existing")
+        // Fetch ALL consultants from database
         const { data: allData, error: fetchError } = await supabase
           .from('consultants')
           .select('*')
@@ -29,7 +29,7 @@ export const useSupabaseConsultantsWithDemo = () => {
 
         console.log('🔍 Raw database consultants:', allData?.length || 0);
 
-        // Map all consultants from database - alla ska vara "existing" nu
+        // Map all consultants from database with correct types
         const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
           id: c.id,
           name: c.name || 'Unknown Name',
@@ -47,8 +47,9 @@ export const useSupabaseConsultantsWithDemo = () => {
           lastActive: c.last_active || 'Recently',
           roles: c.roles || ['Consultant'],
           certifications: c.certifications || [],
-          type: 'existing', // 🎯 CRITICAL: Alla konsulter från databasen är nu "existing"
-          user_id: c.user_id, // Include user_id in the mapped data
+          // 🎯 CRITICAL: Use the actual type from database, don't override it
+          type: c.type || 'existing', // Keep the type as stored in database
+          user_id: c.user_id, // Keep the user_id as stored in database
           languages: c.languages || [],
           workStyle: c.work_style || '',
           values: c.values || [],
@@ -62,11 +63,11 @@ export const useSupabaseConsultantsWithDemo = () => {
 
         console.log('🔍 Mapped consultants from DB:', mappedConsultants.length);
 
-        // 🎯 CRITICAL: Set user_id for demo consultants so they appear under "My Consultants"
+        // 🎯 Add demo consultants as "My Consultants" (type: existing)
         const demoConsultantsWithUserId = myDemoConsultants.map(consultant => ({
           ...consultant,
           user_id: user?.id || 'demo-user-id', // Set to current user's ID
-          type: 'existing' as const // Ensure they appear under "My Consultants"
+          type: 'existing' as const // Demo consultants are "My Consultants"
         }));
 
         console.log('🔍 Demo consultants prepared:', demoConsultantsWithUserId.length);
@@ -121,10 +122,32 @@ export const useSupabaseConsultantsWithDemo = () => {
     }
   };
 
-  // Ta bort clearAllNetworkConsultants funktionen eftersom vi inte har network consultants längre
+  // Clear network consultants function
   const clearAllNetworkConsultants = async () => {
-    console.log('🧹 No network consultants to clear - all consultants are now "My Consultants"');
-    return { success: true, deletedCount: 0 };
+    try {
+      console.log('🧹 Clearing all network consultants (type=new)...');
+      
+      const { data: deletedConsultants, error } = await supabase
+        .from('consultants')
+        .delete()
+        .eq('type', 'new')
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      const deletedCount = deletedConsultants?.length || 0;
+      console.log(`✅ Deleted ${deletedCount} network consultants`);
+
+      // Update local state to remove deleted consultants
+      setConsultants(prev => prev.filter(c => c.type !== 'new'));
+
+      return { success: true, deletedCount };
+    } catch (error) {
+      console.error('❌ Error clearing network consultants:', error);
+      throw error;
+    }
   };
 
   return { consultants, isLoading, error, updateConsultant, clearAllNetworkConsultants };

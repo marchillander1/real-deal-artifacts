@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { Button } from '@/components/ui/button';
@@ -31,20 +32,14 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const [isClearing, setIsClearing] = useState(false);
   const { toast } = useToast();
 
-  // 🎯 IMPORTANT: Filter consultants correctly
-  const existingConsultants = consultants.filter(c => c.type === 'existing');
+  // 🎯 Filter consultants correctly based on type
   const networkConsultants = consultants.filter(c => c.type === 'new');
+  const myConsultants = consultants.filter(c => c.type === 'existing');
 
   console.log('🔍 ConsultantsTab Debug:');
   console.log('📊 Total consultants loaded:', consultants.length);
   console.log('📊 Network consultants (type=new):', networkConsultants.length);
-  console.log('📊 My consultants (type=existing):', existingConsultants.length);
-  console.log('📊 Network consultants:', networkConsultants.map(c => ({ 
-    id: c.id, 
-    name: c.name, 
-    type: c.type, 
-    user_id: c.user_id 
-  })));
+  console.log('📊 My consultants (type=existing):', myConsultants.length);
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
     try {
@@ -86,14 +81,14 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       const result = await clearAllNetworkConsultants();
       
       toast({
-        title: "Alla network konsulter borttagna",
-        description: `${result.deletedCount} network konsulter togs bort`,
+        title: "Network consultants cleared",
+        description: `${result.deletedCount} network consultants were removed`,
       });
     } catch (error) {
       console.error('Error during clearing:', error);
       toast({
-        title: "Fel",
-        description: "Kunde inte ta bort network konsulter",
+        title: "Error",
+        description: "Could not clear network consultants",
         variant: "destructive",
       });
     } finally {
@@ -117,13 +112,13 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
     );
   }
 
-  const filteredExistingConsultants = existingConsultants.filter(consultant =>
+  const filteredNetworkConsultants = networkConsultants.filter(consultant =>
     consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
     consultant.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredNetworkConsultants = networkConsultants.filter(consultant =>
+  const filteredMyConsultants = myConsultants.filter(consultant =>
     consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
     consultant.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -180,7 +175,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
                 className="flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4" />
-                {isClearing ? 'Tar bort...' : `Ta bort alla (${networkConsultants.length})`}
+                {isClearing ? 'Clearing...' : `Clear All (${networkConsultants.length})`}
               </Button>
             )}
           </div>
@@ -196,8 +191,8 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           {filteredNetworkConsultants.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Inga network consultants</h3>
-              <p className="text-gray-600">Network consultants kommer synas här när de laddar upp sina CV:n via /cv-upload</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No network consultants</h3>
+              <p className="text-gray-600">Network consultants will appear here when they upload their CVs via /cv-upload</p>
             </div>
           )}
         </div>
@@ -216,7 +211,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
                 <p className="text-gray-600">Our established team of experienced professionals</p>
               </div>
               <Badge className="bg-blue-100 text-blue-800">
-                {filteredExistingConsultants.length} consultants
+                {filteredMyConsultants.length} consultants
               </Badge>
             </div>
             
@@ -236,7 +231,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredExistingConsultants.map((consultant) => (
+            {filteredMyConsultants.map((consultant) => (
               <div key={consultant.id} className="relative">
                 <ConsultantCard consultant={consultant} isNew={false} />
                 {showDeleteForMyConsultants && (
@@ -253,7 +248,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             ))}
           </div>
 
-          {filteredExistingConsultants.length === 0 && (
+          {filteredMyConsultants.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants yet</h3>
