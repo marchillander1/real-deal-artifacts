@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { ReloadIcon, Copy, CheckCircle2, AlertTriangle } from "lucide-react"
+import { Loader2, Copy, CheckCircle2, AlertTriangle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { supabase } from '@/integrations/supabase/client';
@@ -307,7 +308,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           <CardContent className="space-y-4">
             {analysisStatus === 'loading' && (
               <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <ReloadIcon className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Analys pågår...</span>
               </div>
             )}
@@ -339,7 +340,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
                     className="mt-2 text-xs font-mono"
                     value={JSON.stringify(analysis, null, 2)}
                     onClick={(e) => {
-                      e.target.select();
+                      const target = e.target as HTMLTextAreaElement;
+                      target.select();
                       navigator.clipboard.writeText(JSON.stringify(analysis, null, 2));
                       toast({
                         title: "Kopierad till urklipp.",
@@ -363,7 +365,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
               {linkedinAnalysisStatus === 'analyzing' && (
                 <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <ReloadIcon className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   <span>LinkedIn analys pågår...</span>
                 </div>
               )}
@@ -395,7 +397,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
                       className="mt-2 text-xs font-mono"
                       value={JSON.stringify(linkedinAnalysis, null, 2)}
                       onClick={(e) => {
-                        e.target.select();
+                        const target = e.target as HTMLTextAreaElement;
+                        target.select();
                         navigator.clipboard.writeText(JSON.stringify(linkedinAnalysis, null, 2));
                         toast({
                           title: "LinkedIn data kopierad till urklipp.",
