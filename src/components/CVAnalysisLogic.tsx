@@ -158,16 +158,16 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // Autofill: Extract info from CV analysis for consultant creation
+      // 🔥 FIXED: Use form email as primary, fall back to CV email only if form email is empty
       const cvData = cvResponse.data?.analysis;
       const autoName = formName || cvData?.personalInfo?.name || 'Unknown Name';
-      const autoEmail = formEmail || cvData?.personalInfo?.email || 'analysis@example.com';
+      const primaryEmail = formEmail || cvData?.personalInfo?.email || 'analysis@example.com';
 
-      console.log('📝 Autofilled data from CV:', {
-        originalName: formName,
+      console.log('📝 Using PRIMARY email from FORM:', {
+        formEmail,
+        cvEmail: cvData?.personalInfo?.email,
+        finalEmail: primaryEmail,
         autoName,
-        originalEmail: formEmail, 
-        autoEmail,
         cvPersonalInfo: cvData?.personalInfo
       });
 
@@ -175,7 +175,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('💾 Creating network consultant profile...');
       const consultantData = {
         name: autoName,
-        email: autoEmail,
+        email: primaryEmail, // 🔥 Use form email as primary
         phone: cvData?.personalInfo?.phone || '',
         location: cvData?.personalInfo?.location || 'Location not specified',
         skills: cvData?.technicalExpertise?.programmingLanguages?.expert || [],
@@ -221,17 +221,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // Step 5: Send notifications using autofilled email - IMPROVED ERROR HANDLING
+      // Step 5: Send notifications using FORM EMAIL - IMPROVED ERROR HANDLING
       console.log('📧 Starting email sending process...');
-      console.log('📧 Will send welcome email to:', autoEmail);
+      console.log('📧 Will send welcome email to FORM EMAIL:', primaryEmail);
       console.log('📧 Consultant name for email:', autoName);
 
       try {
-        // Send welcome email to the autofilled email address
+        // 🔥 Send welcome email to the FORM EMAIL address (not CV email)
         console.log('📧 Calling send-welcome-email function...');
         const welcomeEmailResponse = await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: autoEmail,
+            consultantEmail: primaryEmail, // 🔥 Use form email
             consultantName: autoName,
             isMyConsultant: false
           }
@@ -251,7 +251,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           console.log('📧 Email response data:', welcomeEmailResponse.data);
           toast({
             title: "Welcome email sent!",
-            description: `Welcome email sent to ${autoEmail}`,
+            description: `Welcome email sent to ${primaryEmail}`,
             variant: "default",
           });
         } else {
@@ -268,7 +268,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         const adminNotificationResponse = await supabase.functions.invoke('send-registration-notification', {
           body: {
             consultantName: autoName,
-            consultantEmail: autoEmail,
+            consultantEmail: primaryEmail, // 🔥 Use form email
             isMyConsultant: false
           }
         });
