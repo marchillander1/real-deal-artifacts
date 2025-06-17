@@ -62,6 +62,12 @@ export const myDemoConsultants: Consultant[] = [
           cicd: ["GitHub Actions", "Jenkins"],
           monitoring: ["Sentry", "DataDog"]
         },
+        specializedSkills: {
+          aiMl: ["TensorFlow", "PyTorch"],
+          security: ["OAuth", "JWT", "HTTPS"],
+          mobile: ["React Native"],
+          dataEngineering: ["Apache Spark", "Kafka"]
+        },
         technicalDepthAssessment: "Senior level with strong architectural understanding",
         emergingTechAdoption: "Early adopter of new technologies and frameworks"
       },
@@ -160,6 +166,11 @@ export const myDemoConsultants: Consultant[] = [
           monitoring: ["Prometheus", "Grafana", "ELK Stack"],
           iac: ["Terraform", "Ansible"]
         },
+        specializedSkills: {
+          aiMl: ["Scikit-learn", "Pandas"],
+          security: ["OAuth2", "SSL/TLS"],
+          dataEngineering: ["Apache Airflow", "ETL pipelines"]
+        },
         technicalDepthAssessment: "Expert level with deep infrastructure knowledge",
         emergingTechAdoption: "Strategic adopter focusing on proven technologies"
       },
@@ -253,9 +264,10 @@ export const myDemoConsultants: Consultant[] = [
           testingFrameworks: ["Jest", "Vue Test Utils", "Cypress"]
         },
         specializedSkills: {
-          design: ["Figma", "Adobe XD", "Sketch", "Photoshop"],
-          accessibility: ["WCAG", "Screen readers", "Semantic HTML"],
-          userExperience: ["User research", "Prototyping", "Usability testing"]
+          aiMl: [],
+          security: ["WCAG", "Web accessibility"],
+          mobile: ["Responsive design"],
+          dataEngineering: []
         },
         technicalDepthAssessment: "Mid-senior level with strong design-development bridge",
         emergingTechAdoption: "User-focused adoption of technologies that improve UX"
