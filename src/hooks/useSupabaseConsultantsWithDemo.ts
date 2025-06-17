@@ -35,7 +35,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           experience_years: consultant.experience_years,
           hourly_rate: consultant.hourly_rate,
           type: consultant.type,
-          hasAnalysisData: !!consultant.cv_analysis_data || !!consultant.linkedin_analysis_data
+          hasAnalysisData: !!(consultant as any).cv_analysis_data || !!(consultant as any).linkedin_analysis_data
         });
         
         return {
@@ -65,9 +65,9 @@ export const useSupabaseConsultantsWithDemo = () => {
           culturalFit: consultant.cultural_fit || 5,
           adaptability: consultant.adaptability || 5,
           leadership: consultant.leadership || 3,
-          // 🔥 NYTT: Mappa analysdata från databasen
-          cvAnalysis: consultant.cv_analysis_data || null,
-          linkedinAnalysis: consultant.linkedin_analysis_data || null
+          // 🔥 NYTT: Mappa analysdata från databasen med korrekt typkonvertering
+          cvAnalysis: (consultant as any).cv_analysis_data || null,
+          linkedinAnalysis: (consultant as any).linkedin_analysis_data || null
         } as Consultant;
       });
     },

@@ -62,9 +62,16 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     });
   }, [file, linkedinUrl, isAnalyzing, analysis, formEmail, formName]);
 
+  // Förbättrad email-validering
+  const isValidEmail = (email: string) => {
+    if (!email || email.trim() === '') return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  };
+
   // Auto-trigger analysis when both file and LinkedIn URL are present
   useEffect(() => {
-    const hasValidEmail = formEmail && formEmail.trim() !== '' && formEmail.includes('@');
+    const hasValidEmail = isValidEmail(formEmail);
     const hasValidLinkedIn = linkedinUrl && linkedinUrl.trim() !== '' && linkedinUrl.includes('linkedin.com');
     const shouldStartAnalysis = file && hasValidLinkedIn && hasValidEmail && !isAnalyzing && !analysis;
     
@@ -72,6 +79,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       hasFile: !!file,
       hasValidLinkedIn,
       hasValidEmail,
+      formEmail,
       isAnalyzing,
       hasAnalysis: !!analysis,
       shouldStartAnalysis
@@ -106,10 +114,10 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       return;
     }
 
-    // 🔥 CRITICAL: Validate that we have form email before starting analysis
-    if (!formEmail || formEmail.trim() === '' || !formEmail.includes('@')) {
-      console.error('❌ No valid form email provided for analysis:', formEmail);
-      onError('A valid email address is required for registration');
+    // 🔥 FÖRBÄTTRAD: Validera email mer noggrant
+    if (!isValidEmail(formEmail)) {
+      console.error('❌ Invalid email provided for analysis:', formEmail);
+      onError('A valid email address is required for registration (format: user@domain.com)');
       return;
     }
 
@@ -169,7 +177,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('💾 Creating network consultant profile (all analyses go to network)...');
       const consultantData = {
         name: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-        email: formEmail, // 🔥 ANVÄND ALLTID formEmail - detta är nyckeln!
+        email: formEmail.trim(), // 🔥 FÖRBÄTTRAT: Trimma email
         phone: cvResponse.data?.analysis?.personalInfo?.phone || '',
         location: cvResponse.data?.analysis?.personalInfo?.location || 'Location not specified',
         skills: cvResponse.data?.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
@@ -220,17 +228,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Step 5: Send notifications using the FORM EMAIL (VIKTIGT!)
       console.log('📧 Sending notifications to FORM EMAIL:', formEmail);
       try {
-        // 🔥 CRITICAL: Validate email before sending
-        if (!formEmail || formEmail.trim() === '' || !formEmail.includes('@')) {
+        // 🔥 FÖRBÄTTRAT: Dubbelkolla email innan vi skickar
+        if (!isValidEmail(formEmail)) {
           console.error('❌ Invalid email address for notifications:', formEmail);
           throw new Error('Invalid email address for notifications');
         }
 
         // Send welcome email to the email address from the form (NOT CV email)
-        console.log('📧 Sending welcome email to:', formEmail);
+        console.log('📧 Sending welcome email to validated email:', formEmail);
         await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: formEmail, // 🔥 ANVÄND formEmail - detta är nyckeln!
+            consultantEmail: formEmail.trim(), // 🔥 TRIMMAT EMAIL
             consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
             isMyConsultant: false // Alla analyser går till network nu
           }
@@ -241,7 +249,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         await supabase.functions.invoke('send-registration-notification', {
           body: {
             consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-            consultantEmail: formEmail, // Använd formEmail för admin-notifiering också
+            consultantEmail: formEmail.trim(), // Använd formEmail för admin-notifiering också
             isMyConsultant: false // Alla analyser går till network nu
           }
         });
