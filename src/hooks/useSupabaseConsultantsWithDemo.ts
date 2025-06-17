@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -64,13 +63,19 @@ export const useSupabaseConsultantsWithDemo = () => {
           linkedinAnalysis: c.linkedin_analysis || undefined
         }));
 
+        // 🎯 CRITICAL: Set user_id for demo consultants so they appear under "My Consultants"
+        const demoConsultantsWithUserId = myDemoConsultants.map(consultant => ({
+          ...consultant,
+          user_id: user?.id || 'demo-user-id' // Set to current user's ID
+        }));
+
         // Combine with demo consultants
-        const allConsultants = [...mappedConsultants, ...myDemoConsultants];
+        const allConsultants = [...mappedConsultants, ...demoConsultantsWithUserId];
 
         console.log('All consultants (including demo):', allConsultants.length);
         console.log('Network consultants:', allConsultants.filter(c => c.type === 'new').length);
         console.log('User consultants:', allConsultants.filter(c => c.type === 'existing').length);
-        console.log('Sample consultant with analysis:', allConsultants.find(c => c.cvAnalysis || c.linkedinAnalysis));
+        console.log('Demo consultants with user_id:', demoConsultantsWithUserId.map(c => ({ name: c.name, type: c.type, user_id: c.user_id })));
 
         setConsultants(allConsultants);
       } catch (err) {
