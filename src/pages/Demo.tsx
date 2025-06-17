@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CreateAssignmentForm } from '@/components/CreateAssignmentForm';
+import CreateAssignmentForm from '@/components/CreateAssignmentForm';
 import { useAiMatching } from '@/hooks/useAiMatching';
 import { Assignment } from '@/types/consultant';
 import { ArrowLeft, Star, MapPin, Clock, CheckCircle } from 'lucide-react';
