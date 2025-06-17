@@ -31,9 +31,15 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<'network' | 'my'>('network');
   const { toast } = useToast();
 
-  // Limit consultants to specific amounts for clean display
-  const existingConsultants = consultants.filter(c => c.type === 'existing').slice(0, 5);
-  const networkConsultants = consultants.filter(c => c.type === 'new').slice(0, 1); // Only 1 network consultant
+  // 🎯 IMPORTANT: Filter consultants correctly
+  const existingConsultants = consultants.filter(c => c.type === 'existing');
+  const networkConsultants = consultants.filter(c => c.type === 'new');
+
+  console.log('🔍 ConsultantsTab Debug:');
+  console.log('📊 Total consultants loaded:', consultants.length);
+  console.log('📊 Network consultants (type=new):', networkConsultants.length);
+  console.log('📊 My consultants (type=existing):', existingConsultants.length);
+  console.log('📊 Network consultants:', networkConsultants.map(c => ({ id: c.id, name: c.name, type: c.type, user_id: c.user_id })));
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
     try {
@@ -134,23 +140,26 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <p className="text-gray-600">External consultants who joined through our platform</p>
             </div>
             <Badge className="bg-green-100 text-green-800">
-              {networkConsultants.length} consultant
+              {filteredNetworkConsultants.length} consultant{filteredNetworkConsultants.length !== 1 ? 's' : ''}
             </Badge>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {networkConsultants.map((consultant) => (
+            {filteredNetworkConsultants.map((consultant) => (
               <div key={consultant.id} className="relative">
                 <ConsultantCard consultant={consultant} isNew={true} />
               </div>
             ))}
           </div>
 
-          {networkConsultants.length === 0 && (
+          {filteredNetworkConsultants.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No network consultants yet</h3>
               <p className="text-gray-600">Network consultants will appear here when they upload their CVs</p>
+              <p className="text-sm text-gray-500 mt-2">
+                Total network consultants found: {networkConsultants.length}
+              </p>
             </div>
           )}
         </div>
