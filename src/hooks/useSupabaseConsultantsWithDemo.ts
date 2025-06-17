@@ -1,157 +1,174 @@
+
 import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
+import { demoConsultants } from '@/data/demoConsultants';
 import { myDemoConsultants } from '@/data/myDemoConsultants';
 
 export const useSupabaseConsultantsWithDemo = () => {
   const [consultants, setConsultants] = useState<Consultant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  // Fetch real consultants from Supabase
+  const { data: supabaseConsultants = [], isLoading: isSupabaseLoading, error } = useQuery({
+    queryKey: ['consultants'],
+    queryFn: async () => {
+      console.log('🔄 Fetching consultants from Supabase...');
+      
+      const { data, error } = await supabase
+        .from('consultants')
+        .select('*');
+
+      if (error) {
+        console.error('❌ Error fetching consultants:', error);
+        throw error;
+      }
+
+      console.log('✅ Supabase consultants fetched:', data?.length || 0);
+      return (data || []).map(consultant => ({
+        ...consultant,
+        skills: consultant.skills || [],
+        languages: consultant.languages || [],
+        roles: consultant.roles || [],
+        certifications: consultant.certifications || [],
+        values: consultant.values || [],
+        personalityTraits: consultant.personality_traits || [],
+        communicationStyle: consultant.communication_style || '',
+        workStyle: consultant.work_style || '',
+        teamFit: consultant.team_fit || '',
+        linkedinUrl: consultant.linkedin_url || '',
+        experience: consultant.experience_years ? `${consultant.experience_years} years` : '',
+        rate: consultant.hourly_rate ? `${consultant.hourly_rate} SEK/hour` : '',
+        projects: consultant.projects_completed || 0,
+        cv: consultant.cv_file_path || '',
+        lastActive: consultant.last_active || 'Today',
+        // Add analysis data placeholders
+        cvAnalysis: null,
+        linkedinAnalysis: null
+      })) as Consultant[];
+    },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   useEffect(() => {
-    const fetchConsultants = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        // Fetch ALL consultants from database INCLUDING analysis data
-        const { data: allData, error: fetchError } = await supabase
-          .from('consultants')
-          .select('*, cv_analysis, linkedin_analysis') // 🔥 Include analysis data
-          .order('created_at', { ascending: false });
+    console.log('🔄 Combining consultants...');
+    console.log('📊 Supabase consultants:', supabaseConsultants.length);
+    console.log('📊 Demo consultants:', demoConsultants.length);
+    console.log('📊 My demo consultants:', myDemoConsultants.length);
 
-        if (fetchError) {
-          throw fetchError;
-        }
+    // Combine all consultants: Supabase + demo + my demo
+    const allConsultants = [
+      ...supabaseConsultants,
+      ...demoConsultants,
+      ...myDemoConsultants
+    ];
 
-        console.log('🔍 Raw database consultants with analysis:', allData?.length || 0);
+    console.log('📊 Total combined consultants:', allConsultants.length);
+    
+    setConsultants(allConsultants);
+    setIsLoading(isSupabaseLoading);
+  }, [supabaseConsultants, isSupabaseLoading]);
 
-        // Map all consultants from database with correct types INCLUDING analysis
-        const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
-          id: c.id,
-          name: c.name || 'Unknown Name',
-          email: c.email || '',
-          phone: c.phone || '',
-          location: c.location || 'Location not specified',
-          skills: c.skills || [],
-          experience: c.experience_years ? `${c.experience_years} years` : '5 years',
-          rate: c.hourly_rate ? `${c.hourly_rate} SEK/hour` : '800 SEK/hour',
-          availability: c.availability || 'Available',
-          cv: c.cv_file_path || '',
-          communicationStyle: c.communication_style || '',
-          rating: c.rating || 4.8,
-          projects: c.projects_completed || 0,
-          lastActive: c.last_active || 'Recently',
-          roles: c.roles || ['Consultant'],
-          certifications: c.certifications || [],
-          type: c.type || 'existing',
-          user_id: c.user_id,
-          languages: c.languages || [],
-          workStyle: c.work_style || '',
-          values: c.values || [],
-          personalityTraits: c.personality_traits || [],
-          teamFit: c.team_fit || '',
-          culturalFit: c.cultural_fit || 5,
-          adaptability: c.adaptability || 5,
-          leadership: c.leadership || 3,
-          linkedinUrl: c.linkedin_url || '',
-          // 🔥 NEW: Include analysis data from database
-          cvAnalysis: c.cv_analysis,
-          linkedinAnalysis: c.linkedin_analysis,
-        }));
+  const updateConsultant = async (updatedConsultant: Consultant) => {
+    console.log('🔄 Updating consultant:', updatedConsultant.id);
+    
+    // Check if this is a demo consultant (starts with string ID)
+    if (typeof updatedConsultant.id === 'string' && (
+        updatedConsultant.id.startsWith('1') || 
+        updatedConsultant.id.startsWith('2') || 
+        updatedConsultant.id.startsWith('3') ||
+        updatedConsultant.id.startsWith('my-')
+      )) {
+      // Update locally for demo consultants
+      setConsultants(prev => 
+        prev.map(consultant => 
+          consultant.id === updatedConsultant.id ? updatedConsultant : consultant
+        )
+      );
+      return;
+    }
 
-        console.log('🔍 Mapped consultants from DB with analysis:', mappedConsultants.length);
-        console.log('🔍 Consultants with CV analysis:', mappedConsultants.filter(c => c.cvAnalysis).length);
-        console.log('🔍 Consultants with LinkedIn analysis:', mappedConsultants.filter(c => c.linkedinAnalysis).length);
-
-        // 🎯 Add demo consultants as "My Consultants" (type: existing)
-        const demoConsultantsWithUserId = myDemoConsultants.map(consultant => ({
-          ...consultant,
-          user_id: user?.id || 'demo-user-id',
-          type: 'existing' as const
-        }));
-
-        console.log('🔍 Demo consultants prepared:', demoConsultantsWithUserId.length);
-
-        // Combine with demo consultants
-        const allConsultants = [...mappedConsultants, ...demoConsultantsWithUserId];
-
-        console.log('🔍 Final consultant counts:');
-        console.log('📊 Total consultants:', allConsultants.length);
-        console.log('📊 Network consultants (type=new):', allConsultants.filter(c => c.type === 'new').length);
-        console.log('📊 My consultants (type=existing):', allConsultants.filter(c => c.type === 'existing').length);
-
-        setConsultants(allConsultants);
-      } catch (err) {
-        console.error('❌ Error fetching consultants:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchConsultants();
-  }, []);
-
-  const updateConsultant = async (consultant: Consultant) => {
+    // Update in Supabase for real consultants
     try {
       const { error } = await supabase
         .from('consultants')
         .update({
-          name: consultant.name,
-          email: consultant.email,
-          phone: consultant.phone,
-          location: consultant.location,
-          skills: consultant.skills,
-          experience_years: consultant.experience ? parseInt(consultant.experience) : null,
-          hourly_rate: consultant.rate ? parseInt(consultant.rate) : null,
-          availability: consultant.availability,
-          cv_file_path: consultant.cv,
-          communication_style: consultant.communicationStyle,
+          name: updatedConsultant.name,
+          email: updatedConsultant.email,
+          phone: updatedConsultant.phone,
+          location: updatedConsultant.location,
+          skills: updatedConsultant.skills,
+          experience_years: parseInt(updatedConsultant.experience.split(' ')[0]) || 0,
+          hourly_rate: parseInt(updatedConsultant.rate.split(' ')[0]) || 0,
+          availability: updatedConsultant.availability,
+          communication_style: updatedConsultant.communicationStyle,
+          work_style: updatedConsultant.workStyle,
+          languages: updatedConsultant.languages,
+          roles: updatedConsultant.roles,
+          certifications: updatedConsultant.certifications,
+          values: updatedConsultant.values,
+          personality_traits: updatedConsultant.personalityTraits,
+          team_fit: updatedConsultant.teamFit,
+          cultural_fit: updatedConsultant.culturalFit,
+          adaptability: updatedConsultant.adaptability,
+          leadership: updatedConsultant.leadership,
+          linkedin_url: updatedConsultant.linkedinUrl,
+          type: updatedConsultant.type,
+          rating: updatedConsultant.rating,
+          projects_completed: updatedConsultant.projects,
+          last_active: updatedConsultant.lastActive
         })
-        .eq('id', String(consultant.id));
-
-      if (error) throw error;
-
-      // Update local state
-      setConsultants(prev => 
-        prev.map(c => c.id === consultant.id ? consultant : c)
-      );
-    } catch (err) {
-      console.error('Error updating consultant:', err);
-      throw err;
-    }
-  };
-
-  // Clear network consultants function
-  const clearAllNetworkConsultants = async () => {
-    try {
-      console.log('🧹 Clearing all network consultants (type=new)...');
-      
-      const { data: deletedConsultants, error } = await supabase
-        .from('consultants')
-        .delete()
-        .eq('type', 'new')
-        .select();
+        .eq('id', updatedConsultant.id);
 
       if (error) {
+        console.error('❌ Error updating consultant:', error);
         throw error;
       }
 
-      const deletedCount = deletedConsultants?.length || 0;
-      console.log(`✅ Deleted ${deletedCount} network consultants`);
-
-      // Update local state to remove deleted consultants
-      setConsultants(prev => prev.filter(c => c.type !== 'new'));
-
-      return { success: true, deletedCount };
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+      console.log('✅ Consultant updated successfully');
     } catch (error) {
-      console.error('❌ Error clearing network consultants:', error);
+      console.error('❌ Failed to update consultant:', error);
       throw error;
     }
   };
 
-  return { consultants, isLoading, error, updateConsultant, clearAllNetworkConsultants };
+  const clearAllNetworkConsultants = async () => {
+    try {
+      console.log('🔄 Clearing all network consultants...');
+      
+      // Delete all consultants with type 'new' from Supabase
+      const { error, count } = await supabase
+        .from('consultants')
+        .delete()
+        .eq('type', 'new');
+
+      if (error) {
+        console.error('❌ Error clearing network consultants:', error);
+        throw error;
+      }
+
+      console.log('✅ Network consultants cleared:', count);
+      
+      // Invalidate and refetch to update the UI
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+      
+      return { deletedCount: count || 0 };
+    } catch (error) {
+      console.error('❌ Failed to clear network consultants:', error);
+      throw error;
+    }
+  };
+
+  return {
+    consultants,
+    isLoading,
+    error,
+    updateConsultant,
+    clearAllNetworkConsultants
+  };
 };
