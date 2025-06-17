@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useSupabaseConsultantsDedup } from '@/hooks/useSupabaseConsultantsDedup';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import ROICalculator from '@/components/ROICalculator';
 import Navbar from '@/components/landing/Navbar';
 import HeroSection from '@/components/landing/HeroSection';
@@ -15,15 +15,14 @@ import Footer from '@/components/landing/Footer';
 
 export default function Landing() {
   const { user } = useAuth();
-  const { consultants } = useSupabaseConsultantsDedup();
+  const { consultants } = useSupabaseConsultantsWithDemo();
 
-  // Count only network consultants (type === 'new') and limit to 1 for display
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'new').slice(0, 1);
+  // Count network consultants (type === 'new') - same logic as MatchWise AI dashboard
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
   const totalNetworkConsultants = networkConsultants.length;
 
-  console.log('Total consultants:', consultants.length);
-  console.log('Network consultants:', networkConsultants);
-  console.log('Network consultant count:', totalNetworkConsultants);
+  console.log('Landing page - Total consultants:', consultants.length);
+  console.log('Landing page - Network consultants:', totalNetworkConsultants);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
