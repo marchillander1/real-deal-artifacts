@@ -11,12 +11,6 @@ import { Separator } from '@/components/ui/separator';
 import { Upload, FileText, User, MapPin, Phone, Mail, Briefcase, Star, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import ListSkills from './ListSkills';
-import ListValues from './ListValues';
-import ListLanguages from './ListLanguages';
-import ListPersonalityTraits from './ListPersonalityTraits';
-import ListCertifications from './ListCertifications';
-import ListRoles from './ListRoles';
 
 export interface CVAnalysisLogicProps {
   file: File | null;
@@ -45,9 +39,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const [createdConsultant, setCreatedConsultant] = useState<any>(null);
   const { toast } = useToast();
 
-  // Check if we're uploading for "My Consultants"
-  const isMyConsultant = new URLSearchParams(window.location.search).get('source') === 'my-consultants';
-
   // Debug logging
   useEffect(() => {
     console.log('🔍 CVAnalysisLogic state check:', {
@@ -68,7 +59,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     return url.includes('linkedin.com');
   };
 
-  // Auto-trigger analysis when both file and LinkedIn URL are present (email not required for analysis start)
+  // Auto-trigger analysis when both file and LinkedIn URL are present
   useEffect(() => {
     const hasValidLinkedIn = isValidLinkedInUrl(linkedinUrl);
     const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysis;
@@ -82,7 +73,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     });
 
     if (shouldStartAnalysis) {
-      console.log('🚀 Auto-triggering analysis with file and LinkedIn URL (email will be autofilled)');
+      console.log('🚀 Auto-triggering analysis with file and LinkedIn URL');
       handleAnalysis();
     } else {
       console.log('⏳ Not auto-triggering because:', {
@@ -167,7 +158,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // 🔥 AUTOFILL: Extract info from CV analysis for consultant creation
+      // Autofill: Extract info from CV analysis for consultant creation
       const cvData = cvResponse.data?.analysis;
       const autoName = formName || cvData?.personalInfo?.name || 'Unknown Name';
       const autoEmail = formEmail || cvData?.personalInfo?.email || 'analysis@example.com';
@@ -181,7 +172,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       });
 
       // Step 4: Create consultant profile in database - ALL analyses go to Network Consultants
-      console.log('💾 Creating network consultant profile (all analyses go to network)...');
+      console.log('💾 Creating network consultant profile...');
       const consultantData = {
         name: autoName,
         email: autoEmail,
@@ -208,14 +199,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         adaptability: 5,
         leadership: 3,
         linkedin_url: linkedinUrl || '',
-        // 🔥 CRITICAL: Save analysis data as JSON in database
+        // Save analysis data as JSON in database
         cv_analysis_data: cvResponse.data,
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting consultant data with autofilled email:', consultantData.email);
-      console.log('💾 CV analysis data to save:', cvResponse.data);
-      console.log('💾 LinkedIn analysis data to save:', linkedinData);
+      console.log('💾 Inserting consultant data:', consultantData);
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
@@ -233,37 +222,61 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisProgress(90);
 
       // Step 5: Send notifications using autofilled email
-      console.log('📧 Sending notifications to autofilled email:', autoEmail);
+      console.log('📧 Sending welcome email to:', autoEmail);
       try {
         // Send welcome email to the autofilled email address
-        console.log('📧 Sending welcome email to:', autoEmail);
-        await supabase.functions.invoke('send-welcome-email', {
+        const welcomeEmailResponse = await supabase.functions.invoke('send-welcome-email', {
           body: {
             consultantEmail: autoEmail,
             consultantName: autoName,
-            isMyConsultant: false // All analyses go to network now
+            isMyConsultant: false
           }
         });
+
+        console.log('📧 Welcome email response:', welcomeEmailResponse);
+
+        if (welcomeEmailResponse.error) {
+          console.error('❌ Welcome email error:', welcomeEmailResponse.error);
+          // Don't fail the whole process, just log the error
+          toast({
+            title: "Email sending issue",
+            description: "Profile created successfully, but welcome email failed to send",
+            variant: "default",
+          });
+        } else {
+          console.log('✅ Welcome email sent successfully to:', autoEmail);
+        }
 
         // Send registration notification to admin
-        console.log('📧 Sending admin notification for:', autoEmail);
-        await supabase.functions.invoke('send-registration-notification', {
+        console.log('📧 Sending admin notification...');
+        const adminNotificationResponse = await supabase.functions.invoke('send-registration-notification', {
           body: {
             consultantName: autoName,
             consultantEmail: autoEmail,
-            isMyConsultant: false // All analyses go to network now
+            isMyConsultant: false
           }
         });
 
-        console.log('✅ Notifications sent successfully to autofilled email:', autoEmail);
+        console.log('📧 Admin notification response:', adminNotificationResponse);
+
+        if (adminNotificationResponse.error) {
+          console.error('❌ Admin notification error:', adminNotificationResponse.error);
+        } else {
+          console.log('✅ Admin notification sent successfully');
+        }
+
       } catch (emailError) {
-        console.warn('⚠️ Email sending failed:', emailError);
-        // Don't fail the whole process if emails fail
+        console.error('❌ Email sending failed:', emailError);
+        toast({
+          title: "Email sending issue",
+          description: "Profile created successfully, but emails failed to send",
+          variant: "default",
+        });
       }
 
       onAnalysisProgress(100);
 
-      // Call the completion callback with autofilled data
+      // Call the completion callback
       onAnalysisComplete({
         cvAnalysis: cvResponse.data,
         linkedinAnalysis: linkedinData,
@@ -272,7 +285,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis completed successfully!",
-        description: "Profile has been analyzed and added to network consultants with autofilled information.",
+        description: `Profile created and welcome email sent to ${autoEmail}`,
       });
 
     } catch (error: any) {
