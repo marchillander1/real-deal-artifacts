@@ -16,12 +16,12 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   const hasAnalysis = !!(
     consultant.cvAnalysis || 
     consultant.linkedinAnalysis || 
-    consultant.communication_style || 
-    consultant.work_style ||
-    consultant.personality_traits?.length ||
+    consultant.communicationStyle || 
+    consultant.workStyle ||
+    consultant.personalityTraits?.length ||
     consultant.values?.length ||
-    consultant.team_fit ||
-    consultant.cultural_fit ||
+    consultant.teamFit ||
+    consultant.culturalFit ||
     consultant.adaptability ||
     consultant.leadership
   );
@@ -46,11 +46,11 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   console.log('ConsultantCard:', consultant.name, 'hasAnalysis:', hasAnalysis, {
     cvAnalysis: !!consultant.cvAnalysis,
     linkedinAnalysis: !!consultant.linkedinAnalysis,
-    communication_style: !!consultant.communication_style,
-    work_style: !!consultant.work_style,
-    personality_traits: consultant.personality_traits?.length || 0,
+    communicationStyle: !!consultant.communicationStyle,
+    workStyle: !!consultant.workStyle,
+    personalityTraits: consultant.personalityTraits?.length || 0,
     values: consultant.values?.length || 0,
-    team_fit: !!consultant.team_fit,
+    teamFit: !!consultant.teamFit,
     isNew: isNew
   });
 
@@ -108,7 +108,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           </Badge>
         </div>
         <p className="text-xs text-gray-500">
-          {isNew ? 'Joined:' : 'Last active:'} {consultant.last_active || consultant.lastActive}
+          {isNew ? 'Joined:' : 'Last active:'} {consultant.lastActive}
         </p>
       </div>
 
@@ -142,7 +142,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           >
             <span className="flex items-center gap-2">
               <Star className="h-4 w-4" />
-              {isNew ? 'CV & LinkedIn Analysis' : 'AI Analysis & LinkedIn Profile'}
+              {isNew ? 'CV & LinkedIn Analysis (30 Posts + Bio)' : 'AI Analysis & LinkedIn Profile'}
             </span>
             {showAnalysis ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
