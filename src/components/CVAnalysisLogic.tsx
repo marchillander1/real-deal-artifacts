@@ -89,20 +89,23 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(80);
 
-      // Create consultant profile in database
+      // Create consultant profile in database - matching the database schema
       const consultantData = {
-        full_name: cvAnalysisData?.personalInfo?.name || 'Unknown',
+        name: cvAnalysisData?.personalInfo?.name || 'Unknown', // Using 'name' not 'full_name'
         email: cvAnalysisData?.personalInfo?.email || '',
         phone: cvAnalysisData?.personalInfo?.phone || '',
         linkedin_url: linkedinUrl || '',
-        technical_skills: cvAnalysisData?.technicalSkills || [],
+        skills: cvAnalysisData?.technicalSkills || [],
         experience_years: cvAnalysisData?.professionalSummary?.yearsOfExperience || 0,
-        seniority_level: cvAnalysisData?.professionalSummary?.seniorityLevel || 'Mid',
-        current_role: cvAnalysisData?.professionalSummary?.currentRole || '',
         hourly_rate: cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
+        availability: 'Available',
+        communication_style: linkedinAnalysisData?.communicationStyle || 'Professional',
+        cultural_fit: linkedinAnalysisData?.culturalFit || 5,
+        adaptability: linkedinAnalysisData?.adaptability || 5,
+        leadership: linkedinAnalysisData?.leadership || 3,
+        // Store analysis data as JSONB - this will be added to the consultant object after creation
         cv_analysis: cvAnalysisData,
-        linkedin_analysis: linkedinAnalysisData,
-        availability_status: 'available'
+        linkedin_analysis: linkedinAnalysisData
       };
 
       console.log('Creating consultant profile with data:', consultantData);
@@ -127,7 +130,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           body: {
             consultantId: consultant.id,
             email: consultant.email,
-            fullName: consultant.full_name,
+            fullName: consultant.name, // Using 'name' from the consultant object
             analysisResults: {
               cvAnalysis: cvAnalysisData,
               linkedinAnalysis: linkedinAnalysisData
