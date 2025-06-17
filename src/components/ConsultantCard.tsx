@@ -12,11 +12,22 @@ interface ConsultantCardProps {
 }
 
 const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = false }) => {
-  // Check if consultant has analysis data - more comprehensive check
-  const hasAnalysis = !!(consultant.cvAnalysis || consultant.linkedinAnalysis || consultant.communicationStyle || consultant.workStyle);
+  // Enhanced check for analysis data - look for any analysis-related properties
+  const hasAnalysis = !!(
+    consultant.cvAnalysis || 
+    consultant.linkedinAnalysis || 
+    consultant.communicationStyle || 
+    consultant.workStyle ||
+    consultant.personalityTraits?.length ||
+    consultant.values?.length ||
+    consultant.teamFit ||
+    consultant.culturalFit ||
+    consultant.adaptability ||
+    consultant.leadership
+  );
   
-  // Show analysis by default if it exists
-  const [showAnalysis, setShowAnalysis] = useState(hasAnalysis);
+  // Show analysis by default if it exists, especially for new consultants from CV upload
+  const [showAnalysis, setShowAnalysis] = useState(isNew || hasAnalysis);
   
   const borderColor = isNew ? 'border-2 border-green-100' : 'border';
   const badgeColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
@@ -36,7 +47,11 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
     cvAnalysis: !!consultant.cvAnalysis,
     linkedinAnalysis: !!consultant.linkedinAnalysis,
     communicationStyle: !!consultant.communicationStyle,
-    workStyle: !!consultant.workStyle
+    workStyle: !!consultant.workStyle,
+    personalityTraits: consultant.personalityTraits?.length || 0,
+    values: consultant.values?.length || 0,
+    teamFit: !!consultant.teamFit,
+    isNew: isNew
   });
 
   return (
@@ -113,7 +128,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
         </div>
       </div>
 
-      {/* AI Analysis Section - Always show if we have any analysis data */}
+      {/* AI Analysis Section - Show for all consultants with analysis data */}
       {hasAnalysis && (
         <div className="mt-4 pt-4 border-t">
           <Button
@@ -127,7 +142,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           >
             <span className="flex items-center gap-2">
               <Star className="h-4 w-4" />
-              AI Analysis & LinkedIn Profile
+              {isNew ? 'CV & LinkedIn Analysis' : 'AI Analysis & LinkedIn Profile'}
             </span>
             {showAnalysis ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>

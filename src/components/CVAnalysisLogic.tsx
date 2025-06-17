@@ -133,7 +133,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedCertifications = education?.certifications || [];
       const extractedLanguages = personalInfo?.languages || ['Swedish', 'English'];
 
-      // 🔥 CRITICAL: Create network consultant data with REQUIRED fields
+      // 🔥 CRITICAL: Create network consultant data with REQUIRED fields including all analysis data
       const consultantData = {
         name: extractedName,
         email: extractedEmail,
@@ -147,6 +147,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         roles: extractedRoles,
         certifications: extractedCertifications,
         languages: extractedLanguages,
+        
+        // 🎯 Store analysis data for display in consultant cards
         communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 
                            personalityTraits?.communicationStyle || 'Professional',
         work_style: personalityTraits?.workStyle || 'Collaborative',
@@ -160,6 +162,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         cultural_fit: linkedinAnalysisData?.analysis?.culturalFit || 5,
         adaptability: linkedinAnalysisData?.analysis?.adaptability || 5,
         leadership: linkedinAnalysisData?.analysis?.leadership || 3,
+        
         rating: 5.0,
         projects_completed: 0,
         last_active: 'Today',
@@ -172,6 +175,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('📌 user_id:', consultantData.user_id);
       console.log('📌 email:', consultantData.email);
       console.log('📌 name:', consultantData.name);
+      console.log('📌 Analysis data stored:', {
+        communication_style: consultantData.communication_style,
+        work_style: consultantData.work_style,
+        cultural_fit: consultantData.cultural_fit,
+        adaptability: consultantData.adaptability,
+        leadership: consultantData.leadership
+      });
 
       // 🎯 Create consultant in database
       const { data: consultant, error: consultantError } = await supabase
@@ -227,18 +237,19 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(100);
 
-      // Return analysis results with enhanced consultant data
+      // Return analysis results with enhanced consultant data including the full analysis objects
       const analysisResults = {
         cvAnalysis: cvAnalysisData,
         linkedinAnalysis: linkedinAnalysisData,
         consultant: {
           ...consultant,
+          // 🎯 Include the full analysis objects for display in ConsultantAnalysisCard
           cvAnalysis: cvAnalysisData?.analysis,
           linkedinAnalysis: linkedinAnalysisData?.analysis
         }
       };
 
-      console.log('✅ Analysis complete, calling onAnalysisComplete');
+      console.log('✅ Analysis complete, calling onAnalysisComplete with full analysis data');
       onAnalysisComplete(analysisResults);
 
     } catch (error) {
