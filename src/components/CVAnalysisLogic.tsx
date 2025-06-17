@@ -28,37 +28,19 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   useEffect(() => {
     // Only start analysis when both CV file and LinkedIn URL are provided
     if (cvFile && linkedinUrl && linkedinUrl.trim() !== '' && !hasAnalyzed) {
-      console.log('✅ Starting analysis with CV file and LinkedIn URL:', { cvFile: cvFile.name, linkedinUrl, formEmail, formName });
       analyzeCVAndLinkedIn();
-    } else {
-      console.log('⏳ Waiting for CV file and LinkedIn URL. Current state:', { 
-        hasCvFile: !!cvFile, 
-        hasLinkedinUrl: linkedinUrl && linkedinUrl.trim() !== '', 
-        hasAnalyzed 
-      });
     }
   }, [cvFile, linkedinUrl, hasAnalyzed]);
 
   const analyzeCVAndLinkedIn = async () => {
-    if (!cvFile) {
-      console.error('❌ No CV file provided');
-      return;
-    }
-
-    if (!formEmail || formEmail.trim() === '') {
-      console.error('❌ No email provided for consultant');
-      onError('Email is required to create consultant profile');
-      return;
-    }
+    if (!cvFile) return;
 
     try {
       setHasAnalyzed(true);
       onAnalysisStart?.();
       onAnalysisProgress?.(10);
 
-      console.log('🚀 Starting comprehensive CV and LinkedIn analysis...');
-      console.log('📧 Using email from form:', formEmail);
-      console.log('👤 Using name from form:', formName);
+      console.log('Starting comprehensive CV and LinkedIn analysis...');
 
       // Create FormData for file upload
       const formData = new FormData();
@@ -68,24 +50,24 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisProgress?.(30);
 
       // Analyze CV using FormData
-      console.log('📄 Calling parse-cv function with FormData...');
+      console.log('Calling parse-cv function with FormData...');
       const { data: cvAnalysisData, error: cvError } = await supabase.functions.invoke('parse-cv', {
         body: formData
       });
 
       if (cvError) {
-        console.error('❌ CV analysis error:', cvError);
-        console.log('⚠️ CV analysis failed, using form data instead');
-      } else {
-        console.log('✅ CV analysis completed:', cvAnalysisData);
+        console.error('CV analysis error:', cvError);
+        // Don't throw error, continue with form data
+        console.log('CV analysis failed, using form data instead');
       }
 
+      console.log('CV analysis completed:', cvAnalysisData);
       onAnalysisProgress?.(60);
 
       // Analyze LinkedIn if URL provided
       let linkedinAnalysisData = null;
       if (linkedinUrl) {
-        console.log('🔗 Analyzing LinkedIn profile...');
+        console.log('Analyzing LinkedIn profile...');
         try {
           const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
             body: {
@@ -96,10 +78,10 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
           if (!linkedinError && linkedinData) {
             linkedinAnalysisData = linkedinData;
-            console.log('✅ LinkedIn analysis completed:', linkedinAnalysisData);
+            console.log('LinkedIn analysis completed:', linkedinAnalysisData);
           }
         } catch (linkedinError) {
-          console.warn('⚠️ LinkedIn analysis failed:', linkedinError);
+          console.warn('LinkedIn analysis failed:', linkedinError);
         }
       }
 
@@ -119,18 +101,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedName = formName || 
         (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Network Consultant');
       
-      const extractedEmail = formEmail; // Always use form email
+      const extractedEmail = formEmail || 
+        (personalInfo?.email && personalInfo.email !== 'analysis@example.com' ? personalInfo.email : '');
       
       const extractedPhone = personalInfo?.phone || '';
       const extractedLocation = personalInfo?.location || 'Sweden';
       
-      console.log('📋 Extracted consultant info:', {
-        name: extractedName,
-        email: extractedEmail,
-        phone: extractedPhone,
-        location: extractedLocation
-      });
-
       // Extract skills from multiple sources in the analysis
       const extractedSkills = [
         ...(technicalSkillsAnalysis?.programmingLanguages?.expert || []),
@@ -180,12 +156,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         rating: 5.0,
         projects_completed: 0,
         last_active: 'Today',
-        type: 'new', // This makes it a network consultant - CRITICAL
+        type: 'new', // This makes it a network consultant
         user_id: null // Network consultant should have null user_id - CRITICAL for showing in Network Consultants tab
       };
 
-      console.log('💾 Creating network consultant with this exact data:', consultantData);
-      console.log('🔍 CRITICAL CHECK - type:', consultantData.type, 'user_id:', consultantData.user_id);
+      console.log('Creating network consultant profile with data:', consultantData);
 
       const { data: consultant, error: consultantError } = await supabase
         .from('consultants')
@@ -194,35 +169,35 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         .single();
 
       if (consultantError) {
-        console.error('❌ Error creating consultant:', consultantError);
+        console.error('Error creating consultant:', consultantError);
         throw new Error('Failed to create consultant profile: ' + consultantError.message);
       }
 
-      console.log('✅ Network consultant created successfully with ID:', consultant.id);
-      console.log('🔍 Created consultant data:', consultant);
+      console.log('Network consultant created successfully:', consultant);
       onAnalysisProgress?.(90);
 
-      // Send welcome email - CRITICAL: Use formEmail
-      console.log('📧 About to send welcome email to:', formEmail);
-      try {
-        console.log(`📤 Sending welcome email to: ${formEmail} for consultant: ${extractedName}`);
-        const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-          body: {
-            consultantName: extractedName,
-            consultantEmail: formEmail, // Use form email directly
-            isMyConsultant: false
-          }
-        });
+      // Send welcome email with the actual email from form - CRITICAL: Use formEmail not extractedEmail
+      if (formEmail && formEmail.trim() !== '') {
+        try {
+          console.log(`Sending welcome email to: ${formEmail} for consultant: ${extractedName}`);
+          const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+            body: {
+              consultantName: extractedName,
+              consultantEmail: formEmail, // Use form email directly
+              isMyConsultant: false
+            }
+          });
 
-        if (emailError) {
-          console.error('❌ Failed to send welcome email:', emailError);
-          // Don't throw error, just log it
-        } else {
-          console.log('✅ Welcome email sent successfully:', emailResponse);
+          if (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+          } else {
+            console.log('Welcome email sent successfully:', emailResponse);
+          }
+        } catch (emailError) {
+          console.error('Error sending welcome email:', emailError);
         }
-      } catch (emailError) {
-        console.error('❌ Error sending welcome email:', emailError);
-        // Don't throw error, just log it
+      } else {
+        console.warn('No email provided for welcome email');
       }
 
       onAnalysisProgress?.(100);
@@ -238,11 +213,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         }
       };
 
-      console.log('🎉 Analysis complete, calling onAnalysisComplete with:', analysisResults);
+      console.log('Analysis complete, calling onAnalysisComplete with:', analysisResults);
       onAnalysisComplete(analysisResults);
 
     } catch (error) {
-      console.error('❌ Analysis failed:', error);
+      console.error('Analysis failed:', error);
       setHasAnalyzed(false);
       onError(error instanceof Error ? error.message : 'Analysis failed');
     }
