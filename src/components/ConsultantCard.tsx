@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Star, Mail, Award, ChevronDown, ChevronUp } from 'lucide-react';
 import { Consultant } from '../types/consultant';
@@ -41,7 +40,10 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const experienceYears = consultant.experience_years?.toString() || consultant.experience?.replace(/\D/g, '') || '0';
+  // Fix: Use correct property names from Consultant interface
+  const experienceYears = consultant.experience || '5 years';
+  const projectsCompleted = consultant.projects || 0;
+  const hourlyRate = consultant.rate || '$800/hour';
 
   console.log('ConsultantCard:', consultant.name, 'hasAnalysis:', hasAnalysis, {
     cvAnalysis: !!consultant.cvAnalysis,
@@ -80,15 +82,15 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
       <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Experience:</span>
-          <span className="font-medium">{experienceYears} years</span>
+          <span className="font-medium">{experienceYears}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Projects:</span>
-          <span className="font-medium">{consultant.projects_completed || consultant.projects || 0} completed</span>
+          <span className="font-medium">{projectsCompleted} completed</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Rate:</span>
-          <span className="font-medium text-green-600">{consultant.hourly_rate || consultant.rate}/hour</span>
+          <span className="font-medium text-green-600">{hourlyRate}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Location:</span>
