@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,122 +9,118 @@ const corsHeaders = {
 };
 
 interface WelcomeEmailRequest {
-  userEmail: string;
-  userName?: string;
+  consultantName: string;
+  consultantEmail: string;
+  isMyConsultant?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log("🚀 Welcome email function started");
-  console.log("📋 Request method:", req.method);
-  
   if (req.method === "OPTIONS") {
-    console.log("✅ Handling CORS preflight request");
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== "POST") {
-    console.error("❌ Invalid method:", req.method);
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      {
-        status: 405,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
-  }
-
   try {
-    // Parse request body
-    const body = await req.text();
-    console.log("📦 Raw request body received");
-    
-    if (!body) {
-      throw new Error("Request body is empty");
-    }
+    const { consultantName, consultantEmail, isMyConsultant }: WelcomeEmailRequest = await req.json();
 
-    let requestData: WelcomeEmailRequest;
-    try {
-      requestData = JSON.parse(body);
-    } catch (parseError) {
-      console.error("❌ JSON parse error:", parseError);
-      throw new Error("Invalid JSON in request body");
-    }
+    console.log("Welcome email request:", { consultantName, consultantEmail, isMyConsultant });
 
-    const { userEmail, userName } = requestData;
+    // Configure SMTP client
+    const client = new SMTPClient({
+      connection: {
+        hostname: Deno.env.get("SMTP_HOST")!,
+        port: parseInt(Deno.env.get("SMTP_PORT")!),
+        tls: true,
+        auth: {
+          username: Deno.env.get("SMTP_USERNAME")!,
+          password: Deno.env.get("SMTP_PASSWORD")!,
+        },
+      },
+    });
 
-    console.log("📧 Sending welcome email to:", userEmail, "with name:", userName);
-
-    // Validate email
-    if (!userEmail) {
-      throw new Error("userEmail is required");
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(userEmail)) {
-      throw new Error("Invalid email format");
-    }
-
-    // Check if API key exists
-    const apiKey = Deno.env.get("RESEND_API_KEY");
-    if (!apiKey) {
-      console.error("❌ RESEND_API_KEY not found in environment");
-      throw new Error("RESEND_API_KEY not configured");
-    }
-    console.log("🔑 RESEND_API_KEY found (length:", apiKey.length, ")");
-
-    // Extract first name from full name or use email
-    const firstName = userName ? userName.split(' ')[0] : userEmail.split('@')[0];
-
-    console.log("👤 First name extracted:", firstName);
-
-    // Initialize Resend with API key
-    const resend = new Resend(apiKey);
-
-    console.log("🔧 Resend client configured");
-
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-        <h2 style="color: #2563eb;">Hello ${firstName}!</h2>
-        
-        <p>Thank you for uploading your CV and joining MatchWise!</p>
-        
+    // Different email content based on whether it's "My Consultant" or network registration
+    const emailContent = isMyConsultant ? {
+      subject: "You've been added to a MatchWise AI team!",
+      greeting: `Hi ${consultantName}!`,
+      mainMessage: "You've been successfully added to a MatchWise AI team as a consultant.",
+      details: `
+        <p><strong>What this means:</strong></p>
+        <ul style="margin-left: 20px;">
+          <li>You're now part of a curated consultant team</li>
+          <li>You'll be matched with relevant assignments automatically</li>
+          <li>Your profile has been analyzed and optimized by our AI</li>
+          <li>You'll receive notifications about potential opportunities</li>
+        </ul>
+      `,
+      nextSteps: `
+        <p><strong>Next steps:</strong></p>
+        <ul style="margin-left: 20px;">
+          <li>Keep your profile updated for better matching</li>
+          <li>Respond quickly to assignment opportunities</li>
+          <li>Maintain professional availability status</li>
+        </ul>
+      `,
+      closing: "Welcome to the team!"
+    } : {
+      subject: "🚀 Welcome to MatchWise AI Network - You're one step closer...",
+      greeting: `Hello ${consultantName}!`,
+      mainMessage: "Thank you for uploading your CV and joining MatchWise!",
+      details: `
         <p>You've just taken a big step toward exciting new consulting opportunities.</p>
-        
         <p>Our AI-driven platform analyzes both your experience and soft skills to match you with the right projects – not just based on competence, but also on personality and cultural fit.</p>
         
-        <h3 style="color: #2563eb;">🔍 What happens next?</h3>
-        <ul>
+        <h3 style="color: #2563eb; margin-top: 20px;">🔍 What happens next?</h3>
+        <ul style="margin-left: 20px;">
           <li>Your profile will be reviewed by our team</li>
           <li>You'll soon be visible to hiring companies on the platform</li>
           <li>We'll reach out if a particularly good match comes up</li>
         </ul>
         
-        <h3 style="color: #2563eb;">💡 Tips:</h3>
+        <h3 style="color: #f59e0b; margin-top: 20px;">💡 Tips:</h3>
         <p>Make sure to keep your profile updated and respond quickly to any offers – this increases your chances of landing fantastic assignments.</p>
-        
-        <p>If you have any questions, don't hesitate to reach out at <a href="mailto:marc@matchwise.tech">marc@matchwise.tech</a>.</p>
-        
-        <p><strong>Welcome to the future of consultant matching!</strong></p>
-        
-        <p>Best regards,<br>
-        The MatchWise Team<br>
-        <a href="https://www.matchwise.tech">www.matchwise.tech</a></p>
-      </div>
-    `;
+      `,
+      nextSteps: "",
+      closing: "Welcome to the future of consultant matching!"
+    };
 
-    console.log("📝 Email HTML prepared");
-
-    // Send welcome email via Resend
-    const emailResponse = await resend.emails.send({
-      from: "Marc from MatchWise <marc@matchwise.tech>",
-      to: [userEmail],
-      subject: "Welcome to MatchWise – You're one step closer to your next assignment 🚀",
-      html: emailHtml,
+    // Send welcome email to consultant
+    await client.send({
+      from: Deno.env.get("SMTP_USERNAME")!,
+      to: consultantEmail,
+      subject: emailContent.subject,
+      content: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">${emailContent.greeting}</h2>
+          
+          <p style="font-size: 16px; line-height: 1.6;">${emailContent.mainMessage}</p>
+          
+          ${emailContent.details}
+          
+          ${emailContent.nextSteps}
+          
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Questions?</strong> Don't hesitate to reach out at <a href="mailto:marc@matchwise.tech" style="color: #2563eb;">marc@matchwise.tech</a></p>
+          </div>
+          
+          <p style="font-size: 18px; font-weight: bold; color: #2563eb; margin-top: 20px;">${emailContent.closing}</p>
+          
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+          <p style="color: #64748b; font-size: 14px;">
+            Best regards,<br>
+            The MatchWise Team
+          </p>
+          <p style="color: #64748b; font-size: 12px;">
+            This email was sent automatically from MatchWise AI platform.
+          </p>
+        </div>
+      `,
+      html: true,
     });
 
-    console.log("📤 Email sent successfully via Resend:", emailResponse);
+    await client.close();
 
-    return new Response(JSON.stringify({ success: true, emailResponse }), {
+    console.log(`Welcome email sent successfully to ${consultantEmail} (${isMyConsultant ? 'My Consultant' : 'Network'})`);
+
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -132,15 +128,9 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("❌ Error sending welcome email:", error);
-    console.error("❌ Error details:", {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    
+    console.error("Error sending welcome email:", error);
     return new Response(
-      JSON.stringify({ error: error.message, details: error.toString() }),
+      JSON.stringify({ error: error.message }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
