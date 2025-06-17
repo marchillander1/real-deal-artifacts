@@ -60,19 +60,19 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
 
   const getAnalysisStatus = () => {
     if (isAnalyzing) {
-      return { icon: Loader2, text: "Analyzing CV and LinkedIn...", color: "text-blue-600" };
+      return { icon: Loader2, text: "Analyzing CV and LinkedIn together...", color: "text-blue-600" };
     }
     if (analysisResults) {
-      return { icon: CheckCircle2, text: "Analysis complete!", color: "text-green-600" };
+      return { icon: CheckCircle2, text: "Complete analysis finished!", color: "text-green-600" };
     }
-    if (canStartAnalysis) {
-      return { icon: CheckCircle2, text: "Ready for analysis", color: "text-green-600" };
+    if (file && hasValidLinkedInUrl && hasValidEmail) {
+      return { icon: CheckCircle2, text: "Ready for comprehensive analysis", color: "text-green-600" };
+    }
+    if (file && !hasValidLinkedInUrl) {
+      return { icon: Clock, text: "Add LinkedIn URL to start analysis", color: "text-orange-600" };
     }
     if (file && hasValidLinkedInUrl && !hasValidEmail) {
       return { icon: Clock, text: "Enter email to start analysis", color: "text-orange-600" };
-    }
-    if (file && !hasValidLinkedInUrl) {
-      return { icon: Clock, text: "Add LinkedIn URL to continue", color: "text-orange-600" };
     }
     if (!file) {
       return { icon: Clock, text: "Upload CV to start", color: "text-gray-600" };
@@ -156,7 +156,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                         Upload Your CV
                       </p>
                       <p className="text-sm text-gray-500">
-                        PDF or image format - Analysis starts when all fields are complete
+                        PDF or image format - Analysis starts when CV + LinkedIn URL are complete
                       </p>
                     </div>
                   </div>
@@ -165,7 +165,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             </div>
           </div>
 
-          {/* Personal Information - MOVED UP */}
+          {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <Label htmlFor="fullName" className="text-base font-medium flex items-center">
@@ -235,7 +235,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             {hasValidLinkedInUrl && (
               <div className="flex items-center gap-2 text-green-600 text-sm">
                 <CheckCircle2 className="h-4 w-4" />
-                Valid LinkedIn URL
+                Valid LinkedIn URL - Analysis will start when CV is uploaded
               </div>
             )}
           </div>
@@ -248,7 +248,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                 <span className={`font-medium ${analysisStatus.color.replace('text-', 'text-')}`}>Analysis Requirements</span>
               </div>
               <p className="text-sm text-blue-700">
-                {analysisStatus.text} - All three fields (CV, email, LinkedIn) are required to start analysis.
+                {analysisStatus.text} - CV, LinkedIn URL, and email are all required for comprehensive analysis.
               </p>
             </div>
           )}
@@ -302,17 +302,41 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           
           {canStartAnalysis && !analysisResults && !isAnalyzing && (
             <p className="text-center text-sm text-green-600">
-              ✅ Analysis will start automatically when you complete all fields
+              ✅ Analysis will start automatically when you complete CV + LinkedIn URL
             </p>
           )}
           
           {isAnalyzing && (
             <p className="text-center text-sm text-blue-600">
-              🔄 Analysis in progress - CV and LinkedIn being analyzed...
+              🔄 Comprehensive analysis in progress - CV and LinkedIn being analyzed together...
             </p>
           )}
         </form>
       </CardContent>
     </Card>
   );
+
+  function getCardTitle() {
+    if (isMyConsultant) {
+      return "Add Consultant to My Team";
+    }
+    return "Start Your Comprehensive Analysis";
+  }
+
+  function getCardDescription() {
+    if (isMyConsultant) {
+      return "Upload CV, add LinkedIn profile and email to start comprehensive analysis";
+    }
+    return "CV, LinkedIn profile, and email are required for complete professional analysis";
+  }
+
+  function getSubmitButtonText() {
+    if (isUploading) {
+      return isMyConsultant ? "Adding to My Team..." : "Saving Comprehensive Profile...";
+    }
+    if (analysisResults) {
+      return isMyConsultant ? "Add to My Team" : "Submit & Join Our Network";
+    }
+    return isMyConsultant ? "Complete Form to Start Analysis" : "Complete Form to Start Analysis";
+  }
 };

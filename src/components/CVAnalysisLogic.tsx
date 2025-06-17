@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,23 +29,27 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     setHasAnalyzed(false);
   }, [cvFile, linkedinUrl]);
 
-  // Check if we can start CV analysis - only needs CV file initially
-  const canStartCVAnalysis = cvFile && !hasAnalyzed;
+  // Check if we can start analysis - needs BOTH CV file AND LinkedIn URL
+  const hasValidLinkedInUrl = linkedinUrl && linkedinUrl.includes('linkedin.com');
+  const canStartAnalysis = cvFile && hasValidLinkedInUrl && !hasAnalyzed;
 
   useEffect(() => {
-    if (canStartCVAnalysis) {
-      console.log('🚀 Starting CV analysis to extract personal info:', { 
+    if (canStartAnalysis) {
+      console.log('🚀 Starting comprehensive analysis with both CV and LinkedIn:', { 
         hasFile: !!cvFile, 
+        hasLinkedIn: hasValidLinkedInUrl,
         hasAnalyzed 
       });
       analyzeCVAndLinkedIn();
     } else {
-      console.log('⏳ Waiting for CV file:', {
+      console.log('⏳ Waiting for both CV and LinkedIn URL:', {
         hasFile: !!cvFile,
-        hasAnalyzed
+        hasValidLinkedIn: hasValidLinkedInUrl,
+        hasAnalyzed,
+        linkedinUrl
       });
     }
-  }, [canStartCVAnalysis]);
+  }, [canStartAnalysis]);
 
   const sendWelcomeEmail = async (consultantName: string, consultantEmail: string, isMyConsultant: boolean) => {
     try {
@@ -95,14 +98,14 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   };
 
   const analyzeCVAndLinkedIn = async () => {
-    if (!cvFile || hasAnalyzed) return;
+    if (!cvFile || !hasValidLinkedInUrl || hasAnalyzed) return;
 
     try {
       setHasAnalyzed(true);
       onAnalysisStart?.();
       onAnalysisProgress?.(10);
 
-      console.log('🚀 Starting CV analysis to extract personal information...');
+      console.log('🚀 Starting comprehensive CV and LinkedIn analysis...');
 
       // Create FormData for file upload
       const formData = new FormData();
@@ -119,7 +122,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       if (cvError) {
         console.error('❌ CV analysis error:', cvError);
-        console.log('⚠️ CV analysis failed, using form data instead');
+        throw new Error('CV analysis failed: ' + cvError.message);
       }
 
       console.log('✅ CV analysis completed:', cvAnalysisData);
@@ -134,42 +137,29 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       // Check if we have a valid email from either source
       if (!finalEmail || finalEmail === 'analysis@example.com' || !finalEmail.includes('@')) {
-        console.log('⚠️ No valid email found in CV or form, will proceed without creating consultant for now');
-        
-        // Still complete the analysis and return results, but don't create consultant yet
-        const analysisResults = {
-          cvAnalysis: cvAnalysisData,
-          linkedinAnalysis: null,
-          consultant: null,
-          needsEmail: true // Flag to indicate email is needed
-        };
-        
-        onAnalysisProgress?.(100);
-        onAnalysisComplete(analysisResults);
-        return;
+        console.log('⚠️ No valid email found in CV or form');
+        throw new Error('No valid email found. Please provide a valid email address.');
       }
 
-      // Analyze LinkedIn if URL provided
+      // Analyze LinkedIn since URL is provided and validated
       let linkedinAnalysisData = null;
-      if (linkedinUrl && linkedinUrl.includes('linkedin.com')) {
-        console.log('🔗 Analyzing LinkedIn profile...');
-        try {
-          const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
-            body: {
-              linkedinUrl: linkedinUrl,
-              cvData: cvAnalysisData
-            }
-          });
-
-          if (!linkedinError && linkedinData) {
-            linkedinAnalysisData = linkedinData;
-            console.log('✅ LinkedIn analysis completed:', linkedinAnalysisData);
-          } else {
-            console.warn('⚠️ LinkedIn analysis failed, continuing without it:', linkedinError);
+      console.log('🔗 Analyzing LinkedIn profile...');
+      try {
+        const { data: linkedinData, error: linkedinError } = await supabase.functions.invoke('analyze-linkedin', {
+          body: {
+            linkedinUrl: linkedinUrl,
+            cvData: cvAnalysisData
           }
-        } catch (linkedinError) {
+        });
+
+        if (!linkedinError && linkedinData) {
+          linkedinAnalysisData = linkedinData;
+          console.log('✅ LinkedIn analysis completed:', linkedinAnalysisData);
+        } else {
           console.warn('⚠️ LinkedIn analysis failed, continuing without it:', linkedinError);
         }
+      } catch (linkedinError) {
+        console.warn('⚠️ LinkedIn analysis failed, continuing without it:', linkedinError);
       }
 
       onAnalysisProgress?.(80);
