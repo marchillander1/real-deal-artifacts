@@ -44,6 +44,10 @@ export const useSupabaseConsultantsWithDemo = () => {
         projects: consultant.projects_completed || 0,
         cv: consultant.cv_file_path || '',
         lastActive: consultant.last_active || 'Today',
+        // Add missing required properties with default values
+        culturalFit: consultant.cultural_fit || 5,
+        adaptability: consultant.adaptability || 5,
+        leadership: consultant.leadership || 3,
         // Add analysis data placeholders
         cvAnalysis: null,
         linkedinAnalysis: null
@@ -121,7 +125,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           projects_completed: updatedConsultant.projects,
           last_active: updatedConsultant.lastActive
         })
-        .eq('id', updatedConsultant.id);
+        .eq('id', String(updatedConsultant.id));
 
       if (error) {
         console.error('❌ Error updating consultant:', error);
