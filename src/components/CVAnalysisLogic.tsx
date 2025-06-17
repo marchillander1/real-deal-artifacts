@@ -51,8 +51,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(30);
 
-      // Analyze CV with comprehensive analysis
-      console.log('Calling parse-cv function for detailed analysis...');
+      // Analyze CV
+      console.log('Calling parse-cv function...');
       const { data: cvAnalysisData, error: cvError } = await supabase.functions.invoke('parse-cv', {
         body: {
           file: fileBase64,
@@ -69,6 +69,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('CV analysis completed:', cvAnalysisData);
       onAnalysisProgress?.(60);
 
+      // Analyze LinkedIn if URL provided
       let linkedinAnalysisData = null;
       if (linkedinUrl) {
         console.log('Analyzing LinkedIn profile...');
@@ -82,25 +83,21 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         if (!linkedinError && linkedinData) {
           linkedinAnalysisData = linkedinData;
           console.log('LinkedIn analysis completed:', linkedinAnalysisData);
-        } else {
-          console.warn('LinkedIn analysis failed or skipped:', linkedinError);
         }
       }
 
       onAnalysisProgress?.(80);
 
-      // Create consultant profile in database - matching the expected schema
+      // Create consultant profile using correct column names
       const consultantData = {
         name: cvAnalysisData?.analysis?.personalInfo?.name || 'Unknown',
         email: cvAnalysisData?.analysis?.personalInfo?.email || '',
         phone: cvAnalysisData?.analysis?.personalInfo?.phone || '',
         linkedin_url: linkedinUrl || '',
-        technical_skills: cvAnalysisData?.analysis?.technicalExpertise?.frameworks || [],
+        skills: cvAnalysisData?.analysis?.technicalExpertise?.frameworks || [],
         experience_years: parseInt(cvAnalysisData?.analysis?.professionalSummary?.yearsOfExperience) || 0,
-        seniority_level: cvAnalysisData?.analysis?.professionalSummary?.seniorityLevel || 'Mid-level',
-        current_role: cvAnalysisData?.analysis?.professionalSummary?.currentRole || 'Consultant',
         hourly_rate: cvAnalysisData?.analysis?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
-        availability_status: 'Available',
+        availability: 'Available', // Using 'availability' not 'availability_status'
         communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 'Professional',
         cultural_fit: linkedinAnalysisData?.analysis?.culturalFit || 5,
         adaptability: linkedinAnalysisData?.analysis?.adaptability || 5,
@@ -139,8 +136,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
         if (emailError) {
           console.warn('Failed to send welcome email:', emailError);
-        } else {
-          console.log('Welcome email sent successfully');
         }
       } catch (emailError) {
         console.warn('Error sending welcome email:', emailError);
@@ -148,15 +143,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(100);
 
-      // Return comprehensive analysis results
+      // Return analysis results
       const analysisResults = {
         cvAnalysis: cvAnalysisData,
         linkedinAnalysis: linkedinAnalysisData,
-        consultant: consultant,
-        roiPredictions: cvAnalysisData?.analysis?.roiPredictions,
-        certificationRecommendations: cvAnalysisData?.analysis?.certificationRecommendations,
-        technicalAssessment: cvAnalysisData?.analysis?.technicalAssessment,
-        preUploadGuidance: cvAnalysisData?.analysis?.preUploadGuidance
+        consultant: consultant
       };
 
       console.log('Analysis complete, calling onAnalysisComplete with:', analysisResults);
