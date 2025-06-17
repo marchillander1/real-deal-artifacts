@@ -4,6 +4,7 @@ import { CVUploadForm } from '@/components/CVUploadForm';
 import { CVAnalysisLogic } from '@/components/CVAnalysisLogic';
 import { AnalysisResults } from '@/components/AnalysisResults';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
+import { EmailNotificationHandler } from '@/components/EmailNotificationHandler';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Navbar } from '@/components/Navbar';
@@ -135,40 +136,64 @@ const CVUpload: React.FC = () => {
       return;
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsUploading(true);
 
     try {
-      // 🔥 OPTIONAL UPDATE: If user has modified the autofilled fields, update the consultant
+      // 🔥 UPDATE CONSULTANT: Update the temporary consultant with form data
       const autoFilledEmail = analysisResults.cvAnalysis?.analysis?.personalInfo?.email;
       const autoFilledName = analysisResults.cvAnalysis?.analysis?.personalInfo?.name;
       
-      if ((email && email !== autoFilledEmail) || (fullName && fullName !== autoFilledName) || phoneNumber) {
-        console.log('📝 User modified autofilled data, updating consultant...');
+      console.log('📝 Updating consultant with form data...');
+      console.log('📧 🚨 FINAL EMAIL FROM FORM:', email);
+      
+      const { error: updateError } = await supabase
+        .from('consultants')
+        .update({
+          name: fullName || autoFilledName,
+          email: email, // 🔥 🚨 ALWAYS use the form email
+          phone: phoneNumber
+        })
+        .eq('id', analysisResults.consultant.id);
         
-        const { error: updateError } = await supabase
-          .from('consultants')
-          .update({
-            name: fullName || autoFilledName,
-            email: email || autoFilledEmail,
-            phone: phoneNumber
-          })
-          .eq('id', analysisResults.consultant.id);
-          
-        if (updateError) {
-          console.error('❌ Failed to update consultant:', updateError);
-        } else {
-          console.log('✅ Consultant updated with user modifications');
-        }
+      if (updateError) {
+        console.error('❌ Failed to update consultant:', updateError);
+        throw new Error(`Failed to update consultant: ${updateError.message}`);
+      } else {
+        console.log('✅ Consultant updated with form data successfully');
+      }
+
+      // 🔥 🚨 SEND EMAILS TO FORM EMAIL AFTER FORM SUBMISSION
+      console.log('📧 🚀 Sending welcome emails to FORM EMAIL after submission...');
+      const emailResult = await EmailNotificationHandler.sendWelcomeEmails({
+        consultantId: analysisResults.consultant.id,
+        finalEmail: email, // 🔥 🚨 Use form email
+        finalName: fullName || autoFilledName || 'New Consultant',
+        isMyConsultant: isMyConsultant
+      });
+
+      if (!emailResult.success) {
+        console.warn('⚠️ Email sending had issues but continuing with success flow');
       }
 
       // Show success message
       console.log('✅ Showing success message');
       setShowSuccessMessage(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submit error:', error);
       toast({
         title: "Submit Failed",
-        description: "Failed to complete submission. Please try again.",
+        description: error.message || "Failed to complete submission. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -380,6 +405,7 @@ const CVUpload: React.FC = () => {
                     <h3 className="text-lg font-semibold mb-4">Review & Complete Registration</h3>
                     <p className="text-sm text-gray-600 mb-4">
                       Information has been auto-filled from your CV analysis. You can modify any fields if needed.
+                      <strong> The welcome email will be sent to the email address you enter below.</strong>
                     </p>
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -398,7 +424,7 @@ const CVUpload: React.FC = () => {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email *
+                            Email * <span className="text-green-600">(Welcome email will be sent here)</span>
                           </label>
                           <input
                             type="email"
