@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
           <div style="text-align: center;">
             <p style="color: #64748b; font-size: 14px; margin: 0;">
               Best regards,<br>
-              <strong>The MatchWise Team</strong>
+              <strong>Marc & The MatchWise Team</strong>
             </p>
             <p style="color: #94a3b8; font-size: 12px; margin: 15px 0 0 0;">
               This email was sent automatically from MatchWise AI platform.
@@ -134,9 +134,9 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    // Send welcome email to consultant using Resend with verified domain
+    // Send welcome email to consultant using verified sender
     const emailResponse = await resend.emails.send({
-      from: "MatchWise AI <onboarding@resend.dev>",
+      from: "marc@matchwise.tech",
       to: [consultantEmail],
       subject: emailContent.subject,
       html: emailHtml,
