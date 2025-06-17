@@ -16,36 +16,15 @@ export const useSupabaseConsultants = () => {
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Fetch network consultants (user_id IS NULL) - visible to everyone
-        const { data: networkData, error: networkError } = await supabase
+        // Fetch ALL consultants - both network (user_id IS NULL) and user's own consultants
+        const { data: allData, error: fetchError } = await supabase
           .from('consultants')
           .select('*')
-          .is('user_id', null)
-          .order('rating', { ascending: false });
+          .order('created_at', { ascending: false });
 
-        if (networkError) {
-          throw networkError;
+        if (fetchError) {
+          throw fetchError;
         }
-
-        let myData = [];
-        
-        // Fetch user's own consultants only if user is authenticated
-        if (user) {
-          const { data: userData, error: userError } = await supabase
-            .from('consultants')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('rating', { ascending: false });
-
-          if (userError) {
-            throw userError;
-          }
-          
-          myData = userData || [];
-        }
-
-        // Combine network and user consultants
-        const allData = [...(networkData || []), ...myData];
 
         if (allData) {
           // Map the data to match the Consultant interface
@@ -66,7 +45,7 @@ export const useSupabaseConsultants = () => {
             lastActive: c.last_active || 'Recently',
             roles: c.roles || [],
             certifications: c.certifications || [],
-            type: c.user_id ? 'existing' : 'new', // Set type based on user_id
+            type: c.user_id ? 'existing' : 'new', // Network consultants have user_id = NULL
             languages: c.languages || [],
             workStyle: c.work_style || '',
             values: c.values || [],
@@ -77,6 +56,10 @@ export const useSupabaseConsultants = () => {
             leadership: c.leadership || 3,
             linkedinUrl: c.linkedin_url || ''
           }));
+
+          console.log('All consultants fetched:', mappedConsultants.length);
+          console.log('Network consultants:', mappedConsultants.filter(c => c.type === 'new').length);
+          console.log('User consultants:', mappedConsultants.filter(c => c.type === 'existing').length);
 
           setConsultants(mappedConsultants);
         }

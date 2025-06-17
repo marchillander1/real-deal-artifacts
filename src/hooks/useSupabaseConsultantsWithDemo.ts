@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -17,36 +16,18 @@ export const useSupabaseConsultantsWithDemo = () => {
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Fetch network consultants (user_id IS NULL) - visible to everyone
-        const { data: networkData, error: networkError } = await supabase
+        // Fetch ALL consultants - both network (user_id IS NULL) and user's own consultants
+        const { data: allData, error: fetchError } = await supabase
           .from('consultants')
           .select('*')
-          .is('user_id', null)
-          .order('rating', { ascending: false });
+          .order('created_at', { ascending: false });
 
-        if (networkError) {
-          throw networkError;
+        if (fetchError) {
+          throw fetchError;
         }
 
-        let myData = [];
-        
-        // Fetch user's own consultants only if user is authenticated
-        if (user) {
-          const { data: userData, error: userError } = await supabase
-            .from('consultants')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('rating', { ascending: false });
-
-          if (userError) {
-            throw userError;
-          }
-          
-          myData = userData || [];
-        }
-
-        // Map network consultants
-        const mappedNetworkConsultants: Consultant[] = (networkData || []).map((c: any) => ({
+        // Map all consultants from database
+        const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
           id: c.id,
           name: c.name,
           email: c.email,
@@ -63,7 +44,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           lastActive: c.last_active || 'Recently',
           roles: c.roles || [],
           certifications: c.certifications || [],
-          type: 'new' as const,
+          type: c.user_id ? 'existing' : 'new', // Network consultants have user_id = NULL
           languages: c.languages || [],
           workStyle: c.work_style || '',
           values: c.values || [],
@@ -75,42 +56,12 @@ export const useSupabaseConsultantsWithDemo = () => {
           linkedinUrl: c.linkedin_url || ''
         }));
 
-        // Map user's consultants
-        const mappedUserConsultants: Consultant[] = myData.map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          email: c.email,
-          phone: c.phone || '',
-          location: c.location || '',
-          skills: c.skills || [],
-          experience: c.experience_years?.toString() || '',
-          rate: c.hourly_rate?.toString() || '',
-          availability: c.availability || 'Available',
-          cv: c.cv_file_path || '',
-          communicationStyle: c.communication_style || '',
-          rating: c.rating || 4.8,
-          projects: c.projects_completed || 0,
-          lastActive: c.last_active || 'Recently',
-          roles: c.roles || [],
-          certifications: c.certifications || [],
-          type: 'existing' as const,
-          languages: c.languages || [],
-          workStyle: c.work_style || '',
-          values: c.values || [],
-          personalityTraits: c.personality_traits || [],
-          teamFit: c.team_fit || '',
-          culturalFit: c.cultural_fit || 5,
-          adaptability: c.adaptability || 5,
-          leadership: c.leadership || 3,
-          linkedinUrl: c.linkedin_url || ''
-        }));
+        // Combine with demo consultants
+        const allConsultants = [...mappedConsultants, ...myDemoConsultants];
 
-        // Combine network consultants, user consultants, and demo consultants
-        const allConsultants = [
-          ...mappedNetworkConsultants,
-          ...mappedUserConsultants,
-          ...myDemoConsultants
-        ];
+        console.log('All consultants (including demo):', allConsultants.length);
+        console.log('Network consultants:', allConsultants.filter(c => c.type === 'new').length);
+        console.log('User consultants:', allConsultants.filter(c => c.type === 'existing').length);
 
         setConsultants(allConsultants);
       } catch (err) {
