@@ -188,6 +188,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
+      // 🎯 CRITICAL: Get current user for proper user_id assignment
+      const { data: { user } } = await supabase.auth.getUser();
+
       // 🔥 CRITICAL: Create consultant data with REQUIRED fields including all analysis data
       const consultantData = {
         name: extractedName,
@@ -222,7 +225,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         projects_completed: 0,
         last_active: 'Today',
         type: isMyConsultant ? 'existing' : 'new', // 🎯 CRITICAL: Set type based on source
-        user_id: isMyConsultant ? 'current-user-id' : null, // 🎯 CRITICAL: Set user_id for my consultants
+        user_id: isMyConsultant ? user?.id : null, // 🎯 CRITICAL: Set user_id for my consultants, null for network
       };
 
       console.log('🔥 CREATING CONSULTANT with these CRITICAL fields:');
@@ -232,7 +235,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('📌 name:', consultantData.name);
       console.log('📌 isMyConsultant:', isMyConsultant);
 
-      // 🎯 Create consultant in database - remove cv_analysis and linkedin_analysis columns for now
+      // 🎯 Create consultant in database
       const { data: consultant, error: consultantError } = await supabase
         .from('consultants')
         .insert(consultantData)

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -17,17 +18,19 @@ export const useSupabaseConsultantsWithDemo = () => {
         const { data: { user } } = await supabase.auth.getUser();
         
         // Fetch ALL consultants - both network (user_id IS NULL) and user's own consultants
-        // Include cv_analysis and linkedin_analysis columns
+        // Remove cv_analysis and linkedin_analysis columns as they don't exist
         const { data: allData, error: fetchError } = await supabase
           .from('consultants')
-          .select('*, cv_analysis, linkedin_analysis')
+          .select('*')
           .order('created_at', { ascending: false });
 
         if (fetchError) {
           throw fetchError;
         }
 
-        // Map all consultants from database with enhanced analysis data mapping
+        console.log('🔍 Raw database consultants:', allData?.length || 0);
+
+        // Map all consultants from database
         const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
           id: c.id,
           name: c.name || 'Unknown Name',
@@ -56,30 +59,37 @@ export const useSupabaseConsultantsWithDemo = () => {
           adaptability: c.adaptability || 5,
           leadership: c.leadership || 3,
           linkedinUrl: c.linkedin_url || '',
-          
-          // 🎯 CRITICAL: Map the full analysis data from database columns
-          // These would be stored as JSONB columns in the database
-          cvAnalysis: c.cv_analysis || undefined,
-          linkedinAnalysis: c.linkedin_analysis || undefined
         }));
+
+        console.log('🔍 Mapped consultants from DB:', mappedConsultants.length);
+        console.log('🔍 Network consultants (user_id=null):', mappedConsultants.filter(c => !c.user_id).length);
+        console.log('🔍 User consultants (user_id exists):', mappedConsultants.filter(c => c.user_id).length);
 
         // 🎯 CRITICAL: Set user_id for demo consultants so they appear under "My Consultants"
         const demoConsultantsWithUserId = myDemoConsultants.map(consultant => ({
           ...consultant,
-          user_id: user?.id || 'demo-user-id' // Set to current user's ID
+          user_id: user?.id || 'demo-user-id', // Set to current user's ID
+          type: 'existing' as const // Ensure they appear under "My Consultants"
         }));
+
+        console.log('🔍 Demo consultants prepared:', demoConsultantsWithUserId.length);
+        console.log('🔍 Demo consultants details:', demoConsultantsWithUserId.map(c => ({ 
+          name: c.name, 
+          type: c.type, 
+          user_id: c.user_id 
+        })));
 
         // Combine with demo consultants
         const allConsultants = [...mappedConsultants, ...demoConsultantsWithUserId];
 
-        console.log('All consultants (including demo):', allConsultants.length);
-        console.log('Network consultants:', allConsultants.filter(c => c.type === 'new').length);
-        console.log('User consultants:', allConsultants.filter(c => c.type === 'existing').length);
-        console.log('Demo consultants with user_id:', demoConsultantsWithUserId.map(c => ({ name: c.name, type: c.type, user_id: c.user_id })));
+        console.log('🔍 Final consultant counts:');
+        console.log('📊 Total consultants:', allConsultants.length);
+        console.log('📊 Network consultants (type=new):', allConsultants.filter(c => c.type === 'new').length);
+        console.log('📊 My consultants (type=existing):', allConsultants.filter(c => c.type === 'existing').length);
 
         setConsultants(allConsultants);
       } catch (err) {
-        console.error('Error fetching consultants:', err);
+        console.error('❌ Error fetching consultants:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setIsLoading(false);
