@@ -1,6 +1,8 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { Resend } from "npm:resend@2.0.0";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,80 +10,47 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface RegistrationNotificationRequest {
-  userEmail: string;
-  userName?: string;
-  consultantName?: string;
-  consultantEmail?: string;
+interface NotificationRequest {
+  consultantName: string;
+  consultantEmail: string;
   isMyConsultant?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log('🔔 Registration notification function called');
+  
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { userEmail, userName, consultantName, consultantEmail, isMyConsultant }: RegistrationNotificationRequest = await req.json();
-
-    console.log("Registration notification request:", { userEmail, userName, consultantName, consultantEmail, isMyConsultant });
-
-    // Configure SMTP client
-    const client = new SMTPClient({
-      connection: {
-        hostname: Deno.env.get("SMTP_HOST")!,
-        port: parseInt(Deno.env.get("SMTP_PORT")!),
-        tls: true,
-        auth: {
-          username: Deno.env.get("SMTP_USERNAME")!,
-          password: Deno.env.get("SMTP_PASSWORD")!,
-        },
-      },
-    });
-
-    // Determine email content based on registration type
-    const emailData = consultantName && consultantEmail ? {
-      name: consultantName,
-      email: consultantEmail,
-      type: isMyConsultant ? "My Consultant" : "Network Consultant"
-    } : {
-      name: userName || 'Unknown',
-      email: userEmail,
-      type: "User Registration"
-    };
-
-    // Prepare email content as a string
-    const emailContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">New ${emailData.type} Registration</h2>
-        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p><strong>Name:</strong> ${emailData.name}</p>
-          <p><strong>Email:</strong> ${emailData.email}</p>
-          <p><strong>Registration Type:</strong> ${emailData.type}</p>
-          <p><strong>Registration Time:</strong> ${new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' })}</p>
-        </div>
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
-        <p style="color: #64748b; font-size: 14px;">This notification was sent automatically from MatchWise AI platform.</p>
-        <p style="color: #64748b; font-size: 14px;">
-          <a href="https://xbliknlrikolcjjfhxqa.supabase.co/dashboard" style="color: #2563eb;">View in Supabase Dashboard</a>
-        </p>
-      </div>
-    `;
+    const { consultantName, consultantEmail, isMyConsultant }: NotificationRequest = await req.json();
+    
+    console.log('📧 Sending registration notification:', { consultantName, consultantEmail, isMyConsultant });
 
     // Send notification to admin
-    await client.send({
-      from: Deno.env.get("SMTP_USERNAME")!,
-      to: "marc@matchwise.tech",
-      subject: `🚀 New ${emailData.type} Registration - MatchWise AI`,
-      content: emailContent,
-      html: true,
+    const adminEmailResponse = await resend.emails.send({
+      from: "MatchWise AI <noreply@matchwiseai.se>",
+      to: ["admin@matchwiseai.se"],
+      subject: `New ${isMyConsultant ? 'Team' : 'Network'} Consultant Registration`,
+      html: `
+        <h2>New Consultant Registration</h2>
+        <p><strong>Name:</strong> ${consultantName}</p>
+        <p><strong>Email:</strong> ${consultantEmail}</p>
+        <p><strong>Type:</strong> ${isMyConsultant ? 'Team Consultant' : 'Network Consultant'}</p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString('sv-SE')}</p>
+        
+        <p>Please review the consultant's profile in the admin panel.</p>
+      `,
     });
 
-    await client.close();
+    console.log("✅ Admin notification sent:", adminEmailResponse);
 
-    console.log(`Registration notification sent successfully to marc@matchwise.tech for ${emailData.type}: ${emailData.email}`);
-
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      adminEmailId: adminEmailResponse.data?.id 
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -89,9 +58,12 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error sending registration notification:", error);
+    console.error("❌ Error in registration notification:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -22,6 +21,112 @@ interface CVAnalysisLogicProps {
   onError?: (message: string) => void;
   linkedinUrl?: string;
 }
+
+// Export the performCVAnalysis function for compatibility
+export const performCVAnalysis = async (
+  file: File | null,
+  setIsAnalyzing: (loading: boolean) => void,
+  setAnalysisProgress: (progress: number) => void,
+  setAnalysisResults: (results: any) => void,
+  setFullName: (name: string) => void,
+  setEmail: (email: string) => void,
+  setPhoneNumber: (phone: string) => void,
+  setLinkedinUrl: (url: string) => void,
+  linkedinUrl?: string
+) => {
+  if (!file) return;
+  
+  setIsAnalyzing(true);
+  setAnalysisProgress(0);
+  
+  try {
+    // Extract text from PDF
+    const fileReader = new FileReader();
+    
+    const extractedText = await new Promise<string>((resolve, reject) => {
+      fileReader.onload = async () => {
+        try {
+          const typedArray = new Uint8Array(fileReader.result as ArrayBuffer);
+          const pdfDocument = await pdfjs.getDocument(typedArray).promise;
+          
+          let fullText = '';
+          for (let i = 1; i <= pdfDocument.numPages; i++) {
+            const page = await pdfDocument.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items
+              .filter((item): item is any => 'str' in item)
+              .map(item => item.str)
+              .join(' ');
+            fullText += pageText + '\n';
+          }
+          
+          resolve(fullText);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      fileReader.onerror = reject;
+      fileReader.readAsArrayBuffer(file);
+    });
+    
+    setAnalysisProgress(30);
+    
+    // Analyze CV
+    const response = await fetch('/api/analyzeCV', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cvText: extractedText }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to analyze CV');
+    }
+    
+    const cvAnalysis = await response.json();
+    setAnalysisProgress(60);
+    
+    // Analyze LinkedIn if URL provided
+    let linkedinAnalysis = null;
+    if (linkedinUrl) {
+      const { data } = await supabase.functions.invoke('analyze-linkedin', {
+        body: { 
+          linkedinUrl,
+          includeRecentPosts: true,
+          includeBioSummary: true,
+          postLimit: 30
+        },
+      });
+      linkedinAnalysis = data?.analysis;
+    }
+    
+    setAnalysisProgress(100);
+    
+    // Set form data from analysis
+    if (cvAnalysis.personalInfo?.name) {
+      setFullName(cvAnalysis.personalInfo.name);
+    }
+    if (cvAnalysis.personalInfo?.email) {
+      setEmail(cvAnalysis.personalInfo.email);
+    }
+    if (cvAnalysis.personalInfo?.phone) {
+      setPhoneNumber(cvAnalysis.personalInfo.phone);
+    }
+    
+    setAnalysisResults({
+      cvAnalysis,
+      linkedinAnalysis,
+      consultant: null
+    });
+    
+  } catch (error) {
+    console.error('Analysis error:', error);
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
 
 export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   cvFile,
