@@ -17,7 +17,7 @@ export interface CVAnalysisLogicProps {
   linkedinUrl: string;
   formEmail: string;
   formName: string;
-  onAnalysisComplete: (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any }) => void;
+  onAnalysisComplete: (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any; enhancedAnalysisResults?: any }) => void;
   onError: (message: string) => void;
   onAnalysisStart: () => void;
   onAnalysisProgress: (progress: number) => void;
@@ -130,6 +130,10 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`CV analysis failed: ${cvResponse.error.message}`);
       }
 
+      // Extract both basic analysis and enhanced results
+      const cvAnalysisData = cvResponse.data.analysis;
+      const enhancedAnalysisResults = cvResponse.data.enhancedAnalysisResults;
+      
       setAnalysis(cvResponse.data);
       onAnalysisProgress(60);
 
@@ -153,39 +157,43 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         } else {
           linkedinData = linkedinResponse.data;
           setLinkedinAnalysis(linkedinData);
+          
+          // Merge LinkedIn analysis into enhanced results
+          if (enhancedAnalysisResults) {
+            enhancedAnalysisResults.linkedinAnalysis = linkedinData;
+          }
         }
       }
 
       onAnalysisProgress(80);
 
       // 🔥 TEMPORARY CONSULTANT: Create initial consultant profile WITHOUT sending emails
-      const cvData = cvResponse.data?.analysis;
-      const tempName = cvData?.personalInfo?.name || 'Temporary Consultant';
-      const tempEmail = 'temp@analysis.com'; // Temporary email for database
+      const tempName = cvAnalysisData?.personalInfo?.name || 'Temporary Consultant';
+      const tempEmail = 'temp@analysis.com'; // Temporary email - will be updated when user submits form
       
       console.log('💾 Creating TEMPORARY consultant profile (no emails sent)...');
       const consultantData = {
         name: tempName,
         email: tempEmail, // Temporary email - will be updated when user submits form
-        phone: cvData?.personalInfo?.phone || '',
-        location: cvData?.personalInfo?.location || 'Location not specified',
-        skills: cvData?.technicalExpertise?.programmingLanguages?.expert || [],
-        experience_years: parseInt(cvData?.professionalSummary?.yearsOfExperience) || 5,
-        hourly_rate: cvData?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
+        phone: cvAnalysisData?.personalInfo?.phone || '',
+        location: cvAnalysisData?.personalInfo?.location || 'Location not specified',
+        skills: cvAnalysisData?.technicalExpertise?.programmingLanguages?.expert || [],
+        experience_years: parseInt(cvAnalysisData?.professionalSummary?.yearsOfExperience) || 5,
+        hourly_rate: cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
         availability: 'Available',
         cv_file_path: file.name,
-        communication_style: cvData?.softSkills?.communication?.[0] || '',
+        communication_style: cvAnalysisData?.softSkills?.communication?.[0] || '',
         rating: 4.8,
         projects_completed: 0,
-        roles: cvData?.technicalExpertise?.frameworks || ['Consultant'],
-        certifications: cvData?.education?.certifications || [],
+        roles: cvAnalysisData?.technicalExpertise?.frameworks || ['Consultant'],
+        certifications: cvAnalysisData?.education?.certifications || [],
         type: 'new',
         user_id: null,
-        languages: cvData?.languages || [],
-        work_style: cvData?.softSkills?.teamwork?.[0] || '',
-        values: cvData?.softSkills?.leadership || [],
-        personality_traits: cvData?.softSkills?.problemSolving || [],
-        team_fit: cvData?.softSkills?.teamwork?.[0] || '',
+        languages: cvAnalysisData?.languages || [],
+        work_style: cvAnalysisData?.softSkills?.teamwork?.[0] || '',
+        values: cvAnalysisData?.softSkills?.leadership || [],
+        personality_traits: cvAnalysisData?.softSkills?.problemSolving || [],
+        team_fit: cvAnalysisData?.softSkills?.teamwork?.[0] || '',
         cultural_fit: 5,
         adaptability: 5,
         leadership: 3,
@@ -211,11 +219,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(100);
 
-      // Call the completion callback
+      // Call the completion callback with enhanced results
       onAnalysisComplete({
         cvAnalysis: cvResponse.data,
         linkedinAnalysis: linkedinData,
-        consultant: insertedConsultant
+        consultant: insertedConsultant,
+        enhancedAnalysisResults: enhancedAnalysisResults || null
       });
 
       toast({

@@ -204,6 +204,280 @@ function generateRateExplanation(years: number, skillMultiplier: number, roleMul
   return explanation;
 }
 
+function generateCertificationRecommendations(analysis: any) {
+  const skills = getAllSkills(analysis);
+  const currentRole = analysis.professionalSummary?.currentRole || '';
+  const yearsExp = extractYearsOfExperience(analysis);
+  
+  const technical = [];
+  const business = [];
+  
+  // Cloud certifications based on current skills
+  if (skills.some(skill => skill.toLowerCase().includes('aws'))) {
+    technical.push({
+      certification: 'AWS Solutions Architect Professional',
+      priority: 'High',
+      reason: 'Elevate your AWS expertise to architect-level and increase market value significantly',
+      timeToComplete: '3-4 months',
+      marketValue: '+200-300 SEK/h potential increase'
+    });
+  } else if (skills.some(skill => skill.toLowerCase().includes('cloud'))) {
+    technical.push({
+      certification: 'AWS Solutions Architect Associate',
+      priority: 'High',
+      reason: 'Cloud skills are in extremely high demand in Swedish consulting market',
+      timeToComplete: '2-3 months',
+      marketValue: '+150-250 SEK/h potential increase'
+    });
+  }
+  
+  // Azure certifications
+  if (skills.some(skill => skill.toLowerCase().includes('azure')) || skills.some(skill => skill.toLowerCase().includes('microsoft'))) {
+    technical.push({
+      certification: 'Microsoft Azure Solutions Architect Expert',
+      priority: 'High',
+      reason: 'Azure expertise opens doors to enterprise consulting opportunities',
+      timeToComplete: '3-4 months',
+      marketValue: '+200-300 SEK/h potential increase'
+    });
+  }
+  
+  // Kubernetes for DevOps/Container skills
+  if (skills.some(skill => ['docker', 'kubernetes', 'devops', 'containers'].includes(skill.toLowerCase()))) {
+    technical.push({
+      certification: 'Certified Kubernetes Administrator (CKA)',
+      priority: 'High',
+      reason: 'Kubernetes skills are critical for modern cloud-native consulting',
+      timeToComplete: '2-3 months',
+      marketValue: '+250-350 SEK/h potential increase'
+    });
+  }
+  
+  // Security certifications for senior roles
+  if (yearsExp >= 5) {
+    technical.push({
+      certification: 'Certified Information Systems Security Professional (CISSP)',
+      priority: 'Medium',
+      reason: 'Security expertise significantly increases consulting opportunities and rates',
+      timeToComplete: '4-6 months',
+      marketValue: '+300-400 SEK/h potential increase'
+    });
+  }
+  
+  // Business certifications
+  if (yearsExp >= 3) {
+    business.push({
+      certification: 'Project Management Professional (PMP)',
+      priority: 'Medium',
+      reason: 'Project management skills essential for senior consulting roles',
+      timeToComplete: '3-4 months',
+      marketValue: '+150-200 SEK/h potential increase'
+    });
+  }
+  
+  if (currentRole.toLowerCase().includes('lead') || currentRole.toLowerCase().includes('architect')) {
+    business.push({
+      certification: 'Certified ScrumMaster (CSM) Advanced',
+      priority: 'High',
+      reason: 'Agile leadership certification for technical leaders',
+      timeToComplete: '1-2 months',
+      marketValue: '+100-150 SEK/h potential increase'
+    });
+  }
+  
+  return { technical, business };
+}
+
+function generateTechnicalAssessment(analysis: any) {
+  const skills = getAllSkills(analysis);
+  const yearsExp = extractYearsOfExperience(analysis);
+  
+  // Assess technical maturity levels
+  const frontendSkills = skills.filter(skill => 
+    ['react', 'angular', 'vue', 'javascript', 'typescript', 'html', 'css'].includes(skill.toLowerCase())
+  ).length;
+  
+  const backendSkills = skills.filter(skill => 
+    ['java', 'python', 'node.js', 'c#', '.net', 'golang', 'rust', 'ruby'].includes(skill.toLowerCase())
+  ).length;
+  
+  const devopsSkills = skills.filter(skill => 
+    ['docker', 'kubernetes', 'aws', 'azure', 'gcp', 'jenkins', 'terraform'].includes(skill.toLowerCase())
+  ).length;
+  
+  const dataSkills = skills.filter(skill => 
+    ['sql', 'mongodb', 'postgresql', 'mysql', 'redis', 'elasticsearch'].includes(skill.toLowerCase())
+  ).length;
+  
+  const frontendScore = Math.min(Math.round((frontendSkills * 2 + yearsExp * 0.5)), 10);
+  const backendScore = Math.min(Math.round((backendSkills * 1.5 + yearsExp * 0.5)), 10);
+  const devopsScore = Math.min(Math.round((devopsSkills * 2 + yearsExp * 0.3)), 10);
+  const dataScore = Math.min(Math.round((dataSkills * 1.5 + yearsExp * 0.3)), 10);
+  
+  const overallScore = Math.round((frontendScore + backendScore + devopsScore + dataScore) / 4);
+  
+  let overallLevel = 'Junior';
+  if (overallScore >= 8) overallLevel = 'Expert';
+  else if (overallScore >= 6) overallLevel = 'Senior';
+  else if (overallScore >= 4) overallLevel = 'Mid-level';
+  
+  // Skills gap analysis
+  const strongSkills = skills.filter(skill => 
+    marketRates.skillMultipliers[skill] && marketRates.skillMultipliers[skill] > 1.1
+  );
+  
+  const missingHighValueSkills = ['AWS', 'Kubernetes', 'Machine Learning', 'System Architecture', 'DevOps']
+    .filter(skill => !skills.includes(skill));
+  
+  // Improvement priorities
+  const improvementPriority = [];
+  
+  if (devopsScore < 6) {
+    improvementPriority.push({
+      category: 'DevOps & Cloud',
+      priority: 'High',
+      reason: 'Critical for modern consulting assignments and high market rates',
+      skills: ['AWS', 'Kubernetes', 'Docker', 'Terraform'],
+      timeline: '3-6 months'
+    });
+  }
+  
+  if (overallScore >= 6 && !skills.some(skill => skill.toLowerCase().includes('architect'))) {
+    improvementPriority.push({
+      category: 'Architecture Skills',
+      priority: 'High',
+      reason: 'Architecture expertise significantly increases consulting rates and opportunities',
+      skills: ['System Design', 'Solution Architecture', 'Technical Leadership'],
+      timeline: '6-12 months'
+    });
+  }
+  
+  return {
+    technicalMaturity: {
+      frontendScore,
+      backendScore,
+      devopsScore,
+      dataScore,
+      overallLevel
+    },
+    skillsGapAnalysis: {
+      strengths: strongSkills,
+      missing: missingHighValueSkills
+    },
+    improvementPriority
+  };
+}
+
+function generateROIPredictions(analysis: any) {
+  const currentRate = analysis.marketPositioning?.hourlyRateEstimate?.recommended || 1000;
+  const yearsExp = extractYearsOfExperience(analysis);
+  
+  // Current market value
+  const monthlyPotential = currentRate * 160; // 20 days * 8 hours
+  
+  // Improvement potential based on certifications and skill development
+  const with6MonthsImprovement = {
+    hourlyRate: currentRate + 200,
+    monthlyPotential: (currentRate + 200) * 160,
+    improvements: ['AWS/Azure certification', 'DevOps skills', 'Consulting experience']
+  };
+  
+  const with1YearImprovement = {
+    hourlyRate: currentRate + 400,
+    monthlyPotential: (currentRate + 400) * 160,
+    improvements: ['Advanced certifications', 'Architecture skills', 'Leadership experience']
+  };
+  
+  const with2YearImprovement = {
+    hourlyRate: currentRate + 700,
+    monthlyPotential: (currentRate + 700) * 160,
+    improvements: ['Expert-level certifications', 'Thought leadership', 'Niche specialization']
+  };
+  
+  // Team fit indicators
+  const teamFitValue = {
+    startupFit: yearsExp <= 5 ? 4 : 3,
+    enterpriseFit: yearsExp >= 3 ? 4 : 2,
+    consultingReadiness: Math.min(yearsExp + 3, 10)
+  };
+  
+  return {
+    currentMarketValue: {
+      hourlyRate: currentRate,
+      monthlyPotential
+    },
+    improvementPotential: {
+      with6MonthsImprovement,
+      with1YearImprovement,
+      with2YearImprovement
+    },
+    teamFitValue
+  };
+}
+
+function generatePreUploadGuidance(analysis: any) {
+  const yearsExp = extractYearsOfExperience(analysis);
+  const skills = getAllSkills(analysis);
+  
+  const cvOptimization = {
+    immediate: [
+      {
+        area: 'Technical Skills Section',
+        action: 'Add a dedicated "Technical Skills" section with clear proficiency levels',
+        impact: 'High',
+        template: 'Expert: [languages] | Proficient: [frameworks] | Tools: [software]'
+      },
+      {
+        area: 'Quantified Achievements',
+        action: 'Add specific numbers and results to each work experience',
+        impact: 'High',
+        template: 'Improved performance by X%, Led team of Y people, Delivered Z projects'
+      },
+      {
+        area: 'Consulting Experience',
+        action: 'Highlight any project-based or consulting work prominently',
+        impact: 'High',
+        template: 'Project: [Name] | Client: [Type] | Impact: [Results] | Duration: [Timeline]'
+      }
+    ]
+  };
+  
+  const linkedinOptimization = {
+    profile: [
+      {
+        area: 'Professional Headline',
+        action: 'Update headline to clearly state consulting availability',
+        impact: 'High',
+        template: 'Senior [Role] | Available for Consulting | [Key Skills]'
+      },
+      {
+        area: 'About Section',
+        action: 'Write consultant-focused summary with value proposition',
+        impact: 'High',
+        template: 'Experienced [Role] helping companies [solve what problems] through [your approach]'
+      },
+      {
+        area: 'Recent Activity',
+        action: 'Share 2-3 industry insights or project learnings weekly',
+        impact: 'Medium',
+        template: 'Share technical insights, comment on industry trends, post project successes'
+      }
+    ]
+  };
+  
+  const timeline = {
+    week1: ['Update LinkedIn headline', 'Add technical skills section to CV', 'Quantify 3 major achievements'],
+    week2: ['Write new LinkedIn About section', 'Share first industry insight post', 'Update CV with consulting focus'],
+    month1: ['Consistent LinkedIn activity', 'Gather client testimonials', 'Optimize for target consulting roles']
+  };
+  
+  return {
+    cvOptimization,
+    linkedinOptimization,
+    timeline
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -445,12 +719,34 @@ Return as JSON with this exact structure:
       marketDemand: 'High'
     };
 
-    console.log('✅ CV analysis completed with market positioning:', analysis);
+    // Generate comprehensive insights
+    const certificationRecommendations = generateCertificationRecommendations(analysis);
+    const technicalAssessment = generateTechnicalAssessment(analysis);
+    const roiPredictions = generateROIPredictions(analysis);
+    const preUploadGuidance = generatePreUploadGuidance(analysis);
+
+    console.log('✅ CV analysis completed with comprehensive insights:', {
+      certificationRecommendations: certificationRecommendations.technical.length + certificationRecommendations.business.length,
+      technicalAssessment: technicalAssessment.technicalMaturity.overallLevel,
+      roiPredictions: roiPredictions.currentMarketValue.hourlyRate,
+      preUploadGuidance: preUploadGuidance.cvOptimization.immediate.length
+    });
+
+    // Return enhanced analysis with all insights
+    const enhancedAnalysisResults = {
+      cvAnalysis: analysis,
+      linkedinAnalysis: null, // Will be populated separately
+      certificationRecommendations,
+      technicalAssessment,
+      roiPredictions,
+      preUploadGuidance
+    };
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        analysis: analysis 
+        analysis: analysis,
+        enhancedAnalysisResults
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -522,10 +818,26 @@ Return as JSON with this exact structure:
       }
     };
 
+    // Generate fallback insights
+    const fallbackCertifications = generateCertificationRecommendations(fallbackAnalysis);
+    const fallbackTechnicalAssessment = generateTechnicalAssessment(fallbackAnalysis);
+    const fallbackROI = generateROIPredictions(fallbackAnalysis);
+    const fallbackGuidance = generatePreUploadGuidance(fallbackAnalysis);
+
+    const fallbackEnhancedResults = {
+      cvAnalysis: fallbackAnalysis,
+      linkedinAnalysis: null,
+      certificationRecommendations: fallbackCertifications,
+      technicalAssessment: fallbackTechnicalAssessment,
+      roiPredictions: fallbackROI,
+      preUploadGuidance: fallbackGuidance
+    };
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         analysis: fallbackAnalysis,
+        enhancedAnalysisResults: fallbackEnhancedResults,
         fallback: true,
         error: error.message 
       }),
