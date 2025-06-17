@@ -79,6 +79,16 @@ const CVUpload: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
+    // 🔥 CRITICAL: Validate email before proceeding
+    if (!email || email.trim() === '') {
+      toast({
+        title: "Email Required",
+        description: "Please provide a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!file || !analysisResults || !agreeToTerms) {
       toast({
         title: "Missing Information",
@@ -275,7 +285,7 @@ const CVUpload: React.FC = () => {
                     onSubmit={handleSubmit}
                   />
                   
-                  {/* CV Analysis Logic Component */}
+                  {/* 🔥 CRITICAL: Pass current email and name values to CVAnalysisLogic */}
                   <CVAnalysisLogic
                     cvFile={file}
                     linkedinUrl={linkedinUrl}

@@ -155,13 +155,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedName = formName && formName.trim() !== '' ? formName : 
         (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Network Consultant');
       
-      // 🔥 CRITICAL FIX: Ensure we always have a valid email for welcome email
-      const extractedEmail = formEmail && formEmail.trim() !== '' ? formEmail : 
-        (personalInfo?.email && personalInfo.email !== 'analysis@example.com' ? personalInfo.email : '');
+      // 🔥 CRITICAL FIX: ALWAYS use formEmail first, never fall back to placeholder emails
+      const extractedEmail = formEmail && formEmail.trim() !== '' ? formEmail : '';
       
       console.log('📝 Final consultant data being used:');
       console.log('📌 Name:', extractedName, '(from form:', formName, ', from CV:', personalInfo?.name, ')');
       console.log('📌 Email:', extractedEmail, '(from form:', formEmail, ', from CV:', personalInfo?.email, ')');
+      
+      // 🚨 CRITICAL: If no valid email, throw error early
+      if (!extractedEmail || extractedEmail.trim() === '') {
+        throw new Error('No valid email provided - cannot create consultant without email');
+      }
       
       const extractedPhone = personalInfo?.phone || '';
       const extractedLocation = personalInfo?.location || 'Sweden';
@@ -186,7 +190,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedLanguages = personalInfo?.languages || ['Swedish', 'English'];
 
       // 🎯 CRITICAL: ALLA konsulter ska vara "My Consultants" nu
-      // Ta bort source parameter check - alla ska hamna under My Consultants
       const isMyConsultant = true; // Alla nya konsulter ska vara "My Consultants"
 
       // 🎯 CRITICAL: Get current user for proper user_id assignment
@@ -256,24 +259,19 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       onAnalysisProgress?.(90);
 
-      // 📧 Send emails - ALWAYS try to send even if analysis failed
-      if (extractedEmail && extractedEmail.trim() !== '') {
-        try {
-          // Send welcome email to consultant
-          await sendWelcomeEmail(extractedName, extractedEmail, isMyConsultant);
-          
-          // Send registration notification to admin
-          await sendRegistrationNotification(extractedName, extractedEmail, isMyConsultant);
-          
-        } catch (emailError) {
-          console.error('❌ Email sending failed but continuing:', emailError);
-          // Don't throw error, just log it - emails shouldn't block the process
-        }
-      } else {
-        console.error('❌ No valid email available for emails');
-        console.error('❌ extractedEmail:', extractedEmail);
-        console.error('❌ formEmail:', formEmail);
-        console.error('❌ personalInfo?.email:', personalInfo?.email);
+      // 📧 Send emails - Now we have guaranteed valid email
+      try {
+        // Send welcome email to consultant
+        await sendWelcomeEmail(extractedName, extractedEmail, isMyConsultant);
+        
+        // Send registration notification to admin
+        await sendRegistrationNotification(extractedName, extractedEmail, isMyConsultant);
+        
+        console.log('✅ All emails sent successfully!');
+        
+      } catch (emailError) {
+        console.error('❌ Email sending failed:', emailError);
+        // Don't throw error - consultant is already created, just log the email failure
       }
 
       onAnalysisProgress?.(100);
