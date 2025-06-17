@@ -2,7 +2,6 @@
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSupabaseConsultantsDedup } from '@/hooks/useSupabaseConsultantsDedup';
-import AIMatchingPreview from '@/components/AIMatchingPreview';
 import ROICalculator from '@/components/ROICalculator';
 import Navbar from '@/components/landing/Navbar';
 import HeroSection from '@/components/landing/HeroSection';
@@ -38,20 +37,6 @@ export default function Landing() {
       <Navbar />
       <HeroSection user={user} totalNetworkConsultants={totalNetworkConsultants} />
       <ProblemSection />
-      
-      {/* Live AI Matching Demo */}
-      <section className="py-20 bg-slate-900/90 backdrop-blur-sm relative">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">See Our AI in Action</h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Experience real-time matching that analyzes the whole person in seconds
-            </p>
-          </div>
-          <AIMatchingPreview />
-        </div>
-      </section>
-
       <SolutionSection />
       <ComparisonSection />
 
