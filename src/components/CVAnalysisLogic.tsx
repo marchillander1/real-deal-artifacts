@@ -243,7 +243,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_analysis: linkedinAnalysisData
       };
 
-      const { data, error } = await supabase
+      const { data: consultant, error } = await supabase
         .from('consultants')
         .insert([consultantData])
         .select()
@@ -254,8 +254,51 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw error;
       }
 
-      console.log('Consultant created successfully:', data);
-      return data;
+      console.log('✅ Consultant created successfully:', consultant);
+
+      // Send welcome email after successful consultant creation
+      try {
+        console.log('📧 Sending welcome email to:', consultant.email);
+        
+        // Check if this is "My Consultant" based on URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const isMyConsultant = urlParams.get('source') === 'my-consultants';
+        
+        const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+          body: {
+            consultantName: consultant.name,
+            consultantEmail: consultant.email,
+            isMyConsultant
+          },
+        });
+
+        if (emailError) {
+          console.error('❌ Error sending welcome email:', emailError);
+        } else {
+          console.log('✅ Welcome email sent successfully:', emailResult);
+        }
+
+        // Also send registration notification to admin
+        const { data: notificationResult, error: notificationError } = await supabase.functions.invoke('send-registration-notification', {
+          body: {
+            consultantName: consultant.name,
+            consultantEmail: consultant.email,
+            isMyConsultant
+          },
+        });
+
+        if (notificationError) {
+          console.error('❌ Error sending registration notification:', notificationError);
+        } else {
+          console.log('✅ Registration notification sent successfully:', notificationResult);
+        }
+
+      } catch (emailError) {
+        console.error('❌ Failed to send emails:', emailError);
+        // Don't throw here, consultant creation was successful
+      }
+
+      return consultant;
     } catch (error) {
       console.error('Error in createConsultantInDatabase:', error);
       throw error;
