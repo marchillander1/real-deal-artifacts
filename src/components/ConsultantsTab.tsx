@@ -172,18 +172,29 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               </Badge>
             </div>
             
-            {/* Clear All Button */}
-            {networkConsultants.length > 0 && (
+            <div className="flex gap-2">
+              {/* Clear All Button */}
+              {networkConsultants.length > 0 && (
+                <Button 
+                  onClick={handleClearAllNetworkConsultants}
+                  disabled={isClearing}
+                  variant="destructive"
+                  className="flex items-center gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {isClearing ? 'Tar bort...' : `Ta bort alla (${networkConsultants.length})`}
+                </Button>
+              )}
+              
+              {/* Link to CV Upload */}
               <Button 
-                onClick={handleClearAllNetworkConsultants}
-                disabled={isClearing}
-                variant="destructive"
-                className="flex items-center gap-2"
+                onClick={() => window.location.href = '/cv-upload'}
+                className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
               >
-                <Trash2 className="h-4 w-4" />
-                {isClearing ? 'Tar bort...' : `Ta bort alla (${networkConsultants.length})`}
+                <Upload className="h-4 w-4" />
+                Testa ladda upp CV
               </Button>
-            )}
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -197,11 +208,15 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           {filteredNetworkConsultants.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Inga network consultants än</h3>
-              <p className="text-gray-600">Network consultants kommer synas här när de laddar upp sina CV:n från /cv-upload</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Totalt antal network consultants: {networkConsultants.length}
-              </p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Inga network consultants</h3>
+              <p className="text-gray-600 mb-4">Network consultants kommer synas här när de laddar upp sina CV:n</p>
+              <Button 
+                onClick={() => window.location.href = '/cv-upload'}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Gå till CV Upload
+              </Button>
             </div>
           )}
         </div>
