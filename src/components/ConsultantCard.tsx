@@ -171,8 +171,8 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant }) => {
               {consultant.certifications[0]}
             </span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Card>
   );
 };
