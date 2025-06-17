@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -17,19 +16,19 @@ export const useSupabaseConsultantsWithDemo = () => {
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Fetch ALL consultants from database
+        // Fetch ALL consultants from database INCLUDING analysis data
         const { data: allData, error: fetchError } = await supabase
           .from('consultants')
-          .select('*')
+          .select('*, cv_analysis, linkedin_analysis') // 🔥 Include analysis data
           .order('created_at', { ascending: false });
 
         if (fetchError) {
           throw fetchError;
         }
 
-        console.log('🔍 Raw database consultants:', allData?.length || 0);
+        console.log('🔍 Raw database consultants with analysis:', allData?.length || 0);
 
-        // Map all consultants from database with correct types
+        // Map all consultants from database with correct types INCLUDING analysis
         const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
           id: c.id,
           name: c.name || 'Unknown Name',
@@ -47,9 +46,8 @@ export const useSupabaseConsultantsWithDemo = () => {
           lastActive: c.last_active || 'Recently',
           roles: c.roles || ['Consultant'],
           certifications: c.certifications || [],
-          // 🎯 CRITICAL: Use the actual type from database, don't override it
-          type: c.type || 'existing', // Keep the type as stored in database
-          user_id: c.user_id, // Keep the user_id as stored in database
+          type: c.type || 'existing',
+          user_id: c.user_id,
           languages: c.languages || [],
           workStyle: c.work_style || '',
           values: c.values || [],
@@ -59,15 +57,20 @@ export const useSupabaseConsultantsWithDemo = () => {
           adaptability: c.adaptability || 5,
           leadership: c.leadership || 3,
           linkedinUrl: c.linkedin_url || '',
+          // 🔥 NEW: Include analysis data from database
+          cvAnalysis: c.cv_analysis,
+          linkedinAnalysis: c.linkedin_analysis,
         }));
 
-        console.log('🔍 Mapped consultants from DB:', mappedConsultants.length);
+        console.log('🔍 Mapped consultants from DB with analysis:', mappedConsultants.length);
+        console.log('🔍 Consultants with CV analysis:', mappedConsultants.filter(c => c.cvAnalysis).length);
+        console.log('🔍 Consultants with LinkedIn analysis:', mappedConsultants.filter(c => c.linkedinAnalysis).length);
 
         // 🎯 Add demo consultants as "My Consultants" (type: existing)
         const demoConsultantsWithUserId = myDemoConsultants.map(consultant => ({
           ...consultant,
-          user_id: user?.id || 'demo-user-id', // Set to current user's ID
-          type: 'existing' as const // Demo consultants are "My Consultants"
+          user_id: user?.id || 'demo-user-id',
+          type: 'existing' as const
         }));
 
         console.log('🔍 Demo consultants prepared:', demoConsultantsWithUserId.length);
