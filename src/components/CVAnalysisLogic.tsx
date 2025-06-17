@@ -100,16 +100,25 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const marketPositioning = analysis?.marketPositioning || {};
       const personalityTraits = analysis?.personalityTraits || {};
       
-      // 🎯 CRITICAL: Always prioritize form data over CV analysis data
-      const extractedName = formName && formName.trim() !== '' ? formName : 
+      // 🎯 CRITICAL: Always prioritize form data over CV analysis data, but extract from CV if form is empty
+      const extractedName = (formName && formName.trim() !== '') ? formName : 
         (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Network Consultant');
       
-      const extractedEmail = formEmail && formEmail.trim() !== '' ? formEmail : 
+      // 🔥 CRITICAL FIX: Determine the email to use - prioritize form email but fall back to CV email
+      const extractedEmail = (formEmail && formEmail.trim() !== '') ? formEmail : 
         (personalInfo?.email && personalInfo.email !== 'analysis@example.com' ? personalInfo.email : '');
       
       console.log('📝 Final consultant data being used:');
       console.log('📌 Name:', extractedName, '(from form:', formName, ', from CV:', personalInfo?.name, ')');
       console.log('📌 Email:', extractedEmail, '(from form:', formEmail, ', from CV:', personalInfo?.email, ')');
+      
+      // Validate that we have a valid email
+      if (!extractedEmail || extractedEmail.trim() === '') {
+        console.error('❌ No valid email found in form or CV analysis');
+        console.error('❌ Form email:', formEmail);
+        console.error('❌ CV email:', personalInfo?.email);
+        throw new Error('No valid email address found. Please ensure your CV contains an email address or fill in the email field.');
+      }
       
       const extractedPhone = personalInfo?.phone || '';
       const extractedLocation = personalInfo?.location || 'Sweden';
@@ -203,7 +212,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       onAnalysisProgress?.(90);
 
-      // 📧 Send welcome email - CRITICAL: Always use the form email if provided
+      // 📧 Send welcome email - CRITICAL: Use the final extracted email
       const emailToSend = extractedEmail;
       console.log('📧 Preparing to send welcome email...');
       console.log('📧 Email to send to:', emailToSend);
@@ -225,6 +234,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           } else {
             console.log('🎉 Welcome email sent successfully!');
             console.log('✅ Email response:', emailResponse);
+            console.log('📧 Email sent to:', emailToSend);
           }
         } catch (emailError) {
           console.error('❌ Exception when sending welcome email:', emailError);
@@ -233,6 +243,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         console.error('❌ No valid email available for welcome email');
         console.error('❌ extractedEmail:', extractedEmail);
         console.error('❌ formEmail:', formEmail);
+        console.error('❌ CV email:', personalInfo?.email);
       }
 
       onAnalysisProgress?.(100);
