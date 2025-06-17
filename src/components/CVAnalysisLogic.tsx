@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 interface CVAnalysisLogicProps {
   cvFile: File | null;
   linkedinUrl: string;
-  formEmail?: string; // Add form email prop
-  formName?: string;  // Add form name prop
+  formEmail?: string;
+  formName?: string;
   onAnalysisComplete: (analysis: any) => void;
   onError: (message: string) => void;
   onAnalysisStart?: () => void;
@@ -25,17 +25,25 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 }) => {
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
+  // Reset hasAnalyzed when key inputs change
   useEffect(() => {
-    // Reset hasAnalyzed when CV file or LinkedIn URL changes to allow re-analysis
     setHasAnalyzed(false);
   }, [cvFile, linkedinUrl]);
 
+  // Check if we can start analysis
+  const canStartAnalysis = cvFile && linkedinUrl && linkedinUrl.includes('linkedin.com') && !hasAnalyzed;
+
   useEffect(() => {
-    // Only start analysis when both CV file and LinkedIn URL are provided and we haven't analyzed yet
-    if (cvFile && linkedinUrl && linkedinUrl.trim() !== '' && !hasAnalyzed) {
+    if (canStartAnalysis) {
+      console.log('🚀 Starting analysis with:', { 
+        hasFile: !!cvFile, 
+        hasLinkedIn: !!linkedinUrl, 
+        linkedinValid: linkedinUrl.includes('linkedin.com'),
+        hasAnalyzed 
+      });
       analyzeCVAndLinkedIn();
     }
-  }, [cvFile, linkedinUrl, hasAnalyzed]);
+  }, [canStartAnalysis]);
 
   const sendWelcomeEmail = async (consultantName: string, consultantEmail: string, isMyConsultant: boolean) => {
     try {
@@ -84,7 +92,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   };
 
   const analyzeCVAndLinkedIn = async () => {
-    if (!cvFile) return;
+    if (!cvFile || hasAnalyzed) return;
 
     try {
       setHasAnalyzed(true);
@@ -151,18 +159,18 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const marketPositioning = analysis?.marketPositioning || {};
       const personalityTraits = analysis?.personalityTraits || {};
       
-      // 🎯 CRITICAL: Always prioritize form data over CV analysis data for network consultants
+      // Always prioritize form data over CV analysis data for network consultants
       const extractedName = formName && formName.trim() !== '' ? formName : 
         (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Consultant');
       
-      // 🔥 CRITICAL FIX: ALWAYS use formEmail first, never fall back to placeholder emails
+      // ALWAYS use formEmail first, never fall back to placeholder emails
       const extractedEmail = formEmail && formEmail.trim() !== '' ? formEmail : '';
       
       console.log('📝 Final consultant data being used:');
       console.log('📌 Name:', extractedName, '(from form:', formName, ', from CV:', personalInfo?.name, ')');
       console.log('📌 Email:', extractedEmail, '(from form:', formEmail, ', from CV:', personalInfo?.email, ')');
       
-      // 🚨 CRITICAL: If no valid email, throw error early
+      // If no valid email, throw error early
       if (!extractedEmail || extractedEmail.trim() === '') {
         throw new Error('No valid email provided - cannot create consultant without email');
       }
@@ -189,13 +197,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedCertifications = education?.certifications || [];
       const extractedLanguages = personalInfo?.languages || ['Swedish', 'English'];
 
-      // 🎯 CRITICAL: Network consultants should be type 'new', not 'existing'
+      // Network consultants should be type 'new', not 'existing'
       const isMyConsultant = false; // Network consultants are external
 
-      // 🎯 CRITICAL: Get current user for proper user_id assignment
+      // Get current user for proper user_id assignment
       const { data: { user } } = await supabase.auth.getUser();
 
-      // 🔥 CRITICAL: Create consultant data with REQUIRED fields including all analysis data
+      // Create consultant data with REQUIRED fields including all analysis data
       const consultantData = {
         name: extractedName,
         email: extractedEmail,
@@ -210,7 +218,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         certifications: extractedCertifications,
         languages: extractedLanguages,
         
-        // 🎯 Store analysis data for display in consultant cards
+        // Store analysis data for display in consultant cards
         communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 
                            personalityTraits?.communicationStyle || 'Professional',
         work_style: personalityTraits?.workStyle || 'Collaborative',
@@ -228,8 +236,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         rating: 5.0,
         projects_completed: 0,
         last_active: 'Today',
-        type: 'new', // 🎯 CRITICAL: Network consultants are type 'new'
-        user_id: null, // 🎯 CRITICAL: Network consultants don't have user_id
+        type: 'new', // Network consultants are type 'new'
+        user_id: null, // Network consultants don't have user_id
       };
 
       console.log('🔥 CREATING NETWORK CONSULTANT with these CRITICAL fields:');
@@ -239,7 +247,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('📌 name:', consultantData.name);
       console.log('📌 isMyConsultant:', isMyConsultant);
 
-      // 🎯 Create consultant in database
+      // Create consultant in database
       const { data: consultant, error: consultantError } = await supabase
         .from('consultants')
         .insert(consultantData)
@@ -259,7 +267,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       onAnalysisProgress?.(90);
 
-      // 📧 Send emails - Now we have guaranteed valid email
+      // Send emails - Now we have guaranteed valid email
       try {
         // Send welcome email to consultant
         await sendWelcomeEmail(extractedName, extractedEmail, isMyConsultant);
@@ -282,7 +290,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedinAnalysis: linkedinAnalysisData,
         consultant: {
           ...consultant,
-          // 🎯 Include the full analysis objects for display in ConsultantAnalysisCard
+          // Include the full analysis objects for display in ConsultantAnalysisCard
           cvAnalysis: cvAnalysisData?.analysis,
           linkedinAnalysis: linkedinAnalysisData?.analysis
         }
