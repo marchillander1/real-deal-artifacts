@@ -36,18 +36,45 @@ export const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({
     return 'bg-gray-100 text-gray-800';
   };
 
+  // Check for analysis data from database
   const hasAnalysisData = consultant.cvAnalysis || consultant.linkedinAnalysis;
+  const cvAnalysis = consultant.cvAnalysis?.analysis;
+  const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
+
+  console.log('🔍 EnhancedConsultantCard analysis data check:', {
+    consultantName: consultant.name,
+    hasAnalysisData,
+    hasCvAnalysis: !!cvAnalysis,
+    hasLinkedinAnalysis: !!linkedinAnalysis,
+    cvAnalysisKeys: cvAnalysis ? Object.keys(cvAnalysis) : [],
+    linkedinAnalysisKeys: linkedinAnalysis ? Object.keys(linkedinAnalysis) : []
+  });
+
+  // Get real data from CV analysis or fallback to existing data
+  const displayName = cvAnalysis?.personalInfo?.name || consultant.name;
+  const displayLocation = cvAnalysis?.personalInfo?.location || consultant.location;
+  const displayExperience = cvAnalysis?.professionalSummary?.yearsOfExperience ? 
+    `${cvAnalysis.professionalSummary.yearsOfExperience} years` : 
+    consultant.experience;
+  const displayRole = cvAnalysis?.professionalSummary?.currentRole || consultant.roles[0];
+  const displayRate = cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended ?
+    `${cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} SEK/hour` :
+    consultant.rate;
+
+  // Get skills from CV analysis or fallback
+  const displaySkills = cvAnalysis?.technicalExpertise?.programmingLanguages?.expert || 
+                       consultant.skills;
 
   return (
     <Card className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-            {getInitials(consultant.name)}
+            {getInitials(displayName)}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{consultant.name}</h3>
-            <p className="text-gray-600">{consultant.roles[0]}</p>
+            <h3 className="text-lg font-semibold text-gray-900">{displayName}</h3>
+            <p className="text-gray-600">{displayRole}</p>
             <div className="flex items-center space-x-1 mt-1">
               <Badge variant="outline" className="text-blue-600 border-blue-200">
                 {consultant.type === 'new' ? 'Network' : 'Our Team'}
@@ -70,7 +97,7 @@ export const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({
       <div className="space-y-3 mb-4">
         <div className="flex justify-between">
           <span className="text-gray-600">Experience:</span>
-          <span className="font-medium">{consultant.experience.replace(' experience', '')}</span>
+          <span className="font-medium">{displayExperience.replace(' experience', '')}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Projects:</span>
@@ -78,11 +105,11 @@ export const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Rate:</span>
-          <span className="font-medium text-green-600">{consultant.rate.replace('SEK/h', 'SEK/hour')}</span>
+          <span className="font-medium text-green-600">{displayRate.replace('SEK/h', 'SEK/hour')}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Location:</span>
-          <span className="font-medium">{consultant.location}</span>
+          <span className="font-medium">{displayLocation}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600">Status:</span>
@@ -99,14 +126,14 @@ export const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({
       <div className="mb-4">
         <p className="text-sm font-medium text-gray-700 mb-2">Top Skills:</p>
         <div className="flex flex-wrap gap-2">
-          {consultant.skills.slice(0, 4).map((skill, index) => (
+          {displaySkills.slice(0, 4).map((skill, index) => (
             <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
               {skill}
             </Badge>
           ))}
-          {consultant.skills.length > 4 && (
+          {displaySkills.length > 4 && (
             <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-              +{consultant.skills.length - 4} more
+              +{displaySkills.length - 4} more
             </Badge>
           )}
         </div>
@@ -131,6 +158,20 @@ export const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({
                 <span>LinkedIn Analyzed</span>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Show real analysis summary if available */}
+      {cvAnalysis?.marketPositioning?.competitiveAdvantages && (
+        <div className="mb-4 p-3 bg-purple-50 rounded-lg">
+          <p className="text-sm font-medium text-purple-900 mb-1">AI Insights:</p>
+          <div className="flex flex-wrap gap-1">
+            {cvAnalysis.marketPositioning.competitiveAdvantages.slice(0, 2).map((advantage, index) => (
+              <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800 text-xs">
+                {advantage}
+              </Badge>
+            ))}
           </div>
         </div>
       )}
