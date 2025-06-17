@@ -25,16 +25,13 @@ export const useSupabaseConsultantsWithDemo = () => {
       }
 
       console.log('✅ Supabase consultants fetched:', data?.length || 0);
-      console.log('📋 Raw consultant data:', data);
+      console.log('📋 Raw consultant data with analysis:', data);
       
       return (data || []).map(consultant => {
-        console.log('🔄 Mapping consultant:', consultant.name, {
-          phone: consultant.phone,
-          location: consultant.location,
-          experience_years: consultant.experience_years,
-          hourly_rate: consultant.hourly_rate,
-          type: consultant.type,
-          hasAnalysisData: !!(consultant as any).cv_analysis_data || !!(consultant as any).linkedin_analysis_data
+        console.log('🔄 Mapping consultant with analysis data:', consultant.name, {
+          hasAnalysisData: !!(consultant as any).cv_analysis_data || !!(consultant as any).linkedin_analysis_data,
+          cvAnalysisData: (consultant as any).cv_analysis_data,
+          linkedinAnalysisData: (consultant as any).linkedin_analysis_data
         });
         
         return {
@@ -64,9 +61,9 @@ export const useSupabaseConsultantsWithDemo = () => {
           culturalFit: consultant.cultural_fit || 5,
           adaptability: consultant.adaptability || 5,
           leadership: consultant.leadership || 3,
-          // 🔥 IMPORTANT: Map analysis data from database with proper type conversion
-          cvAnalysis: (consultant as any).cv_analysis_data || null,
-          linkedinAnalysis: (consultant as any).linkedin_analysis_data || null
+          // 🔥 ENSURE ANALYSIS DATA IS PROPERLY MAPPED AND ACCESSIBLE
+          cvAnalysis: (consultant as any).cv_analysis_data,
+          linkedinAnalysis: (consultant as any).linkedin_analysis_data
         } as Consultant;
       });
     },
@@ -75,7 +72,7 @@ export const useSupabaseConsultantsWithDemo = () => {
   });
 
   useEffect(() => {
-    console.log('🔄 Combining consultants...');
+    console.log('🔄 Combining consultants with analysis data...');
     console.log('📊 Supabase consultants:', supabaseConsultants.length);
     console.log('📊 My demo consultants:', myDemoConsultants.length);
 
@@ -86,6 +83,7 @@ export const useSupabaseConsultantsWithDemo = () => {
     ];
 
     console.log('📊 Total combined consultants:', allConsultants.length);
+    console.log('🔍 Consultants with analysis data:', allConsultants.filter(c => c.cvAnalysis || c.linkedinAnalysis).length);
     
     setConsultants(allConsultants);
     setIsLoading(isSupabaseLoading);
