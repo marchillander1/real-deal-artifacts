@@ -18,6 +18,7 @@ interface NotificationRequest {
 
 const handler = async (req: Request): Promise<Response> => {
   console.log('🔔 Registration notification function called');
+  console.log('🔑 RESEND_API_KEY exists:', !!Deno.env.get("RESEND_API_KEY"));
   
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -28,6 +29,8 @@ const handler = async (req: Request): Promise<Response> => {
     const { consultantName, consultantEmail, isMyConsultant }: NotificationRequest = await req.json();
     
     console.log('📧 Sending registration notification:', { consultantName, consultantEmail, isMyConsultant });
+
+    console.log("🚀 About to send admin notification via Resend...");
 
     // Send notification to admin using verified sender
     const adminEmailResponse = await resend.emails.send({
@@ -45,11 +48,17 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("✅ Admin notification sent:", adminEmailResponse);
+    console.log("✅ Admin notification sent:", JSON.stringify(adminEmailResponse, null, 2));
+
+    if (adminEmailResponse.error) {
+      console.error("❌ Resend error:", adminEmailResponse.error);
+      throw new Error(`Resend error: ${JSON.stringify(adminEmailResponse.error)}`);
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 
-      adminEmailId: adminEmailResponse.data?.id 
+      adminEmailId: adminEmailResponse.data?.id,
+      emailResponse: adminEmailResponse
     }), {
       status: 200,
       headers: {
@@ -59,10 +68,12 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("❌ Error in registration notification:", error);
+    console.error("❌ Error stack:", error.stack);
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack 
+        details: error.stack,
+        type: 'registration_notification_error'
       }),
       {
         status: 500,

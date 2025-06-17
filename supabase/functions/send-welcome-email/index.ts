@@ -18,6 +18,7 @@ interface WelcomeEmailRequest {
 
 const handler = async (req: Request): Promise<Response> => {
   console.log('🎯 Welcome email function called');
+  console.log('🔑 RESEND_API_KEY exists:', !!Deno.env.get("RESEND_API_KEY"));
   
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -27,6 +28,8 @@ const handler = async (req: Request): Promise<Response> => {
     const { consultantName, consultantEmail, isMyConsultant }: WelcomeEmailRequest = await req.json();
 
     console.log("📧 Sending welcome email:", { consultantName, consultantEmail, isMyConsultant });
+    console.log("📧 Email will be sent from: marc@matchwise.tech");
+    console.log("📧 Email will be sent to:", consultantEmail);
 
     // Different email content based on whether it's "My Consultant" or network registration
     const emailContent = isMyConsultant ? {
@@ -134,6 +137,8 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
+    console.log("🚀 About to send email via Resend...");
+
     // Send welcome email to consultant using verified sender
     const emailResponse = await resend.emails.send({
       from: "marc@matchwise.tech",
@@ -143,11 +148,17 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     console.log(`✅ Welcome email sent successfully to ${consultantEmail} (${isMyConsultant ? 'My Consultant' : 'Network'})`);
-    console.log("Email response:", emailResponse);
+    console.log("📨 Resend email response:", JSON.stringify(emailResponse, null, 2));
+
+    if (emailResponse.error) {
+      console.error("❌ Resend error:", emailResponse.error);
+      throw new Error(`Resend error: ${JSON.stringify(emailResponse.error)}`);
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 
-      emailId: emailResponse.data?.id 
+      emailId: emailResponse.data?.id,
+      emailResponse: emailResponse
     }), {
       status: 200,
       headers: {
@@ -157,10 +168,12 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("❌ Error sending welcome email:", error);
+    console.error("❌ Error stack:", error.stack);
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack 
+        details: error.stack,
+        type: 'welcome_email_error'
       }),
       {
         status: 500,
