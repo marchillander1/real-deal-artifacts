@@ -77,28 +77,64 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(80);
 
-      // Extract name and email from CV analysis
+      // Extract comprehensive data from CV analysis
       const extractedName = cvAnalysisData?.analysis?.personalInfo?.name || 'Network Consultant';
       const extractedEmail = cvAnalysisData?.analysis?.personalInfo?.email || '';
+      const extractedPhone = cvAnalysisData?.analysis?.personalInfo?.phone || '';
+      const extractedLocation = cvAnalysisData?.analysis?.personalInfo?.location || '';
+      
+      // Extract skills from multiple sources in the analysis
+      const extractedSkills = [
+        ...(cvAnalysisData?.analysis?.technicalSkillsAnalysis?.programmingLanguages?.expert || []),
+        ...(cvAnalysisData?.analysis?.technicalSkillsAnalysis?.programmingLanguages?.proficient || []),
+        ...(cvAnalysisData?.analysis?.technicalSkillsAnalysis?.frontendTechnologies?.frameworks || []),
+        ...(cvAnalysisData?.analysis?.technicalSkillsAnalysis?.backendTechnologies?.frameworks || []),
+        ...(cvAnalysisData?.analysis?.technicalSkillsAnalysis?.cloudAndInfrastructure?.platforms || []),
+        ...(cvAnalysisData?.analysis?.technicalExpertise?.frameworks || [])
+      ].filter(Boolean);
 
-      // Create consultant profile using correct column names
+      // Extract roles and certifications
+      const extractedRoles = cvAnalysisData?.analysis?.professionalSummary?.specializations || 
+                           [cvAnalysisData?.analysis?.professionalSummary?.currentRole || 'Consultant'];
+      
+      const extractedCertifications = cvAnalysisData?.analysis?.education?.certifications || [];
+      const extractedLanguages = cvAnalysisData?.analysis?.personalInfo?.languages || ['Swedish', 'English'];
+
+      // Create comprehensive consultant profile
       const consultantData = {
         name: extractedName,
         email: extractedEmail,
-        phone: cvAnalysisData?.analysis?.personalInfo?.phone || '',
+        phone: extractedPhone,
+        location: extractedLocation,
         linkedin_url: linkedinUrl || '',
-        skills: cvAnalysisData?.analysis?.technicalExpertise?.frameworks || [],
+        skills: extractedSkills,
         experience_years: parseInt(cvAnalysisData?.analysis?.professionalSummary?.yearsOfExperience) || 0,
         hourly_rate: cvAnalysisData?.analysis?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
         availability: 'Available',
-        communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 'Professional',
+        roles: extractedRoles,
+        certifications: extractedCertifications,
+        languages: extractedLanguages,
+        communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 
+                           cvAnalysisData?.analysis?.personalityTraits?.communicationStyle || 'Professional',
+        work_style: cvAnalysisData?.analysis?.personalityTraits?.workStyle || 'Collaborative',
+        values: cvAnalysisData?.analysis?.personalityTraits?.teamOrientation ? ['Team collaboration'] : [],
+        personality_traits: [
+          cvAnalysisData?.analysis?.personalityTraits?.problemSolvingApproach,
+          cvAnalysisData?.analysis?.personalityTraits?.adaptability,
+          cvAnalysisData?.analysis?.personalityTraits?.innovationMindset
+        ].filter(Boolean),
+        team_fit: cvAnalysisData?.analysis?.personalityTraits?.teamOrientation || 'High collaboration potential',
         cultural_fit: linkedinAnalysisData?.analysis?.culturalFit || 5,
         adaptability: linkedinAnalysisData?.analysis?.adaptability || 5,
         leadership: linkedinAnalysisData?.analysis?.leadership || 3,
+        rating: 5.0,
+        projects_completed: 0,
+        last_active: 'Today',
+        type: 'new',
         user_id: null // Network consultant should have null user_id
       };
 
-      console.log('Creating consultant profile with data:', consultantData);
+      console.log('Creating comprehensive consultant profile with data:', consultantData);
 
       const { data: consultant, error: consultantError } = await supabase
         .from('consultants')
@@ -135,11 +171,15 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress?.(100);
 
-      // Return analysis results
+      // Return analysis results with enhanced consultant data
       const analysisResults = {
         cvAnalysis: cvAnalysisData,
         linkedinAnalysis: linkedinAnalysisData,
-        consultant: consultant
+        consultant: {
+          ...consultant,
+          cvAnalysis: cvAnalysisData?.analysis,
+          linkedinAnalysis: linkedinAnalysisData?.analysis
+        }
       };
 
       console.log('Analysis complete, calling onAnalysisComplete with:', analysisResults);
