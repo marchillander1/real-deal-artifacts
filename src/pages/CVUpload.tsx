@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { AnalysisResults } from '@/components/AnalysisResults';
@@ -324,6 +323,178 @@ const CVUpload: React.FC = () => {
                               <span className="text-gray-600">Adaptability</span>
                               <span className="font-medium">{analysisResults.linkedinAnalysis?.adaptability || 8}/10</span>
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* NEW: Hur Du Uppfattas Professionellt */}
+                    <div className="mb-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-purple-500">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">👤 Hur Du Uppfattas Professionellt</h3>
+                      
+                      {/* Första Intryck */}
+                      <div className="mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">FÖRSTA INTRYCK</span>
+                          Vad som sticker ut
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-white p-4 rounded border-l-4 border-green-400">
+                            <h5 className="font-medium text-green-800 mb-2">✅ Positiva signaler</h5>
+                            <ul className="text-sm text-gray-700 space-y-1">
+                              <li>• Stark teknisk bakgrund och expertis</li>
+                              <li>• Tydlig professionell utvecklingskurva</li>
+                              <li>• Relevant branschexpertis och erfarenhet</li>
+                              <li>• Aktiv på LinkedIn med branschengagemang</li>
+                            </ul>
+                          </div>
+                          <div className="bg-white p-4 rounded border-l-4 border-orange-400">
+                            <h5 className="font-medium text-orange-800 mb-2">⚠️ Förbättringsområden</h5>
+                            <ul className="text-sm text-gray-700 space-y-1">
+                              <li>• Profilen kan vara tydligare konsultingsinriktad</li>
+                              <li>• Behöver mer synlighet i branschcommunity</li>
+                              <li>• Kan förtydliga unika värdepropositioner</li>
+                              <li>• Mer kvantifierade resultat och framgångar</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Marknadspositioning */}
+                      <div className="mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">MARKNADSPOSITIONING</span>
+                          Teknisk nivå & konsultmognad
+                        </h4>
+                        <div className="bg-white p-4 rounded border">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">
+                                {analysisResults.technicalAssessment?.overallTechnicalLevel || 'Senior'}
+                              </p>
+                              <p className="text-xs text-gray-600">Teknisk Nivå</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-purple-600">
+                                {analysisResults.linkedinAnalysis?.consultingReadiness || '7/10'}
+                              </p>
+                              <p className="text-xs text-gray-600">Konsultmognad</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-green-600">
+                                {analysisResults.roiPredictions?.currentMarketValue?.hourlyRate || 1000} SEK/h
+                              </p>
+                              <p className="text-xs text-gray-600">Marknadsvärde</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Kommunikationsprofil */}
+                      <div className="mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">KOMMUNIKATION</span>
+                          Hur du framstår i din kommunikation
+                        </h4>
+                        <div className="bg-white p-4 rounded border">
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">Kommunikationsstil:</p>
+                              <p className="text-sm text-gray-700">
+                                {analysisResults.linkedinAnalysis?.communicationStyle || 
+                                 'Professionell och tekniskt orienterad med bra branschengagemang'}
+                              </p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-xs text-gray-600">Ledarskap</p>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-blue-600 h-2 rounded-full" 
+                                      style={{width: `${(analysisResults.linkedinAnalysis?.leadership || 7) * 10}%`}}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs font-medium">{analysisResults.linkedinAnalysis?.leadership || 7}/10</span>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-600">Anpassningsförmåga</p>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-green-600 h-2 rounded-full" 
+                                      style={{width: `${(analysisResults.linkedinAnalysis?.adaptability || 8) * 10}%`}}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs font-medium">{analysisResults.linkedinAnalysis?.adaptability || 8}/10</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Konkurrensanalys */}
+                      <div className="mb-6">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">KONKURRENS</span>
+                          Hur du står dig mot andra
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-white p-4 rounded border">
+                            <h5 className="font-medium text-gray-900 mb-2">Konkurrensfördelar</h5>
+                            <ul className="text-sm text-gray-700 space-y-1">
+                              {(analysisResults.linkedinAnalysis?.marketPositioning?.competitiveAdvantages || [
+                                'Stark teknisk bakgrund',
+                                'Relevant branschexpertis',
+                                'Aktiv kunskapsspridning'
+                              ]).slice(0, 3).map((advantage: string, index: number) => (
+                                <li key={index}>• {advantage}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className="bg-white p-4 rounded border">
+                            <h5 className="font-medium text-gray-900 mb-2">Differentierande faktorer</h5>
+                            <ul className="text-sm text-gray-700 space-y-1">
+                              {(analysisResults.linkedinAnalysis?.marketPositioning?.marketDifferentiators || [
+                                'Unik teknisk kombination',
+                                'Branschspecifik erfarenhet',
+                                'Innovativ problemlösning'
+                              ]).slice(0, 3).map((factor: string, index: number) => (
+                                <li key={index}>• {factor}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Personal Brand-analys */}
+                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-200">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs">PERSONAL BRAND</span>
+                          Varumärkespositionering
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <h5 className="font-medium text-gray-900 mb-2">Nuvarande positionering</h5>
+                            <p className="text-sm text-gray-700 mb-2">
+                              {analysisResults.linkedinAnalysis?.currentBrandPositioning || 
+                               'Teknisk expert med stark problemlösningsförmåga och branschkännedom'}
+                            </p>
+                            <div className="text-xs text-gray-600">
+                              Synlighet: {analysisResults.linkedinAnalysis?.brandVisibility || 'Medel'} | 
+                              Trovärdighet: {analysisResults.linkedinAnalysis?.brandCredibility || 'Hög'}
+                            </div>
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-gray-900 mb-2">Potential & nästa steg</h5>
+                            <ul className="text-xs text-gray-700 space-y-1">
+                              <li>• Öka synlighet genom thought leadership</li>
+                              <li>• Utveckla nischexpertis inom specifika områden</li>
+                              <li>• Bygga starkare nätverk inom målbranscher</li>
+                              <li>• Skapa mer konsistent online-närvaro</li>
+                            </ul>
                           </div>
                         </div>
                       </div>
