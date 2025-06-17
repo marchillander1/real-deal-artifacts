@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +43,26 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const [analysis, setAnalysis] = useState<any>(null);
   const [linkedinAnalysis, setLinkedinAnalysis] = useState<any>(null);
   const [createdConsultant, setCreatedConsultant] = useState<any>(null);
+  const [hasTriggeredAnalysis, setHasTriggeredAnalysis] = useState(false);
   const { toast } = useToast();
+
+  // Auto-trigger analysis when both file and LinkedIn URL are present
+  useEffect(() => {
+    if (file && linkedinUrl && !isAnalyzing && !hasTriggeredAnalysis && !analysis) {
+      console.log('🚀 Auto-triggering analysis with file and LinkedIn URL');
+      setHasTriggeredAnalysis(true);
+      handleAnalysis();
+    }
+  }, [file, linkedinUrl, isAnalyzing, hasTriggeredAnalysis, analysis]);
+
+  // Reset trigger when file or URL changes
+  useEffect(() => {
+    console.log('🔄 Resetting analysis trigger due to file/URL change');
+    setHasTriggeredAnalysis(false);
+    setAnalysis(null);
+    setLinkedinAnalysis(null);
+    setCreatedConsultant(null);
+  }, [file, linkedinUrl]);
 
   const handleAnalysis = async () => {
     if (!file) {
@@ -57,30 +76,15 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisStart();
       onAnalysisProgress(10);
 
-      // Step 1: Upload CV file
-      console.log('📄 Uploading CV file...');
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      console.log('📄 Uploading and analyzing CV file...');
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('cv-files')
-        .upload(fileName, file);
-
-      if (uploadError) {
-        console.error('❌ Upload error:', uploadError);
-        throw new Error(`Upload failed: ${uploadError.message}`);
-      }
-
-      console.log('✅ File uploaded successfully:', uploadData);
-      onAnalysisProgress(30);
-
-      // Step 2: Analyze CV
-      console.log('🔍 Analyzing CV...');
+      // Call parse-cv function with FormData
       const cvResponse = await supabase.functions.invoke('parse-cv', {
-        body: { 
-          fileName: fileName,
-          originalName: file.name 
-        }
+        body: formData
       });
 
       console.log('📊 CV analysis response:', cvResponse);
@@ -121,30 +125,30 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Step 4: Create consultant profile in database as NETWORK consultant
       console.log('💾 Creating network consultant profile...');
       const consultantData = {
-        name: formName || cvResponse.data?.name || 'Unknown Name',
-        email: formEmail || cvResponse.data?.email || '',
-        phone: cvResponse.data?.phone || '',
-        location: cvResponse.data?.location || 'Location not specified',
-        skills: cvResponse.data?.skills || [],
-        experience_years: cvResponse.data?.experience_years || 5,
-        hourly_rate: cvResponse.data?.hourly_rate || 800,
+        name: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
+        email: formEmail || cvResponse.data?.analysis?.personalInfo?.email || '',
+        phone: cvResponse.data?.analysis?.personalInfo?.phone || '',
+        location: cvResponse.data?.analysis?.personalInfo?.location || 'Location not specified',
+        skills: cvResponse.data?.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
+        experience_years: parseInt(cvResponse.data?.analysis?.professionalSummary?.yearsOfExperience) || 5,
+        hourly_rate: cvResponse.data?.analysis?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
         availability: 'Available',
-        cv_file_path: fileName,
-        communication_style: cvResponse.data?.communication_style || '',
+        cv_file_path: file.name,
+        communication_style: cvResponse.data?.analysis?.softSkills?.communication?.[0] || '',
         rating: 4.8,
         projects_completed: 0,
-        roles: cvResponse.data?.roles || ['Consultant'],
-        certifications: cvResponse.data?.certifications || [],
+        roles: cvResponse.data?.analysis?.technicalExpertise?.frameworks || ['Consultant'],
+        certifications: cvResponse.data?.analysis?.education?.certifications || [],
         type: 'new', // This makes it a NETWORK consultant
         user_id: null, // Network consultants don't have user_id
-        languages: cvResponse.data?.languages || [],
-        work_style: cvResponse.data?.work_style || '',
-        values: cvResponse.data?.values || [],
-        personality_traits: cvResponse.data?.personality_traits || [],
-        team_fit: cvResponse.data?.team_fit || '',
-        cultural_fit: cvResponse.data?.cultural_fit || 5,
-        adaptability: cvResponse.data?.adaptability || 5,
-        leadership: cvResponse.data?.leadership || 3,
+        languages: cvResponse.data?.analysis?.languages || [],
+        work_style: cvResponse.data?.analysis?.softSkills?.teamwork?.[0] || '',
+        values: cvResponse.data?.analysis?.softSkills?.leadership || [],
+        personality_traits: cvResponse.data?.analysis?.softSkills?.problemSolving || [],
+        team_fit: cvResponse.data?.analysis?.softSkills?.teamwork?.[0] || '',
+        cultural_fit: 5,
+        adaptability: 5,
+        leadership: 3,
         linkedin_url: linkedinUrl || '',
         // Save analysis data to database
         cv_analysis: cvResponse.data,
