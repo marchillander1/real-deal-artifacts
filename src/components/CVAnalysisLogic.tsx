@@ -144,7 +144,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const [linkedinAnalysis, setLinkedinAnalysis] = useState<any>(null);
   const [linkedinAnalysisStatus, setLinkedinAnalysisStatus] = useState<'idle' | 'analyzing' | 'completed' | 'error'>('idle');
   const { toast } = useToast()
-  const [cvAnalysis, setCvAnalysis] = useState<any>(null);
 
   useEffect(() => {
     const extractTextFromCV = async () => {
@@ -331,8 +330,25 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         console.log('CV analysis result:', result);
 
         setAnalysis(result);
-        setCvAnalysis(result);
         setAnalysisStatus('completed');
+
+        // Start LinkedIn analysis if we have a LinkedIn URL
+        if (linkedinUrl && linkedinAnalysisStatus === 'idle') {
+          performLinkedInAnalysis(result);
+        } else {
+          // If no LinkedIn URL, create consultant with just CV analysis
+          try {
+            const consultant = await createConsultantInDatabase(result);
+            onAnalysisComplete({
+              cvAnalysis: result,
+              linkedinAnalysis: null,
+              consultant
+            });
+          } catch (dbError) {
+            console.error('❌ Failed to create consultant:', dbError);
+            onError?.('Failed to save consultant to database');
+          }
+        }
       } catch (apiError: any) {
         console.error('Error during CV analysis:', apiError);
         setAnalysisStatus('error');
@@ -348,68 +364,60 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     analyzeCV();
   }, [cvText, analysisStatus, toast, onError]);
 
-  // LinkedIn Analysis Effect - this will now trigger automatically when we have both CV analysis and LinkedIn URL
-  useEffect(() => {
-    const performLinkedInAnalysis = async () => {
-      // Only start LinkedIn analysis if we have CV analysis completed and LinkedIn URL
-      if (!linkedinUrl || !cvAnalysis || analysisStatus !== 'completed' || linkedinAnalysisStatus !== 'idle') {
-        return;
+  const performLinkedInAnalysis = async (cvAnalysisData: any) => {
+    if (!linkedinUrl || linkedinAnalysisStatus !== 'idle') return;
+
+    try {
+      setLinkedinAnalysisStatus('analyzing');
+      console.log('🔗 Starting LinkedIn analysis for:', linkedinUrl);
+
+      const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
+        body: { 
+          linkedinUrl,
+          includeRecentPosts: true,
+          includeBioSummary: true,
+          postLimit: 30
+        },
+      });
+
+      if (error) {
+        console.error('❌ LinkedIn analysis error:', error);
+        throw error;
       }
 
+      console.log('✅ LinkedIn analysis completed:', data);
+      
+      setLinkedinAnalysis(data.analysis);
+      setLinkedinAnalysisStatus('completed');
+
+      // Create consultant with both CV and LinkedIn analysis
+      const consultant = await createConsultantInDatabase(cvAnalysisData, data.analysis);
+      
+      // Call onAnalysisComplete with the created consultant
+      onAnalysisComplete({
+        cvAnalysis: cvAnalysisData,
+        linkedinAnalysis: data.analysis,
+        consultant
+      });
+
+    } catch (error) {
+      console.error('❌ LinkedIn analysis failed:', error);
+      setLinkedinAnalysisStatus('error');
+      
+      // Still create consultant with just CV analysis
       try {
-        setLinkedinAnalysisStatus('analyzing');
-        console.log('🔗 Starting LinkedIn analysis for:', linkedinUrl);
-
-        const { data, error } = await supabase.functions.invoke('analyze-linkedin', {
-          body: { 
-            linkedinUrl,
-            includeRecentPosts: true,
-            includeBioSummary: true,
-            postLimit: 30
-          },
-        });
-
-        if (error) {
-          console.error('❌ LinkedIn analysis error:', error);
-          throw error;
-        }
-
-        console.log('✅ LinkedIn analysis completed:', data);
-        
-        setLinkedinAnalysis(data.analysis);
-        setLinkedinAnalysisStatus('completed');
-
-        // Create consultant with both CV and LinkedIn analysis
-        const consultant = await createConsultantInDatabase(cvAnalysis, data.analysis);
-        
-        // Call onAnalysisComplete with the created consultant
+        const consultant = await createConsultantInDatabase(cvAnalysisData);
         onAnalysisComplete({
-          cvAnalysis,
-          linkedinAnalysis: data.analysis,
+          cvAnalysis: cvAnalysisData,
+          linkedinAnalysis: null,
           consultant
         });
-
-      } catch (error) {
-        console.error('❌ LinkedIn analysis failed:', error);
-        setLinkedinAnalysisStatus('error');
-        
-        // Still create consultant with just CV analysis
-        try {
-          const consultant = await createConsultantInDatabase(cvAnalysis);
-          onAnalysisComplete({
-            cvAnalysis,
-            linkedinAnalysis: null,
-            consultant
-          });
-        } catch (dbError) {
-          console.error('❌ Failed to create consultant:', dbError);
-          onError?.('Failed to save consultant to database');
-        }
+      } catch (dbError) {
+        console.error('❌ Failed to create consultant:', dbError);
+        onError?.('Failed to save consultant to database');
       }
-    };
-
-    performLinkedInAnalysis();
-  }, [cvAnalysis, linkedinUrl, analysisStatus, linkedinAnalysisStatus, onAnalysisComplete, onError]);
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row gap-4">
@@ -514,12 +522,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
             <div className="mt-6">
               <CardTitle>LinkedIn Analys</CardTitle>
               <CardDescription>Få en djupare insikt genom att analysera din LinkedIn-profil.</CardDescription>
-              {linkedinAnalysisStatus === 'idle' && linkedinUrl && (
-                <p className="text-sm text-blue-600">
-                  Väntar på att CV analysen ska slutföras innan LinkedIn analysen startar...
-                </p>
-              )}
-
+              
               {linkedinAnalysisStatus === 'analyzing' && (
                 <div className="flex items-center space-x-2 text-sm text-gray-500">
                   <Loader2 className="h-4 w-4 animate-spin" />
