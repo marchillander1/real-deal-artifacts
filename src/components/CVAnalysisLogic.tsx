@@ -23,113 +23,6 @@ interface CVAnalysisLogicProps {
   linkedinUrl?: string;
 }
 
-// Export the performCVAnalysis function for compatibility
-export const performCVAnalysis = async (
-  file: File | null,
-  setIsAnalyzing: (loading: boolean) => void,
-  setAnalysisProgress: (progress: number) => void,
-  setAnalysisResults: (results: any) => void,
-  setFullName: (name: string) => void,
-  setEmail: (email: string) => void,
-  setPhoneNumber: (phone: string) => void,
-  setLinkedinUrl: (url: string) => void,
-  linkedinUrl?: string
-) => {
-  if (!file) return;
-  
-  setIsAnalyzing(true);
-  setAnalysisProgress(0);
-  
-  try {
-    // Extract text from PDF
-    const fileReader = new FileReader();
-    
-    const extractedText = await new Promise<string>((resolve, reject) => {
-      fileReader.onload = async () => {
-        try {
-          const typedArray = new Uint8Array(fileReader.result as ArrayBuffer);
-          const pdfDocument = await pdfjs.getDocument(typedArray).promise;
-          
-          let fullText = '';
-          for (let i = 1; i <= pdfDocument.numPages; i++) {
-            const page = await pdfDocument.getPage(i);
-            const textContent = await page.getTextContent();
-            // Fix TypeScript error by properly filtering TextItem objects
-            const pageText = textContent.items
-              .filter((item): item is any => 'str' in item)
-              .map(item => item.str)
-              .join(' ');
-            fullText += pageText + '\n';
-          }
-          
-          resolve(fullText);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      fileReader.onerror = reject;
-      fileReader.readAsArrayBuffer(file);
-    });
-    
-    setAnalysisProgress(30);
-    
-    // Analyze CV
-    const response = await fetch('/api/analyzeCV', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ cvText: extractedText }),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to analyze CV');
-    }
-    
-    const cvAnalysis = await response.json();
-    setAnalysisProgress(60);
-    
-    // Analyze LinkedIn if URL provided
-    let linkedinAnalysis = null;
-    if (linkedinUrl) {
-      const { data } = await supabase.functions.invoke('analyze-linkedin', {
-        body: { 
-          linkedinUrl,
-          includeRecentPosts: true,
-          includeBioSummary: true,
-          postLimit: 30
-        },
-      });
-      linkedinAnalysis = data?.analysis;
-    }
-    
-    setAnalysisProgress(100);
-    
-    // Set form data from analysis
-    if (cvAnalysis.personalInfo?.name) {
-      setFullName(cvAnalysis.personalInfo.name);
-    }
-    if (cvAnalysis.personalInfo?.email) {
-      setEmail(cvAnalysis.personalInfo.email);
-    }
-    if (cvAnalysis.personalInfo?.phone) {
-      setPhoneNumber(cvAnalysis.personalInfo.phone);
-    }
-    
-    setAnalysisResults({
-      cvAnalysis,
-      linkedinAnalysis,
-      consultant: null
-    });
-    
-  } catch (error) {
-    console.error('Analysis error:', error);
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
-
 export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   cvFile,
   onAnalysisComplete,
@@ -166,7 +59,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
             for (let i = 1; i <= pdfDocument.numPages; i++) {
               const page = await pdfDocument.getPage(i);
               const textContent = await page.getTextContent();
-              // Fix TypeScript error by properly filtering TextItem objects
               const pageText = textContent.items
                 .filter((item): item is any => 'str' in item)
                 .map(item => item.str)
@@ -215,7 +107,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           ...(analysisData.technicalSkillsAnalysis?.frontendTechnologies?.frameworks || []),
           ...(analysisData.technicalSkillsAnalysis?.backendTechnologies?.frameworks || []),
           ...(analysisData.technicalSkillsAnalysis?.cloudAndInfrastructure?.platforms || [])
-        ].slice(0, 10), // Limit to top 10 skills
+        ].slice(0, 10),
         experience_years: analysisData.professionalSummary?.yearsOfExperience ? 
           parseInt(analysisData.professionalSummary.yearsOfExperience.replace(/\D/g, '')) || 0 : 0,
         hourly_rate: analysisData.marketPositioning?.hourlyRateEstimate?.recommended || 800,
@@ -228,7 +120,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         last_active: 'Today',
         roles: [analysisData.professionalSummary?.currentRole || 'Developer'],
         certifications: analysisData.education?.certifications || [],
-        user_id: null, // This makes it a network consultant
+        user_id: null,
         languages: analysisData.personalInfo?.languages || ['Swedish', 'English'],
         values: analysisData.personalityTraits?.culturalValues || ['Innovation', 'Quality', 'Teamwork'],
         personality_traits: linkedinAnalysisData?.personalityTraits || ['Collaborative', 'Detail-oriented', 'Proactive'],
@@ -238,7 +130,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_url: linkedinUrl || analysisData.personalInfo?.linkedinProfile || '',
         team_fit: linkedinAnalysisData?.teamFitAssessment?.workStyle || 'Collaborative team player',
         type: 'new',
-        // Store the full analysis data as JSON in JSONB columns (we'll need to add these)
         cv_analysis: analysisData,
         linkedin_analysis: linkedinAnalysisData
       };
@@ -260,7 +151,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       try {
         console.log('📧 Sending welcome email to:', consultant.email);
         
-        // Check if this is "My Consultant" based on URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const isMyConsultant = urlParams.get('source') === 'my-consultants';
         
@@ -278,7 +168,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           console.log('✅ Welcome email sent successfully:', emailResult);
         }
 
-        // Also send registration notification to admin
         const { data: notificationResult, error: notificationError } = await supabase.functions.invoke('send-registration-notification', {
           body: {
             consultantName: consultant.name,
@@ -295,7 +184,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       } catch (emailError) {
         console.error('❌ Failed to send emails:', emailError);
-        // Don't throw here, consultant creation was successful
       }
 
       return consultant;
@@ -310,37 +198,37 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       if (!cvText || analysisStatus !== 'loading') return;
 
       try {
-        console.log('Starting CV analysis with text:', cvText.substring(0, 200) + '...');
+        console.log('Starting CV analysis with parse-cv function...');
 
-        const response = await fetch('/api/analyzeCV', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        // Use the detailed parse-cv function instead of analyzeCV API
+        const { data, error } = await supabase.functions.invoke('parse-cv', {
+          body: { 
+            cvText,
+            includeMarketAnalysis: true,
+            includePersonalityAssessment: true,
+            includeImprovementPlan: true
           },
-          body: JSON.stringify({ cvText }),
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('CV analysis API error:', errorData);
-          throw new Error(errorData.message || 'Failed to analyze CV');
+        if (error) {
+          console.error('CV analysis error:', error);
+          throw new Error(error.message || 'Failed to analyze CV');
         }
 
-        const result = await response.json();
-        console.log('CV analysis result:', result);
+        console.log('CV analysis result:', data);
 
-        setAnalysis(result);
+        setAnalysis(data.analysis);
         setAnalysisStatus('completed');
 
         // Start LinkedIn analysis if we have a LinkedIn URL
         if (linkedinUrl && linkedinAnalysisStatus === 'idle') {
-          performLinkedInAnalysis(result);
+          performLinkedInAnalysis(data.analysis);
         } else {
           // If no LinkedIn URL, create consultant with just CV analysis
           try {
-            const consultant = await createConsultantInDatabase(result);
+            const consultant = await createConsultantInDatabase(data.analysis);
             onAnalysisComplete({
-              cvAnalysis: result,
+              cvAnalysis: data.analysis,
               linkedinAnalysis: null,
               consultant
             });
@@ -393,7 +281,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Create consultant with both CV and LinkedIn analysis
       const consultant = await createConsultantInDatabase(cvAnalysisData, data.analysis);
       
-      // Call onAnalysisComplete with the created consultant
       onAnalysisComplete({
         cvAnalysis: cvAnalysisData,
         linkedinAnalysis: data.analysis,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { CVAnalysisLogic } from '@/components/CVAnalysisLogic';
@@ -272,7 +271,7 @@ const CVUpload: React.FC = () => {
               ) : (
                 <div className="space-y-6">
                   {/* Analysis Results */}
-                  <AnalysisResults analysis={analysisResults} />
+                  <AnalysisResults analysisResults={analysisResults} />
                   
                   {/* Form for final submission */}
                   <div className="bg-white rounded-lg shadow-lg p-6">
