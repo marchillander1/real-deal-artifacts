@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -26,7 +25,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   useEffect(() => {
-    // Only start analysis when both CV file and LinkedIn URL are provided
+    // Reset hasAnalyzed when CV file or LinkedIn URL changes to allow re-analysis
+    setHasAnalyzed(false);
+  }, [cvFile, linkedinUrl]);
+
+  useEffect(() => {
+    // Only start analysis when both CV file and LinkedIn URL are provided and we haven't analyzed yet
     if (cvFile && linkedinUrl && linkedinUrl.trim() !== '' && !hasAnalyzed) {
       analyzeCVAndLinkedIn();
     }
@@ -219,10 +223,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         last_active: 'Today',
         type: isMyConsultant ? 'existing' : 'new', // 🎯 CRITICAL: Set type based on source
         user_id: isMyConsultant ? 'current-user-id' : null, // 🎯 CRITICAL: Set user_id for my consultants
-        
-        // 🎯 CRITICAL: Store the full analysis data as JSONB columns
-        cv_analysis: cvAnalysisData?.analysis || null,
-        linkedin_analysis: linkedinAnalysisData?.analysis || null
       };
 
       console.log('🔥 CREATING CONSULTANT with these CRITICAL fields:');
@@ -231,10 +231,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('📌 email:', consultantData.email);
       console.log('📌 name:', consultantData.name);
       console.log('📌 isMyConsultant:', isMyConsultant);
-      console.log('📌 cv_analysis stored:', !!consultantData.cv_analysis);
-      console.log('📌 linkedin_analysis stored:', !!consultantData.linkedin_analysis);
 
-      // 🎯 Create consultant in database
+      // 🎯 Create consultant in database - remove cv_analysis and linkedin_analysis columns for now
       const { data: consultant, error: consultantError } = await supabase
         .from('consultants')
         .insert(consultantData)
