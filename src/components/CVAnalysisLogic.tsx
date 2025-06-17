@@ -37,28 +37,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       console.log('Starting comprehensive CV and LinkedIn analysis...');
 
-      // Convert file to base64
-      const fileReader = new FileReader();
-      const fileBase64 = await new Promise<string>((resolve, reject) => {
-        fileReader.onload = () => {
-          const result = fileReader.result as string;
-          const base64 = result.split(',')[1];
-          resolve(base64);
-        };
-        fileReader.onerror = reject;
-        fileReader.readAsDataURL(cvFile);
-      });
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', cvFile);
+      formData.append('comprehensive', 'true');
 
       onAnalysisProgress?.(30);
 
-      // Analyze CV
-      console.log('Calling parse-cv function...');
+      // Analyze CV using FormData
+      console.log('Calling parse-cv function with FormData...');
       const { data: cvAnalysisData, error: cvError } = await supabase.functions.invoke('parse-cv', {
-        body: {
-          file: fileBase64,
-          filename: cvFile.name,
-          comprehensive: true
-        }
+        body: formData
       });
 
       if (cvError) {
@@ -89,7 +78,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisProgress?.(80);
 
       // Extract name and email from CV analysis
-      const extractedName = cvAnalysisData?.analysis?.personalInfo?.name || 'Unknown Professional';
+      const extractedName = cvAnalysisData?.analysis?.personalInfo?.name || 'Network Consultant';
       const extractedEmail = cvAnalysisData?.analysis?.personalInfo?.email || '';
 
       // Create consultant profile using correct column names
@@ -105,7 +94,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         communication_style: linkedinAnalysisData?.analysis?.communicationStyle || 'Professional',
         cultural_fit: linkedinAnalysisData?.analysis?.culturalFit || 5,
         adaptability: linkedinAnalysisData?.analysis?.adaptability || 5,
-        leadership: linkedinAnalysisData?.analysis?.leadership || 3
+        leadership: linkedinAnalysisData?.analysis?.leadership || 3,
+        user_id: null // Network consultant should have null user_id
       };
 
       console.log('Creating consultant profile with data:', consultantData);
