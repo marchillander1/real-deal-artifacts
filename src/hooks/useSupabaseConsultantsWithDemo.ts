@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
-import { demoConsultants } from '@/data/demoConsultants';
 import { myDemoConsultants } from '@/data/myDemoConsultants';
 
 export const useSupabaseConsultantsWithDemo = () => {
@@ -11,7 +10,7 @@ export const useSupabaseConsultantsWithDemo = () => {
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  // Fetch real consultants from Supabase
+  // Fetch real consultants from Supabase (only 'existing' type now)
   const { data: supabaseConsultants = [], isLoading: isSupabaseLoading, error } = useQuery({
     queryKey: ['consultants'],
     queryFn: async () => {
@@ -19,7 +18,8 @@ export const useSupabaseConsultantsWithDemo = () => {
       
       const { data, error } = await supabase
         .from('consultants')
-        .select('*');
+        .select('*')
+        .eq('type', 'existing'); // Only fetch existing consultants
 
       if (error) {
         console.error('❌ Error fetching consultants:', error);
@@ -48,7 +48,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         culturalFit: consultant.cultural_fit || 5,
         adaptability: consultant.adaptability || 5,
         leadership: consultant.leadership || 3,
-        // Add analysis data placeholders
+        // Add analysis data placeholders - CV upload analyser kommer att fylla dessa
         cvAnalysis: null,
         linkedinAnalysis: null
       })) as Consultant[];
@@ -60,13 +60,11 @@ export const useSupabaseConsultantsWithDemo = () => {
   useEffect(() => {
     console.log('🔄 Combining consultants...');
     console.log('📊 Supabase consultants:', supabaseConsultants.length);
-    console.log('📊 Demo consultants:', demoConsultants.length);
     console.log('📊 My demo consultants:', myDemoConsultants.length);
 
-    // Combine all consultants: Supabase + demo + my demo
+    // Combine only Supabase consultants + my demo consultants (no network consultants)
     const allConsultants = [
       ...supabaseConsultants,
-      ...demoConsultants,
       ...myDemoConsultants
     ];
 
@@ -80,12 +78,7 @@ export const useSupabaseConsultantsWithDemo = () => {
     console.log('🔄 Updating consultant:', updatedConsultant.id);
     
     // Check if this is a demo consultant (starts with string ID)
-    if (typeof updatedConsultant.id === 'string' && (
-        updatedConsultant.id.startsWith('1') || 
-        updatedConsultant.id.startsWith('2') || 
-        updatedConsultant.id.startsWith('3') ||
-        updatedConsultant.id.startsWith('my-')
-      )) {
+    if (typeof updatedConsultant.id === 'string' && updatedConsultant.id.startsWith('my-')) {
       // Update locally for demo consultants
       setConsultants(prev => 
         prev.map(consultant => 
@@ -141,38 +134,10 @@ export const useSupabaseConsultantsWithDemo = () => {
     }
   };
 
-  const clearAllNetworkConsultants = async () => {
-    try {
-      console.log('🔄 Clearing all network consultants...');
-      
-      // Delete all consultants with type 'new' from Supabase
-      const { error, count } = await supabase
-        .from('consultants')
-        .delete()
-        .eq('type', 'new');
-
-      if (error) {
-        console.error('❌ Error clearing network consultants:', error);
-        throw error;
-      }
-
-      console.log('✅ Network consultants cleared:', count);
-      
-      // Invalidate and refetch to update the UI
-      queryClient.invalidateQueries({ queryKey: ['consultants'] });
-      
-      return { deletedCount: count || 0 };
-    } catch (error) {
-      console.error('❌ Failed to clear network consultants:', error);
-      throw error;
-    }
-  };
-
   return {
     consultants,
     isLoading,
     error,
-    updateConsultant,
-    clearAllNetworkConsultants
+    updateConsultant
   };
 };
