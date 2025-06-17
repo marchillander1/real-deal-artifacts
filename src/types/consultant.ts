@@ -1,4 +1,3 @@
-
 export interface Consultant {
   id: string | number;
   name: string;
@@ -17,6 +16,7 @@ export interface Consultant {
   roles: string[];
   certifications: string[];
   type: 'existing' | 'new';
+  user_id?: string | null; // Add the missing user_id property
   languages: string[];
   workStyle?: string;
   values?: string[];

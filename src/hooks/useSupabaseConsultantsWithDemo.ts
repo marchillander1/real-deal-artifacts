@@ -45,6 +45,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           roles: c.roles || [],
           certifications: c.certifications || [],
           type: c.user_id ? 'existing' : 'new', // Network consultants have user_id = NULL
+          user_id: c.user_id, // Include user_id in the mapped data
           languages: c.languages || [],
           workStyle: c.work_style || '',
           values: c.values || [],
