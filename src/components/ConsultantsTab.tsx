@@ -68,7 +68,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       const { error } = await supabase
         .from('consultants')
         .delete()
-        .eq('id', consultantId);
+        .eq('id', idString); // Use the string version of the ID
 
       if (error) {
         throw error;
