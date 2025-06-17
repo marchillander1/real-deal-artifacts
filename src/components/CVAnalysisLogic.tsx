@@ -32,6 +32,52 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     }
   }, [cvFile, linkedinUrl, hasAnalyzed]);
 
+  const sendWelcomeEmail = async (consultantName: string, consultantEmail: string, isMyConsultant: boolean) => {
+    try {
+      console.log(`📧 Sending welcome email to: ${consultantEmail}`);
+      
+      const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+        body: {
+          consultantName: consultantName,
+          consultantEmail: consultantEmail,
+          isMyConsultant: isMyConsultant
+        }
+      });
+
+      if (emailError) {
+        console.error('❌ Welcome email failed:', emailError);
+        throw emailError;
+      } else {
+        console.log('✅ Welcome email sent successfully:', emailResponse);
+      }
+    } catch (error) {
+      console.error('❌ Exception sending welcome email:', error);
+      throw error;
+    }
+  };
+
+  const sendRegistrationNotification = async (consultantName: string, consultantEmail: string, isMyConsultant: boolean) => {
+    try {
+      console.log(`📧 Sending registration notification for: ${consultantName}`);
+      
+      const { data: notificationResponse, error: notificationError } = await supabase.functions.invoke('send-registration-notification', {
+        body: {
+          consultantName: consultantName,
+          consultantEmail: consultantEmail,
+          isMyConsultant: isMyConsultant
+        }
+      });
+
+      if (notificationError) {
+        console.error('❌ Registration notification failed:', notificationError);
+      } else {
+        console.log('✅ Registration notification sent successfully:', notificationResponse);
+      }
+    } catch (error) {
+      console.error('❌ Exception sending registration notification:', error);
+    }
+  };
+
   const analyzeCVAndLinkedIn = async () => {
     if (!cvFile) return;
 
@@ -134,7 +180,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedCertifications = education?.certifications || [];
       const extractedLanguages = personalInfo?.languages || ['Swedish', 'English'];
 
-      // 🔥 CRITICAL: Create network consultant data with REQUIRED fields including all analysis data
+      // Determine if this is "My Consultant" based on URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const isMyConsultant = urlParams.get('source') === 'my-consultants';
+
+      // 🔥 CRITICAL: Create consultant data with REQUIRED fields including all analysis data
       const consultantData = {
         name: extractedName,
         email: extractedEmail,
@@ -167,22 +217,16 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         rating: 5.0,
         projects_completed: 0,
         last_active: 'Today',
-        type: 'new', // 🎯 CRITICAL: This MUST be 'new' for Network Consultants
-        user_id: null // 🎯 CRITICAL: This MUST be null for Network Consultants
+        type: isMyConsultant ? 'existing' : 'new', // 🎯 CRITICAL: Set type based on source
+        user_id: isMyConsultant ? 'current-user-id' : null // 🎯 CRITICAL: Set user_id for my consultants
       };
 
-      console.log('🔥 CREATING NETWORK CONSULTANT with these CRITICAL fields:');
+      console.log('🔥 CREATING CONSULTANT with these CRITICAL fields:');
       console.log('📌 type:', consultantData.type);
       console.log('📌 user_id:', consultantData.user_id);
       console.log('📌 email:', consultantData.email);
       console.log('📌 name:', consultantData.name);
-      console.log('📌 Analysis data stored:', {
-        communication_style: consultantData.communication_style,
-        work_style: consultantData.work_style,
-        cultural_fit: consultantData.cultural_fit,
-        adaptability: consultantData.adaptability,
-        leadership: consultantData.leadership
-      });
+      console.log('📌 isMyConsultant:', isMyConsultant);
 
       // 🎯 Create consultant in database
       const { data: consultant, error: consultantError } = await supabase
@@ -196,7 +240,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error('Failed to create consultant profile: ' + consultantError.message);
       }
 
-      console.log('🎉 Network consultant created successfully!');
+      console.log('🎉 Consultant created successfully!');
       console.log('✅ Consultant ID:', consultant.id);
       console.log('✅ Consultant type:', consultant.type);
       console.log('✅ Consultant user_id:', consultant.user_id);
@@ -204,33 +248,21 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       onAnalysisProgress?.(90);
 
-      // 📧 Send welcome email - ALWAYS try to send even if analysis failed
-      console.log('📧 Preparing to send welcome email...');
-      console.log('📧 Email to send to:', extractedEmail);
-
+      // 📧 Send emails - ALWAYS try to send even if analysis failed
       if (extractedEmail && extractedEmail.trim() !== '') {
         try {
-          console.log(`📨 Calling send-welcome-email function for: ${extractedEmail}`);
-          const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-            body: {
-              consultantName: extractedName,
-              consultantEmail: extractedEmail,
-              isMyConsultant: false // This is a network consultant, not my consultant
-            }
-          });
-
-          if (emailError) {
-            console.error('❌ Failed to send welcome email:', emailError);
-            console.error('❌ Email error details:', emailError);
-          } else {
-            console.log('🎉 Welcome email sent successfully!');
-            console.log('✅ Email response:', emailResponse);
-          }
+          // Send welcome email to consultant
+          await sendWelcomeEmail(extractedName, extractedEmail, isMyConsultant);
+          
+          // Send registration notification to admin
+          await sendRegistrationNotification(extractedName, extractedEmail, isMyConsultant);
+          
         } catch (emailError) {
-          console.error('❌ Exception when sending welcome email:', emailError);
+          console.error('❌ Email sending failed but continuing:', emailError);
+          // Don't throw error, just log it - emails shouldn't block the process
         }
       } else {
-        console.error('❌ No valid email available for welcome email');
+        console.error('❌ No valid email available for emails');
         console.error('❌ extractedEmail:', extractedEmail);
         console.error('❌ formEmail:', formEmail);
         console.error('❌ personalInfo?.email:', personalInfo?.email);
