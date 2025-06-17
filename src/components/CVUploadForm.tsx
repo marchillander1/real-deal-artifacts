@@ -315,28 +315,4 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
       </CardContent>
     </Card>
   );
-
-  function getCardTitle() {
-    if (isMyConsultant) {
-      return "Add Consultant to My Team";
-    }
-    return "Start Your Comprehensive Analysis";
-  }
-
-  function getCardDescription() {
-    if (isMyConsultant) {
-      return "Upload CV, add LinkedIn profile and email to start comprehensive analysis";
-    }
-    return "CV, LinkedIn profile, and email are required for complete professional analysis";
-  }
-
-  function getSubmitButtonText() {
-    if (isUploading) {
-      return isMyConsultant ? "Adding to My Team..." : "Saving Comprehensive Profile...";
-    }
-    if (analysisResults) {
-      return isMyConsultant ? "Add to My Team" : "Submit & Join Our Network";
-    }
-    return isMyConsultant ? "Complete Form to Start Analysis" : "Complete Form to Start Analysis";
-  }
 };
