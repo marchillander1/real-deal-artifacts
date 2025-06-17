@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { CVAnalysisLogic } from '@/components/CVAnalysisLogic';
@@ -38,15 +39,6 @@ const CVUpload: React.FC = () => {
     setAnalysisResults(null);
     setIsAnalyzing(false);
     setAnalysisProgress(0);
-    
-    // Clear form fields when file changes so they can be auto-filled from new CV
-    if (file) {
-      console.log('📄 New file uploaded, clearing form fields for auto-fill');
-      setFullName('');
-      setEmail('');
-      setPhoneNumber('');
-      // Don't clear LinkedIn URL as user might have entered it manually
-    }
   }, [file, linkedinUrl]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +46,10 @@ const CVUpload: React.FC = () => {
     console.log('📁 File selected:', selectedFile?.name);
     if (selectedFile) {
       setFile(selectedFile);
+      // Reset form fields when new file is uploaded so they can be auto-filled
+      setFullName('');
+      setEmail('');
+      setPhoneNumber('');
     }
   };
 
@@ -68,17 +64,18 @@ const CVUpload: React.FC = () => {
     setIsAnalyzing(false);
     setAnalysisProgress(100);
     
-    // 🔥 ENHANCED AUTO-FILL: Fill all available CV data into form fields
+    // 🔥 AUTO-FILL: Fill name and email from CV analysis but allow user to modify
     const cvData = analysis.cvAnalysis?.analysis;
     if (cvData) {
       console.log('📝 Auto-filling form from CV analysis:', cvData.personalInfo);
       
-      // Auto-fill name if not already filled or if current value is placeholder
+      // Auto-fill name if not already filled and CV has valid name
       if (cvData.personalInfo?.name && 
           cvData.personalInfo.name !== 'Analysis in progress' && 
           cvData.personalInfo.name !== 'Professional Consultant' &&
+          cvData.personalInfo.name !== 'John Doe' &&
           (!fullName.trim() || fullName === 'Analysis in progress')) {
-        console.log('📝 Auto-filling name:', cvData.personalInfo.name);
+        console.log('📝 Auto-filling name from CV:', cvData.personalInfo.name);
         setFullName(cvData.personalInfo.name);
       }
       
@@ -86,9 +83,10 @@ const CVUpload: React.FC = () => {
       if (cvData.personalInfo?.email && 
           cvData.personalInfo.email !== 'analysis@example.com' && 
           cvData.personalInfo.email !== 'consultant@example.com' &&
+          cvData.personalInfo.email !== 'johndoe@email.com' &&
           cvData.personalInfo.email.includes('@') && 
           (!email.trim() || email === 'analysis@example.com')) {
-        console.log('📧 Auto-filling email:', cvData.personalInfo.email);
+        console.log('📧 Auto-filling email from CV:', cvData.personalInfo.email);
         setEmail(cvData.personalInfo.email);
       }
       
@@ -97,7 +95,7 @@ const CVUpload: React.FC = () => {
           cvData.personalInfo.phone !== '+46 70 123 4567' && 
           cvData.personalInfo.phone !== '+1 555 123 4567' &&
           (!phoneNumber.trim() || phoneNumber === '+46 70 123 4567')) {
-        console.log('📞 Auto-filling phone:', cvData.personalInfo.phone);
+        console.log('📞 Auto-filling phone from CV:', cvData.personalInfo.phone);
         setPhoneNumber(cvData.personalInfo.phone);
       }
       
@@ -106,7 +104,7 @@ const CVUpload: React.FC = () => {
           cvData.personalInfo.linkedinProfile !== 'Unknown' &&
           cvData.personalInfo.linkedinProfile.includes('linkedin.com') &&
           (!linkedinUrl.trim() || linkedinUrl === 'Unknown')) {
-        console.log('🔗 Auto-filling LinkedIn URL:', cvData.personalInfo.linkedinProfile);
+        console.log('🔗 Auto-filling LinkedIn URL from CV:', cvData.personalInfo.linkedinProfile);
         setLinkedinUrl(cvData.personalInfo.linkedinProfile);
       }
     }
@@ -137,7 +135,7 @@ const CVUpload: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
-    console.log('🎯 Submit initiated with:', { email, fullName, analysisResults: !!analysisResults });
+    console.log('🎯 Submit initiated with form email:', email, 'fullName:', fullName);
     
     // 🔥 CRITICAL: Validate email before proceeding
     if (!email || email.trim() === '' || email === 'analysis@example.com') {
@@ -354,7 +352,7 @@ const CVUpload: React.FC = () => {
                     onSubmit={handleSubmit}
                   />
                   
-                  {/* CVAnalysisLogic component - waits for both CV and LinkedIn URL */}
+                  {/* CVAnalysisLogic component - waits for both CV and LinkedIn URL, uses form email */}
                   <CVAnalysisLogic
                     file={file}
                     linkedinUrl={linkedinUrl}
@@ -394,7 +392,7 @@ const CVUpload: React.FC = () => {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email *
+                            Email * (Welcome email will be sent here)
                           </label>
                           <input
                             type="email"

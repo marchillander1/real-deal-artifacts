@@ -170,27 +170,27 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // Step 5: Send notifications
-      console.log('📧 Sending notifications...');
+      // Step 5: Send notifications using the FORM EMAIL (not CV email)
+      console.log('📧 Sending notifications to form email:', formEmail);
       try {
-        // Send welcome email to consultant
+        // Send welcome email to the email address from the form
         await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: formEmail,
-            consultantName: formName
+            consultantEmail: formEmail, // Use form email, not CV email
+            consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name'
           }
         });
 
         // Send registration notification to admin
         await supabase.functions.invoke('send-registration-notification', {
           body: {
-            consultantName: formName,
-            consultantEmail: formEmail,
+            consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
+            consultantEmail: formEmail, // Use form email for admin notification too
             isMyConsultant: false // This is a network consultant
           }
         });
 
-        console.log('✅ Notifications sent successfully');
+        console.log('✅ Notifications sent successfully to:', formEmail);
       } catch (emailError) {
         console.warn('⚠️ Email sending failed:', emailError);
         // Don't fail the whole process if emails fail
