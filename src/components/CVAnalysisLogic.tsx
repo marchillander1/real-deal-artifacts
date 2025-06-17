@@ -118,8 +118,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // Step 4: Create consultant profile in database
-      console.log('💾 Creating consultant profile...');
+      // Step 4: Create consultant profile in database as NETWORK consultant
+      console.log('💾 Creating network consultant profile...');
       const consultantData = {
         name: formName || cvResponse.data?.name || 'Unknown Name',
         email: formEmail || cvResponse.data?.email || '',
@@ -135,7 +135,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         projects_completed: 0,
         roles: cvResponse.data?.roles || ['Consultant'],
         certifications: cvResponse.data?.certifications || [],
-        type: 'new', // This is a network consultant
+        type: 'new', // This makes it a NETWORK consultant
+        user_id: null, // Network consultants don't have user_id
         languages: cvResponse.data?.languages || [],
         work_style: cvResponse.data?.work_style || '',
         values: cvResponse.data?.values || [],
@@ -145,7 +146,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         adaptability: cvResponse.data?.adaptability || 5,
         leadership: cvResponse.data?.leadership || 3,
         linkedin_url: linkedinUrl || '',
-        // 🔥 NEW: Save analysis data to database
+        // Save analysis data to database
         cv_analysis: cvResponse.data,
         linkedin_analysis: linkedinData
       };
@@ -161,7 +162,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`Failed to save consultant: ${insertError.message}`);
       }
 
-      console.log('✅ Consultant created successfully:', insertedConsultant);
+      console.log('✅ Network consultant created successfully:', insertedConsultant);
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
@@ -181,7 +182,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           body: {
             consultantName: formName,
             consultantEmail: formEmail,
-            isMyConsultant: false
+            isMyConsultant: false // This is a network consultant
           }
         });
 
@@ -202,7 +203,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis completed successfully!",
-        description: "Your profile has been created and analysis is complete.",
+        description: "Your profile has been added to our network of consultants.",
       });
 
     } catch (error: any) {

@@ -10,7 +10,7 @@ export const useSupabaseConsultantsWithDemo = () => {
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  // Fetch real consultants from Supabase (only 'existing' type now)
+  // Fetch consultants from Supabase (both 'new' and 'existing')
   const { data: supabaseConsultants = [], isLoading: isSupabaseLoading, error } = useQuery({
     queryKey: ['consultants'],
     queryFn: async () => {
@@ -18,8 +18,7 @@ export const useSupabaseConsultantsWithDemo = () => {
       
       const { data, error } = await supabase
         .from('consultants')
-        .select('*')
-        .eq('type', 'existing'); // Only fetch existing consultants
+        .select('*');
 
       if (error) {
         console.error('❌ Error fetching consultants:', error);
@@ -48,7 +47,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         culturalFit: consultant.cultural_fit || 5,
         adaptability: consultant.adaptability || 5,
         leadership: consultant.leadership || 3,
-        // Add analysis data placeholders - CV upload analyser kommer att fylla dessa
+        // Add analysis data placeholders
         cvAnalysis: null,
         linkedinAnalysis: null
       })) as Consultant[];
@@ -62,7 +61,7 @@ export const useSupabaseConsultantsWithDemo = () => {
     console.log('📊 Supabase consultants:', supabaseConsultants.length);
     console.log('📊 My demo consultants:', myDemoConsultants.length);
 
-    // Combine only Supabase consultants + my demo consultants (no network consultants)
+    // Combine Supabase consultants + my demo consultants
     const allConsultants = [
       ...supabaseConsultants,
       ...myDemoConsultants

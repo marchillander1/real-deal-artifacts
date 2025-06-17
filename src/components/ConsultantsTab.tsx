@@ -27,11 +27,13 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  // All consultants are now "My Consultants" since we removed network consultants
+  // Separate network consultants and my consultants
+  const networkConsultants = consultants.filter(c => c.type === 'new');
   const myConsultants = consultants.filter(c => c.type === 'existing');
 
   console.log('🔍 ConsultantsTab Debug:');
   console.log('📊 Total consultants loaded:', consultants.length);
+  console.log('📊 Network consultants (type=new):', networkConsultants.length);
   console.log('📊 My consultants (type=existing):', myConsultants.length);
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
@@ -71,7 +73,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Navigate to CV upload page which will add to "My Consultants"
+      // Navigate to CV upload page which will add to Network
       window.location.href = '/cv-upload';
     }
   };
@@ -83,6 +85,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       </div>
     );
   }
+
+  const filteredNetworkConsultants = networkConsultants.filter(consultant =>
+    consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    consultant.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const filteredMyConsultants = myConsultants.filter(consultant =>
     consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -112,6 +120,54 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         </div>
       </div>
 
+      {/* Network Consultants Section */}
+      <div className="mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Users className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Network Consultants</h3>
+              <p className="text-gray-600">External consultants who have uploaded their CVs with analysis</p>
+            </div>
+            <Badge className="bg-purple-100 text-purple-800">
+              {filteredNetworkConsultants.length} consultant{filteredNetworkConsultants.length !== 1 ? 's' : ''}
+            </Badge>
+          </div>
+          
+          {/* Upload CV Button for Network */}
+          <div className="relative">
+            <Button className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Add to Network
+            </Button>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={handleFileUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredNetworkConsultants.map((consultant) => (
+            <div key={consultant.id} className="relative">
+              <ConsultantCard consultant={consultant} isNew={false} />
+            </div>
+          ))}
+        </div>
+
+        {filteredNetworkConsultants.length === 0 && (
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No network consultants yet</h3>
+            <p className="text-gray-600">Upload CVs to add consultants to your network. All CV analysis will be preserved.</p>
+          </div>
+        )}
+      </div>
+
       {/* My Consultants Section */}
       <div>
         <div className="flex items-center justify-between mb-6">
@@ -121,25 +177,11 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">My Consultants</h3>
-              <p className="text-gray-600">Our team of experienced professionals with CV analysis</p>
+              <p className="text-gray-600">Our internal team of experienced professionals</p>
             </div>
             <Badge className="bg-blue-100 text-blue-800">
               {filteredMyConsultants.length} consultant{filteredMyConsultants.length !== 1 ? 's' : ''}
             </Badge>
-          </div>
-          
-          {/* Upload CV Button */}
-          <div className="relative">
-            <Button className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Upload CV
-            </Button>
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={handleFileUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
           </div>
         </div>
         
@@ -164,8 +206,8 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         {filteredMyConsultants.length === 0 && (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants yet</h3>
-            <p className="text-gray-600">Upload CVs to add consultants to your team. All CV analysis will be preserved.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants in your team yet</h3>
+            <p className="text-gray-600">Your internal team consultants will appear here.</p>
           </div>
         )}
       </div>
