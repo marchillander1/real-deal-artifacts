@@ -38,8 +38,9 @@ export const useSupabaseConsultantsWithDemo = () => {
         workStyle: consultant.work_style || '',
         teamFit: consultant.team_fit || '',
         linkedinUrl: consultant.linkedin_url || '',
-        experience: consultant.experience_years ? `${consultant.experience_years} years` : '',
-        rate: consultant.hourly_rate ? `${consultant.hourly_rate} SEK/hour` : '',
+        // FIX: Properly map experience and rate from database
+        experience: consultant.experience_years ? `${consultant.experience_years} years` : '0 years',
+        rate: consultant.hourly_rate ? `${consultant.hourly_rate} SEK/hour` : '0 SEK/hour',
         projects: consultant.projects_completed || 0,
         cv: consultant.cv_file_path || '',
         lastActive: consultant.last_active || 'Today',
