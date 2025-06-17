@@ -16,12 +16,12 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   const hasAnalysis = !!(
     consultant.cvAnalysis || 
     consultant.linkedinAnalysis || 
-    consultant.communicationStyle || 
-    consultant.workStyle ||
-    consultant.personalityTraits?.length ||
+    consultant.communication_style || 
+    consultant.work_style ||
+    consultant.personality_traits?.length ||
     consultant.values?.length ||
-    consultant.teamFit ||
-    consultant.culturalFit ||
+    consultant.team_fit ||
+    consultant.cultural_fit ||
     consultant.adaptability ||
     consultant.leadership
   );
@@ -41,16 +41,16 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const experienceYears = consultant.experience.replace(/\D/g, '') || '0';
+  const experienceYears = consultant.experience_years?.toString() || consultant.experience?.replace(/\D/g, '') || '0';
 
   console.log('ConsultantCard:', consultant.name, 'hasAnalysis:', hasAnalysis, {
     cvAnalysis: !!consultant.cvAnalysis,
     linkedinAnalysis: !!consultant.linkedinAnalysis,
-    communicationStyle: !!consultant.communicationStyle,
-    workStyle: !!consultant.workStyle,
-    personalityTraits: consultant.personalityTraits?.length || 0,
+    communication_style: !!consultant.communication_style,
+    work_style: !!consultant.work_style,
+    personality_traits: consultant.personality_traits?.length || 0,
     values: consultant.values?.length || 0,
-    teamFit: !!consultant.teamFit,
+    team_fit: !!consultant.team_fit,
     isNew: isNew
   });
 
@@ -63,7 +63,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{consultant.name}</h3>
-            <p className="text-sm text-gray-600">{consultant.roles[0]}</p>
+            <p className="text-sm text-gray-600">{consultant.roles?.[0] || 'Consultant'}</p>
             <Badge className={`${badgeColor} mt-1`}>
               {badgeText}
             </Badge>
@@ -84,11 +84,11 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Projects:</span>
-          <span className="font-medium">{consultant.projects} completed</span>
+          <span className="font-medium">{consultant.projects_completed || consultant.projects || 0} completed</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Rate:</span>
-          <span className="font-medium text-green-600">{consultant.rate}/hour</span>
+          <span className="font-medium text-green-600">{consultant.hourly_rate || consultant.rate}/hour</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">Location:</span>
@@ -108,21 +108,21 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           </Badge>
         </div>
         <p className="text-xs text-gray-500">
-          {isNew ? 'Joined:' : 'Last active:'} {consultant.lastActive}
+          {isNew ? 'Joined:' : 'Last active:'} {consultant.last_active || consultant.lastActive}
         </p>
       </div>
 
       <div className="mt-4">
         <p className="text-sm font-medium text-gray-700 mb-2">Top Skills:</p>
         <div className="flex flex-wrap gap-1">
-          {consultant.skills.slice(0, 5).map((skill, index) => (
+          {consultant.skills?.slice(0, 5).map((skill, index) => (
             <Badge key={index} className={skillsColor}>
               {skill}
             </Badge>
           ))}
-          {consultant.skills.length > 5 && (
+          {(consultant.skills?.length || 0) > 5 && (
             <Badge className="bg-gray-100 text-gray-600">
-              +{consultant.skills.length - 5} more
+              +{(consultant.skills?.length || 0) - 5} more
             </Badge>
           )}
         </div>
@@ -162,7 +162,9 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
         </div>
         <div className="flex items-center space-x-1">
           <Award className={`h-3 w-3 ${certificationColor}`} />
-          <span className={`text-xs ${certificationTextColor} font-medium`}>{consultant.certifications[0]}</span>
+          <span className={`text-xs ${certificationTextColor} font-medium`}>
+            {consultant.certifications?.[0] || 'Professional'}
+          </span>
         </div>
       </div>
     </div>

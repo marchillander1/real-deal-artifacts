@@ -104,6 +104,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedName = formName && formName.trim() !== '' ? formName : 
         (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Network Consultant');
       
+      // 🔥 CRITICAL FIX: Ensure we always have a valid email for welcome email
       const extractedEmail = formEmail && formEmail.trim() !== '' ? formEmail : 
         (personalInfo?.email && personalInfo.email !== 'analysis@example.com' ? personalInfo.email : '');
       
@@ -203,18 +204,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       onAnalysisProgress?.(90);
 
-      // 📧 Send welcome email - CRITICAL: Always use the form email if provided
-      const emailToSend = extractedEmail;
+      // 📧 Send welcome email - ALWAYS try to send even if analysis failed
       console.log('📧 Preparing to send welcome email...');
-      console.log('📧 Email to send to:', emailToSend);
+      console.log('📧 Email to send to:', extractedEmail);
 
-      if (emailToSend && emailToSend.trim() !== '') {
+      if (extractedEmail && extractedEmail.trim() !== '') {
         try {
-          console.log(`📨 Calling send-welcome-email function for: ${emailToSend}`);
+          console.log(`📨 Calling send-welcome-email function for: ${extractedEmail}`);
           const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
             body: {
               consultantName: extractedName,
-              consultantEmail: emailToSend,
+              consultantEmail: extractedEmail,
               isMyConsultant: false // This is a network consultant, not my consultant
             }
           });
@@ -233,6 +233,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         console.error('❌ No valid email available for welcome email');
         console.error('❌ extractedEmail:', extractedEmail);
         console.error('❌ formEmail:', formEmail);
+        console.error('❌ personalInfo?.email:', personalInfo?.email);
       }
 
       onAnalysisProgress?.(100);
