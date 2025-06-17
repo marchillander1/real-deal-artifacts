@@ -31,47 +31,47 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("📧 Email will be sent from: marc@matchwise.tech");
     console.log("📧 Email will be sent to FORM EMAIL (NOT CV EMAIL):", consultantEmail);
 
-    // Alla analyser går nu till Network Consultants
+    // All analyses now go to Network Consultants
     const emailContent = {
-      subject: "🚀 Välkommen till MatchWise AI Network - Du är nu i plattformen!",
-      greeting: `Hej ${consultantName}!`,
-      mainMessage: "Grattis! Du är nu en del av MatchWise AI:s konsultnätverk.",
+      subject: "🚀 Welcome to MatchWise AI Network - You're now in the platform!",
+      greeting: `Hello ${consultantName}!`,
+      mainMessage: "Congratulations! You are now part of MatchWise AI's consultant network.",
       details: `
-        <p><strong>Du är nu i vår plattform och synlig för företag som söker konsulter!</strong></p>
-        <p>Vår AI-drivna plattform har analyserat din profil och kommer automatiskt matcha dig med relevanta projekt baserat på:</p>
+        <p><strong>You are now in our platform and visible to companies looking for consultants!</strong></p>
+        <p>Our AI-driven platform has analyzed your profile and will automatically match you with relevant projects based on:</p>
         <ul style="margin-left: 20px;">
-          <li>✅ Dina tekniska färdigheter och expertis</li>
-          <li>✅ Din personlighet och kulturella passform</li>
-          <li>✅ Din kommunikationsstil och arbetspreferenser</li>
-          <li>✅ Din erfarenhetsnivå och projekthistorik</li>
+          <li>✅ Your technical skills and expertise</li>
+          <li>✅ Your personality and cultural fit</li>
+          <li>✅ Your communication style and work preferences</li>
+          <li>✅ Your experience level and project history</li>
         </ul>
         
-        <h3 style="color: #2563eb; margin-top: 20px;">🎯 Vad händer nu?</h3>
+        <h3 style="color: #2563eb; margin-top: 20px;">🎯 What happens now?</h3>
         <ul style="margin-left: 20px;">
-          <li><strong>Du är live!</strong> Företag kan nu se din profil i Network Consultants</li>
-          <li><strong>Smart matchning:</strong> Vår AI kommer meddela dig om relevanta möjligheter</li>
-          <li><strong>Kvalitetsled:</strong> Få bara uppdrag som matchar dina färdigheter</li>
-          <li><strong>Ingen spam:</strong> Vi förfiltrerar alla möjligheter för kvalitet</li>
+          <li><strong>You're live!</strong> Companies can now see your profile in Network Consultants</li>
+          <li><strong>Smart matching:</strong> Our AI will notify you about relevant opportunities</li>
+          <li><strong>Quality filtering:</strong> Only get assignments that match your skills</li>
+          <li><strong>No spam:</strong> We pre-filter all opportunities for quality</li>
         </ul>
         
         <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
-          <h4 style="color: #1e40af; margin: 0 0 10px 0;">💡 Tips för framgång:</h4>
+          <h4 style="color: #1e40af; margin: 0 0 10px 0;">💡 Tips for success:</h4>
           <ul style="margin: 0; padding-left: 20px;">
-            <li>Håll din tillgänglighetsstatus uppdaterad</li>
-            <li>Svara på möjligheter inom 24 timmar</li>
-            <li>Uppdatera dina färdigheter när du lär dig nya teknologier</li>
-            <li>Underhåll en professionell LinkedIn-närvaro</li>
+            <li>Keep your availability status updated</li>
+            <li>Respond to opportunities within 24 hours</li>
+            <li>Update your skills when you learn new technologies</li>
+            <li>Maintain a professional LinkedIn presence</li>
           </ul>
         </div>
       `,
       nextSteps: `
         <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-          <h4 style="color: #047857; margin: 0 0 10px 0;">🚀 Redo att komma igång?</h4>
-          <p style="margin: 0;">Din profil är nu aktiv och företag kan hitta dig. De första matchningsmöjligheterna bör börja komma in inom de närmaste dagarna!</p>
-          <p style="margin: 10px 0 0 0;"><strong>Du hittar din profil under "Network Consultants" på plattformen.</strong></p>
+          <h4 style="color: #047857; margin: 0 0 10px 0;">🚀 Ready to get started?</h4>
+          <p style="margin: 0;">Your profile is now active and companies can find you. The first matching opportunities should start coming in within the next few days!</p>
+          <p style="margin: 10px 0 0 0;"><strong>You can find your profile under "Network Consultants" on the platform.</strong></p>
         </div>
       `,
-      closing: "Välkommen till framtiden för konsultmatchning! 🎉"
+      closing: "Welcome to the future of consultant matching! 🎉"
     };
 
     // Prepare email content with the HTML properly encoded
@@ -79,7 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
           <h1 style="color: white; margin: 0; font-size: 28px;">MatchWise AI</h1>
-          <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">Intelligent Konsultmatchning</p>
+          <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">Intelligent Consultant Matching</p>
         </div>
         
         <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -92,9 +92,9 @@ const handler = async (req: Request): Promise<Response> => {
           ${emailContent.nextSteps}
           
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-            <p style="margin: 0; text-align: center;"><strong>Frågor eller behöver support?</strong></p>
+            <p style="margin: 0; text-align: center;"><strong>Questions or need support?</strong></p>
             <p style="margin: 10px 0 0 0; text-align: center;">
-              Kontakta oss på <a href="mailto:marc@matchwise.tech" style="color: #2563eb; text-decoration: none;">marc@matchwise.tech</a>
+              Contact us at <a href="mailto:marc@matchwise.tech" style="color: #2563eb; text-decoration: none;">marc@matchwise.tech</a>
             </p>
           </div>
           
@@ -105,11 +105,11 @@ const handler = async (req: Request): Promise<Response> => {
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
           <div style="text-align: center;">
             <p style="color: #64748b; font-size: 14px; margin: 0;">
-              Med vänliga hälsningar,<br>
-              <strong>Marc & MatchWise-teamet</strong>
+              Best regards,<br>
+              <strong>Marc & the MatchWise team</strong>
             </p>
             <p style="color: #94a3b8; font-size: 12px; margin: 15px 0 0 0;">
-              Detta email skickades automatiskt från MatchWise AI-plattformen.
+              This email was sent automatically from the MatchWise AI platform.
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send welcome email to consultant using the FORM EMAIL (not CV email)
     const emailResponse = await resend.emails.send({
       from: "marc@matchwise.tech",
-      to: [consultantEmail], // Detta är nu SÄKERT form email
+      to: [consultantEmail], // This is now SAFE form email
       subject: emailContent.subject,
       html: emailHtml,
     });
