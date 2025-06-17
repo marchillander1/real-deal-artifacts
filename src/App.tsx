@@ -13,6 +13,7 @@ import { PricingAuth } from "./components/PricingAuth";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import CVUpload from "./pages/CVUpload";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ function App() {
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />
+                <Route path="/demo" element={<Demo />} />
                 <Route path="/pricing-auth" element={<PricingAuth />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/pricing" element={<Pricing />} />

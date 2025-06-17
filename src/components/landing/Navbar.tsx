@@ -11,6 +11,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Logo size="md" variant="full" />
           <div className="flex items-center space-x-4">
+            <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
+              <Link to="/demo">Try Demo</Link>
+            </Button>
             <Button variant="ghost" onClick={() => window.open('/cv-upload', '_blank')} className="text-slate-300 hover:text-white hover:bg-slate-800">
               Upload CV
             </Button>

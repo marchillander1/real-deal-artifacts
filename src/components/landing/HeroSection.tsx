@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Heart, Clock, Shield, Zap, Target, Users, TrendingUp } from 'lucide-react';
+import { ArrowRight, Heart, Clock, Shield, Zap, Target, Users, TrendingUp, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 
@@ -38,28 +38,29 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
+              <Link to="/demo">
+                <Button size="lg" className="px-8 py-4 text-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg group">
+                  <Play className="mr-2 h-5 w-5" />
+                  Try Free Demo
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+
               {user ? (
                 <Link to="/matchwiseai">
-                  <Button size="lg" className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-lg group">
+                  <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-600 text-white hover:bg-slate-800 bg-slate-900/50 backdrop-blur-sm">
                     <Zap className="mr-2 h-5 w-5" />
                     Go to Dashboard
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth">
-                  <Button size="lg" className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-lg group">
+                  <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-600 text-white hover:bg-slate-800 bg-slate-900/50 backdrop-blur-sm">
                     <Zap className="mr-2 h-5 w-5" />
                     Start Free Trial
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               )}
-              
-              <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-slate-600 text-white hover:bg-slate-800 bg-slate-900/50 backdrop-blur-sm">
-                <Target className="mr-2 h-5 w-5" />
-                Calculate ROI
-              </Button>
             </div>
 
             {/* Enhanced Features Grid */}
