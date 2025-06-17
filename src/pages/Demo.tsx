@@ -16,7 +16,7 @@ export default function Demo() {
   const [showResults, setShowResults] = useState(false);
   const { performAiMatching, isMatching } = useAiMatching();
 
-  const handleAssignmentCreate = async (newAssignment: Assignment) => {
+  const handleAssignmentSubmit = async (newAssignment: Assignment) => {
     console.log('Demo: Assignment created:', newAssignment);
     setAssignment(newAssignment);
     
@@ -283,10 +283,9 @@ export default function Demo() {
             </CardHeader>
             <CardContent>
               <CreateAssignmentForm 
-                onCreate={handleAssignmentCreate}
+                onSubmit={handleAssignmentSubmit}
                 isLoading={isMatching}
-                showCreateButton={true}
-                createButtonText={isMatching ? "Finding Matches..." : "Find Matching Consultants"}
+                buttonText={isMatching ? "Finding Matches..." : "Find Matching Consultants"}
               />
             </CardContent>
           </Card>

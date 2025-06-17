@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { AnalysisResults } from '@/components/AnalysisResults';
@@ -328,43 +329,43 @@ const CVUpload: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* NEW: Hur Du Uppfattas Professionellt */}
+                    {/* Professional Perception Analysis */}
                     <div className="mb-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-purple-500">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">👤 Hur Du Uppfattas Professionellt</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">👤 Professional Perception Analysis</h3>
                       
-                      {/* Första Intryck */}
+                      {/* First Impression */}
                       <div className="mb-6">
                         <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">FÖRSTA INTRYCK</span>
-                          Vad som sticker ut
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">FIRST IMPRESSION</span>
+                          What stands out
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-white p-4 rounded border-l-4 border-green-400">
-                            <h5 className="font-medium text-green-800 mb-2">✅ Positiva signaler</h5>
+                            <h5 className="font-medium text-green-800 mb-2">✅ Positive signals</h5>
                             <ul className="text-sm text-gray-700 space-y-1">
-                              <li>• Stark teknisk bakgrund och expertis</li>
-                              <li>• Tydlig professionell utvecklingskurva</li>
-                              <li>• Relevant branschexpertis och erfarenhet</li>
-                              <li>• Aktiv på LinkedIn med branschengagemang</li>
+                              <li>• Strong technical background and expertise</li>
+                              <li>• Clear professional development trajectory</li>
+                              <li>• Relevant industry expertise and experience</li>
+                              <li>• Active on LinkedIn with industry engagement</li>
                             </ul>
                           </div>
                           <div className="bg-white p-4 rounded border-l-4 border-orange-400">
-                            <h5 className="font-medium text-orange-800 mb-2">⚠️ Förbättringsområden</h5>
+                            <h5 className="font-medium text-orange-800 mb-2">⚠️ Areas for improvement</h5>
                             <ul className="text-sm text-gray-700 space-y-1">
-                              <li>• Profilen kan vara tydligare konsultingsinriktad</li>
-                              <li>• Behöver mer synlighet i branschcommunity</li>
-                              <li>• Kan förtydliga unika värdepropositioner</li>
-                              <li>• Mer kvantifierade resultat och framgångar</li>
+                              <li>• Profile could be more clearly consulting-oriented</li>
+                              <li>• Needs more visibility in industry community</li>
+                              <li>• Could clarify unique value propositions</li>
+                              <li>• More quantified results and achievements</li>
                             </ul>
                           </div>
                         </div>
                       </div>
 
-                      {/* Marknadspositioning */}
+                      {/* Market Positioning */}
                       <div className="mb-6">
                         <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">MARKNADSPOSITIONING</span>
-                          Teknisk nivå & konsultmognad
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">MARKET POSITIONING</span>
+                          Technical level & consulting maturity
                         </h4>
                         <div className="bg-white p-4 rounded border">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -372,42 +373,42 @@ const CVUpload: React.FC = () => {
                               <p className="text-lg font-bold text-blue-600">
                                 {analysisResults.technicalAssessment?.overallTechnicalLevel || 'Senior'}
                               </p>
-                              <p className="text-xs text-gray-600">Teknisk Nivå</p>
+                              <p className="text-xs text-gray-600">Technical Level</p>
                             </div>
                             <div className="text-center">
                               <p className="text-lg font-bold text-purple-600">
                                 {analysisResults.linkedinAnalysis?.consultingReadiness || '7/10'}
                               </p>
-                              <p className="text-xs text-gray-600">Konsultmognad</p>
+                              <p className="text-xs text-gray-600">Consulting Maturity</p>
                             </div>
                             <div className="text-center">
                               <p className="text-lg font-bold text-green-600">
                                 {analysisResults.roiPredictions?.currentMarketValue?.hourlyRate || 1000} SEK/h
                               </p>
-                              <p className="text-xs text-gray-600">Marknadsvärde</p>
+                              <p className="text-xs text-gray-600">Market Value</p>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Kommunikationsprofil */}
+                      {/* Communication Profile */}
                       <div className="mb-6">
                         <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">KOMMUNIKATION</span>
-                          Hur du framstår i din kommunikation
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">COMMUNICATION</span>
+                          How you come across in communication
                         </h4>
                         <div className="bg-white p-4 rounded border">
                           <div className="space-y-3">
                             <div>
-                              <p className="text-sm font-medium text-gray-800">Kommunikationsstil:</p>
+                              <p className="text-sm font-medium text-gray-800">Communication Style:</p>
                               <p className="text-sm text-gray-700">
                                 {analysisResults.linkedinAnalysis?.communicationStyle || 
-                                 'Professionell och tekniskt orienterad med bra branschengagemang'}
+                                 'Professional and technically oriented with good industry engagement'}
                               </p>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <p className="text-xs text-gray-600">Ledarskap</p>
+                                <p className="text-xs text-gray-600">Leadership</p>
                                 <div className="flex items-center gap-2">
                                   <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div 
@@ -419,7 +420,7 @@ const CVUpload: React.FC = () => {
                                 </div>
                               </div>
                               <div>
-                                <p className="text-xs text-gray-600">Anpassningsförmåga</p>
+                                <p className="text-xs text-gray-600">Adaptability</p>
                                 <div className="flex items-center gap-2">
                                   <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div 
@@ -435,32 +436,32 @@ const CVUpload: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Konkurrensanalys */}
+                      {/* Competitive Analysis */}
                       <div className="mb-6">
                         <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">KONKURRENS</span>
-                          Hur du står dig mot andra
+                          <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">COMPETITION</span>
+                          How you compare to others
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-white p-4 rounded border">
-                            <h5 className="font-medium text-gray-900 mb-2">Konkurrensfördelar</h5>
+                            <h5 className="font-medium text-gray-900 mb-2">Competitive Advantages</h5>
                             <ul className="text-sm text-gray-700 space-y-1">
                               {(analysisResults.linkedinAnalysis?.marketPositioning?.competitiveAdvantages || [
-                                'Stark teknisk bakgrund',
-                                'Relevant branschexpertis',
-                                'Aktiv kunskapsspridning'
+                                'Strong technical background',
+                                'Relevant industry expertise',
+                                'Active knowledge sharing'
                               ]).slice(0, 3).map((advantage: string, index: number) => (
                                 <li key={index}>• {advantage}</li>
                               ))}
                             </ul>
                           </div>
                           <div className="bg-white p-4 rounded border">
-                            <h5 className="font-medium text-gray-900 mb-2">Differentierande faktorer</h5>
+                            <h5 className="font-medium text-gray-900 mb-2">Differentiating Factors</h5>
                             <ul className="text-sm text-gray-700 space-y-1">
                               {(analysisResults.linkedinAnalysis?.marketPositioning?.marketDifferentiators || [
-                                'Unik teknisk kombination',
-                                'Branschspecifik erfarenhet',
-                                'Innovativ problemlösning'
+                                'Unique technical combination',
+                                'Industry-specific experience',
+                                'Innovative problem-solving'
                               ]).slice(0, 3).map((factor: string, index: number) => (
                                 <li key={index}>• {factor}</li>
                               ))}
@@ -469,38 +470,38 @@ const CVUpload: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Personal Brand-analys */}
+                      {/* Personal Brand Analysis */}
                       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-200">
                         <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                           <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs">PERSONAL BRAND</span>
-                          Varumärkespositionering
+                          Brand positioning
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <h5 className="font-medium text-gray-900 mb-2">Nuvarande positionering</h5>
+                            <h5 className="font-medium text-gray-900 mb-2">Current positioning</h5>
                             <p className="text-sm text-gray-700 mb-2">
                               {analysisResults.linkedinAnalysis?.currentBrandPositioning || 
-                               'Teknisk expert med stark problemlösningsförmåga och branschkännedom'}
+                               'Technical expert with strong problem-solving skills and industry knowledge'}
                             </p>
                             <div className="text-xs text-gray-600">
-                              Synlighet: {analysisResults.linkedinAnalysis?.brandVisibility || 'Medel'} | 
-                              Trovärdighet: {analysisResults.linkedinAnalysis?.brandCredibility || 'Hög'}
+                              Visibility: {analysisResults.linkedinAnalysis?.brandVisibility || 'Medium'} | 
+                              Credibility: {analysisResults.linkedinAnalysis?.brandCredibility || 'High'}
                             </div>
                           </div>
                           <div>
-                            <h5 className="font-medium text-gray-900 mb-2">Potential & nästa steg</h5>
+                            <h5 className="font-medium text-gray-900 mb-2">Potential & next steps</h5>
                             <ul className="text-xs text-gray-700 space-y-1">
-                              <li>• Öka synlighet genom thought leadership</li>
-                              <li>• Utveckla nischexpertis inom specifika områden</li>
-                              <li>• Bygga starkare nätverk inom målbranscher</li>
-                              <li>• Skapa mer konsistent online-närvaro</li>
+                              <li>• Increase visibility through thought leadership</li>
+                              <li>• Develop niche expertise within specific areas</li>
+                              <li>• Build stronger network within target industries</li>
+                              <li>• Create more consistent online presence</li>
                             </ul>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Action Plan - NEW FOCUSED SECTION */}
+                    {/* Action Plan - FOCUSED SECTION */}
                     <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border-l-4 border-orange-500">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Improvement Action Plan</h3>
                       
