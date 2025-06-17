@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +27,7 @@ export const useSupabaseConsultantsWithDemo = () => {
       console.log('✅ Supabase consultants fetched:', data?.length || 0);
       return (data || []).map(consultant => ({
         ...consultant,
+        // Map database fields to consultant interface
         skills: consultant.skills || [],
         languages: consultant.languages || [],
         roles: consultant.roles || [],
@@ -38,12 +38,20 @@ export const useSupabaseConsultantsWithDemo = () => {
         workStyle: consultant.work_style || '',
         teamFit: consultant.team_fit || '',
         linkedinUrl: consultant.linkedin_url || '',
-        // FIX: Properly map experience and rate from database
+        // Properly format experience and rate with actual database values
         experience: consultant.experience_years ? `${consultant.experience_years} years` : '0 years',
         rate: consultant.hourly_rate ? `${consultant.hourly_rate} SEK/hour` : '0 SEK/hour',
         projects: consultant.projects_completed || 0,
         cv: consultant.cv_file_path || '',
         lastActive: consultant.last_active || 'Today',
+        // Ensure all required properties are mapped correctly
+        name: consultant.name || 'Unknown Name',
+        email: consultant.email || '',
+        phone: consultant.phone || '', // This was missing proper mapping
+        location: consultant.location || '', // This was missing proper mapping
+        availability: consultant.availability || 'Available',
+        rating: consultant.rating || 5.0,
+        type: consultant.type || 'existing',
         // Add missing required properties with default values
         culturalFit: consultant.cultural_fit || 5,
         adaptability: consultant.adaptability || 5,
