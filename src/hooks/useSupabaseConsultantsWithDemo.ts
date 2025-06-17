@@ -34,7 +34,8 @@ export const useSupabaseConsultantsWithDemo = () => {
           location: consultant.location,
           experience_years: consultant.experience_years,
           hourly_rate: consultant.hourly_rate,
-          type: consultant.type
+          type: consultant.type,
+          hasAnalysisData: !!consultant.cv_analysis_data || !!consultant.linkedin_analysis_data
         });
         
         return {
@@ -64,8 +65,9 @@ export const useSupabaseConsultantsWithDemo = () => {
           culturalFit: consultant.cultural_fit || 5,
           adaptability: consultant.adaptability || 5,
           leadership: consultant.leadership || 3,
-          cvAnalysis: null,
-          linkedinAnalysis: null
+          // 🔥 NYTT: Mappa analysdata från databasen
+          cvAnalysis: consultant.cv_analysis_data || null,
+          linkedinAnalysis: consultant.linkedin_analysis_data || null
         } as Consultant;
       });
     },

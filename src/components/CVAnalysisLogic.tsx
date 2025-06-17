@@ -107,9 +107,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     }
 
     // 🔥 CRITICAL: Validate that we have form email before starting analysis
-    if (!formEmail || formEmail.trim() === '') {
-      console.error('❌ No form email provided for analysis');
-      onError('Email address is required for registration');
+    if (!formEmail || formEmail.trim() === '' || !formEmail.includes('@')) {
+      console.error('❌ No valid form email provided for analysis:', formEmail);
+      onError('A valid email address is required for registration');
       return;
     }
 
@@ -192,10 +192,15 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         cultural_fit: 5,
         adaptability: 5,
         leadership: 3,
-        linkedin_url: linkedinUrl || ''
+        linkedin_url: linkedinUrl || '',
+        // 🔥 NYTT: Spara analysdata som JSON i databasen
+        cv_analysis_data: cvResponse.data,
+        linkedin_analysis_data: linkedinData
       };
 
       console.log('💾 Inserting consultant data with email:', consultantData.email);
+      console.log('💾 CV analysis data to save:', cvResponse.data);
+      console.log('💾 LinkedIn analysis data to save:', linkedinData);
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
