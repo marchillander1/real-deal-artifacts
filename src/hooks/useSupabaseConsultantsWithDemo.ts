@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -27,23 +26,23 @@ export const useSupabaseConsultantsWithDemo = () => {
           throw fetchError;
         }
 
-        // Map all consultants from database
+        // Map all consultants from database with better mapping
         const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
           id: c.id,
-          name: c.name,
-          email: c.email,
+          name: c.name || 'Unknown Name',
+          email: c.email || '',
           phone: c.phone || '',
-          location: c.location || '',
+          location: c.location || 'Location not specified',
           skills: c.skills || [],
-          experience: c.experience_years?.toString() || '',
-          rate: c.hourly_rate?.toString() || '',
+          experience: c.experience_years ? `${c.experience_years} years` : '5 years',
+          rate: c.hourly_rate ? `${c.hourly_rate} SEK/hour` : '800 SEK/hour',
           availability: c.availability || 'Available',
           cv: c.cv_file_path || '',
           communicationStyle: c.communication_style || '',
           rating: c.rating || 4.8,
           projects: c.projects_completed || 0,
           lastActive: c.last_active || 'Recently',
-          roles: c.roles || [],
+          roles: c.roles || ['Consultant'],
           certifications: c.certifications || [],
           type: c.user_id ? 'existing' : 'new', // Network consultants have user_id = NULL
           user_id: c.user_id, // Include user_id in the mapped data
@@ -55,7 +54,11 @@ export const useSupabaseConsultantsWithDemo = () => {
           culturalFit: c.cultural_fit || 5,
           adaptability: c.adaptability || 5,
           leadership: c.leadership || 3,
-          linkedinUrl: c.linkedin_url || ''
+          linkedinUrl: c.linkedin_url || '',
+          // Note: cvAnalysis and linkedinAnalysis are not stored in these basic fields
+          // They would be stored in separate JSONB columns if they existed
+          cvAnalysis: undefined,
+          linkedinAnalysis: undefined
         }));
 
         // Combine with demo consultants
@@ -64,6 +67,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         console.log('All consultants (including demo):', allConsultants.length);
         console.log('Network consultants:', allConsultants.filter(c => c.type === 'new').length);
         console.log('User consultants:', allConsultants.filter(c => c.type === 'existing').length);
+        console.log('Sample network consultant data:', allConsultants.find(c => c.type === 'new'));
 
         setConsultants(allConsultants);
       } catch (err) {

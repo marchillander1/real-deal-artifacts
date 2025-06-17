@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Star, Mail, Award, ChevronDown, ChevronUp } from 'lucide-react';
 import { Consultant } from '../types/consultant';
@@ -12,9 +13,13 @@ interface ConsultantCardProps {
 
 const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = false }) => {
   // Enhanced check for analysis data - look for any analysis-related properties
-  const hasAnalysis = !!(
+  const hasRealAnalysis = !!(
     consultant.cvAnalysis || 
-    consultant.linkedinAnalysis || 
+    consultant.linkedinAnalysis
+  );
+  
+  // Basic analysis check for simple properties
+  const hasBasicInfo = !!(
     consultant.communicationStyle || 
     consultant.workStyle ||
     consultant.personalityTraits?.length ||
@@ -26,7 +31,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   );
   
   // Show analysis by default if it exists, especially for new consultants from CV upload
-  const [showAnalysis, setShowAnalysis] = useState(isNew || hasAnalysis);
+  const [showAnalysis, setShowAnalysis] = useState(isNew && hasRealAnalysis);
   
   const borderColor = isNew ? 'border-2 border-green-100' : 'border';
   const badgeColor = isNew ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
@@ -45,7 +50,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
   const projectsCompleted = consultant.projects || 0;
   const hourlyRate = consultant.rate || '$800/hour';
 
-  console.log('ConsultantCard:', consultant.name, 'hasAnalysis:', hasAnalysis, {
+  console.log('ConsultantCard:', consultant.name, 'hasRealAnalysis:', hasRealAnalysis, 'hasBasicInfo:', hasBasicInfo, {
     cvAnalysis: !!consultant.cvAnalysis,
     linkedinAnalysis: !!consultant.linkedinAnalysis,
     communicationStyle: !!consultant.communicationStyle,
@@ -55,6 +60,16 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
     teamFit: !!consultant.teamFit,
     isNew: isNew
   });
+
+  // Determine what type of analysis button to show
+  const getAnalysisButtonText = () => {
+    if (hasRealAnalysis) {
+      return isNew ? 'CV & LinkedIn Analysis (30 Posts + Bio)' : 'AI Analysis & LinkedIn Profile';
+    } else if (hasBasicInfo) {
+      return 'Basic Profile Information';
+    }
+    return 'No Analysis Available';
+  };
 
   return (
     <div className={`bg-white rounded-xl shadow-sm ${borderColor} p-6 hover:shadow-lg transition-all`}>
@@ -130,8 +145,34 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
         </div>
       </div>
 
-      {/* AI Analysis Section - Show for all consultants with analysis data */}
-      {hasAnalysis && (
+      {/* Contact Information */}
+      <div className="mt-4 pt-4 border-t">
+        <div className="space-y-2 text-sm">
+          {consultant.email && (
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Email:</span>
+              <span className="font-medium">{consultant.email}</span>
+            </div>
+          )}
+          {consultant.phone && (
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Phone:</span>
+              <span className="font-medium">{consultant.phone}</span>
+            </div>
+          )}
+          {consultant.linkedinUrl && (
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">LinkedIn:</span>
+              <a href={consultant.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                View Profile
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* AI Analysis Section - Only show if there's real analysis or basic info */}
+      {(hasRealAnalysis || hasBasicInfo) && (
         <div className="mt-4 pt-4 border-t">
           <Button
             variant="ghost"
@@ -144,12 +185,12 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, isNew = fal
           >
             <span className="flex items-center gap-2">
               <Star className="h-4 w-4" />
-              {isNew ? 'CV & LinkedIn Analysis (30 Posts + Bio)' : 'AI Analysis & LinkedIn Profile'}
+              {getAnalysisButtonText()}
             </span>
             {showAnalysis ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
           
-          {showAnalysis && (
+          {showAnalysis && (hasRealAnalysis || hasBasicInfo) && (
             <div className="mt-4">
               <ConsultantAnalysisCard consultant={consultant} />
             </div>
