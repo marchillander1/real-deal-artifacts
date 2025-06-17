@@ -43,7 +43,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const [analysis, setAnalysis] = useState<any>(null);
   const [linkedinAnalysis, setLinkedinAnalysis] = useState<any>(null);
   const [createdConsultant, setCreatedConsultant] = useState<any>(null);
-  const [hasTriggeredAnalysis, setHasTriggeredAnalysis] = useState(false);
   const { toast } = useToast();
 
   // Check if we're uploading for "My Consultants"
@@ -57,46 +56,48 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       hasLinkedinUrl: !!linkedinUrl,
       linkedinUrl,
       isAnalyzing,
-      hasTriggeredAnalysis,
       hasAnalysis: !!analysis,
       formEmail,
       formName
     });
-  }, [file, linkedinUrl, isAnalyzing, hasTriggeredAnalysis, analysis, formEmail, formName]);
+  }, [file, linkedinUrl, isAnalyzing, analysis, formEmail, formName]);
 
   // Auto-trigger analysis when both file and LinkedIn URL are present
   useEffect(() => {
+    const hasValidEmail = formEmail && formEmail.trim() !== '' && formEmail.includes('@');
+    const hasValidLinkedIn = linkedinUrl && linkedinUrl.trim() !== '' && linkedinUrl.includes('linkedin.com');
+    const shouldStartAnalysis = file && hasValidLinkedIn && hasValidEmail && !isAnalyzing && !analysis;
+    
     console.log('🤖 Auto-trigger effect running...', {
       hasFile: !!file,
-      hasLinkedinUrl: !!linkedinUrl && linkedinUrl.trim() !== '',
+      hasValidLinkedIn,
+      hasValidEmail,
       isAnalyzing,
-      hasTriggeredAnalysis,
-      hasAnalysis: !!analysis
+      hasAnalysis: !!analysis,
+      shouldStartAnalysis
     });
 
-    if (file && linkedinUrl && linkedinUrl.trim() !== '' && !isAnalyzing && !hasTriggeredAnalysis && !analysis) {
-      console.log('🚀 Auto-triggering analysis with file and LinkedIn URL');
-      setHasTriggeredAnalysis(true);
+    if (shouldStartAnalysis) {
+      console.log('🚀 Auto-triggering analysis with file, LinkedIn URL, and email');
       handleAnalysis();
     } else {
       console.log('⏳ Not auto-triggering because:', {
         missingFile: !file,
-        missingLinkedIn: !linkedinUrl || linkedinUrl.trim() === '',
+        invalidLinkedIn: !hasValidLinkedIn,
+        invalidEmail: !hasValidEmail,
         isAlreadyAnalyzing: isAnalyzing,
-        alreadyTriggered: hasTriggeredAnalysis,
         alreadyHasAnalysis: !!analysis
       });
     }
-  }, [file, linkedinUrl, isAnalyzing, hasTriggeredAnalysis, analysis]);
+  }, [file, linkedinUrl, formEmail, isAnalyzing, analysis]);
 
-  // Reset trigger when file or URL changes
+  // Reset analysis when file or URL changes
   useEffect(() => {
-    console.log('🔄 Resetting analysis trigger due to file/URL change');
-    setHasTriggeredAnalysis(false);
+    console.log('🔄 Resetting analysis due to file/URL/email change');
     setAnalysis(null);
     setLinkedinAnalysis(null);
     setCreatedConsultant(null);
-  }, [file, linkedinUrl]);
+  }, [file, linkedinUrl, formEmail]);
 
   const handleAnalysis = async () => {
     if (!file) {
