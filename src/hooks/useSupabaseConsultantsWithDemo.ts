@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -106,33 +107,31 @@ export const useSupabaseConsultantsWithDemo = () => {
     }
   };
 
-  const cleanupNetworkConsultants = async () => {
+  const clearAllNetworkConsultants = async () => {
     try {
-      console.log('🧹 Starting cleanup of network consultants...');
+      console.log('🧹 Starting to clear ALL network consultants...');
       
       // Get all network consultants (user_id IS NULL)
       const { data: networkConsultants, error: fetchError } = await supabase
         .from('consultants')
         .select('id, name, email, created_at')
-        .is('user_id', null)
-        .order('created_at', { ascending: false });
+        .is('user_id', null);
 
       if (fetchError) {
         throw fetchError;
       }
 
-      console.log(`Found ${networkConsultants?.length || 0} network consultants`);
+      console.log(`Found ${networkConsultants?.length || 0} network consultants to delete`);
 
-      if (!networkConsultants || networkConsultants.length <= 1) {
-        console.log('Only 1 or fewer network consultants found, no cleanup needed');
+      if (!networkConsultants || networkConsultants.length === 0) {
+        console.log('No network consultants found to delete');
         return { success: true, deletedCount: 0 };
       }
 
-      // Keep the first one (most recent), delete the rest
-      const consultantsToDelete = networkConsultants.slice(1);
-      const idsToDelete = consultantsToDelete.map(c => c.id);
+      // Delete ALL network consultants
+      const idsToDelete = networkConsultants.map(c => c.id);
 
-      console.log(`Deleting ${idsToDelete.length} network consultants, keeping the most recent one`);
+      console.log(`Deleting ALL ${idsToDelete.length} network consultants`);
 
       // Delete the consultants
       const { error: deleteError } = await supabase
@@ -151,10 +150,10 @@ export const useSupabaseConsultantsWithDemo = () => {
       
       return { success: true, deletedCount: idsToDelete.length };
     } catch (error) {
-      console.error('❌ Error cleaning up network consultants:', error);
+      console.error('❌ Error clearing network consultants:', error);
       throw error;
     }
   };
 
-  return { consultants, isLoading, error, updateConsultant, cleanupNetworkConsultants };
+  return { consultants, isLoading, error, updateConsultant, clearAllNetworkConsultants };
 };

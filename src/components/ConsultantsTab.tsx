@@ -24,12 +24,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   showDeleteForMyConsultants = false,
   showRemoveDuplicates = false
 }) => {
-  const { consultants, isLoading, updateConsultant, cleanupNetworkConsultants } = useSupabaseConsultantsWithDemo();
+  const { consultants, isLoading, updateConsultant, clearAllNetworkConsultants } = useSupabaseConsultantsWithDemo();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<'network' | 'my'>('network');
-  const [isCleaningUp, setIsCleaningUp] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const { toast } = useToast();
 
   // 🎯 IMPORTANT: Filter consultants correctly
@@ -81,24 +81,24 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
     }
   };
 
-  const handleCleanupNetworkConsultants = async () => {
+  const handleClearAllNetworkConsultants = async () => {
     try {
-      setIsCleaningUp(true);
-      const result = await cleanupNetworkConsultants();
+      setIsClearing(true);
+      const result = await clearAllNetworkConsultants();
       
       toast({
-        title: "Rensning genomförd",
-        description: `${result.deletedCount} network konsulter togs bort, 1 kvar`,
+        title: "Alla network konsulter borttagna",
+        description: `${result.deletedCount} network konsulter togs bort`,
       });
     } catch (error) {
-      console.error('Error during cleanup:', error);
+      console.error('Error during clearing:', error);
       toast({
         title: "Fel",
-        description: "Kunde inte rensa network konsulter",
+        description: "Kunde inte ta bort network konsulter",
         variant: "destructive",
       });
     } finally {
-      setIsCleaningUp(false);
+      setIsClearing(false);
     }
   };
 
@@ -172,16 +172,16 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               </Badge>
             </div>
             
-            {/* Cleanup Button */}
-            {networkConsultants.length > 1 && (
+            {/* Clear All Button */}
+            {networkConsultants.length > 0 && (
               <Button 
-                onClick={handleCleanupNetworkConsultants}
-                disabled={isCleaningUp}
+                onClick={handleClearAllNetworkConsultants}
+                disabled={isClearing}
                 variant="destructive"
                 className="flex items-center gap-2"
               >
-                <AlertTriangle className="h-4 w-4" />
-                {isCleaningUp ? 'Rensar...' : `Rensa duplicerade (${networkConsultants.length - 1} att ta bort)`}
+                <Trash2 className="h-4 w-4" />
+                {isClearing ? 'Tar bort...' : `Ta bort alla (${networkConsultants.length})`}
               </Button>
             )}
           </div>
@@ -197,10 +197,10 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           {filteredNetworkConsultants.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No network consultants yet</h3>
-              <p className="text-gray-600">Network consultants will appear here when they upload their CVs</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Inga network consultants än</h3>
+              <p className="text-gray-600">Network consultants kommer synas här när de laddar upp sina CV:n från /cv-upload</p>
               <p className="text-sm text-gray-500 mt-2">
-                Total network consultants found: {networkConsultants.length}
+                Totalt antal network consultants: {networkConsultants.length}
               </p>
             </div>
           )}
