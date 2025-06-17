@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,41 +26,48 @@ export const useSupabaseConsultantsWithDemo = () => {
       }
 
       console.log('✅ Supabase consultants fetched:', data?.length || 0);
-      return (data || []).map(consultant => ({
-        ...consultant,
-        // Map database fields to consultant interface
-        skills: consultant.skills || [],
-        languages: consultant.languages || [],
-        roles: consultant.roles || [],
-        certifications: consultant.certifications || [],
-        values: consultant.values || [],
-        personalityTraits: consultant.personality_traits || [],
-        communicationStyle: consultant.communication_style || '',
-        workStyle: consultant.work_style || '',
-        teamFit: consultant.team_fit || '',
-        linkedinUrl: consultant.linkedin_url || '',
-        // Properly format experience and rate with actual database values
-        experience: consultant.experience_years ? `${consultant.experience_years} years` : '0 years',
-        rate: consultant.hourly_rate ? `${consultant.hourly_rate} SEK/hour` : '0 SEK/hour',
-        projects: consultant.projects_completed || 0,
-        cv: consultant.cv_file_path || '',
-        lastActive: consultant.last_active || 'Today',
-        // Ensure all required properties are mapped correctly
-        name: consultant.name || 'Unknown Name',
-        email: consultant.email || '',
-        phone: consultant.phone || '', // This was missing proper mapping
-        location: consultant.location || '', // This was missing proper mapping
-        availability: consultant.availability || 'Available',
-        rating: consultant.rating || 5.0,
-        type: consultant.type || 'existing',
-        // Add missing required properties with default values
-        culturalFit: consultant.cultural_fit || 5,
-        adaptability: consultant.adaptability || 5,
-        leadership: consultant.leadership || 3,
-        // Add analysis data placeholders
-        cvAnalysis: null,
-        linkedinAnalysis: null
-      })) as Consultant[];
+      console.log('📋 Raw consultant data:', data);
+      
+      return (data || []).map(consultant => {
+        console.log('🔄 Mapping consultant:', consultant.name, {
+          phone: consultant.phone,
+          location: consultant.location,
+          experience_years: consultant.experience_years,
+          hourly_rate: consultant.hourly_rate,
+          type: consultant.type
+        });
+        
+        return {
+          id: consultant.id,
+          name: consultant.name,
+          email: consultant.email,
+          phone: consultant.phone || '',
+          location: consultant.location || '',
+          skills: consultant.skills || [],
+          languages: consultant.languages || [],
+          roles: consultant.roles || [],
+          certifications: consultant.certifications || [],
+          values: consultant.values || [],
+          personalityTraits: consultant.personality_traits || [],
+          communicationStyle: consultant.communication_style || '',
+          workStyle: consultant.work_style || '',
+          teamFit: consultant.team_fit || '',
+          linkedinUrl: consultant.linkedin_url || '',
+          experience: consultant.experience_years ? `${consultant.experience_years} years` : '0 years',
+          rate: consultant.hourly_rate ? `${consultant.hourly_rate} SEK/hour` : '0 SEK/hour',
+          projects: consultant.projects_completed || 0,
+          cv: consultant.cv_file_path || '',
+          lastActive: consultant.last_active || 'Today',
+          availability: consultant.availability || 'Available',
+          rating: consultant.rating || 5.0,
+          type: consultant.type || 'existing',
+          culturalFit: consultant.cultural_fit || 5,
+          adaptability: consultant.adaptability || 5,
+          leadership: consultant.leadership || 3,
+          cvAnalysis: null,
+          linkedinAnalysis: null
+        } as Consultant;
+      });
     },
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
