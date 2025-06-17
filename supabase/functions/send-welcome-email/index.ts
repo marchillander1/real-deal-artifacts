@@ -101,51 +101,54 @@ const handler = async (req: Request): Promise<Response> => {
       closing: "Welcome to the future of consultant matching! 🎉"
     };
 
-    // Send welcome email to consultant
+    // Prepare email content with the HTML properly encoded
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">MatchWise AI</h1>
+          <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">Intelligent Consultant Matching</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <h2 style="color: #2563eb; margin: 0 0 20px 0;">${emailContent.greeting}</h2>
+          
+          <p style="font-size: 16px; margin-bottom: 20px;">${emailContent.mainMessage}</p>
+          
+          ${emailContent.details}
+          
+          ${emailContent.nextSteps}
+          
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
+            <p style="margin: 0; text-align: center;"><strong>Questions or need support?</strong></p>
+            <p style="margin: 10px 0 0 0; text-align: center;">
+              Reach out at <a href="mailto:marc@matchwise.tech" style="color: #2563eb; text-decoration: none;">marc@matchwise.tech</a>
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 30px;">
+            <p style="font-size: 18px; font-weight: bold; color: #2563eb; margin: 0;">${emailContent.closing}</p>
+          </div>
+          
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
+          <div style="text-align: center;">
+            <p style="color: #64748b; font-size: 14px; margin: 0;">
+              Best regards,<br>
+              <strong>The MatchWise Team</strong>
+            </p>
+            <p style="color: #94a3b8; font-size: 12px; margin: 15px 0 0 0;">
+              This email was sent automatically from MatchWise AI platform.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Send welcome email to consultant using only content strings (no replaceAll)
     await client.send({
       from: Deno.env.get("SMTP_USERNAME")!,
       to: consultantEmail,
       subject: emailContent.subject,
-      content: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">MatchWise AI</h1>
-            <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">Intelligent Consultant Matching</p>
-          </div>
-          
-          <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h2 style="color: #2563eb; margin: 0 0 20px 0;">${emailContent.greeting}</h2>
-            
-            <p style="font-size: 16px; margin-bottom: 20px;">${emailContent.mainMessage}</p>
-            
-            ${emailContent.details}
-            
-            ${emailContent.nextSteps}
-            
-            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-              <p style="margin: 0; text-align: center;"><strong>Questions or need support?</strong></p>
-              <p style="margin: 10px 0 0 0; text-align: center;">
-                Reach out at <a href="mailto:marc@matchwise.tech" style="color: #2563eb; text-decoration: none;">marc@matchwise.tech</a>
-              </p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="font-size: 18px; font-weight: bold; color: #2563eb; margin: 0;">${emailContent.closing}</p>
-            </div>
-            
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
-            <div style="text-align: center;">
-              <p style="color: #64748b; font-size: 14px; margin: 0;">
-                Best regards,<br>
-                <strong>The MatchWise Team</strong>
-              </p>
-              <p style="color: #94a3b8; font-size: 12px; margin: 15px 0 0 0;">
-                This email was sent automatically from MatchWise AI platform.
-              </p>
-            </div>
-          </div>
-        </div>
-      `,
+      content: emailHtml,
       html: true,
     });
 

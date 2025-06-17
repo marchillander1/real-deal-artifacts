@@ -50,27 +50,30 @@ const handler = async (req: Request): Promise<Response> => {
       type: "User Registration"
     };
 
+    // Prepare email content as a string
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">New ${emailData.type} Registration</h2>
+        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Name:</strong> ${emailData.name}</p>
+          <p><strong>Email:</strong> ${emailData.email}</p>
+          <p><strong>Registration Type:</strong> ${emailData.type}</p>
+          <p><strong>Registration Time:</strong> ${new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' })}</p>
+        </div>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+        <p style="color: #64748b; font-size: 14px;">This notification was sent automatically from MatchWise AI platform.</p>
+        <p style="color: #64748b; font-size: 14px;">
+          <a href="https://xbliknlrikolcjjfhxqa.supabase.co/dashboard" style="color: #2563eb;">View in Supabase Dashboard</a>
+        </p>
+      </div>
+    `;
+
     // Send notification to admin
     await client.send({
       from: Deno.env.get("SMTP_USERNAME")!,
       to: "marc@matchwise.tech",
       subject: `🚀 New ${emailData.type} Registration - MatchWise AI`,
-      content: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">New ${emailData.type} Registration</h2>
-          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Name:</strong> ${emailData.name}</p>
-            <p><strong>Email:</strong> ${emailData.email}</p>
-            <p><strong>Registration Type:</strong> ${emailData.type}</p>
-            <p><strong>Registration Time:</strong> ${new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' })}</p>
-          </div>
-          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
-          <p style="color: #64748b; font-size: 14px;">This notification was sent automatically from MatchWise AI platform.</p>
-          <p style="color: #64748b; font-size: 14px;">
-            <a href="https://xbliknlrikolcjjfhxqa.supabase.co/dashboard" style="color: #2563eb;">View in Supabase Dashboard</a>
-          </p>
-        </div>
-      `,
+      content: emailContent,
       html: true,
     });
 
