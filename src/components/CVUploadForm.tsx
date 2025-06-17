@@ -55,24 +55,21 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
   }, []);
 
   const hasValidLinkedInUrl = linkedinUrl && linkedinUrl.includes('linkedin.com');
-  const hasValidEmail = email && email.trim() !== '';
-  const canStartAnalysis = file && hasValidLinkedInUrl && hasValidEmail;
+  // 🔥 SIMPLIFIED: Only CV and LinkedIn required for analysis to start
+  const canStartAnalysis = file && hasValidLinkedInUrl;
 
   const getAnalysisStatus = () => {
     if (isAnalyzing) {
       return { icon: Loader2, text: "Analyzing CV and LinkedIn together...", color: "text-blue-600" };
     }
     if (analysisResults) {
-      return { icon: CheckCircle2, text: "Complete analysis finished!", color: "text-green-600" };
+      return { icon: CheckCircle2, text: "Analysis complete! Information auto-filled from CV.", color: "text-green-600" };
     }
-    if (file && hasValidLinkedInUrl && hasValidEmail) {
-      return { icon: CheckCircle2, text: "Ready for comprehensive analysis", color: "text-green-600" };
+    if (file && hasValidLinkedInUrl) {
+      return { icon: CheckCircle2, text: "Ready for analysis (will auto-fill contact info)", color: "text-green-600" };
     }
     if (file && !hasValidLinkedInUrl) {
       return { icon: Clock, text: "Add LinkedIn URL to start analysis", color: "text-orange-600" };
-    }
-    if (file && hasValidLinkedInUrl && !hasValidEmail) {
-      return { icon: Clock, text: "Enter email to start analysis", color: "text-orange-600" };
     }
     if (!file) {
       return { icon: Clock, text: "Upload CV to start", color: "text-gray-600" };
@@ -87,24 +84,24 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
     if (isMyConsultant) {
       return "Add Consultant to My Team";
     }
-    return "Start Your Comprehensive Analysis";
+    return "Start Your Analysis & Join Network";
   };
 
   const getCardDescription = () => {
     if (isMyConsultant) {
-      return "Upload CV, add LinkedIn profile and email to start analysis";
+      return "Upload CV and LinkedIn profile to start analysis and auto-fill information";
     }
-    return "CV, LinkedIn profile, and email are required for complete professional analysis";
+    return "Upload CV and LinkedIn profile for analysis - contact information will be auto-filled";
   };
 
   const getSubmitButtonText = () => {
     if (isUploading) {
-      return isMyConsultant ? "Adding to My Team..." : "Saving Comprehensive Profile...";
+      return isMyConsultant ? "Adding to My Team..." : "Joining Network...";
     }
     if (analysisResults) {
-      return isMyConsultant ? "Add to My Team" : "Submit & Join Our Network";
+      return isMyConsultant ? "Add to My Team" : "Complete Registration & Join Network";
     }
-    return isMyConsultant ? "Complete Form to Start Analysis" : "Complete Form to Start Analysis";
+    return "Analysis Required Before Registration";
   };
 
   return (
@@ -156,7 +153,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                         Upload Your CV
                       </p>
                       <p className="text-sm text-gray-500">
-                        PDF or image format - Analysis starts when CV + LinkedIn URL are complete
+                        PDF or image format - Analysis auto-fills contact information
                       </p>
                     </div>
                   </div>
@@ -165,55 +162,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             </div>
           </div>
 
-          {/* Personal Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <Label htmlFor="fullName" className="text-base font-medium flex items-center">
-                Full Name <span className="text-red-500 ml-1">*</span>
-              </Label>
-              <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => onFullNameChange(e.target.value)}
-                placeholder="Your full name"
-                className="h-12"
-                required
-              />
-            </div>
-            <div className="space-y-3">
-              <Label htmlFor="email" className="text-base font-medium flex items-center">
-                Email <span className="text-red-500 ml-1">*</span>
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => onEmailChange(e.target.value)}
-                placeholder="your.email@example.com"
-                className="h-12"
-                required
-              />
-              {email && !hasValidEmail && (
-                <div className="flex items-center gap-2 text-red-600 text-sm">
-                  <AlertCircle className="h-4 w-4" />
-                  Please enter a valid email address
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="phone" className="text-base font-medium">Phone</Label>
-            <Input
-              id="phone"
-              value={phoneNumber}
-              onChange={(e) => onPhoneNumberChange(e.target.value)}
-              placeholder="Your phone number"
-              className="h-12"
-            />
-          </div>
-
-          {/* LinkedIn URL Section */}
+          {/* LinkedIn URL Section - Required for analysis */}
           <div className="space-y-3">
             <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
               LinkedIn Profile <span className="text-red-500 ml-1">*</span>
@@ -240,15 +189,39 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             )}
           </div>
 
-          {/* Analysis Status Alert */}
+          {/* Analysis Status Info */}
           {!canStartAnalysis && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <StatusIcon className={`h-5 w-5 ${analysisStatus.color}`} />
-                <span className={`font-medium ${analysisStatus.color.replace('text-', 'text-')}`}>Analysis Requirements</span>
+                <span className={`font-medium ${analysisStatus.color}`}>Analysis Requirements</span>
               </div>
               <p className="text-sm text-blue-700">
-                {analysisStatus.text} - CV, LinkedIn URL, and email are all required for comprehensive analysis.
+                Upload CV and add LinkedIn URL to start analysis. Contact information will be automatically extracted and filled.
+              </p>
+            </div>
+          )}
+
+          {/* Auto-filled Information Display (only show after analysis) */}
+          {analysisResults && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h4 className="font-semibold text-green-900 mb-2">✅ Information Auto-filled from Analysis</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <label className="block text-green-700 font-medium">Name:</label>
+                  <p className="text-green-800">{fullName || 'Not detected'}</p>
+                </div>
+                <div>
+                  <label className="block text-green-700 font-medium">Email:</label>
+                  <p className="text-green-800">{email || 'Not detected'}</p>
+                </div>
+                <div>
+                  <label className="block text-green-700 font-medium">Phone:</label>
+                  <p className="text-green-800">{phoneNumber || 'Not detected'}</p>
+                </div>
+              </div>
+              <p className="text-xs text-green-600 mt-2">
+                You can modify these fields in the next step if needed.
               </p>
             </div>
           )}
@@ -264,14 +237,11 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             <div className="text-sm text-gray-600">
               <Label htmlFor="terms" className="cursor-pointer">
                 <span className="font-medium">
-                  {isMyConsultant ? "I agree to add this consultant to my team" : "I agree to comprehensive analysis and network joining"}
+                  I agree to comprehensive analysis and auto-filling
                 </span>
               </Label>
               <p className="mt-1">
-                {isMyConsultant 
-                  ? "I consent to MatchWise analyzing this CV and LinkedIn profile for my consultant team."
-                  : "I consent to MatchWise analyzing my CV and LinkedIn profile for advanced consultant matching."
-                }
+                I consent to MatchWise analyzing my CV and LinkedIn profile to auto-fill contact information and create my consultant profile.
               </p>
             </div>
           </div>
@@ -280,7 +250,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           <Button 
             type="submit" 
             className="w-full h-14 text-lg bg-purple-600 hover:bg-purple-700" 
-            disabled={isUploading || !file || !email || !fullName || !agreeToTerms || !analysisResults || !hasValidLinkedInUrl || !hasValidEmail}
+            disabled={isUploading || !agreeToTerms || !analysisResults}
           >
             {isUploading ? (
               <>
@@ -302,13 +272,13 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           
           {canStartAnalysis && !analysisResults && !isAnalyzing && (
             <p className="text-center text-sm text-green-600">
-              ✅ Analysis will start automatically when you complete CV + LinkedIn URL
+              ✅ Analysis will start automatically and auto-fill your information
             </p>
           )}
           
           {isAnalyzing && (
             <p className="text-center text-sm text-blue-600">
-              🔄 Comprehensive analysis in progress - CV and LinkedIn being analyzed together...
+              🔄 Analyzing CV and LinkedIn - auto-filling contact information...
             </p>
           )}
         </form>

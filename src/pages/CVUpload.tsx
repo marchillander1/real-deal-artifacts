@@ -64,48 +64,36 @@ const CVUpload: React.FC = () => {
     setIsAnalyzing(false);
     setAnalysisProgress(100);
     
-    // 🔥 AUTO-FILL: Fill name and email from CV analysis but allow user to modify
+    // 🔥 AUTOFILL: Fill name, email, phone from CV analysis
     const cvData = analysis.cvAnalysis?.analysis;
     if (cvData) {
       console.log('📝 Auto-filling form from CV analysis:', cvData.personalInfo);
       
-      // Auto-fill name if not already filled and CV has valid name
+      // Auto-fill name from CV analysis (always override if CV has better data)
       if (cvData.personalInfo?.name && 
           cvData.personalInfo.name !== 'Analysis in progress' && 
           cvData.personalInfo.name !== 'Professional Consultant' &&
-          cvData.personalInfo.name !== 'John Doe' &&
-          (!fullName.trim() || fullName === 'Analysis in progress')) {
+          cvData.personalInfo.name !== 'John Doe') {
         console.log('📝 Auto-filling name from CV:', cvData.personalInfo.name);
         setFullName(cvData.personalInfo.name);
       }
       
-      // 🔥 VIKTIGT: Only auto-fill email if it's empty - preserve user input
+      // Auto-fill email from CV analysis (always override if CV has better data)
       if (cvData.personalInfo?.email && 
           cvData.personalInfo.email !== 'analysis@example.com' && 
           cvData.personalInfo.email !== 'consultant@example.com' &&
           cvData.personalInfo.email !== 'johndoe@email.com' &&
-          cvData.personalInfo.email.includes('@') && 
-          !email.trim()) {
+          cvData.personalInfo.email.includes('@')) {
         console.log('📧 Auto-filling email from CV:', cvData.personalInfo.email);
         setEmail(cvData.personalInfo.email);
       }
       
-      // Auto-fill phone if not already filled and CV has valid phone
+      // Auto-fill phone from CV analysis (always override if CV has better data)
       if (cvData.personalInfo?.phone && 
           cvData.personalInfo.phone !== '+46 70 123 4567' && 
-          cvData.personalInfo.phone !== '+1 555 123 4567' &&
-          (!phoneNumber.trim() || phoneNumber === '+46 70 123 4567')) {
+          cvData.personalInfo.phone !== '+1 555 123 4567') {
         console.log('📞 Auto-filling phone from CV:', cvData.personalInfo.phone);
         setPhoneNumber(cvData.personalInfo.phone);
-      }
-      
-      // Auto-fill LinkedIn URL if not already filled and CV has LinkedIn profile
-      if (cvData.personalInfo?.linkedinProfile && 
-          cvData.personalInfo.linkedinProfile !== 'Unknown' &&
-          cvData.personalInfo.linkedinProfile.includes('linkedin.com') &&
-          (!linkedinUrl.trim() || linkedinUrl === 'Unknown')) {
-        console.log('🔗 Auto-filling LinkedIn URL from CV:', cvData.personalInfo.linkedinProfile);
-        setLinkedinUrl(cvData.personalInfo.linkedinProfile);
       }
     }
   };
@@ -137,20 +125,11 @@ const CVUpload: React.FC = () => {
     
     console.log('🎯 Submit initiated with form email:', email, 'fullName:', fullName);
     
-    // 🔥 CRITICAL: Validate email before proceeding
-    if (!email || email.trim() === '' || email === 'analysis@example.com') {
-      toast({
-        title: "Email Required",
-        description: "Please provide a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+    // Validation: Check if we have analysis results and basic info
     if (!file || !analysisResults || !agreeToTerms) {
       toast({
         title: "Missing Information",
-        description: "Please complete all required fields and agree to terms.",
+        description: "Please complete analysis and agree to terms.",
         variant: "destructive",
       });
       return;
@@ -159,7 +138,30 @@ const CVUpload: React.FC = () => {
     setIsUploading(true);
 
     try {
-      // Show success message since consultant is already created
+      // 🔥 OPTIONAL UPDATE: If user has modified the autofilled fields, update the consultant
+      const autoFilledEmail = analysisResults.cvAnalysis?.analysis?.personalInfo?.email;
+      const autoFilledName = analysisResults.cvAnalysis?.analysis?.personalInfo?.name;
+      
+      if ((email && email !== autoFilledEmail) || (fullName && fullName !== autoFilledName) || phoneNumber) {
+        console.log('📝 User modified autofilled data, updating consultant...');
+        
+        const { error: updateError } = await supabase
+          .from('consultants')
+          .update({
+            name: fullName || autoFilledName,
+            email: email || autoFilledEmail,
+            phone: phoneNumber
+          })
+          .eq('id', analysisResults.consultant.id);
+          
+        if (updateError) {
+          console.error('❌ Failed to update consultant:', updateError);
+        } else {
+          console.log('✅ Consultant updated with user modifications');
+        }
+      }
+
+      // Show success message
       console.log('✅ Showing success message');
       setShowSuccessMessage(true);
     } catch (error) {
@@ -299,16 +301,16 @@ const CVUpload: React.FC = () => {
             <p className="text-gray-600">
               {isMyConsultant 
                 ? "Upload a CV to add a new consultant to your team with AI-powered analysis"
-                : "Upload your CV and get AI-powered matching with relevant assignments"
+                : "Upload your CV and LinkedIn profile for AI-powered analysis and matching"
               }
             </p>
             
-            {/* Enhanced description with analysis features */}
+            {/* Enhanced description with autofill feature */}
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-blue-600 mb-2">🔧</div>
-                <h3 className="font-semibold text-sm">Technical Analysis</h3>
-                <p className="text-xs text-gray-600">Skills assessment</p>
+                <h3 className="font-semibold text-sm">CV Analysis</h3>
+                <p className="text-xs text-gray-600">Auto-fill from CV</p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
                 <div className="text-purple-600 mb-2">🔗</div>
@@ -316,14 +318,14 @@ const CVUpload: React.FC = () => {
                 <p className="text-xs text-gray-600">Profile optimization</p>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg">
-                <div className="text-orange-600 mb-2">💡</div>
-                <h3 className="font-semibold text-sm">Improvement Plan</h3>
-                <p className="text-xs text-gray-600">Actionable steps</p>
+                <div className="text-orange-600 mb-2">✏️</div>
+                <h3 className="font-semibold text-sm">Editable Fields</h3>
+                <p className="text-xs text-gray-600">Modify auto-filled data</p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <div className="text-green-600 mb-2">📈</div>
-                <h3 className="font-semibold text-sm">Market Positioning</h3>
-                <p className="text-xs text-gray-600">Rate optimization</p>
+                <h3 className="font-semibold text-sm">Network Ready</h3>
+                <p className="text-xs text-gray-600">Instant visibility</p>
               </div>
             </div>
           </div>
@@ -352,12 +354,12 @@ const CVUpload: React.FC = () => {
                     onSubmit={handleSubmit}
                   />
                   
-                  {/* 🔥 KRITISK FIX: Skicka alltid email och fullName som de faktiskt är */}
+                  {/* 🔥 ANALYSIS LOGIC: Only requires CV and LinkedIn URL to start */}
                   <CVAnalysisLogic
                     file={file}
                     linkedinUrl={linkedinUrl}
-                    formEmail={email || ''}
-                    formName={fullName || ''}
+                    formEmail={email}
+                    formName={fullName}
                     onAnalysisComplete={handleAnalysisComplete}
                     onError={handleAnalysisError}
                     onAnalysisStart={handleAnalysisStart}
@@ -373,9 +375,12 @@ const CVUpload: React.FC = () => {
                     analysisProgress={analysisProgress}
                   />
                   
-                  {/* Form for final submission */}
+                  {/* Form for final submission with auto-filled data */}
                   <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h3 className="text-lg font-semibold mb-4">Complete Registration</h3>
+                    <h3 className="text-lg font-semibold mb-4">Review & Complete Registration</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Information has been auto-filled from your CV analysis. You can modify any fields if needed.
+                    </p>
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -387,18 +392,20 @@ const CVUpload: React.FC = () => {
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Auto-filled from CV"
                             required
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email * (Welcome email will be sent here)
+                            Email *
                           </label>
                           <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Auto-filled from CV"
                             required
                           />
                         </div>
@@ -413,6 +420,7 @@ const CVUpload: React.FC = () => {
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Auto-filled from CV"
                         />
                       </div>
                       
@@ -426,7 +434,9 @@ const CVUpload: React.FC = () => {
                           onChange={(e) => setLinkedinUrl(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           required
+                          disabled
                         />
+                        <p className="text-xs text-gray-500 mt-1">LinkedIn URL used for analysis</p>
                       </div>
                       
                       <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
@@ -441,14 +451,11 @@ const CVUpload: React.FC = () => {
                         <div className="text-sm text-gray-600">
                           <label htmlFor="terms" className="cursor-pointer">
                             <span className="font-medium">
-                              {isMyConsultant ? "I agree to add this consultant to my team" : "I agree to comprehensive analysis and network joining"}
+                              I agree to join the MatchWise consultant network
                             </span>
                           </label>
                           <p className="mt-1">
-                            {isMyConsultant 
-                              ? "I consent to MatchWise analyzing this CV and LinkedIn profile for my consultant team."
-                              : "I consent to MatchWise analyzing my CV and LinkedIn profile for advanced consultant matching."
-                            }
+                            I consent to MatchWise using my analyzed CV and LinkedIn profile for consultant matching.
                           </p>
                         </div>
                       </div>
@@ -458,7 +465,7 @@ const CVUpload: React.FC = () => {
                         disabled={isUploading || !agreeToTerms}
                         className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {isUploading ? "Processing..." : (isMyConsultant ? "Add to My Team" : "Join Network")}
+                        {isUploading ? "Finalizing..." : "Complete Registration & Join Network"}
                       </button>
                     </form>
                   </div>

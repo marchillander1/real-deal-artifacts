@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -65,7 +64,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           culturalFit: consultant.cultural_fit || 5,
           adaptability: consultant.adaptability || 5,
           leadership: consultant.leadership || 3,
-          // 🔥 NYTT: Mappa analysdata från databasen med korrekt typkonvertering
+          // 🔥 IMPORTANT: Map analysis data from database with proper type conversion
           cvAnalysis: (consultant as any).cv_analysis_data || null,
           linkedinAnalysis: (consultant as any).linkedin_analysis_data || null
         } as Consultant;
@@ -134,7 +133,10 @@ export const useSupabaseConsultantsWithDemo = () => {
           type: updatedConsultant.type,
           rating: updatedConsultant.rating,
           projects_completed: updatedConsultant.projects,
-          last_active: updatedConsultant.lastActive
+          last_active: updatedConsultant.lastActive,
+          // 🔥 PRESERVE ANALYSIS DATA: Keep the original analysis data when updating
+          cv_analysis_data: updatedConsultant.cvAnalysis,
+          linkedin_analysis_data: updatedConsultant.linkedinAnalysis
         })
         .eq('id', String(updatedConsultant.id));
 

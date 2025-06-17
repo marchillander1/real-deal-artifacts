@@ -62,50 +62,45 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     });
   }, [file, linkedinUrl, isAnalyzing, analysis, formEmail, formName]);
 
-  // Förbättrad email-validering
-  const isValidEmail = (email: string) => {
-    if (!email || email.trim() === '') return false;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email.trim());
+  // Enhanced LinkedIn validation
+  const isValidLinkedInUrl = (url: string) => {
+    if (!url || url.trim() === '') return false;
+    return url.includes('linkedin.com');
   };
 
-  // Auto-trigger analysis when both file and LinkedIn URL are present
+  // Auto-trigger analysis when both file and LinkedIn URL are present (email not required for analysis start)
   useEffect(() => {
-    const hasValidEmail = isValidEmail(formEmail);
-    const hasValidLinkedIn = linkedinUrl && linkedinUrl.trim() !== '' && linkedinUrl.includes('linkedin.com');
-    const shouldStartAnalysis = file && hasValidLinkedIn && hasValidEmail && !isAnalyzing && !analysis;
+    const hasValidLinkedIn = isValidLinkedInUrl(linkedinUrl);
+    const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysis;
     
     console.log('🤖 Auto-trigger effect running...', {
       hasFile: !!file,
       hasValidLinkedIn,
-      hasValidEmail,
-      formEmail,
       isAnalyzing,
       hasAnalysis: !!analysis,
       shouldStartAnalysis
     });
 
     if (shouldStartAnalysis) {
-      console.log('🚀 Auto-triggering analysis with file, LinkedIn URL, and email');
+      console.log('🚀 Auto-triggering analysis with file and LinkedIn URL (email will be autofilled)');
       handleAnalysis();
     } else {
       console.log('⏳ Not auto-triggering because:', {
         missingFile: !file,
         invalidLinkedIn: !hasValidLinkedIn,
-        invalidEmail: !hasValidEmail,
         isAlreadyAnalyzing: isAnalyzing,
         alreadyHasAnalysis: !!analysis
       });
     }
-  }, [file, linkedinUrl, formEmail, isAnalyzing, analysis]);
+  }, [file, linkedinUrl, isAnalyzing, analysis]);
 
   // Reset analysis when file or URL changes
   useEffect(() => {
-    console.log('🔄 Resetting analysis due to file/URL/email change');
+    console.log('🔄 Resetting analysis due to file/URL change');
     setAnalysis(null);
     setLinkedinAnalysis(null);
     setCreatedConsultant(null);
-  }, [file, linkedinUrl, formEmail]);
+  }, [file, linkedinUrl]);
 
   const handleAnalysis = async () => {
     if (!file) {
@@ -114,15 +109,14 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       return;
     }
 
-    // 🔥 FÖRBÄTTRAD: Validera email mer noggrant
-    if (!isValidEmail(formEmail)) {
-      console.error('❌ Invalid email provided for analysis:', formEmail);
-      onError('A valid email address is required for registration (format: user@domain.com)');
+    if (!isValidLinkedInUrl(linkedinUrl)) {
+      console.error('❌ Invalid LinkedIn URL provided:', linkedinUrl);
+      onError('A valid LinkedIn URL is required for analysis');
       return;
     }
 
     try {
-      console.log('🚀 Starting CV and LinkedIn analysis with email:', formEmail, 'and name:', formName);
+      console.log('🚀 Starting CV and LinkedIn analysis');
       setIsAnalyzing(true);
       onAnalysisStart();
       onAnalysisProgress(10);
@@ -173,40 +167,53 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // Step 4: Create consultant profile in database - ALLA analyser ska synas i Network Consultants
+      // 🔥 AUTOFILL: Extract info from CV analysis for consultant creation
+      const cvData = cvResponse.data?.analysis;
+      const autoName = formName || cvData?.personalInfo?.name || 'Unknown Name';
+      const autoEmail = formEmail || cvData?.personalInfo?.email || 'analysis@example.com';
+
+      console.log('📝 Autofilled data from CV:', {
+        originalName: formName,
+        autoName,
+        originalEmail: formEmail, 
+        autoEmail,
+        cvPersonalInfo: cvData?.personalInfo
+      });
+
+      // Step 4: Create consultant profile in database - ALL analyses go to Network Consultants
       console.log('💾 Creating network consultant profile (all analyses go to network)...');
       const consultantData = {
-        name: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-        email: formEmail.trim(), // 🔥 FÖRBÄTTRAT: Trimma email
-        phone: cvResponse.data?.analysis?.personalInfo?.phone || '',
-        location: cvResponse.data?.analysis?.personalInfo?.location || 'Location not specified',
-        skills: cvResponse.data?.analysis?.technicalExpertise?.programmingLanguages?.expert || [],
-        experience_years: parseInt(cvResponse.data?.analysis?.professionalSummary?.yearsOfExperience) || 5,
-        hourly_rate: cvResponse.data?.analysis?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
+        name: autoName,
+        email: autoEmail,
+        phone: cvData?.personalInfo?.phone || '',
+        location: cvData?.personalInfo?.location || 'Location not specified',
+        skills: cvData?.technicalExpertise?.programmingLanguages?.expert || [],
+        experience_years: parseInt(cvData?.professionalSummary?.yearsOfExperience) || 5,
+        hourly_rate: cvData?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
         availability: 'Available',
         cv_file_path: file.name,
-        communication_style: cvResponse.data?.analysis?.softSkills?.communication?.[0] || '',
+        communication_style: cvData?.softSkills?.communication?.[0] || '',
         rating: 4.8,
         projects_completed: 0,
-        roles: cvResponse.data?.analysis?.technicalExpertise?.frameworks || ['Consultant'],
-        certifications: cvResponse.data?.analysis?.education?.certifications || [],
-        type: 'new', // ALLA analyser ska synas som 'new' i Network Consultants
+        roles: cvData?.technicalExpertise?.frameworks || ['Consultant'],
+        certifications: cvData?.education?.certifications || [],
+        type: 'new', // ALL analyses go to Network Consultants
         user_id: null,
-        languages: cvResponse.data?.analysis?.languages || [],
-        work_style: cvResponse.data?.analysis?.softSkills?.teamwork?.[0] || '',
-        values: cvResponse.data?.analysis?.softSkills?.leadership || [],
-        personality_traits: cvResponse.data?.analysis?.softSkills?.problemSolving || [],
-        team_fit: cvResponse.data?.analysis?.softSkills?.teamwork?.[0] || '',
+        languages: cvData?.languages || [],
+        work_style: cvData?.softSkills?.teamwork?.[0] || '',
+        values: cvData?.softSkills?.leadership || [],
+        personality_traits: cvData?.softSkills?.problemSolving || [],
+        team_fit: cvData?.softSkills?.teamwork?.[0] || '',
         cultural_fit: 5,
         adaptability: 5,
         leadership: 3,
         linkedin_url: linkedinUrl || '',
-        // 🔥 NYTT: Spara analysdata som JSON i databasen
+        // 🔥 CRITICAL: Save analysis data as JSON in database
         cv_analysis_data: cvResponse.data,
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting consultant data with email:', consultantData.email);
+      console.log('💾 Inserting consultant data with autofilled email:', consultantData.email);
       console.log('💾 CV analysis data to save:', cvResponse.data);
       console.log('💾 LinkedIn analysis data to save:', linkedinData);
 
@@ -225,36 +232,30 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // Step 5: Send notifications using the FORM EMAIL (VIKTIGT!)
-      console.log('📧 Sending notifications to FORM EMAIL:', formEmail);
+      // Step 5: Send notifications using autofilled email
+      console.log('📧 Sending notifications to autofilled email:', autoEmail);
       try {
-        // 🔥 FÖRBÄTTRAT: Dubbelkolla email innan vi skickar
-        if (!isValidEmail(formEmail)) {
-          console.error('❌ Invalid email address for notifications:', formEmail);
-          throw new Error('Invalid email address for notifications');
-        }
-
-        // Send welcome email to the email address from the form (NOT CV email)
-        console.log('📧 Sending welcome email to validated email:', formEmail);
+        // Send welcome email to the autofilled email address
+        console.log('📧 Sending welcome email to:', autoEmail);
         await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: formEmail.trim(), // 🔥 TRIMMAT EMAIL
-            consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-            isMyConsultant: false // Alla analyser går till network nu
+            consultantEmail: autoEmail,
+            consultantName: autoName,
+            isMyConsultant: false // All analyses go to network now
           }
         });
 
         // Send registration notification to admin
-        console.log('📧 Sending admin notification for:', formEmail);
+        console.log('📧 Sending admin notification for:', autoEmail);
         await supabase.functions.invoke('send-registration-notification', {
           body: {
-            consultantName: formName || cvResponse.data?.analysis?.personalInfo?.name || 'Unknown Name',
-            consultantEmail: formEmail.trim(), // Använd formEmail för admin-notifiering också
-            isMyConsultant: false // Alla analyser går till network nu
+            consultantName: autoName,
+            consultantEmail: autoEmail,
+            isMyConsultant: false // All analyses go to network now
           }
         });
 
-        console.log('✅ Notifications sent successfully to FORM EMAIL:', formEmail);
+        console.log('✅ Notifications sent successfully to autofilled email:', autoEmail);
       } catch (emailError) {
         console.warn('⚠️ Email sending failed:', emailError);
         // Don't fail the whole process if emails fail
@@ -262,7 +263,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(100);
 
-      // Call the completion callback
+      // Call the completion callback with autofilled data
       onAnalysisComplete({
         cvAnalysis: cvResponse.data,
         linkedinAnalysis: linkedinData,
@@ -271,7 +272,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis completed successfully!",
-        description: "Your profile has been added to our network of consultants and will be visible in Network Consultants.",
+        description: "Profile has been analyzed and added to network consultants with autofilled information.",
       });
 
     } catch (error: any) {
