@@ -28,20 +28,36 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   // Reset hasAnalyzed when key inputs change
   useEffect(() => {
     setHasAnalyzed(false);
-  }, [cvFile, linkedinUrl]);
+  }, [cvFile, linkedinUrl, formEmail]);
 
-  // Check if we can start analysis
-  const canStartAnalysis = cvFile && linkedinUrl && linkedinUrl.includes('linkedin.com') && !hasAnalyzed;
+  // Check if we can start analysis - NOW REQUIRES EMAIL TOO!
+  const canStartAnalysis = cvFile && 
+                          linkedinUrl && 
+                          linkedinUrl.includes('linkedin.com') && 
+                          formEmail && 
+                          formEmail.trim() !== '' && 
+                          !hasAnalyzed;
 
   useEffect(() => {
     if (canStartAnalysis) {
-      console.log('🚀 Starting analysis with:', { 
+      console.log('🚀 Starting analysis with ALL required fields:', { 
         hasFile: !!cvFile, 
         hasLinkedIn: !!linkedinUrl, 
         linkedinValid: linkedinUrl.includes('linkedin.com'),
+        hasEmail: !!formEmail,
+        email: formEmail,
         hasAnalyzed 
       });
       analyzeCVAndLinkedIn();
+    } else {
+      console.log('⏳ Waiting for all required fields:', {
+        hasFile: !!cvFile,
+        hasLinkedIn: !!linkedinUrl,
+        linkedinValid: linkedinUrl ? linkedinUrl.includes('linkedin.com') : false,
+        hasEmail: !!formEmail,
+        email: formEmail || 'empty',
+        hasAnalyzed
+      });
     }
   }, [canStartAnalysis]);
 
@@ -103,6 +119,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('📧 Form email provided:', formEmail);
       console.log('👤 Form name provided:', formName);
 
+      // Validate email EARLY
+      if (!formEmail || formEmail.trim() === '') {
+        throw new Error('Email is required before starting analysis');
+      }
+
       // Create FormData for file upload
       const formData = new FormData();
       formData.append('file', cvFile);
@@ -163,17 +184,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedName = formName && formName.trim() !== '' ? formName : 
         (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Consultant');
       
-      // ALWAYS use formEmail first, never fall back to placeholder emails
-      const extractedEmail = formEmail && formEmail.trim() !== '' ? formEmail : '';
+      // ALWAYS use formEmail - it's guaranteed to exist at this point
+      const extractedEmail = formEmail;
       
       console.log('📝 Final consultant data being used:');
       console.log('📌 Name:', extractedName, '(from form:', formName, ', from CV:', personalInfo?.name, ')');
-      console.log('📌 Email:', extractedEmail, '(from form:', formEmail, ', from CV:', personalInfo?.email, ')');
-      
-      // If no valid email, throw error early
-      if (!extractedEmail || extractedEmail.trim() === '') {
-        throw new Error('No valid email provided - cannot create consultant without email');
-      }
+      console.log('📌 Email:', extractedEmail, '(from form:', formEmail, ')');
       
       const extractedPhone = personalInfo?.phone || '';
       const extractedLocation = personalInfo?.location || 'Sweden';
@@ -199,9 +215,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       // Network consultants should be type 'new', not 'existing'
       const isMyConsultant = false; // Network consultants are external
-
-      // Get current user for proper user_id assignment
-      const { data: { user } } = await supabase.auth.getUser();
 
       // Create consultant data with REQUIRED fields including all analysis data
       const consultantData = {
