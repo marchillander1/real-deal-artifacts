@@ -59,6 +59,15 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     return url.includes('linkedin.com');
   };
 
+  // Email validation function
+  const isValidEmail = (email: string) => {
+    if (!email || email.trim() === '') return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidFormat = emailRegex.test(email);
+    const isNotExampleDomain = !email.includes('example.com');
+    return isValidFormat && isNotExampleDomain;
+  };
+
   // Auto-trigger analysis when both file and LinkedIn URL are present
   useEffect(() => {
     const hasValidLinkedIn = isValidLinkedInUrl(linkedinUrl);
@@ -103,6 +112,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     if (!isValidLinkedInUrl(linkedinUrl)) {
       console.error('❌ Invalid LinkedIn URL provided:', linkedinUrl);
       onError('A valid LinkedIn URL is required for analysis');
+      return;
+    }
+
+    // 🚨 CRITICAL: Check if we have a valid email BEFORE starting analysis
+    if (!isValidEmail(formEmail)) {
+      console.error('❌ Invalid or missing email address:', formEmail);
+      onError('A valid email address is required before analysis can begin');
       return;
     }
 
@@ -162,22 +178,22 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const cvData = cvResponse.data?.analysis;
       const finalName = formName || cvData?.personalInfo?.name || 'Unknown Name';
       
-      // 🚨 ALWAYS USE FORM EMAIL - Never fall back to CV email for notifications
-      const finalEmail = formEmail || 'analysis@example.com';
+      // 🚨 ALWAYS USE FORM EMAIL - formEmail is already validated above
+      const finalEmail = formEmail;
       
-      console.log('📧 EMAIL ROUTING - CRITICAL CHECK:', {
+      console.log('📧 EMAIL ROUTING - VALIDATED CHECK:', {
         formEmailProvided: !!formEmail,
         formEmail: formEmail,
         cvEmail: cvData?.personalInfo?.email,
         finalEmailForNotifications: finalEmail,
-        willSendNotificationsTo: finalEmail
+        emailValidated: isValidEmail(finalEmail)
       });
 
       // Step 4: Create consultant profile in database - ALL analyses go to Network Consultants
       console.log('💾 Creating network consultant profile...');
       const consultantData = {
         name: finalName,
-        email: finalEmail, // 🔥 ALWAYS use form email for database
+        email: finalEmail, // 🔥 ALWAYS use validated form email for database
         phone: cvData?.personalInfo?.phone || '',
         location: cvData?.personalInfo?.location || 'Location not specified',
         skills: cvData?.technicalExpertise?.programmingLanguages?.expert || [],
@@ -223,18 +239,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // Step 5: Send notifications using FORM EMAIL ONLY - FINAL FIX
+      // Step 5: Send notifications using VALIDATED FORM EMAIL ONLY
       console.log('📧 🚨 FINAL EMAIL CHECK - Starting email sending process...');
-      console.log('📧 🔥 Will send welcome email to FORM EMAIL ONLY:', finalEmail);
+      console.log('📧 🔥 Will send welcome email to VALIDATED FORM EMAIL:', finalEmail);
       console.log('📧 📝 Consultant name for email:', finalName);
-      console.log('📧 ⚠️ CV email will be IGNORED:', cvData?.personalInfo?.email);
 
       try {
-        // 🔥 🚨 Send welcome email to the FORM EMAIL address ONLY
-        console.log('📧 🚀 Calling send-welcome-email function with FORM EMAIL...');
+        // 🔥 🚨 Send welcome email to the VALIDATED FORM EMAIL address ONLY
+        console.log('📧 🚀 Calling send-welcome-email function with VALIDATED EMAIL...');
         const welcomeEmailResponse = await supabase.functions.invoke('send-welcome-email', {
           body: {
-            consultantEmail: finalEmail, // 🔥 🚨 ALWAYS use form email
+            consultantEmail: finalEmail, // 🔥 🚨 ALWAYS use validated form email
             consultantName: finalName,
             isMyConsultant: false
           }
@@ -271,7 +286,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         const adminNotificationResponse = await supabase.functions.invoke('send-registration-notification', {
           body: {
             consultantName: finalName,
-            consultantEmail: finalEmail, // 🔥 🚨 ALWAYS use form email
+            consultantEmail: finalEmail, // 🔥 🚨 ALWAYS use validated form email
             isMyConsultant: false
           }
         });
