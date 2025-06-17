@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -26,10 +25,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   useEffect(() => {
-    if (cvFile && !hasAnalyzed) {
+    // Only start analysis when both CV file and LinkedIn URL are provided
+    if (cvFile && linkedinUrl && linkedinUrl.trim() !== '' && !hasAnalyzed) {
       analyzeCVAndLinkedIn();
     }
-  }, [cvFile, hasAnalyzed]);
+  }, [cvFile, linkedinUrl, hasAnalyzed]);
 
   const analyzeCVAndLinkedIn = async () => {
     if (!cvFile) return;
