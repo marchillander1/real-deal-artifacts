@@ -151,9 +151,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const marketPositioning = analysis?.marketPositioning || {};
       const personalityTraits = analysis?.personalityTraits || {};
       
-      // 🎯 CRITICAL: Always prioritize form data over CV analysis data
+      // 🎯 CRITICAL: Always prioritize form data over CV analysis data for network consultants
       const extractedName = formName && formName.trim() !== '' ? formName : 
-        (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Network Consultant');
+        (personalInfo?.name && personalInfo.name !== 'Analysis in progress' ? personalInfo.name : 'Consultant');
       
       // 🔥 CRITICAL FIX: ALWAYS use formEmail first, never fall back to placeholder emails
       const extractedEmail = formEmail && formEmail.trim() !== '' ? formEmail : '';
@@ -189,8 +189,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedCertifications = education?.certifications || [];
       const extractedLanguages = personalInfo?.languages || ['Swedish', 'English'];
 
-      // 🎯 CRITICAL: ALLA konsulter ska vara "My Consultants" nu
-      const isMyConsultant = true; // Alla nya konsulter ska vara "My Consultants"
+      // 🎯 CRITICAL: Network consultants should be type 'new', not 'existing'
+      const isMyConsultant = false; // Network consultants are external
 
       // 🎯 CRITICAL: Get current user for proper user_id assignment
       const { data: { user } } = await supabase.auth.getUser();
@@ -228,11 +228,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         rating: 5.0,
         projects_completed: 0,
         last_active: 'Today',
-        type: 'existing', // 🎯 CRITICAL: Alla konsulter ska vara "existing" (My Consultants)
-        user_id: user?.id || null, // 🎯 CRITICAL: Sätt user_id för alla nya konsulter
+        type: 'new', // 🎯 CRITICAL: Network consultants are type 'new'
+        user_id: null, // 🎯 CRITICAL: Network consultants don't have user_id
       };
 
-      console.log('🔥 CREATING CONSULTANT with these CRITICAL fields:');
+      console.log('🔥 CREATING NETWORK CONSULTANT with these CRITICAL fields:');
       console.log('📌 type:', consultantData.type);
       console.log('📌 user_id:', consultantData.user_id);
       console.log('📌 email:', consultantData.email);
@@ -251,7 +251,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error('Failed to create consultant profile: ' + consultantError.message);
       }
 
-      console.log('🎉 Consultant created successfully!');
+      console.log('🎉 Network consultant created successfully!');
       console.log('✅ Consultant ID:', consultant.id);
       console.log('✅ Consultant type:', consultant.type);
       console.log('✅ Consultant user_id:', consultant.user_id);
