@@ -179,7 +179,8 @@ const CVUpload: React.FC = () => {
         consultantId: analysisResults.consultant.id,
         finalEmail: email, // 🔥 🚨 Use form email
         finalName: fullName || autoFilledName || 'New Consultant',
-        isMyConsultant: isMyConsultant
+        isMyConsultant: isMyConsultant,
+        toast: toast // Pass the toast function
       });
 
       if (!emailResult.success) {

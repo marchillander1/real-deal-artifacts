@@ -1,18 +1,16 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
 
 interface EmailNotificationHandlerProps {
   consultantId: string;
   finalEmail: string;
   finalName: string;
   isMyConsultant?: boolean;
+  toast: (options: { title: string; description: string; variant?: "default" | "destructive" }) => void;
 }
 
 export const EmailNotificationHandler = {
-  sendWelcomeEmails: async ({ consultantId, finalEmail, finalName, isMyConsultant = false }: EmailNotificationHandlerProps) => {
-    const { toast } = useToast();
-    
+  sendWelcomeEmails: async ({ consultantId, finalEmail, finalName, isMyConsultant = false, toast }: EmailNotificationHandlerProps) => {
     console.log('📧 🚨 SENDING EMAILS AFTER FORM SUBMISSION');
     console.log('📧 🔥 Will send welcome email to FORM EMAIL:', finalEmail);
     console.log('📧 📝 Consultant name for email:', finalName);
