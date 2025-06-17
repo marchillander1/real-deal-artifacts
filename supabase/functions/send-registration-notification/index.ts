@@ -11,6 +11,9 @@ const corsHeaders = {
 interface RegistrationNotificationRequest {
   userEmail: string;
   userName?: string;
+  consultantName?: string;
+  consultantEmail?: string;
+  isMyConsultant?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -19,7 +22,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { userEmail, userName }: RegistrationNotificationRequest = await req.json();
+    const { userEmail, userName, consultantName, consultantEmail, isMyConsultant }: RegistrationNotificationRequest = await req.json();
+
+    console.log("Registration notification request:", { userEmail, userName, consultantName, consultantEmail, isMyConsultant });
 
     // Configure SMTP client
     const client = new SMTPClient({
@@ -34,17 +39,29 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
 
+    // Determine email content based on registration type
+    const emailData = consultantName && consultantEmail ? {
+      name: consultantName,
+      email: consultantEmail,
+      type: isMyConsultant ? "My Consultant" : "Network Consultant"
+    } : {
+      name: userName || 'Unknown',
+      email: userEmail,
+      type: "User Registration"
+    };
+
     // Send notification to admin
     await client.send({
       from: Deno.env.get("SMTP_USERNAME")!,
       to: "marc@matchwise.tech",
-      subject: "🚀 New User Registration - MatchWise AI",
+      subject: `🚀 New ${emailData.type} Registration - MatchWise AI`,
       content: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">New User Registration</h2>
+          <h2 style="color: #2563eb;">New ${emailData.type} Registration</h2>
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Email:</strong> ${userEmail}</p>
-            <p><strong>Name:</strong> ${userName || 'Not provided'}</p>
+            <p><strong>Name:</strong> ${emailData.name}</p>
+            <p><strong>Email:</strong> ${emailData.email}</p>
+            <p><strong>Registration Type:</strong> ${emailData.type}</p>
             <p><strong>Registration Time:</strong> ${new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' })}</p>
           </div>
           <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
@@ -59,7 +76,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     await client.close();
 
-    console.log("Registration notification sent successfully to marc@matchwise.tech");
+    console.log(`Registration notification sent successfully to marc@matchwise.tech for ${emailData.type}: ${emailData.email}`);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
