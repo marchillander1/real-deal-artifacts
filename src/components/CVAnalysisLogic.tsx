@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -347,10 +348,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     analyzeCV();
   }, [cvText, analysisStatus, toast, onError]);
 
-  // LinkedIn Analysis Effect
+  // LinkedIn Analysis Effect - this will now trigger automatically when we have both CV analysis and LinkedIn URL
   useEffect(() => {
     const performLinkedInAnalysis = async () => {
-      if (!linkedinUrl || !cvAnalysis || linkedinAnalysisStatus !== 'idle') return;
+      // Only start LinkedIn analysis if we have CV analysis completed and LinkedIn URL
+      if (!linkedinUrl || !cvAnalysis || analysisStatus !== 'completed' || linkedinAnalysisStatus !== 'idle') {
+        return;
+      }
 
       try {
         setLinkedinAnalysisStatus('analyzing');
@@ -405,7 +409,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     };
 
     performLinkedInAnalysis();
-  }, [cvAnalysis, linkedinUrl, linkedinAnalysisStatus, onAnalysisComplete, onError]);
+  }, [cvAnalysis, linkedinUrl, analysisStatus, linkedinAnalysisStatus, onAnalysisComplete, onError]);
 
   return (
     <div className="flex flex-col md:flex-row gap-4">
@@ -510,9 +514,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
             <div className="mt-6">
               <CardTitle>LinkedIn Analys</CardTitle>
               <CardDescription>Få en djupare insikt genom att analysera din LinkedIn-profil.</CardDescription>
-              {linkedinAnalysisStatus === 'idle' && (
-                <p className="text-sm text-gray-500">
-                  Ange din LinkedIn-profil URL för att starta analysen.
+              {linkedinAnalysisStatus === 'idle' && linkedinUrl && (
+                <p className="text-sm text-blue-600">
+                  Väntar på att CV analysen ska slutföras innan LinkedIn analysen startar...
                 </p>
               )}
 
