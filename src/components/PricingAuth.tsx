@@ -14,16 +14,19 @@ const packages = [
     name: 'Basic',
     price: '299',
     currency: 'SEK',
-    period: 'månad',
-    description: 'Perfekt för att analysera dina egna konsulter',
+    period: 'month',
+    description: 'Perfect for analyzing your own consultants',
     icon: <Star className="h-6 w-6" />,
     color: 'border-blue-200 bg-blue-50',
     features: [
-      'Analysera dina egna konsulter',
-      'AI-driven CV-analys',
-      'Grundläggande matchning',
-      'Upp till 3 användare',
-      'Standardsupport'
+      'Analyze your own consultants',
+      'AI-driven CV analysis',
+      'Basic matching algorithms',
+      'Up to 3 users (1 admin + 2 standard)',
+      'Standard support',
+      'Basic analytics dashboard',
+      'Consultant database management',
+      'Save favorites & download CVs'
     ]
   },
   {
@@ -31,18 +34,23 @@ const packages = [
     name: 'Team',
     price: '599',
     currency: 'SEK',
-    period: 'månad',
-    description: 'Mest populära valet för aktiva konsultbyråer',
+    period: 'month',
+    description: 'Most popular choice for active consulting agencies',
     icon: <Zap className="h-6 w-6" />,
     color: 'border-green-200 bg-green-50',
     popular: true,
     features: [
-      'Allt i Basic',
-      'Tillgång till nätverkskonsulter',
-      'Avancerad AI-analys',
-      'Upp till 10 användare',
-      'Prioriterad support',
-      'Marknadsinsikter & trender'
+      'Everything in Basic',
+      'Access to network consultants',
+      'Advanced AI analysis',
+      'Up to 10 users',
+      'Priority support',
+      'Market insights & trends',
+      'Role-based access control',
+      'Advanced analytics & insights',
+      'Export consultant lists',
+      'Integration API access',
+      'Custom search filters'
     ]
   },
   {
@@ -50,17 +58,23 @@ const packages = [
     name: 'Enterprise',
     price: '1499',
     currency: 'SEK',
-    period: 'månad',
-    description: 'För etablerade konsultbyråer och team',
+    period: 'month',
+    description: 'For established consulting agencies and teams',
     icon: <Crown className="h-6 w-6" />,
     color: 'border-purple-200 bg-purple-50',
     features: [
-      'Allt i Team',
-      'Obegränsat antal användare',
-      'Personlig konsultmanager',
-      'Anpassade branding-alternativ',
-      'Avancerad analytik',
-      'Anpassade integrationer'
+      'Everything in Team',
+      'Unlimited number of users',
+      'Personal consultant manager',
+      'Custom branding options',
+      'Advanced analytics',
+      'Custom integrations',
+      'Dedicated onboarding & training',
+      'SLA-guaranteed support',
+      'White-label solutions',
+      'Custom workflows',
+      'Premium API access',
+      'Direct access to incoming freelance CVs'
     ]
   }
 ];
@@ -84,7 +98,7 @@ export const PricingAuth = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // After successful payment, redirect to registration
-      toast.success('Betalning lyckades! Du kan nu skapa ditt konto.');
+      toast.success('Payment successful! You can now create your account.');
       navigate('/auth', { 
         state: { 
           packageId,
@@ -95,7 +109,7 @@ export const PricingAuth = () => {
       
     } catch (error) {
       console.error('Payment error:', error);
-      toast.error('Betalning misslyckades. Försök igen.');
+      toast.error('Payment failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -106,10 +120,10 @@ export const PricingAuth = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Välj Din Plan
+            Choose Your Plan
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Välj ett paket för att få tillgång till vårt konsultnätverk och börja din resa med MatchWise AI
+            Select a package to get access to our consultant network and start your journey with MatchWise AI
           </p>
         </div>
 
@@ -121,7 +135,7 @@ export const PricingAuth = () => {
             >
               {pkg.popular && (
                 <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white">
-                  Mest Populär
+                  Most Popular
                 </Badge>
               )}
               
@@ -158,10 +172,10 @@ export const PricingAuth = () => {
                   {isProcessing && selectedPackage === pkg.id ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Bearbetar...
+                      Processing...
                     </>
                   ) : (
-                    `Välj ${pkg.name}`
+                    `Choose ${pkg.name}`
                   )}
                 </Button>
               </CardContent>
@@ -171,7 +185,7 @@ export const PricingAuth = () => {
 
         <div className="text-center mt-12">
           <p className="text-sm text-gray-500">
-            Alla planer inkluderar 30 dagars pengarna-tillbaka-garanti
+            All plans include 30-day money-back guarantee
           </p>
         </div>
       </div>

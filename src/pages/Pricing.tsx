@@ -7,48 +7,63 @@ const pricingPlans = [
   {
     name: 'Basic Plan',
     price: 99,
-    subtitle: 'För 1-3 användare',
+    subtitle: 'For 1-3 users',
     popular: false,
     color: 'blue',
     features: [
-      'Analysera dina egna konsulter',
-      'AI-driven analys av CV och profiler',
-      'Detaljerade konsultprofiler',
-      'Spara favoriter & ladda ner CV',
-      '1 admin + 2 standardanvändare',
-      'Email support'
+      'Analyze your own consultants',
+      'AI-driven CV and profile analysis',
+      'Detailed consultant profiles',
+      'Save favorites & download CVs',
+      '1 admin + 2 standard users',
+      'Basic matching algorithms',
+      'Standard report generation',
+      'Email support',
+      'Basic analytics dashboard',
+      'Consultant database management'
     ]
   },
   {
     name: 'Team Plan',
     price: 199,
-    subtitle: 'För 3-10 användare',
+    subtitle: 'For 3-10 users',
     popular: true,
     color: 'green',
     features: [
-      'Allt i Basic, plus:',
-      'Tillgång till nätverkskonsulter',
-      'Utökad användaråtkomst (3-10 användare)',
-      'Rollbaserad åtkomstkontroll',
-      'Prioriterad email support',
-      'Tidig tillgång till nya funktioner',
-      'Exportera konsultlistor'
+      'Everything in Basic, plus:',
+      'Access to network consultants',
+      'Extended user access (3-10 users)',
+      'Role-based access control',
+      'Advanced AI matching algorithms',
+      'Priority email support',
+      'Early access to new features',
+      'Export consultant lists',
+      'Advanced analytics & insights',
+      'Custom search filters',
+      'Bulk operations & management',
+      'Integration API access'
     ]
   },
   {
     name: 'Enterprise',
     price: 599,
-    subtitle: 'Obegränsat antal användare',
+    subtitle: 'Unlimited users',
     popular: false,
     color: 'red',
     features: [
-      'Obegränsade sökningar i hela konsultdatabasen',
-      'Direkt tillgång till inkommande freelance CV',
-      'Premium synlighet för dina uppdrag',
-      'API-åtkomst och integrationsmöjligheter',
-      'Dedikerad onboarding',
-      'SLA-garanterad support',
-      'Obegränsat antal användare'
+      'Everything in Team, plus:',
+      'Unlimited searches in consultant database',
+      'Direct access to incoming freelance CVs',
+      'Premium visibility for your assignments',
+      'Full API access & integration capabilities',
+      'Dedicated onboarding & training',
+      'SLA-guaranteed support',
+      'Unlimited number of users',
+      'Custom branding options',
+      'Advanced reporting & analytics',
+      'White-label solutions',
+      'Dedicated customer success manager',
+      'Custom integrations & workflows'
     ]
   }
 ];
@@ -62,11 +77,11 @@ export default function Pricing() {
           <div className="inline-flex items-center mb-4">
             <span className="text-2xl mr-2">💰</span>
             <h1 className="text-4xl font-bold">
-              Prisöversikt
+              Pricing Plans
             </h1>
           </div>
           <p className="text-xl text-gray-300">
-            Välj den plan som passar ditt företags behov
+            Choose the plan that fits your company's needs
           </p>
         </div>
         

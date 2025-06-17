@@ -9,8 +9,8 @@ export default function PricingSection() {
     <section id="pricing" className="py-20 relative">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">💰 Enkel, Transparent Prissättning</h2>
-          <p className="text-xl text-slate-300">Välj den plan som passar ditt företags behov</p>
+          <h2 className="text-4xl font-bold text-white mb-4">💰 Simple, Transparent Pricing</h2>
+          <p className="text-xl text-slate-300">Choose the plan that fits your company's needs</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -21,29 +21,37 @@ export default function PricingSection() {
                 <div className="w-6 h-6 bg-blue-600 rounded"></div>
                 <h3 className="text-xl font-bold text-white">Basic Plan</h3>
               </div>
-              <p className="text-slate-400 mb-6">För 1-3 användare</p>
-              <div className="text-3xl font-bold text-white mb-6">€99<span className="text-lg text-slate-400">/månad</span></div>
+              <p className="text-slate-400 mb-6">For 1-3 users</p>
+              <div className="text-3xl font-bold text-white mb-6">€99<span className="text-lg text-slate-400">/month</span></div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Analysera dina egna konsulter
+                  Analyze your own consultants
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  AI-driven analys av CV och profiler
+                  AI-driven CV and profile analysis
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Detaljerade konsultprofiler
+                  Detailed consultant profiles
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Spara favoriter & ladda ner CV
+                  Save favorites & download CVs
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  1 admin + 2 standardanvändare
+                  1 admin + 2 standard users
+                </li>
+                <li className="flex items-center text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
+                  Basic matching algorithms
+                </li>
+                <li className="flex items-center text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
+                  Standard report generation
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
@@ -52,7 +60,7 @@ export default function PricingSection() {
               </ul>
 
               <Button variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-800">
-                Starta Gratis Provperiod
+                Start Free Trial
               </Button>
             </CardContent>
           </Card>
@@ -60,45 +68,53 @@ export default function PricingSection() {
           {/* Team Plan */}
           <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-emerald-600 text-white">Mest Populär</Badge>
+              <Badge className="bg-emerald-600 text-white">Most Popular</Badge>
             </div>
             <CardContent className="p-8">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-6 h-6 bg-emerald-600 rounded"></div>
                 <h3 className="text-xl font-bold text-white">Team Plan</h3>
               </div>
-              <p className="text-slate-400 mb-6">För 3-10 användare</p>
-              <div className="text-3xl font-bold text-white mb-6">€199<span className="text-lg text-slate-400">/månad</span></div>
+              <p className="text-slate-400 mb-6">For 3-10 users</p>
+              <div className="text-3xl font-bold text-white mb-6">€199<span className="text-lg text-slate-400">/month</span></div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Allt i Basic, plus:
+                  Everything in Basic, plus:
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Tillgång till nätverkskonsulter
+                  Access to network consultants
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Utökad användaråtkomst (3-10 användare)
+                  Extended user access (3-10 users)
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Rollbaserad åtkomstkontroll
+                  Role-based access control
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Prioriterad email support
+                  Advanced AI matching algorithms
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Exportera konsultlistor
+                  Priority email support
+                </li>
+                <li className="flex items-center text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
+                  Export consultant lists
+                </li>
+                <li className="flex items-center text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
+                  Advanced analytics & insights
                 </li>
               </ul>
 
               <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                Starta Gratis Provperiod
+                Start Free Trial
               </Button>
             </CardContent>
           </Card>
@@ -110,42 +126,46 @@ export default function PricingSection() {
                 <div className="w-6 h-6 bg-red-600 rounded"></div>
                 <h3 className="text-xl font-bold text-white">Enterprise</h3>
               </div>
-              <p className="text-slate-400 mb-6">Obegränsat antal användare</p>
-              <div className="text-3xl font-bold text-white mb-6">€599<span className="text-lg text-slate-400">/månad</span></div>
+              <p className="text-slate-400 mb-6">Unlimited users</p>
+              <div className="text-3xl font-bold text-white mb-6">€599<span className="text-lg text-slate-400">/month</span></div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Obegränsade sökningar i hela konsultdatabasen
+                  Everything in Team, plus:
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Direkt tillgång till inkommande freelance CV
+                  Unlimited searches in consultant database
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Premium synlighet för dina uppdrag
+                  Direct access to incoming freelance CVs
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  API-åtkomst och integrationsmöjligheter
+                  Premium visibility for your assignments
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Dedikerad onboarding
+                  Full API access & integration capabilities
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  SLA-garanterad support
+                  Dedicated onboarding & training
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Obegränsat antal användare
+                  SLA-guaranteed support
+                </li>
+                <li className="flex items-center text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
+                  Custom branding options
                 </li>
               </ul>
 
               <Button variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-800">
-                Kontakta Försäljning
+                Contact Sales
               </Button>
             </CardContent>
           </Card>
