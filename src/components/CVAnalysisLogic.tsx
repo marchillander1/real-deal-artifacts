@@ -218,7 +218,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         projects_completed: 0,
         last_active: 'Today',
         type: isMyConsultant ? 'existing' : 'new', // 🎯 CRITICAL: Set type based on source
-        user_id: isMyConsultant ? 'current-user-id' : null // 🎯 CRITICAL: Set user_id for my consultants
+        user_id: isMyConsultant ? 'current-user-id' : null, // 🎯 CRITICAL: Set user_id for my consultants
+        
+        // 🎯 CRITICAL: Store the full analysis data as JSONB columns
+        cv_analysis: cvAnalysisData?.analysis || null,
+        linkedin_analysis: linkedinAnalysisData?.analysis || null
       };
 
       console.log('🔥 CREATING CONSULTANT with these CRITICAL fields:');
@@ -227,6 +231,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('📌 email:', consultantData.email);
       console.log('📌 name:', consultantData.name);
       console.log('📌 isMyConsultant:', isMyConsultant);
+      console.log('📌 cv_analysis stored:', !!consultantData.cv_analysis);
+      console.log('📌 linkedin_analysis stored:', !!consultantData.linkedin_analysis);
 
       // 🎯 Create consultant in database
       const { data: consultant, error: consultantError } = await supabase

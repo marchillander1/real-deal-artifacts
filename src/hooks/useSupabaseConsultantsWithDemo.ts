@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
@@ -17,16 +18,17 @@ export const useSupabaseConsultantsWithDemo = () => {
         const { data: { user } } = await supabase.auth.getUser();
         
         // Fetch ALL consultants - both network (user_id IS NULL) and user's own consultants
+        // Include cv_analysis and linkedin_analysis columns
         const { data: allData, error: fetchError } = await supabase
           .from('consultants')
-          .select('*')
+          .select('*, cv_analysis, linkedin_analysis')
           .order('created_at', { ascending: false });
 
         if (fetchError) {
           throw fetchError;
         }
 
-        // Map all consultants from database with better mapping
+        // Map all consultants from database with enhanced analysis data mapping
         const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
           id: c.id,
           name: c.name || 'Unknown Name',
@@ -55,10 +57,11 @@ export const useSupabaseConsultantsWithDemo = () => {
           adaptability: c.adaptability || 5,
           leadership: c.leadership || 3,
           linkedinUrl: c.linkedin_url || '',
-          // Note: cvAnalysis and linkedinAnalysis are not stored in these basic fields
-          // They would be stored in separate JSONB columns if they existed
-          cvAnalysis: undefined,
-          linkedinAnalysis: undefined
+          
+          // 🎯 CRITICAL: Map the full analysis data from database columns
+          // These would be stored as JSONB columns in the database
+          cvAnalysis: c.cv_analysis || undefined,
+          linkedinAnalysis: c.linkedin_analysis || undefined
         }));
 
         // Combine with demo consultants
@@ -67,7 +70,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         console.log('All consultants (including demo):', allConsultants.length);
         console.log('Network consultants:', allConsultants.filter(c => c.type === 'new').length);
         console.log('User consultants:', allConsultants.filter(c => c.type === 'existing').length);
-        console.log('Sample network consultant data:', allConsultants.find(c => c.type === 'new'));
+        console.log('Sample consultant with analysis:', allConsultants.find(c => c.cvAnalysis || c.linkedinAnalysis));
 
         setConsultants(allConsultants);
       } catch (err) {
