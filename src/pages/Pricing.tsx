@@ -7,45 +7,48 @@ const pricingPlans = [
   {
     name: 'Basic Plan',
     price: 99,
-    subtitle: 'For 1-3 users',
+    subtitle: 'För 1-3 användare',
     popular: false,
     color: 'blue',
     features: [
-      'Full access to consultant search and filtering',
-      'View detailed profiles incl. soft skills and CVs',
-      'Save favorites & download CVs',
-      '1 admin + 2 standard users',
+      'Analysera dina egna konsulter',
+      'AI-driven analys av CV och profiler',
+      'Detaljerade konsultprofiler',
+      'Spara favoriter & ladda ner CV',
+      '1 admin + 2 standardanvändare',
       'Email support'
     ]
   },
   {
     name: 'Team Plan',
     price: 199,
-    subtitle: 'For 3-10 users',
+    subtitle: 'För 3-10 användare',
     popular: true,
     color: 'green',
     features: [
-      'Everything in Basic, plus:',
-      'Extended user access',
-      'Role-based access control',
-      'Priority email support',
-      'Early feature access',
-      'Export consultant lists'
+      'Allt i Basic, plus:',
+      'Tillgång till nätverkskonsulter',
+      'Utökad användaråtkomst (3-10 användare)',
+      'Rollbaserad åtkomstkontroll',
+      'Prioriterad email support',
+      'Tidig tillgång till nya funktioner',
+      'Exportera konsultlistor'
     ]
   },
   {
     name: 'Enterprise',
     price: 599,
-    subtitle: 'For organizations using Free Talent Pool',
+    subtitle: 'Obegränsat antal användare',
     popular: false,
     color: 'red',
     features: [
-      'Unlimited searches in the open consultant database',
-      'Direct access to incoming freelance CVs',
-      'Premium visibility settings for your jobs',
-      'Integration possibilities (API access upon request)',
-      'Dedicated onboarding',
-      'SLA-backed support'
+      'Obegränsade sökningar i hela konsultdatabasen',
+      'Direkt tillgång till inkommande freelance CV',
+      'Premium synlighet för dina uppdrag',
+      'API-åtkomst och integrationsmöjligheter',
+      'Dedikerad onboarding',
+      'SLA-garanterad support',
+      'Obegränsat antal användare'
     ]
   }
 ];
@@ -59,11 +62,11 @@ export default function Pricing() {
           <div className="inline-flex items-center mb-4">
             <span className="text-2xl mr-2">💰</span>
             <h1 className="text-4xl font-bold">
-              Pricing Overview
+              Prisöversikt
             </h1>
           </div>
           <p className="text-xl text-gray-300">
-            Choose the plan that fits your company's needs
+            Välj den plan som passar ditt företags behov
           </p>
         </div>
         
