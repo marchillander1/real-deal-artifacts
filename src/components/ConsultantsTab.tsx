@@ -53,7 +53,9 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   };
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
-    if (typeof consultantId === 'string' && consultantId.startsWith('my-')) {
+    // Convert to string for comparison and handle demo consultants
+    const idString = String(consultantId);
+    if (idString.startsWith('my-')) {
       toast({
         title: "Cannot delete demo consultant",
         description: "Demo consultants cannot be deleted",

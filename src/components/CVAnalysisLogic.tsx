@@ -49,12 +49,43 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   // Check if we're uploading for "My Consultants"
   const isMyConsultant = new URLSearchParams(window.location.search).get('source') === 'my-consultants';
 
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 CVAnalysisLogic state check:', {
+      hasFile: !!file,
+      fileName: file?.name,
+      hasLinkedinUrl: !!linkedinUrl,
+      linkedinUrl,
+      isAnalyzing,
+      hasTriggeredAnalysis,
+      hasAnalysis: !!analysis,
+      formEmail,
+      formName
+    });
+  }, [file, linkedinUrl, isAnalyzing, hasTriggeredAnalysis, analysis, formEmail, formName]);
+
   // Auto-trigger analysis when both file and LinkedIn URL are present
   useEffect(() => {
-    if (file && linkedinUrl && !isAnalyzing && !hasTriggeredAnalysis && !analysis) {
+    console.log('🤖 Auto-trigger effect running...', {
+      hasFile: !!file,
+      hasLinkedinUrl: !!linkedinUrl && linkedinUrl.trim() !== '',
+      isAnalyzing,
+      hasTriggeredAnalysis,
+      hasAnalysis: !!analysis
+    });
+
+    if (file && linkedinUrl && linkedinUrl.trim() !== '' && !isAnalyzing && !hasTriggeredAnalysis && !analysis) {
       console.log('🚀 Auto-triggering analysis with file and LinkedIn URL');
       setHasTriggeredAnalysis(true);
       handleAnalysis();
+    } else {
+      console.log('⏳ Not auto-triggering because:', {
+        missingFile: !file,
+        missingLinkedIn: !linkedinUrl || linkedinUrl.trim() === '',
+        isAlreadyAnalyzing: isAnalyzing,
+        alreadyTriggered: hasTriggeredAnalysis,
+        alreadyHasAnalysis: !!analysis
+      });
     }
   }, [file, linkedinUrl, isAnalyzing, hasTriggeredAnalysis, analysis]);
 
@@ -69,6 +100,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
   const handleAnalysis = async () => {
     if (!file) {
+      console.error('❌ No file selected for analysis');
       onError('No file selected');
       return;
     }
@@ -152,11 +184,10 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         cultural_fit: 5,
         adaptability: 5,
         leadership: 3,
-        linkedin_url: linkedinUrl || '',
-        // Save analysis data to database
-        cv_analysis: cvResponse.data,
-        linkedin_analysis: linkedinData
+        linkedin_url: linkedinUrl || ''
       };
+
+      console.log('💾 Inserting consultant data:', consultantData);
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
