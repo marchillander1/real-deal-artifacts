@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, MapPin, Clock, Search, Filter, Users, Upload, Award, Trash2 } from 'lucide-react';
+import { Star, MapPin, Clock, Search, Filter, Users, Upload, Award, Trash2, AlertTriangle } from 'lucide-react';
 import ConsultantCard from './ConsultantCard';
 import { Consultant } from '@/types/consultant';
 import { ConsultantEditDialog } from './ConsultantEditDialog';
@@ -24,11 +24,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   showDeleteForMyConsultants = false,
   showRemoveDuplicates = false
 }) => {
-  const { consultants, isLoading, updateConsultant } = useSupabaseConsultantsWithDemo();
+  const { consultants, isLoading, updateConsultant, cleanupNetworkConsultants } = useSupabaseConsultantsWithDemo();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<'network' | 'my'>('network');
+  const [isCleaningUp, setIsCleaningUp] = useState(false);
   const { toast } = useToast();
 
   // 🎯 IMPORTANT: Filter consultants correctly
@@ -39,7 +40,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   console.log('📊 Total consultants loaded:', consultants.length);
   console.log('📊 Network consultants (type=new):', networkConsultants.length);
   console.log('📊 My consultants (type=existing):', existingConsultants.length);
-  console.log('📊 Network consultants:', networkConsultants.map(c => ({ id: c.id, name: c.name, type: c.type, user_id: c.user_id })));
+  console.log('📊 Network consultants:', networkConsultants.map(c => ({ 
+    id: c.id, 
+    name: c.name, 
+    type: c.type, 
+    user_id: c.user_id 
+  })));
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
     try {
@@ -72,6 +78,27 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         description: "An unexpected error occurred",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleCleanupNetworkConsultants = async () => {
+    try {
+      setIsCleaningUp(true);
+      const result = await cleanupNetworkConsultants();
+      
+      toast({
+        title: "Rensning genomförd",
+        description: `${result.deletedCount} network konsulter togs bort, 1 kvar`,
+      });
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte rensa network konsulter",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCleaningUp(false);
     }
   };
 
@@ -131,17 +158,32 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       {/* Network Consultants Tab */}
       {activeSubTab === 'network' && (
         <div>
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <Users className="h-5 w-5 text-green-600" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <Users className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Network Consultants</h3>
+                <p className="text-gray-600">External consultants who joined through our platform</p>
+              </div>
+              <Badge className="bg-green-100 text-green-800">
+                {filteredNetworkConsultants.length} consultant{filteredNetworkConsultants.length !== 1 ? 's' : ''}
+              </Badge>
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Network Consultants</h3>
-              <p className="text-gray-600">External consultants who joined through our platform</p>
-            </div>
-            <Badge className="bg-green-100 text-green-800">
-              {filteredNetworkConsultants.length} consultant{filteredNetworkConsultants.length !== 1 ? 's' : ''}
-            </Badge>
+            
+            {/* Cleanup Button */}
+            {networkConsultants.length > 1 && (
+              <Button 
+                onClick={handleCleanupNetworkConsultants}
+                disabled={isCleaningUp}
+                variant="destructive"
+                className="flex items-center gap-2"
+              >
+                <AlertTriangle className="h-4 w-4" />
+                {isCleaningUp ? 'Rensar...' : `Rensa duplicerade (${networkConsultants.length - 1} att ta bort)`}
+              </Button>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

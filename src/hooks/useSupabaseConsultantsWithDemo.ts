@@ -106,5 +106,55 @@ export const useSupabaseConsultantsWithDemo = () => {
     }
   };
 
-  return { consultants, isLoading, error, updateConsultant };
+  const cleanupNetworkConsultants = async () => {
+    try {
+      console.log('🧹 Starting cleanup of network consultants...');
+      
+      // Get all network consultants (user_id IS NULL)
+      const { data: networkConsultants, error: fetchError } = await supabase
+        .from('consultants')
+        .select('id, name, email, created_at')
+        .is('user_id', null)
+        .order('created_at', { ascending: false });
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      console.log(`Found ${networkConsultants?.length || 0} network consultants`);
+
+      if (!networkConsultants || networkConsultants.length <= 1) {
+        console.log('Only 1 or fewer network consultants found, no cleanup needed');
+        return { success: true, deletedCount: 0 };
+      }
+
+      // Keep the first one (most recent), delete the rest
+      const consultantsToDelete = networkConsultants.slice(1);
+      const idsToDelete = consultantsToDelete.map(c => c.id);
+
+      console.log(`Deleting ${idsToDelete.length} network consultants, keeping the most recent one`);
+
+      // Delete the consultants
+      const { error: deleteError } = await supabase
+        .from('consultants')
+        .delete()
+        .in('id', idsToDelete);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      console.log(`✅ Successfully deleted ${idsToDelete.length} network consultants`);
+      
+      // Refresh the consultants list
+      window.location.reload();
+      
+      return { success: true, deletedCount: idsToDelete.length };
+    } catch (error) {
+      console.error('❌ Error cleaning up network consultants:', error);
+      throw error;
+    }
+  };
+
+  return { consultants, isLoading, error, updateConsultant, cleanupNetworkConsultants };
 };
