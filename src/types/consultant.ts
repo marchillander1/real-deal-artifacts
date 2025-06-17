@@ -58,3 +58,11 @@ export interface MatchResult {
   reasoning: string;
   coverLetter?: string;
 }
+
+export interface Match {
+  consultant: Consultant;
+  matchScore: number;
+  matchedSkills: string[];
+  reasoning: string;
+  coverLetter?: string;
+}
