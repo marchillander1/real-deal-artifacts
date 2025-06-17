@@ -61,25 +61,44 @@ const handler = async (req: Request): Promise<Response> => {
       `,
       closing: "Welcome to the team!"
     } : {
-      subject: "🚀 Welcome to MatchWise AI Network - You're one step closer...",
+      subject: "🚀 Welcome to MatchWise AI Network - You're in the platform!",
       greeting: `Hello ${consultantName}!`,
-      mainMessage: "Thank you for uploading your CV and joining MatchWise!",
+      mainMessage: "Congratulations! You're now part of the MatchWise AI consultant network.",
       details: `
-        <p>You've just taken a big step toward exciting new consulting opportunities.</p>
-        <p>Our AI-driven platform analyzes both your experience and soft skills to match you with the right projects – not just based on competence, but also on personality and cultural fit.</p>
-        
-        <h3 style="color: #2563eb; margin-top: 20px;">🔍 What happens next?</h3>
+        <p><strong>You're now in our platform and visible to companies looking for consultants!</strong></p>
+        <p>Our AI-driven platform has analyzed your profile and will automatically match you with relevant projects based on:</p>
         <ul style="margin-left: 20px;">
-          <li>Your profile will be reviewed by our team</li>
-          <li>You'll soon be visible to hiring companies on the platform</li>
-          <li>We'll reach out if a particularly good match comes up</li>
+          <li>✅ Your technical skills and expertise</li>
+          <li>✅ Your personality and cultural fit</li>
+          <li>✅ Your communication style and work preferences</li>
+          <li>✅ Your experience level and project history</li>
         </ul>
         
-        <h3 style="color: #f59e0b; margin-top: 20px;">💡 Tips:</h3>
-        <p>Make sure to keep your profile updated and respond quickly to any offers – this increases your chances of landing fantastic assignments.</p>
+        <h3 style="color: #2563eb; margin-top: 20px;">🎯 What happens next?</h3>
+        <ul style="margin-left: 20px;">
+          <li><strong>You're live!</strong> Companies can now see your profile</li>
+          <li><strong>Smart matching:</strong> Our AI will notify you about relevant opportunities</li>
+          <li><strong>Quality leads:</strong> Only receive assignments that match your skills</li>
+          <li><strong>No spam:</strong> We pre-filter all opportunities for quality</li>
+        </ul>
+        
+        <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+          <h4 style="color: #1e40af; margin: 0 0 10px 0;">💡 Pro Tips for Success:</h4>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>Keep your availability status updated</li>
+            <li>Respond to opportunities within 24 hours</li>
+            <li>Update your skills as you learn new technologies</li>
+            <li>Maintain a professional LinkedIn presence</li>
+          </ul>
+        </div>
       `,
-      nextSteps: "",
-      closing: "Welcome to the future of consultant matching!"
+      nextSteps: `
+        <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+          <h4 style="color: #047857; margin: 0 0 10px 0;">🚀 Ready to get started?</h4>
+          <p style="margin: 0;">Your profile is now active and companies can find you. The first matching opportunities should start coming in within the next few days!</p>
+        </div>
+      `,
+      closing: "Welcome to the future of consultant matching! 🎉"
     };
 
     // Send welcome email to consultant
@@ -88,29 +107,43 @@ const handler = async (req: Request): Promise<Response> => {
       to: consultantEmail,
       subject: emailContent.subject,
       content: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">${emailContent.greeting}</h2>
-          
-          <p style="font-size: 16px; line-height: 1.6;">${emailContent.mainMessage}</p>
-          
-          ${emailContent.details}
-          
-          ${emailContent.nextSteps}
-          
-          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p style="margin: 0;"><strong>Questions?</strong> Don't hesitate to reach out at <a href="mailto:marc@matchwise.tech" style="color: #2563eb;">marc@matchwise.tech</a></p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">MatchWise AI</h1>
+            <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">Intelligent Consultant Matching</p>
           </div>
           
-          <p style="font-size: 18px; font-weight: bold; color: #2563eb; margin-top: 20px;">${emailContent.closing}</p>
-          
-          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
-          <p style="color: #64748b; font-size: 14px;">
-            Best regards,<br>
-            The MatchWise Team
-          </p>
-          <p style="color: #64748b; font-size: 12px;">
-            This email was sent automatically from MatchWise AI platform.
-          </p>
+          <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h2 style="color: #2563eb; margin: 0 0 20px 0;">${emailContent.greeting}</h2>
+            
+            <p style="font-size: 16px; margin-bottom: 20px;">${emailContent.mainMessage}</p>
+            
+            ${emailContent.details}
+            
+            ${emailContent.nextSteps}
+            
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
+              <p style="margin: 0; text-align: center;"><strong>Questions or need support?</strong></p>
+              <p style="margin: 10px 0 0 0; text-align: center;">
+                Reach out at <a href="mailto:marc@matchwise.tech" style="color: #2563eb; text-decoration: none;">marc@matchwise.tech</a>
+              </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="font-size: 18px; font-weight: bold; color: #2563eb; margin: 0;">${emailContent.closing}</p>
+            </div>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
+            <div style="text-align: center;">
+              <p style="color: #64748b; font-size: 14px; margin: 0;">
+                Best regards,<br>
+                <strong>The MatchWise Team</strong>
+              </p>
+              <p style="color: #94a3b8; font-size: 12px; margin: 15px 0 0 0;">
+                This email was sent automatically from MatchWise AI platform.
+              </p>
+            </div>
+          </div>
         </div>
       `,
       html: true,

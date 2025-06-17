@@ -7,6 +7,8 @@ import { performCVAnalysis } from '@/components/CVAnalysisLogic';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Navbar } from '@/components/Navbar';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, Sparkles } from 'lucide-react';
 
 const CVUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -21,6 +23,7 @@ const CVUpload: React.FC = () => {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [isMyConsultant, setIsMyConsultant] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(true);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const { toast } = useToast();
 
   // Check if we're uploading for "My Consultants"
@@ -130,19 +133,8 @@ const CVUpload: React.FC = () => {
         console.error('Email notification error:', emailError);
       }
 
-      toast({
-        title: "Success!",
-        description: isMyConsultant 
-          ? "Consultant successfully added to your team!"
-          : "Profile created successfully! Welcome to our network.",
-      });
-
-      // Redirect based on context
-      if (isMyConsultant) {
-        window.location.href = '/matchwiseai';
-      } else {
-        window.location.href = '/';
-      }
+      // Show success message instead of redirect
+      setShowSuccessMessage(true);
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -155,6 +147,111 @@ const CVUpload: React.FC = () => {
       setIsUploading(false);
     }
   };
+
+  // Success message component
+  if (showSuccessMessage) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <Card className="shadow-xl border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardContent className="p-12 text-center">
+                <div className="flex justify-center mb-6">
+                  <div className="relative">
+                    <CheckCircle className="h-20 w-20 text-green-600" />
+                    <Sparkles className="h-8 w-8 text-yellow-500 absolute -top-2 -right-2 animate-pulse" />
+                  </div>
+                </div>
+                
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                  {isMyConsultant ? "Consultant Added Successfully! 🎉" : "Welcome to MatchWise AI Network! 🚀"}
+                </h1>
+                
+                <div className="max-w-2xl mx-auto">
+                  {isMyConsultant ? (
+                    <div className="space-y-4">
+                      <p className="text-lg text-gray-700">
+                        <strong>{fullName}</strong> has been successfully added to your consultant team!
+                      </p>
+                      <div className="bg-white rounded-lg p-6 border border-green-200">
+                        <h3 className="font-semibold text-gray-900 mb-2">What happens next:</h3>
+                        <ul className="text-left text-gray-700 space-y-2">
+                          <li>✅ The consultant is now part of your team</li>
+                          <li>✅ They'll receive email confirmation and instructions</li>
+                          <li>✅ Their profile is ready for assignment matching</li>
+                          <li>✅ You can find them in your "My Consultants" section</li>
+                        </ul>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <p className="text-lg text-gray-700">
+                        Congratulations <strong>{fullName}</strong>! You're now part of our consultant network.
+                      </p>
+                      
+                      <div className="bg-white rounded-lg p-6 border border-green-200">
+                        <h3 className="font-semibold text-gray-900 mb-3">🎯 You're now live in our platform!</h3>
+                        <ul className="text-left text-gray-700 space-y-2">
+                          <li>✅ <strong>Visible to companies:</strong> Your profile is active and searchable</li>
+                          <li>✅ <strong>AI-powered matching:</strong> You'll receive relevant opportunities automatically</li>
+                          <li>✅ <strong>Welcome email sent:</strong> Check your inbox for complete details</li>
+                          <li>✅ <strong>Quality assignments:</strong> Only receive pre-filtered, matching opportunities</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                        <h3 className="font-semibold text-blue-900 mb-2">📧 Check your email!</h3>
+                        <p className="text-blue-800">
+                          We've sent a comprehensive welcome email to <strong>{email}</strong> with:
+                        </p>
+                        <ul className="text-left text-blue-700 mt-2 space-y-1">
+                          <li>• Pro tips for getting assignments</li>
+                          <li>• How our AI matching works</li>
+                          <li>• Next steps and best practices</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                        <p className="text-orange-800">
+                          <strong>💡 Pro tip:</strong> Keep your LinkedIn updated and respond quickly to opportunities for best results!
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => window.location.href = isMyConsultant ? '/matchwiseai' : '/'}
+                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    {isMyConsultant ? "Go to Dashboard" : "Back to Home"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSuccessMessage(false);
+                      // Reset form
+                      setFile(null);
+                      setEmail('');
+                      setFullName('');
+                      setPhoneNumber('');
+                      setLinkedinUrl('');
+                      setAgreeToTerms(false);
+                      setAnalysisResults(null);
+                    }}
+                    className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-8 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Add Another Consultant
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
