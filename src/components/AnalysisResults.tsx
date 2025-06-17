@@ -85,7 +85,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </CardHeader>
       </Card>
 
-      {/* Personalized Improvement Tips - NEW SECTION */}
+      {/* Personalized Improvement Tips */}
       <Card className="shadow-lg border-emerald-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -107,32 +107,32 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             <div className="space-y-4">
               <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded uppercase">HÖG</span>
-                  <span className="font-semibold text-blue-900">Tekniska färdigheter</span>
+                  <span className="px-2 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded uppercase">HIGH</span>
+                  <span className="font-semibold text-blue-900">Technical Skills</span>
                 </div>
                 <p className="text-gray-700 mb-3">
-                  Lägg till en dedikerad "Tekniska färdigheter"-sektion med tydliga färdighetsnivåer (Expert, Skicklig, Bekant).
+                  Add a dedicated "Technical Skills" section with clear proficiency levels (Expert, Proficient, Familiar).
                 </p>
                 <div className="bg-blue-100 p-3 rounded border">
                   <span className="text-sm font-medium text-blue-800">Action:</span>
                   <span className="text-sm text-blue-700 ml-2">
-                    Skapa sektioner: "Expert: [språk]", "Skicklig: [ramverk]", "Verktyg: [programvara/plattformar]"
+                    Create sections: "Expert: [languages]", "Proficient: [frameworks]", "Tools: [software/platforms]"
                   </span>
                 </div>
               </div>
 
               <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded uppercase">HÖG</span>
-                  <span className="font-semibold text-blue-900">Arbetslivserfarenhet</span>
+                  <span className="px-2 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded uppercase">HIGH</span>
+                  <span className="font-semibold text-blue-900">Work Experience</span>
                 </div>
                 <p className="text-gray-700 mb-3">
-                  Utvidga din arbetslivserfarenhet med specifika framgångar, använda teknologier och mätbara resultat.
+                  Expand your work experience with specific achievements, technologies used, and measurable results.
                 </p>
                 <div className="bg-blue-100 p-3 rounded border">
                   <span className="text-sm font-medium text-blue-800">Action:</span>
                   <span className="text-sm text-blue-700 ml-2">
-                    För varje roll, lägg till: Använda teknologier, Nyckelframgångar med siffror, Teamstorlek om du lett människor
+                    For each role, add: Technologies used, Key achievements with numbers, Team size if you led people
                   </span>
                 </div>
               </div>
@@ -149,16 +149,16 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             <div className="space-y-4">
               <div className="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-r-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-1 bg-purple-200 text-purple-800 text-xs font-medium rounded uppercase">HÖG</span>
-                  <span className="font-semibold text-purple-900">LinkedIn-profil</span>
+                  <span className="px-2 py-1 bg-purple-200 text-purple-800 text-xs font-medium rounded uppercase">HIGH</span>
+                  <span className="font-semibold text-purple-900">LinkedIn Profile</span>
                 </div>
                 <p className="text-gray-700 mb-3">
-                  Se till att din LinkedIn-profil är offentlig och komplett.
+                  Ensure your LinkedIn profile is public and complete.
                 </p>
                 <div className="bg-purple-100 p-3 rounded border">
                   <span className="text-sm font-medium text-purple-800">Action:</span>
                   <span className="text-sm text-purple-700 ml-2">
-                    Uppdatera: Professionell rubrik, Detaljerad arbetsserfarenhet, Färdighetssektion, Offentliga profilinställningar
+                    Update: Professional headline, Detailed work experience, Skills section, Public profile settings
                   </span>
                 </div>
               </div>
@@ -176,16 +176,16 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
               <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Star className="h-4 w-4 text-green-600" />
-                  <span className="px-2 py-1 bg-green-200 text-green-800 text-xs font-medium rounded uppercase">HÖG</span>
-                  <span className="font-semibold text-green-900">Konsekvent varumärke</span>
+                  <span className="px-2 py-1 bg-green-200 text-green-800 text-xs font-medium rounded uppercase">HIGH</span>
+                  <span className="font-semibold text-green-900">Consistent Branding</span>
                 </div>
                 <p className="text-gray-700 mb-3">
-                  Se till att ditt CV och LinkedIn berättar samma professionella historia.
+                  Ensure your CV and LinkedIn tell the same professional story.
                 </p>
                 <div className="bg-green-100 p-3 rounded border">
                   <span className="text-sm font-medium text-green-800">Action:</span>
                   <span className="text-sm text-green-700 ml-2">
-                    Anpassa: Jobbtitlar och datum, Färdigheter och teknologier, Professionell sammanfattning, Nyckelframgångar
+                    Align: Job titles and dates, Skills and technologies, Professional summary, Key achievements
                   </span>
                 </div>
               </div>
@@ -193,16 +193,16 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
               <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Star className="h-4 w-4 text-green-600" />
-                  <span className="px-2 py-1 bg-green-200 text-green-800 text-xs font-medium rounded uppercase">HÖG</span>
-                  <span className="font-semibold text-green-900">Konsultpositionering</span>
+                  <span className="px-2 py-1 bg-green-200 text-green-800 text-xs font-medium rounded uppercase">HIGH</span>
+                  <span className="font-semibold text-green-900">Consultant Positioning</span>
                 </div>
                 <p className="text-gray-700 mb-3">
-                  Positionera dig tydligt som konsult genom att betona projektbaserat arbete.
+                  Position yourself clearly as a consultant by emphasizing project-based work.
                 </p>
                 <div className="bg-green-100 p-3 rounded border">
                   <span className="text-sm font-medium text-green-800">Action:</span>
                   <span className="text-sm text-green-700 ml-2">
-                    Framhäv: Konsulterfarenhet, Kundresultat, Specialiserade färdigheter, Tillgänglighet för uppdrag
+                    Highlight: Consulting experience, Client results, Specialized skills, Availability for assignments
                   </span>
                 </div>
               </div>
@@ -211,15 +211,15 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Professional Perception Analysis - NEW */}
+      {/* Professional Perception Analysis */}
       <Card className="shadow-lg border-purple-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5 text-purple-500" />
-            Hur Du Uppfattas Professionellt
+            Professional Perception Analysis
           </CardTitle>
           <CardDescription>
-            Analys av ditt första intryck och professionella framtoning
+            Analysis of your first impression and professional positioning
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -227,31 +227,31 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <UserCheck className="h-4 w-4" />
-              Första Intryck
+              First Impression
             </h4>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center gap-2 mb-2">
                   <ThumbsUp className="h-4 w-4 text-green-600" />
-                  <span className="font-medium text-green-800">Starka Sidor</span>
+                  <span className="font-medium text-green-800">Strengths</span>
                 </div>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Teknisk kompetens framgår tydligt</li>
-                  <li>• Professionell LinkedIn-närvaro</li>
-                  <li>• {cvAnalysis?.professionalSummary?.yearsOfExperience || '5+'} års solid erfarenhet</li>
-                  <li>• Strukturerat CV med tydliga roller</li>
+                  <li>• Technical competence clearly evident</li>
+                  <li>• Professional LinkedIn presence</li>
+                  <li>• {cvAnalysis?.professionalSummary?.yearsOfExperience || '5+'} years solid experience</li>
+                  <li>• Structured CV with clear roles</li>
                 </ul>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-4 w-4 text-orange-600" />
-                  <span className="font-medium text-orange-800">Förbättringsområden</span>
+                  <span className="font-medium text-orange-800">Areas for Improvement</span>
                 </div>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Mer kvantifierade resultat behövs</li>
-                  <li>• Starkare personal branding på LinkedIn</li>
-                  <li>• Tydligare konsultprofil saknas</li>
-                  <li>• Mer synlighet i tekniska communities</li>
+                  <li>• More quantified results needed</li>
+                  <li>• Stronger personal branding on LinkedIn</li>
+                  <li>• Clearer consultant profile missing</li>
+                  <li>• More visibility in technical communities</li>
                 </ul>
               </div>
             </div>
@@ -261,7 +261,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Perception className="h-4 w-4" />
-              Marknadspositioning
+              Market Positioning
             </h4>
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -269,22 +269,22 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {technicalAssessment?.technicalMaturity?.overallLevel || 'Senior'}
                   </div>
-                  <div className="text-sm text-gray-600">Teknisk Nivå</div>
-                  <div className="text-xs text-gray-500 mt-1">Uppfattas som erfaren utvecklare</div>
+                  <div className="text-sm text-gray-600">Technical Level</div>
+                  <div className="text-xs text-gray-500 mt-1">Perceived as experienced developer</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600 mb-1">
                     {Math.floor((roiPredictions?.teamFitValue?.consultingReadiness || 7) * 10)}%
                   </div>
-                  <div className="text-sm text-gray-600">Konsultmognad</div>
-                  <div className="text-xs text-gray-500 mt-1">Redo för konsultuppdrag</div>
+                  <div className="text-sm text-gray-600">Consulting Readiness</div>
+                  <div className="text-xs text-gray-500 mt-1">Ready for consulting assignments</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600 mb-1">
                     {roiPredictions?.currentMarketValue?.hourlyRate || 1000}
                   </div>
-                  <div className="text-sm text-gray-600">SEK/timme</div>
-                  <div className="text-xs text-gray-500 mt-1">Nuvarande marknadsvärde</div>
+                  <div className="text-sm text-gray-600">SEK/hour</div>
+                  <div className="text-xs text-gray-500 mt-1">Current market value</div>
                 </div>
               </div>
             </div>
@@ -294,52 +294,52 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
-              Kommunikationsprofil
+              Communication Profile
             </h4>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-3">
                 <div className="bg-white p-3 rounded border">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">Professionell Ton</span>
+                    <span className="text-sm font-medium text-gray-700">Professional Tone</span>
                     <Badge className="bg-blue-100 text-blue-800">
-                      {linkedinAnalysis?.communicationStyle?.includes('technical') ? 'Teknisk' : 'Professionell'}
+                      {linkedinAnalysis?.communicationStyle?.includes('technical') ? 'Technical' : 'Professional'}
                     </Badge>
                   </div>
                   <p className="text-xs text-gray-600">
-                    {linkedinAnalysis?.communicationStyle || 'Tekniskt fokuserad med god affärsförståelse'}
+                    {linkedinAnalysis?.communicationStyle || 'Technically focused with good business understanding'}
                   </p>
                 </div>
                 <div className="bg-white p-3 rounded border">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">LinkedIn Aktivitet</span>
-                    <Badge className="bg-yellow-100 text-yellow-800">Måttlig</Badge>
+                    <span className="text-sm font-medium text-gray-700">LinkedIn Activity</span>
+                    <Badge className="bg-yellow-100 text-yellow-800">Moderate</Badge>
                   </div>
                   <p className="text-xs text-gray-600">
-                    Begränsad aktivitet, behöver mer synlighet och thought leadership
+                    Limited activity, needs more visibility and thought leadership
                   </p>
                 </div>
               </div>
               <div className="space-y-3">
                 <div className="bg-white p-3 rounded border">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">Klientkommunikation</span>
+                    <span className="text-sm font-medium text-gray-700">Client Communication</span>
                     <Badge className="bg-green-100 text-green-800">
                       {Math.floor((linkedinAnalysis?.leadership || 7) * 10)}%
                     </Badge>
                   </div>
                   <p className="text-xs text-gray-600">
-                    {linkedinAnalysis?.teamFitAssessment?.communicationPreference || 'Tydlig och strukturerad kommunikation'}
+                    {linkedinAnalysis?.teamFitAssessment?.communicationPreference || 'Clear and structured communication'}
                   </p>
                 </div>
                 <div className="bg-white p-3 rounded border">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">Teamledarskap</span>
+                    <span className="text-sm font-medium text-gray-700">Team Leadership</span>
                     <Badge className="bg-purple-100 text-purple-800">
                       {linkedinAnalysis?.leadership || 7}/10
                     </Badge>
                   </div>
                   <p className="text-xs text-gray-600">
-                    Teknisk ledare med potential för större ansvar
+                    Technical leader with potential for greater responsibility
                   </p>
                 </div>
               </div>
@@ -350,36 +350,36 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Trophy className="h-4 w-4" />
-              Konkurrensanalys
+              Competitive Analysis
             </h4>
             <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h5 className="font-medium text-gray-900 mb-2">Vs. Andra {cvAnalysis?.professionalSummary?.currentRole || 'Utvecklare'}</h5>
+                  <h5 className="font-medium text-gray-900 mb-2">vs. Other {cvAnalysis?.professionalSummary?.currentRole || 'Developers'}</h5>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Teknisk kompetens:</span>
-                      <span className="font-medium text-green-600">Över genomsnitt</span>
+                      <span className="text-gray-600">Technical competence:</span>
+                      <span className="font-medium text-green-600">Above average</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">LinkedIn synlighet:</span>
-                      <span className="font-medium text-orange-600">Under genomsnitt</span>
+                      <span className="text-gray-600">LinkedIn visibility:</span>
+                      <span className="font-medium text-orange-600">Below average</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Certifieringar:</span>
-                      <span className="font-medium text-yellow-600">Genomsnitt</span>
+                      <span className="text-gray-600">Certifications:</span>
+                      <span className="font-medium text-yellow-600">Average</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Konsultmognad:</span>
-                      <span className="font-medium text-blue-600">God potential</span>
+                      <span className="text-gray-600">Consulting readiness:</span>
+                      <span className="font-medium text-blue-600">Good potential</span>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <h5 className="font-medium text-gray-900 mb-2">Unika Styrkor</h5>
+                  <h5 className="font-medium text-gray-900 mb-2">Unique Strengths</h5>
                   <div className="space-y-1">
                     {(linkedinAnalysis?.marketPositioning?.competitiveAdvantages || 
-                      ['Bred teknisk kompetens', 'Strukturerad approach', 'Kvalitetsfokus', 'Problemlösning']).slice(0, 4).map((strength: string, idx: number) => (
+                      ['Broad technical competence', 'Structured approach', 'Quality focus', 'Problem solving']).slice(0, 4).map((strength: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2">
                         <CheckCircle className="h-3 w-3 text-green-500" />
                         <span className="text-sm text-gray-700">{strength}</span>
@@ -395,28 +395,28 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Building className="h-4 w-4" />
-              Personal Brand-analys
+              Personal Brand Analysis
             </h4>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="bg-white p-4 rounded border text-center">
-                <div className="text-lg font-bold text-blue-600 mb-1">Teknisk Expert</div>
-                <div className="text-sm text-gray-600 mb-2">Nuvarande Uppfattning</div>
+                <div className="text-lg font-bold text-blue-600 mb-1">Technical Expert</div>
+                <div className="text-sm text-gray-600 mb-2">Current Perception</div>
                 <div className="text-xs text-gray-500">
-                  Ses som kompetent utvecklare med solid teknisk grund
+                  Seen as competent developer with solid technical foundation
                 </div>
               </div>
               <div className="bg-white p-4 rounded border text-center">
-                <div className="text-lg font-bold text-green-600 mb-1">Problemlösare</div>
+                <div className="text-lg font-bold text-green-600 mb-1">Problem Solver</div>
                 <div className="text-sm text-gray-600 mb-2">Emerging Brand</div>
                 <div className="text-xs text-gray-500">
-                  Potential att bygga rykte som strategisk problemlösare
+                  Potential to build reputation as strategic problem solver
                 </div>
               </div>
               <div className="bg-white p-4 rounded border text-center">
                 <div className="text-lg font-bold text-purple-600 mb-1">Thought Leader</div>
-                <div className="text-sm text-gray-600 mb-2">Tillväxtområde</div>
+                <div className="text-sm text-gray-600 mb-2">Growth Area</div>
                 <div className="text-xs text-gray-500">
-                  Stor potential för branschledarskap och synlighet
+                  Great potential for industry leadership and visibility
                 </div>
               </div>
             </div>
