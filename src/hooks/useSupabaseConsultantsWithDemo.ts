@@ -17,8 +17,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Fetch ALL consultants - both network (user_id IS NULL) and user's own consultants
-        // Remove cv_analysis and linkedin_analysis columns as they don't exist
+        // Fetch ALL consultants from database (efter att vi tog bort network consultants är alla "existing")
         const { data: allData, error: fetchError } = await supabase
           .from('consultants')
           .select('*')
@@ -30,7 +29,7 @@ export const useSupabaseConsultantsWithDemo = () => {
 
         console.log('🔍 Raw database consultants:', allData?.length || 0);
 
-        // Map all consultants from database
+        // Map all consultants from database - alla ska vara "existing" nu
         const mappedConsultants: Consultant[] = (allData || []).map((c: any) => ({
           id: c.id,
           name: c.name || 'Unknown Name',
@@ -48,7 +47,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           lastActive: c.last_active || 'Recently',
           roles: c.roles || ['Consultant'],
           certifications: c.certifications || [],
-          type: c.user_id ? 'existing' : 'new', // Network consultants have user_id = NULL
+          type: 'existing', // 🎯 CRITICAL: Alla konsulter från databasen är nu "existing"
           user_id: c.user_id, // Include user_id in the mapped data
           languages: c.languages || [],
           workStyle: c.work_style || '',
@@ -62,8 +61,6 @@ export const useSupabaseConsultantsWithDemo = () => {
         }));
 
         console.log('🔍 Mapped consultants from DB:', mappedConsultants.length);
-        console.log('🔍 Network consultants (user_id=null):', mappedConsultants.filter(c => !c.user_id).length);
-        console.log('🔍 User consultants (user_id exists):', mappedConsultants.filter(c => c.user_id).length);
 
         // 🎯 CRITICAL: Set user_id for demo consultants so they appear under "My Consultants"
         const demoConsultantsWithUserId = myDemoConsultants.map(consultant => ({
@@ -73,11 +70,6 @@ export const useSupabaseConsultantsWithDemo = () => {
         }));
 
         console.log('🔍 Demo consultants prepared:', demoConsultantsWithUserId.length);
-        console.log('🔍 Demo consultants details:', demoConsultantsWithUserId.map(c => ({ 
-          name: c.name, 
-          type: c.type, 
-          user_id: c.user_id 
-        })));
 
         // Combine with demo consultants
         const allConsultants = [...mappedConsultants, ...demoConsultantsWithUserId];
@@ -129,52 +121,10 @@ export const useSupabaseConsultantsWithDemo = () => {
     }
   };
 
+  // Ta bort clearAllNetworkConsultants funktionen eftersom vi inte har network consultants längre
   const clearAllNetworkConsultants = async () => {
-    try {
-      console.log('🧹 Starting to clear ALL network consultants...');
-      
-      // Get all network consultants (user_id IS NULL)
-      const { data: networkConsultants, error: fetchError } = await supabase
-        .from('consultants')
-        .select('id, name, email, created_at')
-        .is('user_id', null);
-
-      if (fetchError) {
-        throw fetchError;
-      }
-
-      console.log(`Found ${networkConsultants?.length || 0} network consultants to delete`);
-
-      if (!networkConsultants || networkConsultants.length === 0) {
-        console.log('No network consultants found to delete');
-        return { success: true, deletedCount: 0 };
-      }
-
-      // Delete ALL network consultants
-      const idsToDelete = networkConsultants.map(c => c.id);
-
-      console.log(`Deleting ALL ${idsToDelete.length} network consultants`);
-
-      // Delete the consultants
-      const { error: deleteError } = await supabase
-        .from('consultants')
-        .delete()
-        .in('id', idsToDelete);
-
-      if (deleteError) {
-        throw deleteError;
-      }
-
-      console.log(`✅ Successfully deleted ${idsToDelete.length} network consultants`);
-      
-      // Refresh the consultants list
-      window.location.reload();
-      
-      return { success: true, deletedCount: idsToDelete.length };
-    } catch (error) {
-      console.error('❌ Error clearing network consultants:', error);
-      throw error;
-    }
+    console.log('🧹 No network consultants to clear - all consultants are now "My Consultants"');
+    return { success: true, deletedCount: 0 };
   };
 
   return { consultants, isLoading, error, updateConsultant, clearAllNetworkConsultants };

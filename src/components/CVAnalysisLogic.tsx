@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -184,9 +185,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const extractedCertifications = education?.certifications || [];
       const extractedLanguages = personalInfo?.languages || ['Swedish', 'English'];
 
-      // Determine if this is "My Consultant" based on URL params
-      const urlParams = new URLSearchParams(window.location.search);
-      const isMyConsultant = urlParams.get('source') === 'my-consultants';
+      // 🎯 CRITICAL: ALLA konsulter ska vara "My Consultants" nu
+      // Ta bort source parameter check - alla ska hamna under My Consultants
+      const isMyConsultant = true; // Alla nya konsulter ska vara "My Consultants"
 
       // 🎯 CRITICAL: Get current user for proper user_id assignment
       const { data: { user } } = await supabase.auth.getUser();
@@ -224,8 +225,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         rating: 5.0,
         projects_completed: 0,
         last_active: 'Today',
-        type: isMyConsultant ? 'existing' : 'new', // 🎯 CRITICAL: Set type based on source
-        user_id: isMyConsultant ? user?.id : null, // 🎯 CRITICAL: Set user_id for my consultants, null for network
+        type: 'existing', // 🎯 CRITICAL: Alla konsulter ska vara "existing" (My Consultants)
+        user_id: user?.id || null, // 🎯 CRITICAL: Sätt user_id för alla nya konsulter
       };
 
       console.log('🔥 CREATING CONSULTANT with these CRITICAL fields:');
