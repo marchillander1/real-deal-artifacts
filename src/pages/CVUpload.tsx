@@ -46,6 +46,7 @@ const CVUpload: React.FC = () => {
       setFullName('');
       setEmail('');
       setPhoneNumber('');
+      // Don't clear LinkedIn URL as user might have entered it manually
     }
   }, [file, linkedinUrl]);
 
@@ -68,13 +69,16 @@ const CVUpload: React.FC = () => {
     setIsAnalyzing(false);
     setAnalysisProgress(100);
     
-    // 🔥 CRITICAL: Auto-fill form fields from CV analysis if they're empty
+    // 🔥 ENHANCED AUTO-FILL: Fill all available CV data into form fields
     const cvData = analysis.cvAnalysis?.analysis;
     if (cvData) {
       console.log('📝 Auto-filling form from CV analysis:', cvData.personalInfo);
       
-      // Auto-fill name if not already filled
-      if (cvData.personalInfo?.name && cvData.personalInfo.name !== 'Analysis in progress' && !fullName.trim()) {
+      // Auto-fill name if not already filled or if current value is placeholder
+      if (cvData.personalInfo?.name && 
+          cvData.personalInfo.name !== 'Analysis in progress' && 
+          cvData.personalInfo.name !== 'Professional Consultant' &&
+          (!fullName.trim() || fullName === 'Analysis in progress')) {
         console.log('📝 Auto-filling name:', cvData.personalInfo.name);
         setFullName(cvData.personalInfo.name);
       }
@@ -82,18 +86,29 @@ const CVUpload: React.FC = () => {
       // Auto-fill email if not already filled and CV has valid email
       if (cvData.personalInfo?.email && 
           cvData.personalInfo.email !== 'analysis@example.com' && 
+          cvData.personalInfo.email !== 'consultant@example.com' &&
           cvData.personalInfo.email.includes('@') && 
-          !email.trim()) {
+          (!email.trim() || email === 'analysis@example.com')) {
         console.log('📧 Auto-filling email:', cvData.personalInfo.email);
         setEmail(cvData.personalInfo.email);
       }
       
-      // Auto-fill phone if not already filled
+      // Auto-fill phone if not already filled and CV has valid phone
       if (cvData.personalInfo?.phone && 
           cvData.personalInfo.phone !== '+46 70 123 4567' && 
-          !phoneNumber.trim()) {
+          cvData.personalInfo.phone !== '+1 555 123 4567' &&
+          (!phoneNumber.trim() || phoneNumber === '+46 70 123 4567')) {
         console.log('📞 Auto-filling phone:', cvData.personalInfo.phone);
         setPhoneNumber(cvData.personalInfo.phone);
+      }
+      
+      // Auto-fill LinkedIn URL if not already filled and CV has LinkedIn profile
+      if (cvData.personalInfo?.linkedinProfile && 
+          cvData.personalInfo.linkedinProfile !== 'Unknown' &&
+          cvData.personalInfo.linkedinProfile.includes('linkedin.com') &&
+          (!linkedinUrl.trim() || linkedinUrl === 'Unknown')) {
+        console.log('🔗 Auto-filling LinkedIn URL:', cvData.personalInfo.linkedinProfile);
+        setLinkedinUrl(cvData.personalInfo.linkedinProfile);
       }
     }
   };
@@ -126,7 +141,7 @@ const CVUpload: React.FC = () => {
     console.log('🎯 Submit initiated with:', { email, fullName, analysisResults: !!analysisResults });
     
     // 🔥 CRITICAL: Validate email before proceeding
-    if (!email || email.trim() === '') {
+    if (!email || email.trim() === '' || email === 'analysis@example.com') {
       toast({
         title: "Email Required",
         description: "Please provide a valid email address.",
@@ -340,7 +355,7 @@ const CVUpload: React.FC = () => {
                     onSubmit={handleSubmit}
                   />
                   
-                  {/* 🔥 CRITICAL: CVAnalysisLogic component - now waits for CV to be analyzed first */}
+                  {/* CVAnalysisLogic component - waits for both CV and LinkedIn URL */}
                   <CVAnalysisLogic
                     cvFile={file}
                     linkedinUrl={linkedinUrl}
