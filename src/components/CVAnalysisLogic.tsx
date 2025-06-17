@@ -221,10 +221,14 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // Step 5: Send notifications using autofilled email
-      console.log('📧 Sending welcome email to:', autoEmail);
+      // Step 5: Send notifications using autofilled email - IMPROVED ERROR HANDLING
+      console.log('📧 Starting email sending process...');
+      console.log('📧 Will send welcome email to:', autoEmail);
+      console.log('📧 Consultant name for email:', autoName);
+
       try {
         // Send welcome email to the autofilled email address
+        console.log('📧 Calling send-welcome-email function...');
         const welcomeEmailResponse = await supabase.functions.invoke('send-welcome-email', {
           body: {
             consultantEmail: autoEmail,
@@ -233,18 +237,30 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           }
         });
 
-        console.log('📧 Welcome email response:', welcomeEmailResponse);
+        console.log('📧 Welcome email full response:', JSON.stringify(welcomeEmailResponse, null, 2));
 
         if (welcomeEmailResponse.error) {
-          console.error('❌ Welcome email error:', welcomeEmailResponse.error);
-          // Don't fail the whole process, just log the error
+          console.error('❌ Welcome email error details:', welcomeEmailResponse.error);
           toast({
-            title: "Email sending issue",
-            description: "Profile created successfully, but welcome email failed to send",
+            title: "Welcome email failed",
+            description: `Failed to send welcome email: ${welcomeEmailResponse.error.message || 'Unknown error'}`,
+            variant: "destructive",
+          });
+        } else if (welcomeEmailResponse.data) {
+          console.log('✅ Welcome email sent successfully!');
+          console.log('📧 Email response data:', welcomeEmailResponse.data);
+          toast({
+            title: "Welcome email sent!",
+            description: `Welcome email sent to ${autoEmail}`,
             variant: "default",
           });
         } else {
-          console.log('✅ Welcome email sent successfully to:', autoEmail);
+          console.warn('⚠️ Welcome email response has no data or error');
+          toast({
+            title: "Email status unclear",
+            description: "Welcome email may not have been sent properly",
+            variant: "default",
+          });
         }
 
         // Send registration notification to admin
@@ -266,11 +282,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         }
 
       } catch (emailError) {
-        console.error('❌ Email sending failed:', emailError);
+        console.error('❌ Email sending failed with exception:', emailError);
+        console.error('❌ Email error stack:', emailError.stack);
         toast({
-          title: "Email sending issue",
-          description: "Profile created successfully, but emails failed to send",
-          variant: "default",
+          title: "Email sending failed",
+          description: `Could not send welcome email: ${emailError.message}`,
+          variant: "destructive",
         });
       }
 
@@ -284,8 +301,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       });
 
       toast({
-        title: "Analysis completed successfully!",
-        description: `Profile created and welcome email sent to ${autoEmail}`,
+        title: "Analysis completed!",
+        description: `Profile created for ${autoName}`,
       });
 
     } catch (error: any) {
