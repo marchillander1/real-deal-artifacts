@@ -134,9 +134,9 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    // Send welcome email to consultant using Resend
+    // Send welcome email to consultant using Resend with verified domain
     const emailResponse = await resend.emails.send({
-      from: "MatchWise AI <noreply@matchwiseai.se>",
+      from: "MatchWise AI <onboarding@resend.dev>",
       to: [consultantEmail],
       subject: emailContent.subject,
       html: emailHtml,

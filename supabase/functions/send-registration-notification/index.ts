@@ -29,10 +29,10 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log('📧 Sending registration notification:', { consultantName, consultantEmail, isMyConsultant });
 
-    // Send notification to admin
+    // Send notification to admin using verified domain
     const adminEmailResponse = await resend.emails.send({
-      from: "MatchWise AI <noreply@matchwiseai.se>",
-      to: ["admin@matchwiseai.se"],
+      from: "MatchWise AI <onboarding@resend.dev>",
+      to: ["marc@matchwise.tech"],
       subject: `New ${isMyConsultant ? 'Team' : 'Network'} Consultant Registration`,
       html: `
         <h2>New Consultant Registration</h2>
