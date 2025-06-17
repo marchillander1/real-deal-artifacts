@@ -14,11 +14,13 @@ export default function Demo() {
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [matches, setMatches] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const { performAiMatching, isMatching } = useAiMatching();
 
-  const handleAssignmentSubmit = async (newAssignment: Assignment) => {
+  const handleAssignmentCreated = async (newAssignment: Assignment) => {
     console.log('Demo: Assignment created:', newAssignment);
     setAssignment(newAssignment);
+    setShowForm(false);
     
     try {
       const result = await performAiMatching(newAssignment);
@@ -36,6 +38,7 @@ export default function Demo() {
     setAssignment(null);
     setMatches([]);
     setShowResults(false);
+    setShowForm(false);
   };
 
   const anonymizeConsultant = (consultant: any, index: number) => ({
@@ -233,6 +236,17 @@ export default function Demo() {
     );
   }
 
+  if (showForm) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <CreateAssignmentForm 
+          onAssignmentCreated={handleAssignmentCreated}
+          onCancel={() => setShowForm(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
@@ -273,20 +287,26 @@ export default function Demo() {
           </div>
         </div>
 
-        {/* Assignment Form */}
-        <div className="max-w-4xl mx-auto">
+        {/* Assignment Form Card */}
+        <div className="max-w-4xl mx-auto mb-8">
           <Card className="bg-slate-800/50 border-slate-600">
             <CardHeader>
               <CardTitle className="text-white text-center">
                 Create Your Assignment
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <CreateAssignmentForm 
-                onSubmit={handleAssignmentSubmit}
-                isLoading={isMatching}
-                buttonText={isMatching ? "Finding Matches..." : "Find Matching Consultants"}
-              />
+            <CardContent className="text-center">
+              <p className="text-slate-300 mb-6">
+                Fill out the assignment details and our AI will instantly find matching consultants.
+              </p>
+              <Button 
+                onClick={() => setShowForm(true)}
+                disabled={isMatching}
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                {isMatching ? "Finding Matches..." : "Start AI Matching"}
+              </Button>
             </CardContent>
           </Card>
         </div>
