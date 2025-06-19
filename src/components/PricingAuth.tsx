@@ -11,76 +11,80 @@ import { toast } from 'sonner';
 const packages = [
   {
     id: 'basic',
-    name: 'Basic',
-    price: '299',
-    currency: 'SEK',
+    name: 'Basic Plan',
+    price: '99',
+    currency: 'EUR',
     period: 'month',
-    description: 'Perfect for analyzing your own consultants',
+    description: 'For 1-3 users',
     icon: <Star className="h-6 w-6" />,
     color: 'border-blue-200 bg-blue-50',
     features: [
       'Analyze your own consultants',
-      'AI-driven CV analysis',
+      'AI-driven CV and profile analysis',
+      'Detailed consultant profiles',
+      'Save favorites & download CVs',
+      '1 admin + 2 standard users',
       'Basic matching algorithms',
-      'Up to 3 users (1 admin + 2 standard)',
-      'Standard support',
+      'Standard report generation',
+      'Email support',
       'Basic analytics dashboard',
-      'Consultant database management',
-      'Save favorites & download CVs'
+      'Consultant database management'
     ]
   },
   {
-    id: 'premium',
-    name: 'Team',
-    price: '599',
-    currency: 'SEK',
+    id: 'team',
+    name: 'Team Plan',
+    price: '199',
+    currency: 'EUR',
     period: 'month',
-    description: 'Most popular choice for active consulting agencies',
+    description: 'For 3-10 users',
     icon: <Zap className="h-6 w-6" />,
     color: 'border-green-200 bg-green-50',
     popular: true,
     features: [
-      'Everything in Basic',
+      'Everything in Basic, plus:',
       'Access to network consultants',
-      'Advanced AI analysis',
-      'Up to 10 users',
-      'Priority support',
-      'Market insights & trends',
+      'Extended user access (3-10 users)',
       'Role-based access control',
-      'Advanced analytics & insights',
+      'Advanced AI matching algorithms',
+      'Priority email support',
+      'Early access to new features',
       'Export consultant lists',
-      'Integration API access',
-      'Custom search filters'
+      'Advanced analytics & insights',
+      'Custom search filters',
+      'Bulk operations & management',
+      'Integration API access'
     ]
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: '1499',
-    currency: 'SEK',
+    price: '599',
+    currency: 'EUR',
     period: 'month',
-    description: 'For established consulting agencies and teams',
+    description: 'Unlimited users',
     icon: <Crown className="h-6 w-6" />,
     color: 'border-purple-200 bg-purple-50',
     features: [
-      'Everything in Team',
-      'Unlimited number of users',
-      'Personal consultant manager',
-      'Custom branding options',
-      'Advanced analytics',
-      'Custom integrations',
+      'Everything in Team, plus:',
+      'Unlimited searches in consultant database',
+      'Direct access to incoming freelance CVs',
+      'Premium visibility for your assignments',
+      'Full API access & integration capabilities',
       'Dedicated onboarding & training',
       'SLA-guaranteed support',
+      'Unlimited number of users',
+      'Custom branding options',
+      'Advanced reporting & analytics',
       'White-label solutions',
-      'Custom workflows',
-      'Premium API access',
-      'Direct access to incoming freelance CVs'
+      'Dedicated customer success manager',
+      'Custom integrations & workflows'
     ]
   }
 ];
 
 export const PricingAuth = () => {
-  const [selectedPackage, setSelectedPackage] = useState<string>('premium');
+  const [selectedPackage, setSelectedPackage] = useState<string>('team');
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
 
@@ -148,8 +152,8 @@ export const PricingAuth = () => {
                   {pkg.description}
                 </CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-gray-900">{pkg.price}</span>
-                  <span className="text-gray-600 ml-1">SEK/{pkg.period}</span>
+                  <span className="text-4xl font-bold text-gray-900">€{pkg.price}</span>
+                  <span className="text-gray-600 ml-1">/{pkg.period}</span>
                 </div>
               </CardHeader>
 
