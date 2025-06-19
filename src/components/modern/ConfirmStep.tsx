@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -71,20 +70,20 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
       console.log('📧 Email sending result:', emailResult);
 
       if (emailResult.success) {
-        console.log('✅ Emails sent successfully, navigating to success page...');
+        console.log('✅ Emails sent successfully, navigating to analysis page...');
         
-        // Navigate to success page
-        navigate(`/network-success?consultant=${consultantId}`);
+        // Navigate to analysis page instead of network-success
+        navigate(`/analysis?id=${consultantId}`);
       } else {
         console.error('❌ Email sending failed:', emailResult.error);
         
-        // Still navigate to success page even if email fails
+        // Still navigate to analysis page even if email fails
         toast({
           title: "Profile created!",
           description: "Your profile was created successfully, but there was an issue sending the welcome email.",
           variant: "default",
         });
-        navigate(`/network-success?consultant=${consultantId}`);
+        navigate(`/analysis?id=${consultantId}`);
       }
 
     } catch (error: any) {
