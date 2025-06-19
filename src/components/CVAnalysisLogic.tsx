@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Upload, FileText, User, MapPin, Phone, Mail, Briefcase, Star, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { EmailNotificationHandler } from './EmailNotificationHandler';
 
 export interface CVAnalysisLogicProps {
   file: File | null;
@@ -107,7 +108,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     }
 
     try {
-      console.log('🚀 Starting CV and LinkedIn analysis (WITHOUT email sending)');
+      console.log('🚀 Starting CV and LinkedIn analysis');
       setIsAnalyzing(true);
       onAnalysisStart();
       onAnalysisProgress(10);
@@ -167,14 +168,23 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(80);
 
-      // 🔥 TEMPORARY CONSULTANT: Create initial consultant profile WITHOUT sending emails
-      const tempName = cvAnalysisData?.personalInfo?.name || 'Temporary Consultant';
-      const tempEmail = 'temp@analysis.com'; // Temporary email - will be updated when user submits form
+      // Determine if this is My Consultant based on URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const isMyConsultant = urlParams.get('source') === 'my-consultants';
+
+      // 🔥 UPDATED: Create consultant profile AND send emails immediately
+      const finalName = formName || cvAnalysisData?.personalInfo?.name || 'Unnamed Consultant';
+      const finalEmail = formEmail || cvAnalysisData?.personalInfo?.email || 'temp@analysis.com';
       
-      console.log('💾 Creating TEMPORARY consultant profile (no emails sent)...');
+      console.log('💾 Creating consultant profile with real data and sending emails:', {
+        finalName,
+        finalEmail,
+        isMyConsultant
+      });
+
       const consultantData = {
-        name: tempName,
-        email: tempEmail, // Temporary email - will be updated when user submits form
+        name: finalName,
+        email: finalEmail, // 🔥 Use REAL email from form
         phone: cvAnalysisData?.personalInfo?.phone || '',
         location: cvAnalysisData?.personalInfo?.location || 'Location not specified',
         skills: cvAnalysisData?.technicalExpertise?.programmingLanguages?.expert || [],
@@ -187,8 +197,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         projects_completed: 0,
         roles: cvAnalysisData?.technicalExpertise?.frameworks || ['Consultant'],
         certifications: cvAnalysisData?.education?.certifications || [],
-        type: 'new',
-        user_id: null,
+        type: isMyConsultant ? 'existing' : 'new', // 🔥 Set correct type
+        user_id: isMyConsultant ? 'temp-user-id' : null, // 🔥 Set user_id for My Consultants
         languages: cvAnalysisData?.languages || [],
         work_style: cvAnalysisData?.softSkills?.teamwork?.[0] || '',
         values: cvAnalysisData?.softSkills?.leadership || [],
@@ -202,7 +212,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting TEMPORARY consultant data:', consultantData);
+      console.log('💾 Inserting consultant data with real email:', consultantData);
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
@@ -215,8 +225,31 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`Failed to save consultant: ${insertError.message}`);
       }
 
-      console.log('✅ TEMPORARY consultant created successfully (emails will be sent after form submission):', insertedConsultant);
+      console.log('✅ Consultant created successfully:', insertedConsultant);
       setCreatedConsultant(insertedConsultant);
+      onAnalysisProgress(90);
+
+      // 🔥 SEND EMAILS IMMEDIATELY AFTER SUCCESSFUL CREATION
+      console.log('📧 🚨 SENDING WELCOME EMAILS IMMEDIATELY WITH REAL DATA');
+      try {
+        await EmailNotificationHandler.sendWelcomeEmails({
+          consultantId: insertedConsultant.id,
+          finalEmail: finalEmail, // 🔥 Use REAL email from form
+          finalName: finalName,
+          isMyConsultant: isMyConsultant,
+          toast: toast
+        });
+        console.log('✅ Welcome emails sent successfully!');
+      } catch (emailError) {
+        console.error('❌ Email sending failed:', emailError);
+        // Don't fail the whole process if email fails
+        toast({
+          title: "Registration successful",
+          description: "Profile created but email notification failed. Please contact support.",
+          variant: "default",
+        });
+      }
+
       onAnalysisProgress(100);
 
       // Call the completion callback with enhanced results
@@ -228,8 +261,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       });
 
       toast({
-        title: "Analysis completed!",
-        description: "Please complete the registration form to finalize",
+        title: "Analysis and registration completed!",
+        description: `Welcome emails sent to ${finalEmail}`,
       });
 
     } catch (error: any) {
