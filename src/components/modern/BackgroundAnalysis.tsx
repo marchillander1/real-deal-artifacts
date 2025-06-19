@@ -81,6 +81,33 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
         console.log('🔍 Extracted CV data:', cvData);
         console.log('🔍 Detected info:', detectedInfo);
         
+        // Enhanced personal info extraction with better fallbacks
+        const extractedName = 
+          (detectedInfo?.names?.[0] && detectedInfo.names[0] !== 'Ej specificerat' && detectedInfo.names[0] !== 'Not specified') 
+            ? detectedInfo.names[0] 
+            : (cvData?.personalInfo?.name && cvData.personalInfo.name !== 'Ej specificerat' && cvData.personalInfo.name !== 'Not specified') 
+            ? cvData.personalInfo.name 
+            : 'Professional Consultant';
+            
+        const extractedEmail = 
+          (detectedInfo?.emails?.[0] && detectedInfo.emails[0] !== 'Ej specificerat' && detectedInfo.emails[0] !== 'Not specified' && detectedInfo.emails[0].includes('@')) 
+            ? detectedInfo.emails[0] 
+            : (cvData?.personalInfo?.email && cvData.personalInfo.email !== 'Ej specificerat' && cvData.personalInfo.email !== 'Not specified' && cvData.personalInfo.email.includes('@')) 
+            ? cvData.personalInfo.email 
+            : '';
+            
+        const extractedPhone = 
+          (detectedInfo?.phones?.[0] && detectedInfo.phones[0] !== 'Ej specificerat' && detectedInfo.phones[0] !== 'Not specified') 
+            ? detectedInfo.phones[0] 
+            : (cvData?.personalInfo?.phone && cvData.personalInfo.phone !== 'Ej specificerat' && cvData.personalInfo.phone !== 'Not specified') 
+            ? cvData.personalInfo.phone 
+            : '';
+            
+        const extractedLocation = 
+          (cvData?.personalInfo?.location && cvData.personalInfo.location !== 'Ej specificerat' && cvData.personalInfo.location !== 'Not specified') 
+            ? cvData.personalInfo.location 
+            : '';
+
         // Extract skills with robust handling
         let allSkills: string[] = [];
         if (cvData?.skills) {
@@ -125,13 +152,6 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
         }
 
         console.log('📅 Experience years:', experienceYears);
-
-        // Extract personal info with smart fallbacks
-        const extractedName = detectedInfo?.names?.[0] || cvData?.personalInfo?.name || 'Professional Consultant';
-        const extractedEmail = detectedInfo?.emails?.[0] || cvData?.personalInfo?.email || 'temp@temp.com';
-        const extractedPhone = detectedInfo?.phones?.[0] || cvData?.personalInfo?.phone || '';
-        const extractedLocation = cvData?.personalInfo?.location || '';
-
         console.log('👤 Extracted personal info:', {
           name: extractedName,
           email: extractedEmail,
@@ -147,7 +167,7 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
           location: extractedLocation,
           skills: allSkills,
           experience_years: experienceYears,
-          hourly_rate: 1000,
+          hourly_rate: 1200,
           availability: 'Available',
           cv_file_path: file.name,
           communication_style: linkedinData?.communicationStyle || 'Professional communication',

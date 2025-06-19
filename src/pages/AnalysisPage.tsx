@@ -19,7 +19,9 @@ import {
   Star,
   MapPin,
   Mail,
-  Phone
+  Phone,
+  Eye,
+  MessageSquare
 } from 'lucide-react';
 
 interface ConsultantData {
@@ -89,11 +91,12 @@ const AnalysisPage: React.FC = () => {
 
       if (updateError) throw updateError;
 
+      // Send welcome email
       const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
         body: {
-          email: consultant.email,
-          name: consultant.name,
-          consultantId: consultant.id
+          consultantEmail: consultant.email,
+          consultantName: consultant.name,
+          isMyConsultant: false
         }
       });
 
@@ -106,9 +109,8 @@ const AnalysisPage: React.FC = () => {
         description: "You're now visible to potential clients. Check your email for next steps.",
       });
 
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+      // Navigate to success page instead of home
+      navigate(`/network-success?consultant=${consultant.id}`);
 
     } catch (error: any) {
       console.error('Error joining network:', error);
@@ -207,10 +209,10 @@ const AnalysisPage: React.FC = () => {
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-              🎯 Din Personliga Konsultanalys
+              🎯 Your Personal Consultant Analysis
             </h1>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Denna rapport baseras på din nuvarande profil och ger dig konkreta åtgärder för att förbättra din synlighet, höja din timtaxa och hitta bättre uppdrag – snabbare.
+              This comprehensive report analyzes your current profile and provides actionable insights to improve your visibility, increase your hourly rate, and find better assignments faster.
             </p>
           </div>
 
@@ -240,15 +242,82 @@ const AnalysisPage: React.FC = () => {
                   )}
                 </div>
                 <p className="text-lg text-slate-600">
-                  {experienceYears > 0 ? `${experienceYears}+ års erfarenhet` : 'Erfaren konsult'}
+                  {experienceYears > 0 ? `${experienceYears}+ years of experience` : 'Experienced consultant'}
                   {cvData?.professionalSummary?.currentRole && 
                     ` • ${cvData.professionalSummary.currentRole}`}
                 </p>
               </div>
               <div className="text-center md:text-right">
                 <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-6 py-3 rounded-xl">
-                  <div className="text-sm opacity-90">Nuvarande timtaxa</div>
-                  <div className="text-2xl font-bold">{currentRate} kr/tim</div>
+                  <div className="text-sm opacity-90">Current hourly rate</div>
+                  <div className="text-2xl font-bold">{currentRate} SEK/hour</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* How You're Perceived - NEW ANALYSIS */}
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
+            <div className="flex items-center mb-6">
+              <Eye className="h-8 w-8 text-indigo-600 mr-3" />
+              <h3 className="text-2xl font-bold text-slate-900">How You're Perceived</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md: grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-slate-900 mb-2">CV Perception</h4>
+                  <div className="bg-blue-50 rounded-xl p-4">
+                    <p className="text-blue-800 mb-2">
+                      <strong>Professional Image:</strong> {cvData?.professionalSummary?.seniorityLevel || 'Mid-Senior'} level consultant
+                    </p>
+                    <p className="text-blue-700 text-sm">
+                      Your CV presents you as {experienceYears >= 7 ? 'a highly experienced' : experienceYears >= 3 ? 'an experienced' : 'an emerging'} professional with 
+                      {technicalSkills.length > 10 ? ' diverse technical expertise' : ' solid technical skills'}.
+                    </p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-slate-900 mb-2">Market Positioning</h4>
+                  <div className="bg-green-50 rounded-xl p-4">
+                    <p className="text-green-800 mb-2">
+                      <strong>Competitive Level:</strong> {currentRate >= 1500 ? 'Premium' : currentRate >= 1000 ? 'Mid-Market' : 'Entry-Level'} pricing
+                    </p>
+                    <p className="text-green-700 text-sm">
+                      Based on your profile, you're positioned in the {currentRate >= 1200 ? 'upper' : 'middle'} tier of the consultant market.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {linkedinData && (
+                  <div>
+                    <h4 className="font-semibold text-slate-900 mb-2">LinkedIn Presence</h4>
+                    <div className="bg-purple-50 rounded-xl p-4">
+                      <p className="text-purple-800 mb-2">
+                        <strong>Communication Style:</strong> {linkedinData.communicationStyle || 'Professional'}
+                      </p>
+                      <p className="text-purple-700 text-sm">
+                        Your LinkedIn profile suggests {linkedinData.overallConsultantReadiness >= 7 ? 'strong' : 'moderate'} consultant readiness with 
+                        {linkedinData.leadership >= 4 ? ' strong leadership qualities' : ' good collaborative skills'}.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                <div>
+                  <h4 className="font-semibold text-slate-900 mb-2">First Impression</h4>
+                  <div className="bg-orange-50 rounded-xl p-4">
+                    <p className="text-orange-800 mb-2">
+                      <strong>Client Perception:</strong> {technicalSkills.length >= 8 ? 'Technical Expert' : 'Specialized Professional'}
+                    </p>
+                    <p className="text-orange-700 text-sm">
+                      Clients likely see you as {experienceYears >= 5 ? 'a seasoned consultant' : 'a capable professional'} with 
+                      {cvData?.professionalSummary?.industryFocus ? ` ${cvData.professionalSummary.industryFocus} expertise` : ' broad technical capabilities'}.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -259,12 +328,12 @@ const AnalysisPage: React.FC = () => {
             <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
               <div className="flex items-center mb-6">
                 <Code className="h-8 w-8 text-blue-600 mr-3" />
-                <h3 className="text-2xl font-bold text-slate-900">Teknisk Kompetens</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Technical Expertise</h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-3">Identifierade Färdigheter</h4>
+                  <h4 className="font-semibold text-slate-900 mb-3">Identified Skills ({technicalSkills.length})</h4>
                   <div className="flex flex-wrap gap-2">
                     {technicalSkills.slice(0, 12).map((skill, index) => (
                       <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -273,7 +342,7 @@ const AnalysisPage: React.FC = () => {
                     ))}
                     {technicalSkills.length > 12 && (
                       <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm">
-                        +{technicalSkills.length - 12} fler
+                        +{technicalSkills.length - 12} more
                       </span>
                     )}
                   </div>
@@ -281,10 +350,18 @@ const AnalysisPage: React.FC = () => {
                 
                 {cvData?.professionalSummary?.industryFocus && (
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-3">Branschfokus</h4>
+                    <h4 className="font-semibold text-slate-900 mb-3">Industry Focus</h4>
                     <p className="text-slate-600">{cvData.professionalSummary.industryFocus}</p>
                   </div>
                 )}
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+                <h4 className="font-semibold text-blue-900 mb-2">Skill Assessment</h4>
+                <p className="text-blue-800">
+                  Your technical profile shows {technicalSkills.length >= 15 ? 'exceptional breadth' : technicalSkills.length >= 8 ? 'solid diversity' : 'focused expertise'} 
+                  {cvData?.technicalExpertise?.programmingLanguages?.expert?.length > 0 && ` with expert-level knowledge in ${cvData.technicalExpertise.programmingLanguages.expert.join(', ')}`}.
+                </p>
               </div>
             </div>
           )}
@@ -294,7 +371,7 @@ const AnalysisPage: React.FC = () => {
             <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
               <div className="flex items-center mb-6">
                 <Briefcase className="h-8 w-8 text-purple-600 mr-3" />
-                <h3 className="text-2xl font-bold text-slate-900">Arbetslivserfarenhet</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Professional Experience</h3>
               </div>
               
               <div className="space-y-4">
@@ -309,41 +386,70 @@ const AnalysisPage: React.FC = () => {
                   </div>
                 ))}
               </div>
+              
+              <div className="mt-6 p-4 bg-purple-50 rounded-xl">
+                <h4 className="font-semibold text-purple-900 mb-2">Experience Analysis</h4>
+                <p className="text-purple-800">
+                  Your {experienceYears} years of experience across {workExperience.length} roles demonstrates 
+                  {workExperience.length >= 4 ? ' strong career progression' : ' solid professional development'} and 
+                  {cvData?.professionalSummary?.seniorityLevel === 'Senior' ? ' senior-level expertise' : ' growing expertise'}.
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Market Value */}
+          {/* Market Value & Rate Analysis */}
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
             <div className="flex items-center mb-6">
               <TrendingUp className="h-8 w-8 text-green-600 mr-3" />
-              <h3 className="text-2xl font-bold text-slate-900">Marknadsvärdering</h3>
+              <h3 className="text-2xl font-bold text-slate-900">Market Valuation & Rate Optimization</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-blue-50 rounded-xl p-6">
-                <h4 className="font-bold text-blue-900 mb-2">Nuvarande estimat</h4>
+                <h4 className="font-bold text-blue-900 mb-2">Current Rate</h4>
                 <p className="text-3xl font-bold text-blue-600 mb-2">
-                  {currentRate} kr/tim
+                  {currentRate} SEK/h
                 </p>
                 <p className="text-sm text-blue-700">
-                  Baserat på din nuvarande profil och marknadsnachfrågan
+                  Your current positioning in the market
                 </p>
               </div>
               
               <div className="bg-green-50 rounded-xl p-6">
-                <h4 className="font-bold text-green-900 mb-2">Optimerad potential</h4>
+                <h4 className="font-bold text-green-900 mb-2">Market Rate</h4>
                 <p className="text-3xl font-bold text-green-600 mb-2">
-                  {Math.round(optimizedRate)} kr/tim
+                  {recommendedRate > 0 ? recommendedRate : Math.round(currentRate * 1.15)} SEK/h
                 </p>
                 <p className="text-sm text-green-700">
-                  Efter att ha implementerat våra rekommendationer
+                  Competitive rate for your profile
+                </p>
+              </div>
+              
+              <div className="bg-orange-50 rounded-xl p-6">
+                <h4 className="font-bold text-orange-900 mb-2">Optimized Rate</h4>
+                <p className="text-3xl font-bold text-orange-600 mb-2">
+                  {Math.round(optimizedRate)} SEK/h
+                </p>
+                <p className="text-sm text-orange-700">
+                  After implementing improvements
                 </p>
                 <div className="mt-2">
-                  <span className="bg-green-200 text-green-800 px-2 py-1 rounded text-xs font-medium">
-                    +{Math.round(((optimizedRate - currentRate) / currentRate) * 100)}% ökning
+                  <span className="bg-orange-200 text-orange-800 px-2 py-1 rounded text-xs font-medium">
+                    +{Math.round(((optimizedRate - currentRate) / currentRate) * 100)}% potential increase
                   </span>
                 </div>
               </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-slate-50 rounded-xl">
+              <h4 className="font-semibold text-slate-900 mb-2">Rate Justification Strategy</h4>
+              <ul className="text-slate-700 text-sm space-y-1">
+                <li>• Highlight your {experienceYears}+ years of experience and {technicalSkills.length} technical skills</li>
+                <li>• Emphasize {cvData?.professionalSummary?.industryFocus ? `your ${cvData.professionalSummary.industryFocus} specialization` : 'your broad technical expertise'}</li>
+                <li>• Showcase {workExperience.length > 3 ? 'diverse project experience' : 'focused expertise'} across different organizations</li>
+                {linkedinData?.leadership >= 4 && <li>• Leverage your demonstrated leadership capabilities</li>}
+              </ul>
             </div>
           </div>
 
@@ -352,18 +458,18 @@ const AnalysisPage: React.FC = () => {
             <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
               <div className="flex items-center mb-6">
                 <Star className="h-8 w-8 text-indigo-600 mr-3" />
-                <h3 className="text-2xl font-bold text-slate-900">LinkedIn Profil Analys</h3>
+                <h3 className="text-2xl font-bold text-slate-900">LinkedIn Profile Analysis</h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-2">Kommunikationsstil</h4>
-                    <p className="text-slate-600 text-sm">{linkedinData.communicationStyle}</p>
+                    <h4 className="font-semibold text-slate-900 mb-2">Communication Style</h4>
+                    <p className="text-slate-600 text-sm bg-slate-50 p-3 rounded-lg">{linkedinData.communicationStyle}</p>
                   </div>
                   
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-2">Ledarskapsgrad</h4>
+                    <h4 className="font-semibold text-slate-900 mb-2">Leadership Level</h4>
                     <div className="flex items-center gap-2">
                       <div className="bg-indigo-100 rounded-full px-3 py-1">
                         <span className="text-indigo-800 font-medium">{linkedinData.leadership}/5</span>
@@ -375,18 +481,18 @@ const AnalysisPage: React.FC = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-slate-900 mb-2">Konsultberedskap</h4>
+                    <h4 className="font-semibold text-slate-900 mb-2">Consultant Readiness</h4>
                     <div className="flex items-center gap-2">
                       <div className="bg-green-100 rounded-full px-3 py-1">
                         <span className="text-green-800 font-medium">{linkedinData.overallConsultantReadiness}/10</span>
                       </div>
-                      <span className="text-slate-600 text-sm">Redo för konsultuppdrag</span>
+                      <span className="text-slate-600 text-sm">Ready for consulting work</span>
                     </div>
                   </div>
                   
                   {linkedinData.contentAnalysisInsights?.primaryExpertiseAreas && (
                     <div>
-                      <h4 className="font-semibold text-slate-900 mb-2">Primära expertområden</h4>
+                      <h4 className="font-semibold text-slate-900 mb-2">Primary Expertise Areas</h4>
                       <div className="flex flex-wrap gap-1">
                         {linkedinData.contentAnalysisInsights.primaryExpertiseAreas.map((area: string, index: number) => (
                           <span key={index} className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs">
@@ -398,6 +504,17 @@ const AnalysisPage: React.FC = () => {
                   )}
                 </div>
               </div>
+              
+              {linkedinData.recommendedImprovements && (
+                <div className="mt-6 p-4 bg-indigo-50 rounded-xl">
+                  <h4 className="font-semibold text-indigo-900 mb-2">LinkedIn Optimization Suggestions</h4>
+                  <ul className="text-indigo-800 text-sm space-y-1">
+                    {linkedinData.recommendedImprovements.slice(0, 4).map((improvement: string, index: number) => (
+                      <li key={index}>• {improvement}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
@@ -405,65 +522,79 @@ const AnalysisPage: React.FC = () => {
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
             <div className="flex items-center mb-6">
               <Lightbulb className="h-8 w-8 text-yellow-600 mr-3" />
-              <h3 className="text-2xl font-bold text-slate-900">Handlingsplan</h3>
+              <h3 className="text-2xl font-bold text-slate-900">Comprehensive Action Plan</h3>
             </div>
             
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-slate-900">Förbättra CV-presentation</h4>
-                  <p className="text-slate-600">Fokusera på resultat och affärsnytta istället för bara tekniska färdigheter</p>
+                  <h4 className="font-semibold text-slate-900">Optimize CV Presentation</h4>
+                  <p className="text-slate-600">Focus on business impact and results rather than just technical skills. Quantify achievements where possible.</p>
                 </div>
               </div>
               
               <div className="flex items-start space-x-3">
                 <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-slate-900">Optimera LinkedIn-profil</h4>
-                  <p className="text-slate-600">Uppdatera rubrik och sammanfattning för att visa din konsultpotential</p>
+                  <h4 className="font-semibold text-slate-900">Enhance LinkedIn Profile</h4>
+                  <p className="text-slate-600">Update headline and summary to showcase your consulting potential and thought leadership.</p>
                 </div>
               </div>
               
-              {linkedinData?.recommendedImprovements && (
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-semibold text-slate-900">LinkedIn-förbättringar</h4>
-                    <ul className="text-slate-600 text-sm mt-1">
-                      {linkedinData.recommendedImprovements.slice(0, 3).map((improvement: string, index: number) => (
-                        <li key={index} className="mb-1">• {improvement}</li>
-                      ))}
-                    </ul>
-                  </div>
+              <div className="flex items-start space-x-3">
+                <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-slate-900">Rate Optimization Strategy</h4>
+                  <p className="text-slate-600">Gradually increase rates by {Math.round(((optimizedRate - currentRate) / currentRate) * 100)}% over 6 months, supported by case studies and testimonials.</p>
                 </div>
-              )}
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-slate-900">Build Thought Leadership</h4>
+                  <p className="text-slate-600">Share insights about {cvData?.professionalSummary?.industryFocus || 'your expertise'} through articles and posts to establish authority.</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Certifications */}
+          {/* Recommended Certifications */}
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
             <div className="flex items-center mb-6">
               <Award className="h-8 w-8 text-purple-600 mr-3" />
-              <h3 className="text-2xl font-bold text-slate-900">Föreslagna Certifieringar</h3>
+              <h3 className="text-2xl font-bold text-slate-900">Strategic Certifications</h3>
             </div>
             
-            <p className="text-slate-600 mb-6">Stärk din trovärdighet och höj din timtaxa med:</p>
+            <p className="text-slate-600 mb-6">Strengthen your credibility and justify higher rates with these certifications:</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
                 <h4 className="font-bold text-orange-900 mb-2">AWS Solutions Architect</h4>
-                <p className="text-sm text-orange-700">Efterfrågad molncertifiering</p>
+                <p className="text-sm text-orange-700 mb-3">High-demand cloud certification</p>
+                <div className="text-xs text-orange-600">
+                  <p>• Potential rate increase: +200-300 SEK/h</p>
+                  <p>• ROI timeline: 3-6 months</p>
+                </div>
               </div>
               
               <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
                 <h4 className="font-bold text-blue-900 mb-2">Azure Fundamentals</h4>
-                <p className="text-sm text-blue-700">Microsoft molnplattform</p>
+                <p className="text-sm text-blue-700 mb-3">Microsoft cloud platform</p>
+                <div className="text-xs text-blue-600">
+                  <p>• Potential rate increase: +150-250 SEK/h</p>
+                  <p>• ROI timeline: 2-4 months</p>
+                </div>
               </div>
               
               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                <h4 className="font-bold text-green-900 mb-2">Scrum Master</h4>
-                <p className="text-sm text-green-700">Agil projektledning</p>
+                <h4 className="font-bold text-green-900 mb-2">Certified Scrum Master</h4>
+                <p className="text-sm text-green-700 mb-3">Agile project management</p>
+                <div className="text-xs text-green-600">
+                  <p>• Potential rate increase: +100-200 SEK/h</p>
+                  <p>• ROI timeline: 1-3 months</p>
+                </div>
               </div>
             </div>
           </div>
@@ -474,10 +605,10 @@ const AnalysisPage: React.FC = () => {
               <Users className="h-12 w-12" />
             </div>
             
-            <h3 className="text-3xl font-bold mb-4">Redo att bli sedd av rätt kunder?</h3>
+            <h3 className="text-3xl font-bold mb-4">Ready to be discovered by the right clients?</h3>
             <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Gå med i MatchWise Network och bli presenterad bland toppkonsulter på vår plattform. 
-              Vi matchar dig baserat på färdigheter, värderingar och timing – inte bara titlar.
+              Join the MatchWise Network and be featured among top consultants on our platform. 
+              We match you based on skills, values, and timing – not just titles.
             </p>
             
             <button
@@ -488,10 +619,10 @@ const AnalysisPage: React.FC = () => {
               {isJoining ? (
                 <div className="flex items-center space-x-2">
                   <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  <span>Ansluter till nätverk...</span>
+                  <span>Joining network...</span>
                 </div>
               ) : (
-                'Gå med i MatchWise Network'
+                'Join MatchWise Network'
               )}
             </button>
           </div>

@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import CVUploadModern from "./pages/CVUploadModern";
 import AnalysisPage from "./pages/AnalysisPage";
+import NetworkSuccess from "./pages/NetworkSuccess";
 import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/cv-upload" element={<CVUploadModern />} />
                 <Route path="/analysis" element={<AnalysisPage />} />
+                <Route path="/network-success" element={<NetworkSuccess />} />
                 
                 {/* Protected routes */}
                 <Route path="/matchwiseai" element={
