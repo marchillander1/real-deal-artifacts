@@ -11,7 +11,7 @@ import Navbar from '@/components/landing/Navbar';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-900">
       <Navbar />
       <HeroSection user={null} totalNetworkConsultants={150} />
       <ProblemSection />

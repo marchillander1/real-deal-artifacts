@@ -14,7 +14,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ user, totalNetworkConsultants }: HeroSectionProps) {
   return (
-    <section className="py-20 relative">
+    <section className="py-20 relative bg-slate-900">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
@@ -57,7 +57,7 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
                 <Link to="/auth">
                   <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-600 text-white hover:bg-slate-800 bg-slate-900/50 backdrop-blur-sm">
                     <Zap className="mr-2 h-5 w-5" />
-                    Start Free Trial
+                    Go to Dashboard
                   </Button>
                 </Link>
               )}
@@ -123,7 +123,7 @@ export default function HeroSection({ user, totalNetworkConsultants }: HeroSecti
                           <Users className="h-5 w-5 text-blue-400" />
                           <span className="text-xs text-blue-300">+15%</span>
                         </div>
-                        <div className="text-xl font-bold text-white">{totalNetworkConsultants}</div>
+                        <div className="text-xl font-bold text-white">33</div>
                         <div className="text-xs text-blue-300">Network Consultants</div>
                       </CardContent>
                     </Card>
