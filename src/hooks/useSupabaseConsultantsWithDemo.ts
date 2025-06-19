@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,8 +32,17 @@ export const useSupabaseConsultantsWithDemo = () => {
         console.log('🔄 Mapping consultant with analysis data:', consultant.name, {
           hasAnalysisData: !!(consultant as any).cv_analysis_data || !!(consultant as any).linkedin_analysis_data,
           cvAnalysisData: (consultant as any).cv_analysis_data,
-          linkedinAnalysisData: (consultant as any).linkedin_analysis_data
+          linkedinAnalysisData: (consultant as any).linkedin_analysis_data,
+          user_id: consultant.user_id,
+          type: consultant.type
         });
+        
+        // 🔥 FIXED: Determine type based on user_id AND type field
+        // Network consultants: user_id = null OR type = 'new' 
+        // My consultants: user_id exists AND type = 'existing'
+        const consultantType = (!consultant.user_id || consultant.type === 'new') ? 'new' : 'existing';
+        
+        console.log(`👤 Consultant ${consultant.name}: user_id=${consultant.user_id}, db_type=${consultant.type}, final_type=${consultantType}`);
         
         return {
           id: consultant.id,
@@ -57,7 +67,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           lastActive: consultant.last_active || 'Today',
           availability: consultant.availability || 'Available',
           rating: consultant.rating || 5.0,
-          type: consultant.type || 'existing',
+          type: consultantType, // 🔥 Use the corrected type
           culturalFit: consultant.cultural_fit || 5,
           adaptability: consultant.adaptability || 5,
           leadership: consultant.leadership || 3,
@@ -83,6 +93,8 @@ export const useSupabaseConsultantsWithDemo = () => {
     ];
 
     console.log('📊 Total combined consultants:', allConsultants.length);
+    console.log('📊 Network consultants (type=new):', allConsultants.filter(c => c.type === 'new').length);
+    console.log('📊 My consultants (type=existing):', allConsultants.filter(c => c.type === 'existing').length);
     console.log('🔍 Consultants with analysis data:', allConsultants.filter(c => c.cvAnalysis || c.linkedinAnalysis).length);
     
     setConsultants(allConsultants);
