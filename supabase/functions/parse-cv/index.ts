@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting comprehensive CV parsing...');
+    console.log('🚀 Starting comprehensive CV parsing with enhanced extraction...');
     
     // Get the uploaded file from FormData
     const formData = await req.formData();
@@ -32,139 +32,231 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // 🔥 FÖRBÄTTRAD PDF-TEXTEXTRAKTION
-    let fileContent = '';
+    // 🔥 ADVANCED PDF TEXT EXTRACTION WITH MULTIPLE STRATEGIES
     let extractedText = '';
+    let detectedInfo = {
+      emails: [],
+      phones: [],
+      names: [],
+      companies: [],
+      skills: [],
+      locations: [],
+      years: [],
+      urls: []
+    };
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF file with improved extraction...');
+        console.log('📄 Processing PDF with advanced multi-layer extraction...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // Konvertera till text och sök efter läsbar text
-        const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
-        let rawText = decoder.decode(uint8Array);
+        // Strategy 1: Direct text decoding with multiple encodings
+        const encodings = ['utf-8', 'latin1', 'ascii'];
+        let rawTexts = [];
         
-        // Extrahera text mellan stream/obj markörer (PDF-innehåll)
-        const streamMatches = rawText.match(/stream\s*([\s\S]*?)\s*endstream/g) || [];
-        const objMatches = rawText.match(/\d+\s+0\s+obj\s*([\s\S]*?)\s*endobj/g) || [];
-        
-        // Kombinera alla textavsnitt
-        let allTextContent = [...streamMatches, ...objMatches].join(' ');
-        
-        // Sök efter läsbar text med förbättrade mönster
-        const readableTextPatterns = [
-          /\b[A-ZÅÄÖ][a-zåäöé]+(?:\s+[A-ZÅÄÖ][a-zåäöé]+)+/g, // Namn
-          /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, // E-post
-          /[\+]?[\d\s\-\(\)]{8,}/g, // Telefonnummer
-          /\b(19|20)\d{2}\b/g, // År
-          /\b(JavaScript|TypeScript|Python|Java|React|Angular|Vue|Node|Docker|AWS|Azure|SQL|HTML|CSS|Git|Linux|C\#|PHP|Swift|Kotlin|Ruby|Go|Rust|Scala|MongoDB|PostgreSQL|MySQL|Firebase|Kubernetes|Jenkins|Terraform|Ansible|Scrum|Agile|DevOps|Microservices|REST|GraphQL|Machine Learning|AI|Blockchain|IoT|Cloud|Backend|Frontend|Fullstack|Senior|Junior|Lead|Manager|Developer|Engineer|Consultant|Architect)\b/gi, // Tekniska färdigheter
-          /\b(Stockholm|Göteborg|Malmö|Uppsala|Linköping|Örebro|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Södertälje|Karlstad|Täby|Sundsvall|Växjö|Halmstad|Sweden|Sverige|Denmark|Norge|Finland)\b/gi, // Platser
-          /\b[A-ZÅÄÖ][a-zåäöé\s]{2,30}(?:AB|Ltd|Inc|Corp|AS|Oy|GmbH)\b/g, // Företagsnamn
-          /\b(CEO|CTO|CFO|Developer|Engineer|Manager|Director|Lead|Senior|Junior|Consultant|Analyst|Specialist|Coordinator|Administrator|Assistant|Executive|Vice President|VP)\b/gi // Roller
-        ];
-        
-        let extractedParts = [];
-        readableTextPatterns.forEach(pattern => {
-          const matches = allTextContent.match(pattern) || [];
-          extractedParts.push(...matches);
-          
-          // Sök också i rå-texten
-          const rawMatches = rawText.match(pattern) || [];
-          extractedParts.push(...rawMatches);
-        });
-        
-        // Ta bort dubbletter och filtrera bort för korta strängar
-        extractedText = [...new Set(extractedParts)]
-          .filter(text => text && text.length > 2 && !text.match(/^[\d\s\-\(\)]+$/))
-          .join(' ');
-        
-        console.log('📄 Extracted readable content:', extractedText.substring(0, 500));
-        
-        // Om vi inte hittade tillräckligt med text, försök med enklare textextraktion
-        if (extractedText.length < 50) {
-          console.log('⚠️ Limited text found, trying alternative extraction...');
-          const simpleText = rawText.match(/[A-Za-zÅÄÖåäöé0-9\s\@\.\-\+\(\)]{3,}/g) || [];
-          extractedText = simpleText.join(' ');
+        for (const encoding of encodings) {
+          try {
+            const decoder = new TextDecoder(encoding, { ignoreBOM: true, fatal: false });
+            const decoded = decoder.decode(uint8Array);
+            rawTexts.push(decoded);
+          } catch (e) {
+            console.log(`⚠️ Failed to decode with ${encoding}`);
+          }
         }
         
-        fileContent = extractedText.substring(0, 10000); // Öka gränsen för mer innehåll
-        console.log('📊 Final extracted content length:', fileContent.length);
+        // Combine all decoded texts
+        const combinedRawText = rawTexts.join(' ');
+        
+        // Strategy 2: Advanced PDF content extraction patterns
+        const advancedPatterns = {
+          // Email patterns (multiple formats)
+          emails: [
+            /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}\b/g,
+            /\b[a-zA-Z0-9]+[@][a-zA-Z0-9.-]+[.][a-zA-Z]{2,6}\b/g,
+            /(?:email|e-mail|mail)[:]\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/gi
+          ],
+          
+          // Phone patterns (international and Swedish formats)
+          phones: [
+            /\+46[\s-]?[0-9]{1,3}[\s-]?[0-9]{3}[\s-]?[0-9]{2,4}/g,
+            /0[0-9]{1,3}[\s-]?[0-9]{3}[\s-]?[0-9]{2,4}/g,
+            /(?:tel|phone|telefon|mobil)[:]\s*([\+0-9\s\-\(\)]{8,20})/gi,
+            /[\+]?[\d\s\-\(\)]{8,15}/g
+          ],
+          
+          // Name patterns (Swedish and international)
+          names: [
+            /\b[A-ZÅÄÖÜ][a-zåäöüé]+\s+[A-ZÅÄÖÜ][a-zåäöüé]+(?:\s+[A-ZÅÄÖÜ][a-zåäöüé]+)?\b/g,
+            /(?:name|namn|heter)[:]\s*([A-ZÅÄÖÜ][a-zåäöüé\s]+)/gi,
+            /\b[A-ZÅÄÖÜ]{2,}\s+[A-ZÅÄÖÜ]{2,}\b/g
+          ],
+          
+          // Company patterns
+          companies: [
+            /\b[A-ZÅÄÖÜ][a-zåäöüé\s&]{2,30}(?:AB|Ltd|Inc|Corp|AS|Oy|GmbH|Group|Solutions|Tech|Consulting|Development)\b/g,
+            /(?:company|företag|arbetsgivare)[:]\s*([A-ZÅÄÖÜ][a-zåäöüé\s&]{2,40})/gi
+          ],
+          
+          // Technical skills (comprehensive list)
+          skills: [
+            /\b(JavaScript|TypeScript|Python|Java|C#|C\+\+|PHP|Ruby|Go|Rust|Swift|Kotlin|Scala|HTML|CSS|React|Angular|Vue|Node\.js|Express|Django|Flask|Spring|Laravel|ASP\.NET|Docker|Kubernetes|AWS|Azure|GCP|Git|Linux|Windows|MacOS|SQL|MySQL|PostgreSQL|MongoDB|Redis|Elasticsearch|GraphQL|REST|API|Microservices|DevOps|CI\/CD|Jenkins|GitLab|GitHub|Jira|Confluence|Scrum|Agile|TDD|BDD|Machine Learning|AI|Data Science|Analytics|Tableau|Power BI|Figma|Adobe|Photoshop|Sketch|InVision|UX|UI|Frontend|Backend|Fullstack|Mobile|iOS|Android|Flutter|React Native|Xamarin|Unity|Game Development|Blockchain|Cryptocurrency|IoT|Embedded|Firmware|Networking|Security|Penetration Testing|Ethical Hacking|Cloud Computing|Big Data|Hadoop|Spark|Kafka|RabbitMQ|MQTT|WebSockets|WebRTC|Progressive Web Apps|PWA|Single Page Applications|SPA|Server Side Rendering|SSR|Static Site Generation|SSG|Content Management Systems|CMS|WordPress|Drupal|E-commerce|Shopify|Magento|WooCommerce|Payment Processing|Stripe|PayPal|Digital Marketing|SEO|SEM|Google Analytics|Social Media|Email Marketing|A\/B Testing|Conversion Optimization|Project Management|Product Management|Business Analysis|Requirements Gathering|Stakeholder Management|Change Management|Process Improvement|Quality Assurance|Testing|Automation|Manual Testing|Load Testing|Performance Testing|Database Design|Data Modeling|ETL|Data Warehousing|Business Intelligence|Reporting|Dashboards|Visualization|Statistical Analysis|R|MATLAB|SPSS|Excel|VBA|Macros|Microsoft Office|Google Workspace|Salesforce|CRM|ERP|SAP|Oracle|ServiceNow|ITIL|Infrastructure|Monitoring|Logging|Observability|Prometheus|Grafana|ELK Stack|Splunk|New Relic|Datadog)\b/gi
+          ],
+          
+          // Location patterns (Swedish cities and international)
+          locations: [
+            /\b(Stockholm|Göteborg|Malmö|Uppsala|Linköping|Örebro|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Södertälje|Karlstad|Täby|Sundsvall|Växjö|Halmstad|Kristianstad|Karlskrona|Falun|Sandviken|Skövde|Uddevalla|Trollhättan|Östersund|Borlänge|Tumba|Lidingö|Märsta|Upplands Väsby|Vallentuna|Nacka|Danderyd|Sollentuna|Huddinge|Haninge|Tyresö|Värmdö|Norrtälje|Sigtuna|Sweden|Sverige|Denmark|Norge|Finland|London|Berlin|Amsterdam|Copenhagen|Oslo|Helsinki|Paris|Madrid|Barcelona|Rome|Milan|Zurich|Geneva|Vienna|Prague|Budapest|Warsaw|Krakow|New York|San Francisco|Los Angeles|Chicago|Boston|Toronto|Vancouver|Montreal|Sydney|Melbourne|Brisbane|Tokyo|Singapore|Hong Kong|Dubai|Mumbai|Bangalore|Remote|Distans|Hemarbete)\b/gi,
+            /(?:location|plats|bor|address|adress)[:]\s*([A-ZÅÄÖÜ][a-zåäöüé\s,]+)/gi
+          ],
+          
+          // Experience years
+          years: [
+            /\b(\d{1,2})\s*(?:år|year|years)\s*(?:experience|erfarenhet|experience)/gi,
+            /(?:experience|erfarenhet)[:]\s*(\d{1,2})\s*(?:år|year|years)/gi,
+            /\b(19|20)\d{2}\b/g
+          ],
+          
+          // URLs and social media
+          urls: [
+            /https?:\/\/[^\s]+/g,
+            /linkedin\.com\/in\/[^\s]+/gi,
+            /github\.com\/[^\s]+/gi,
+            /twitter\.com\/[^\s]+/gi
+          ]
+        };
+
+        // Extract information using advanced patterns
+        console.log('🔍 Extracting structured information...');
+        
+        for (const [category, patterns] of Object.entries(advancedPatterns)) {
+          const categoryMatches = new Set();
+          
+          patterns.forEach(pattern => {
+            const matches = combinedRawText.match(pattern) || [];
+            matches.forEach(match => {
+              const cleaned = match.trim().replace(/[^\w@.+\-\s]/g, ' ').trim();
+              if (cleaned.length > 1) {
+                categoryMatches.add(cleaned);
+              }
+            });
+          });
+          
+          detectedInfo[category] = Array.from(categoryMatches).slice(0, 10); // Limit to 10 per category
+          console.log(`📊 Found ${detectedInfo[category].length} ${category}:`, detectedInfo[category].slice(0, 3));
+        }
+
+        // Strategy 3: PDF-specific content extraction
+        const pdfContentPatterns = [
+          /stream\s*([\s\S]*?)\s*endstream/g,
+          /\d+\s+0\s+obj\s*([\s\S]*?)\s*endobj/g,
+          /BT\s*([\s\S]*?)\s*ET/g, // Text objects in PDF
+          /\((.*?)\)/g // Text in parentheses
+        ];
+
+        let pdfSpecificContent = '';
+        pdfContentPatterns.forEach(pattern => {
+          const matches = combinedRawText.match(pattern) || [];
+          pdfSpecificContent += matches.join(' ') + ' ';
+        });
+
+        // Combine all extracted text
+        extractedText = [
+          combinedRawText,
+          pdfSpecificContent,
+          Object.values(detectedInfo).flat().join(' ')
+        ].join(' \n--- \n');
+
+        console.log('📄 Total extracted content length:', extractedText.length);
+        console.log('📊 Detection summary:', {
+          emails: detectedInfo.emails.length,
+          phones: detectedInfo.phones.length,
+          names: detectedInfo.names.length,
+          companies: detectedInfo.companies.length,
+          skills: detectedInfo.skills.length,
+          locations: detectedInfo.locations.length
+        });
         
       } else {
-        // För andra filtyper, försök läsa som text
-        fileContent = await file.text();
-        console.log('📄 Read text file content length:', fileContent.length);
+        // For non-PDF files, read as text
+        extractedText = await file.text();
+        console.log('📄 Read text file content length:', extractedText.length);
       }
     } catch (error) {
-      console.warn('⚠️ Could not extract file content:', error);
-      fileContent = `CV file: ${file.name} (${file.type}) - Text extraction failed, using filename analysis`;
+      console.warn('⚠️ Content extraction failed:', error);
+      extractedText = `CV file: ${file.name} (${file.type}) - Advanced extraction failed, using basic analysis`;
     }
 
-    // 🔥 FÖRBÄTTRAD AI-PROMPT MED EXEMPEL
-    const prompt = `Du är en expert CV-analytiker som extraherar verklig, korrekt information från CV-innehåll. Din uppgift är att noggrant läsa CV-innehållet och extrahera ENDAST information som faktiskt finns där.
+    // 🔥 ENHANCED AI PROMPT WITH DETECTED INFORMATION
+    const detectedInfoSummary = Object.entries(detectedInfo)
+      .map(([key, values]) => `${key.toUpperCase()}: ${values.join(', ')}`)
+      .join('\n');
+
+    const prompt = `Du är en expert CV-analytiker med avancerade informationsextraktionsförmågor. Din uppgift är att analysera CV-innehållet och extrahera VERKLIG, KORREKT information.
 
 CV-FIL: ${file.name}
-INNEHÅLL ATT ANALYSERA:
-${fileContent}
+DETEKTERAD INFORMATION FRÅN INITIAL SCANNING:
+${detectedInfoSummary}
+
+HUVUDINNEHÅLL ATT ANALYSERA:
+${extractedText.substring(0, 15000)}
 
 KRITISKA INSTRUKTIONER:
-1. Extrahera ENDAST verklig information som du tydligt kan se i CV-innehållet
-2. Leta efter faktiska personuppgifter, arbetslivserfarenhet och färdigheter som nämns
-3. Om information inte är tydligt synlig, använd "Not specified"
-4. Extrahera år av erfarenhet genom att titta på arbetsdatum
-5. Identifiera specifika teknologier, programmeringsspråk och ramverk som nämns
-6. Leta efter utbildning, certifieringar och prestationer
+1. ✅ EXTRAHERA ENDAST VERKLIG INFORMATION som du tydligt kan se i innehållet
+2. ✅ PRIORITERA den detekterade informationen ovan - använd den först
+3. ✅ Sök systematiskt efter personuppgifter, erfarenhet och färdigheter
+4. ✅ Beräkna erfarenhetsår från arbetsdatum (t.ex. 2019-2023 = 4 år)
+5. ✅ Om information inte finns, använd "Not specified" - LJUG ALDRIG
+6. ✅ Extrahera specifika teknologier, verktyg och certifieringar som nämns
 
 EXEMPEL PÅ KORREKT EXTRAKTION:
-- Om du ser "John Andersson", extrahera "John Andersson" (inte "Not specified")
-- Om du ser "john@example.com", extrahera "john@example.com"
-- Om du ser "React, JavaScript, Node.js", lägg till dessa i teknisk expertis
-- Om du ser "2019-2023 Senior Developer", beräkna 4 års erfarenhet
+- Namn: Om du ser "Anna Andersson" → extrahera "Anna Andersson"
+- Email: Om du ser "anna@company.com" → extrahera "anna@company.com"  
+- Telefon: Om du ser "+46 70 123 4567" → extrahera "+46 70 123 4567"
+- Erfarenhet: Om du ser "Senior Developer 2019-2023" → beräkna 4 års erfarenhet
+- Färdigheter: Om du ser "React, TypeScript, Node.js" → lägg till dessa exakt
 
-Svara med detta EXAKTA JSON-format (ingen ytterligare text):
+SVARA MED DETTA EXAKTA JSON-FORMAT (ingen ytterligare text):
 
 {
   "personalInfo": {
-    "name": "Extrahera verkligt fullständigt namn från CV eller 'Not specified'",
-    "email": "Extrahera verklig e-postadress från CV eller 'Not specified'", 
-    "phone": "Extrahera verkligt telefonnummer från CV eller 'Not specified'",
-    "location": "Extrahera verklig stad/plats från CV eller 'Not specified'",
-    "linkedinProfile": "Extrahera LinkedIn-URL om den finns eller 'Not specified'"
+    "name": "Extrahera fullständigt namn eller 'Not specified'",
+    "email": "Extrahera e-postadress eller 'Not specified'",
+    "phone": "Extrahera telefonnummer eller 'Not specified'",
+    "location": "Extrahera stad/plats eller 'Not specified'",
+    "linkedinProfile": "Extrahera LinkedIn-URL eller 'Not specified'"
   },
   "professionalSummary": {
-    "yearsOfExperience": "Beräkna från verkliga arbetsdatum eller 'Not specified'",
+    "yearsOfExperience": "Beräkna från arbetsdatum eller 'Not specified'",
     "currentRole": "Extrahera senaste jobbtitel eller 'Not specified'",
-    "seniorityLevel": "Junior/Mid-level/Senior/Expert baserat på verklig erfarenhet eller 'Not specified'",
-    "careerTrajectory": "Växande/Stabil/Senior baserat på karriärutveckling eller 'Not specified'",
-    "industryFocus": "Extrahera primär bransch från arbetserfarenhet eller 'Not specified'",
-    "specializations": ["Lista verkliga specialiseringsområden som nämns eller tom array"]
+    "seniorityLevel": "Junior/Mid-level/Senior/Expert baserat på erfarenhet",
+    "careerTrajectory": "Växande/Stabil/Senior baserat på utveckling",
+    "industryFocus": "Extrahera primär bransch eller 'Not specified'",
+    "specializations": ["Lista verkliga specialiseringar"]
   },
   "technicalExpertise": {
     "programmingLanguages": {
-      "expert": ["Språk med 5+ år eller markerade som expert"],
-      "proficient": ["Språk med 2-4 år eller markerade som skickliga"], 
-      "familiar": ["Språk med <2 år eller markerade som grundläggande"]
+      "expert": ["Språk med 5+ år eller expert-nivå"],
+      "proficient": ["Språk med 2-4 år eller skicklig nivå"],
+      "familiar": ["Språk med <2 år eller grundläggande"]
     },
-    "frameworks": ["Extrahera alla ramverk som faktiskt nämns"],
-    "tools": ["Extrahera alla verktyg och mjukvara som faktiskt nämns"],
-    "databases": ["Extrahera databasteknologier som nämns"],
-    "cloudPlatforms": ["Extrahera molnplattformar som nämns"],
-    "methodologies": ["Extrahera metoder som Agile, Scrum som nämns"]
+    "frameworks": ["Extrahera alla ramverk som nämns"],
+    "tools": ["Extrahera verktyg och mjukvara"],
+    "databases": ["Extrahera databasteknologier"],
+    "cloudPlatforms": ["Extrahera molnplattformar"],
+    "methodologies": ["Extrahera metoder som Agile, Scrum"]
   },
   "workExperience": [
     {
-      "company": "Extrahera verkligt företagsnamn",
-      "role": "Extrahera verklig jobbtitel", 
-      "duration": "Extrahera verklig tidsperiod",
-      "technologies": ["Teknologier som använts i denna roll"],
-      "achievements": ["Specifika prestationer som nämns"]
+      "company": "Verkligt företagsnamn",
+      "role": "Verklig jobbtitel",
+      "duration": "Verklig tidsperiod",
+      "technologies": ["Teknologier för denna roll"],
+      "achievements": ["Specifika prestationer"]
     }
   ],
   "education": {
-    "degrees": ["Extrahera utbildningskvalifikationer med institutioner"],
-    "certifications": ["Extrahera professionella certifieringar som nämns"]
+    "degrees": ["Utbildningskvalifikationer"],
+    "certifications": ["Professionella certifieringar"]
   },
   "marketPositioning": {
     "hourlyRateEstimate": {
@@ -172,16 +264,16 @@ Svara med detta EXAKTA JSON-format (ingen ytterligare text):
       "max": 1200,
       "recommended": 1000,
       "currency": "SEK",
-      "explanation": "Baserat på erfarenhet och färdigheter på svenska marknaden"
+      "explanation": "Baserat på erfarenhet och färdigheter"
     }
   },
-  "languages": ["Extrahera talade språk med kunskapsnivåer"]
+  "languages": ["Extrahera språk med kunskapsnivåer"]
 }
 
-EXTRAHERA ENDAST VERKLIG INFORMATION FRÅN CV-INNEHÅLLET. Använd "Not specified" för saknad data.
-SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
+VIKTIGT: Använd ENDAST verklig information från CV-innehållet. Använd "Not specified" för saknad data.
+SVARA MED ENDAST JSON - INGEN YTTERLIGARE TEXT.`;
 
-    console.log('🤖 Sending enhanced CV content to GROQ for detailed analysis');
+    console.log('🤖 Sending enhanced CV content to GROQ for comprehensive analysis');
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -194,7 +286,7 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
         messages: [
           {
             role: 'system',
-            content: 'Du är en expert CV-analytiker som extraherar verklig, korrekt information från CV-innehåll. Du extraherar endast information som tydligt finns i CV-innehållet och använder "Not specified" för saknad information.'
+            content: 'Du är en expert CV-analytiker som extraherar verklig information från CV-innehåll. Du använder endast information som tydligt finns i texten och svarar med korrekt JSON-format.'
           },
           {
             role: 'user',
@@ -213,7 +305,7 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ GROQ enhanced analysis response received');
+    console.log('✅ GROQ comprehensive analysis response received');
 
     let analysis;
     try {
@@ -222,18 +314,22 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
         throw new Error('No content in GROQ response');
       }
 
-      // Extrahera JSON från svar mer tillförlitligt
+      // Enhanced JSON extraction
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
-        console.log('📊 Successfully parsed enhanced CV analysis');
-        console.log('📋 Extracted enhanced data:', {
+        console.log('📊 Successfully parsed comprehensive CV analysis');
+        console.log('📋 Extracted comprehensive data:', {
           personalInfo: analysis.personalInfo,
           hasRealName: analysis.personalInfo?.name !== 'Not specified',
           hasRealEmail: analysis.personalInfo?.email !== 'Not specified',
+          hasRealPhone: analysis.personalInfo?.phone !== 'Not specified',
           technicalSkillsCount: (analysis.technicalExpertise?.programmingLanguages?.expert?.length || 0) + 
                                (analysis.technicalExpertise?.programmingLanguages?.proficient?.length || 0),
-          workExperienceCount: analysis.workExperience?.length || 0
+          workExperienceCount: analysis.workExperience?.length || 0,
+          detectedEmails: detectedInfo.emails.length,
+          detectedPhones: detectedInfo.phones.length,
+          detectedNames: detectedInfo.names.length
         });
       } else {
         throw new Error('No valid JSON found in response');
@@ -242,14 +338,14 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
       console.error('❌ Failed to parse GROQ response:', parseError);
       console.log('Raw GROQ response:', groqData.choices[0]?.message?.content);
       
-      // Fallback med mer realistisk exempeldata
+      // Enhanced fallback with detected information
       analysis = {
         personalInfo: {
-          name: 'Not specified',
-          email: 'Not specified', 
-          phone: 'Not specified',
-          location: 'Not specified',
-          linkedinProfile: 'Not specified'
+          name: detectedInfo.names[0] || 'Not specified',
+          email: detectedInfo.emails[0] || 'Not specified',
+          phone: detectedInfo.phones[0] || 'Not specified',
+          location: detectedInfo.locations[0] || 'Not specified',
+          linkedinProfile: detectedInfo.urls.find(url => url.includes('linkedin')) || 'Not specified'
         },
         professionalSummary: {
           yearsOfExperience: 'Not specified',
@@ -260,35 +356,63 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
           specializations: []
         },
         technicalExpertise: {
-          programmingLanguages: { expert: [], proficient: [], familiar: [] },
+          programmingLanguages: { 
+            expert: detectedInfo.skills.slice(0, 3), 
+            proficient: detectedInfo.skills.slice(3, 8), 
+            familiar: detectedInfo.skills.slice(8, 12) 
+          },
           frameworks: [],
           tools: [],
           databases: [],
           cloudPlatforms: [],
           methodologies: []
         },
-        workExperience: [],
+        workExperience: detectedInfo.companies.slice(0, 3).map(company => ({
+          company: company,
+          role: 'Not specified',
+          duration: 'Not specified',
+          technologies: [],
+          achievements: []
+        })),
         education: { degrees: [], certifications: [] },
         marketPositioning: {
           hourlyRateEstimate: {
-            min: 700,
-            max: 1100,
-            recommended: 900,
+            min: 800,
+            max: 1200,
+            recommended: 1000,
             currency: 'SEK',
             explanation: 'Baserat på svenska konsultmarknaden.'
           }
         },
-        languages: []
+        languages: ['Swedish', 'English']
       };
+      
+      console.log('📊 Using enhanced fallback with detected information:', {
+        detectedEmails: detectedInfo.emails.length,
+        detectedPhones: detectedInfo.phones.length,
+        detectedNames: detectedInfo.names.length,
+        detectedSkills: detectedInfo.skills.length
+      });
     }
 
-    // Skapa förbättrade analysresultat
+    // Create enhanced analysis results
     const enhancedAnalysisResults = {
       cvAnalysis: analysis,
-      linkedinAnalysis: null
+      linkedinAnalysis: null,
+      detectedInformation: detectedInfo,
+      extractionStats: {
+        totalTextLength: extractedText.length,
+        emailsFound: detectedInfo.emails.length,
+        phonesFound: detectedInfo.phones.length,
+        namesFound: detectedInfo.names.length,
+        skillsFound: detectedInfo.skills.length,
+        companiesFound: detectedInfo.companies.length,
+        locationsFound: detectedInfo.locations.length
+      }
     };
 
-    console.log('✅ Enhanced CV analysis completed with comprehensive data');
+    console.log('✅ Enhanced CV analysis completed with comprehensive extraction');
+    console.log('📊 Final extraction stats:', enhancedAnalysisResults.extractionStats);
 
     return new Response(
       JSON.stringify({ 
@@ -304,12 +428,12 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
   } catch (error) {
     console.error('❌ CV parsing error:', error);
     
-    // Returnera förbättrad fallback för fel
+    // Enhanced fallback for errors
     const fallbackAnalysis = {
       personalInfo: {
         name: 'Not specified',
         email: 'Not specified',
-        phone: 'Not specified', 
+        phone: 'Not specified',
         location: 'Not specified',
         linkedinProfile: 'Not specified'
       },
@@ -333,9 +457,9 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
       education: { degrees: [], certifications: [] },
       marketPositioning: {
         hourlyRateEstimate: {
-          min: 700,
-          max: 1100,
-          recommended: 900,
+          min: 800,
+          max: 1200,
+          recommended: 1000,
           currency: 'SEK',
           explanation: 'Baserat på svenska konsultmarknaden.'
         }
@@ -345,7 +469,26 @@ SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
 
     const fallbackEnhancedResults = {
       cvAnalysis: fallbackAnalysis,
-      linkedinAnalysis: null
+      linkedinAnalysis: null,
+      detectedInformation: {
+        emails: [],
+        phones: [],
+        names: [],
+        companies: [],
+        skills: [],
+        locations: [],
+        years: [],
+        urls: []
+      },
+      extractionStats: {
+        totalTextLength: 0,
+        emailsFound: 0,
+        phonesFound: 0,
+        namesFound: 0,
+        skillsFound: 0,
+        companiesFound: 0,
+        locationsFound: 0
+      }
     };
 
     return new Response(
