@@ -64,95 +64,107 @@ const CVUpload: React.FC = () => {
     setIsAnalyzing(false);
     setAnalysisProgress(100);
     
-    // 🔥 IMPROVED AUTOFILL: Enhanced mapping from both CV and LinkedIn analysis
+    // 🔥 ENHANCED AUTOFILL: Extract data from all available sources
     const cvData = analysis.cvAnalysis?.analysis;
     const enhancedData = analysis.enhancedAnalysisResults;
     const detectedInfo = enhancedData?.detectedInformation;
+    const consultant = analysis.consultant;
     
-    console.log('📝 Full analysis data for auto-fill:', {
-      cvData: cvData?.personalInfo,
+    console.log('📝 Enhanced auto-fill mapping:', {
+      cvPersonalInfo: cvData?.personalInfo,
       detectedInfo,
+      consultantData: consultant,
       enhancedData
     });
     
-    if (cvData) {
-      // Priority 1: Use CV analysis personal info
-      const cvPersonalInfo = cvData.personalInfo;
-      
-      // Auto-fill name - try multiple sources
-      let extractedName = '';
-      if (cvPersonalInfo?.name && 
-          cvPersonalInfo.name !== 'Not specified' && 
-          cvPersonalInfo.name !== 'Analysis in progress' && 
-          cvPersonalInfo.name !== 'Professional Consultant' &&
-          cvPersonalInfo.name !== 'John Doe' &&
-          cvPersonalInfo.name.length > 2) {
-        extractedName = cvPersonalInfo.name;
-      } else if (detectedInfo?.names && detectedInfo.names.length > 0) {
-        // Fallback to detected names from enhanced analysis
-        extractedName = detectedInfo.names.find(name => 
-          name && name.length > 2 && !name.includes('If Gt')
-        ) || '';
-      }
-      
-      if (extractedName) {
-        console.log('📝 Auto-filling name from analysis:', extractedName);
-        setFullName(extractedName);
-      }
-      
-      // Auto-fill email - try multiple sources
-      let extractedEmail = '';
-      if (cvPersonalInfo?.email && 
-          cvPersonalInfo.email !== 'Not specified' &&
-          cvPersonalInfo.email !== 'analysis@example.com' && 
-          cvPersonalInfo.email !== 'consultant@example.com' &&
-          cvPersonalInfo.email !== 'johndoe@email.com' &&
-          cvPersonalInfo.email.includes('@') &&
-          cvPersonalInfo.email.includes('.')) {
-        extractedEmail = cvPersonalInfo.email;
-      } else if (detectedInfo?.emails && detectedInfo.emails.length > 0) {
-        // Fallback to detected emails from enhanced analysis
-        extractedEmail = detectedInfo.emails.find(email => 
-          email && email.includes('@') && email.includes('.')
-        ) || '';
-      }
-      
-      if (extractedEmail) {
-        console.log('📧 Auto-filling email from analysis:', extractedEmail);
-        setEmail(extractedEmail);
-      }
-      
-      // Auto-fill phone - try multiple sources
-      let extractedPhone = '';
-      if (cvPersonalInfo?.phone && 
-          cvPersonalInfo.phone !== 'Not specified' &&
-          cvPersonalInfo.phone !== '+46 70 123 4567' && 
-          cvPersonalInfo.phone !== '+1 555 123 4567' &&
-          cvPersonalInfo.phone.length > 5) {
-        extractedPhone = cvPersonalInfo.phone;
-      } else if (detectedInfo?.phones && detectedInfo.phones.length > 0) {
-        // Fallback to detected phones from enhanced analysis
-        extractedPhone = detectedInfo.phones.find(phone => 
-          phone && phone.length > 5 && !phone.includes('0000000000')
-        ) || '';
-      }
-      
-      if (extractedPhone) {
-        console.log('📞 Auto-filling phone from analysis:', extractedPhone);
-        setPhoneNumber(extractedPhone);
-      }
+    // Auto-fill name with priority order: CV analysis > detected info > consultant data > form data
+    let extractedName = '';
+    if (cvData?.personalInfo?.name && 
+        cvData.personalInfo.name !== 'Not specified' && 
+        cvData.personalInfo.name !== 'Analysis in progress' && 
+        cvData.personalInfo.name !== 'Professional Consultant' &&
+        cvData.personalInfo.name !== 'John Doe' &&
+        cvData.personalInfo.name !== 'Consultant' &&
+        cvData.personalInfo.name.length > 2 &&
+        !cvData.personalInfo.name.includes('If Gt')) {
+      extractedName = cvData.personalInfo.name;
+    } else if (consultant?.name && 
+               consultant.name !== 'Consultant' && 
+               consultant.name !== 'Not specified' &&
+               consultant.name.length > 2) {
+      extractedName = consultant.name;
+    } else if (detectedInfo?.names && detectedInfo.names.length > 0) {
+      extractedName = detectedInfo.names.find(name => 
+        name && name.length > 2 && !name.includes('If Gt') && !name.includes('Analysis')
+      ) || '';
+    }
+    
+    if (extractedName && extractedName !== fullName) {
+      console.log('📝 Auto-filling name:', extractedName);
+      setFullName(extractedName);
+    }
+    
+    // Auto-fill email with priority order: CV analysis > consultant data > detected info
+    let extractedEmail = '';
+    if (cvData?.personalInfo?.email && 
+        cvData.personalInfo.email !== 'Not specified' &&
+        cvData.personalInfo.email !== 'analysis@example.com' && 
+        cvData.personalInfo.email !== 'consultant@example.com' &&
+        cvData.personalInfo.email !== 'johndoe@email.com' &&
+        cvData.personalInfo.email !== 'temp@temp.com' &&
+        cvData.personalInfo.email.includes('@') &&
+        cvData.personalInfo.email.includes('.')) {
+      extractedEmail = cvData.personalInfo.email;
+    } else if (consultant?.email && 
+               consultant.email !== 'temp@temp.com' && 
+               consultant.email.includes('@') &&
+               consultant.email.includes('.')) {
+      extractedEmail = consultant.email;
+    } else if (detectedInfo?.emails && detectedInfo.emails.length > 0) {
+      extractedEmail = detectedInfo.emails.find(email => 
+        email && email.includes('@') && email.includes('.') && email !== 'temp@temp.com'
+      ) || '';
+    }
+    
+    if (extractedEmail && extractedEmail !== email) {
+      console.log('📧 Auto-filling email:', extractedEmail);
+      setEmail(extractedEmail);
+    }
+    
+    // Auto-fill phone with priority order: CV analysis > consultant data > detected info
+    let extractedPhone = '';
+    if (cvData?.personalInfo?.phone && 
+        cvData.personalInfo.phone !== 'Not specified' &&
+        cvData.personalInfo.phone !== '+46 70 123 4567' && 
+        cvData.personalInfo.phone !== '+1 555 123 4567' &&
+        cvData.personalInfo.phone.length > 5 &&
+        !cvData.personalInfo.phone.includes('0000000000')) {
+      extractedPhone = cvData.personalInfo.phone;
+    } else if (consultant?.phone && 
+               consultant.phone.length > 5 &&
+               !consultant.phone.includes('0000000000')) {
+      extractedPhone = consultant.phone;
+    } else if (detectedInfo?.phones && detectedInfo.phones.length > 0) {
+      extractedPhone = detectedInfo.phones.find(phone => 
+        phone && phone.length > 5 && !phone.includes('0000000000')
+      ) || '';
+    }
+    
+    if (extractedPhone && extractedPhone !== phoneNumber) {
+      console.log('📞 Auto-filling phone:', extractedPhone);
+      setPhoneNumber(extractedPhone);
     }
     
     // Show detailed toast with extraction results
     const extractionSummary = {
-      name: fullName || 'Not detected',
-      email: email || 'Not detected', 
-      phone: phoneNumber || 'Not detected'
+      name: extractedName || 'Not detected',
+      email: extractedEmail || 'Not detected', 
+      phone: extractedPhone || 'Not detected'
     };
     
     toast({
-      title: "CV analysis complete!",
-      description: `Information extracted: ${extractionSummary.name}, ${extractionSummary.email}`,
+      title: "CV and LinkedIn analysis complete!",
+      description: `Information extracted: ${extractionSummary.name}, ${extractionSummary.email}, ${extractionSummary.phone}`,
     });
   };
 
@@ -458,7 +470,7 @@ const CVUpload: React.FC = () => {
                   <div className="bg-white rounded-lg shadow-lg p-6">
                     <h3 className="text-lg font-semibold mb-4">Review & complete registration</h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      Information has been auto-filled from your CV analysis. You can edit the fields if needed.
+                      Information has been auto-filled from your CV and LinkedIn analysis. You can edit the fields if needed.
                       <strong> Welcome email will be sent to the email address you specify below.</strong>
                     </p>
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -472,7 +484,7 @@ const CVUpload: React.FC = () => {
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Auto-filled from CV"
+                            placeholder="Auto-filled from CV analysis"
                             required
                           />
                         </div>
@@ -485,7 +497,7 @@ const CVUpload: React.FC = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Auto-filled from CV"
+                            placeholder="Auto-filled from CV analysis"
                             required
                           />
                         </div>
@@ -500,7 +512,7 @@ const CVUpload: React.FC = () => {
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Auto-filled from CV"
+                          placeholder="Auto-filled from CV analysis"
                         />
                       </div>
                       
@@ -545,7 +557,7 @@ const CVUpload: React.FC = () => {
                         disabled={isUploading || !agreeToTerms}
                         className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {isUploading ? "Completing..." : "Complete registration & join network"}
+                        {isUploading ? "Completing registration..." : "Complete registration & join network"}
                       </button>
                     </form>
                   </div>
