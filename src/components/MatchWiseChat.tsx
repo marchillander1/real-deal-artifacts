@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -211,7 +212,11 @@ I'm your personal consultant career advisor, powered by advanced AI.
   };
 
   const quickQuestions = [
-    "What can you do?"
+    "How to increase my hourly rate?",
+    "Improve my CV for consulting",
+    "Best tech certifications 2024",
+    "Pricing negotiation strategies",
+    "LinkedIn optimization tips"
   ];
 
   const handleQuickQuestion = (question: string) => {
@@ -327,10 +332,6 @@ I'm your personal consultant career advisor, powered by advanced AI.
           {/* Quick Questions */}
           {messages.length <= 2 && (
             <div className="p-4 border-t bg-gradient-to-r from-gray-50 to-purple-50/30">
-              <p className="text-xs text-gray-600 mb-3 font-medium flex items-center gap-2">
-                <Sparkles className="h-3 w-3 text-purple-500" />
-                Quick start questions:
-              </p>
               <div className="flex flex-wrap gap-2">
                 {quickQuestions.map((question, idx) => (
                   <Button
