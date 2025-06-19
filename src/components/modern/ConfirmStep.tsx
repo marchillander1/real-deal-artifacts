@@ -70,20 +70,20 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
       console.log('📧 Email sending result:', emailResult);
 
       if (emailResult.success) {
-        console.log('✅ Emails sent successfully, navigating to analysis page...');
+        console.log('✅ Emails sent successfully, navigating to network-success page...');
         
-        // Navigate to analysis page instead of network-success
-        navigate(`/analysis?id=${consultantId}`);
+        // Navigate to network-success page
+        navigate(`/network-success?consultant=${consultantId}`);
       } else {
         console.error('❌ Email sending failed:', emailResult.error);
         
-        // Still navigate to analysis page even if email fails
+        // Still navigate to network-success page even if email fails
         toast({
           title: "Profile created!",
           description: "Your profile was created successfully, but there was an issue sending the welcome email.",
           variant: "default",
         });
-        navigate(`/analysis?id=${consultantId}`);
+        navigate(`/network-success?consultant=${consultantId}`);
       }
 
     } catch (error: any) {

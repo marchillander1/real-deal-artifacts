@@ -88,11 +88,58 @@ const CVUploadModern: React.FC = () => {
     navigate(`/analysis?id=${consultantId}`);
   };
 
-  const updateExtractedData = (field: keyof ExtractedData, value: any) => {
+  const updateExtractedData = async (field: keyof ExtractedData, value: any) => {
+    console.log('🔄 Updating extracted data:', field, value);
+    
+    // Update local state
     setExtractedData(prev => ({
       ...prev,
       [field]: value
     }));
+
+    // Also update in database if consultant exists
+    if (consultantId) {
+      try {
+        console.log('💾 Updating consultant in database:', consultantId, field, value);
+        
+        const updateData: any = {};
+        
+        // Map the field to the correct database column
+        switch (field) {
+          case 'name':
+            updateData.name = value;
+            break;
+          case 'email':
+            updateData.email = value;
+            break;
+          case 'phone':
+            updateData.phone = value;
+            break;
+          case 'location':
+            updateData.location = value;
+            break;
+          case 'skills':
+            updateData.skills = value;
+            break;
+          case 'experience_years':
+            updateData.experience_years = value;
+            break;
+        }
+
+        const { error } = await supabase
+          .from('consultants')
+          .update(updateData)
+          .eq('id', consultantId);
+
+        if (error) {
+          console.error('❌ Error updating consultant:', error);
+        } else {
+          console.log('✅ Consultant updated successfully in database');
+        }
+      } catch (error) {
+        console.error('❌ Failed to update consultant in database:', error);
+      }
+    }
   };
 
   return (
