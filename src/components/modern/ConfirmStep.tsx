@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, MapPin, Calendar, Briefcase, X, Plus } from 'lucide-react';
 import { ExtractedData } from '@/pages/CVUploadModern';
 import { useToast } from '@/hooks/use-toast';
-import { EmailNotificationHandler } from '@/components/EmailNotificationHandler';
 import { useNavigate } from 'react-router-dom';
 
 interface ConfirmStepProps {
@@ -53,38 +52,10 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
     setIsSubmitting(true);
 
     try {
-      console.log('📧 About to send welcome emails...');
-      console.log('🆔 Consultant ID:', consultantId);
-      console.log('📧 Email address:', extractedData.email);
-      console.log('👤 Name:', extractedData.name);
-
-      // Send welcome emails using the EmailNotificationHandler
-      const emailResult = await EmailNotificationHandler.sendWelcomeEmails({
-        consultantId: consultantId,
-        finalEmail: extractedData.email,
-        finalName: extractedData.name,
-        isMyConsultant: false,
-        toast: toast
-      });
-
-      console.log('📧 Email sending result:', emailResult);
-
-      if (emailResult.success) {
-        console.log('✅ Emails sent successfully, navigating to network-success page...');
-        
-        // Navigate to network-success page
-        navigate(`/network-success?consultant=${consultantId}`);
-      } else {
-        console.error('❌ Email sending failed:', emailResult.error);
-        
-        // Still navigate to network-success page even if email fails
-        toast({
-          title: "Profile created!",
-          description: "Your profile was created successfully, but there was an issue sending the welcome email.",
-          variant: "default",
-        });
-        navigate(`/network-success?consultant=${consultantId}`);
-      }
+      console.log('✅ Profile confirmed, navigating to analysis page...');
+      
+      // Navigate to analysis page first
+      navigate(`/analysis?id=${consultantId}`);
 
     } catch (error: any) {
       console.error('❌ Form submission error:', error);
@@ -122,7 +93,7 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
           Confirm Your Information
         </h2>
         <p className="text-lg text-slate-600">
-          Please review and confirm your details before joining the network
+          Please review and confirm your details before viewing your analysis
         </p>
       </div>
 
@@ -275,11 +246,11 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
             disabled={isSubmitting || !extractedData.name?.trim() || !extractedData.email?.trim()}
             className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-200 hover:shadow-lg"
           >
-            {isSubmitting ? 'Joining Network...' : 'Join Network & Get Analysis'}
+            {isSubmitting ? 'Processing...' : 'View My Analysis'}
           </Button>
           
           <p className="text-sm text-slate-500 text-center mt-4">
-            By joining, you agree to be contacted about relevant consulting opportunities
+            Review your comprehensive AI analysis before deciding to join the network
           </p>
         </div>
       </div>
