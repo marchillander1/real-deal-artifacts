@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting enhanced CV parsing...');
+    console.log('🚀 Starting CV parsing...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -29,139 +29,141 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // Enhanced text extraction with multiple methods
+    // Extract text with multiple approaches
     let extractedText = '';
-    let detectedEmails: string[] = [];
-    let detectedPhones: string[] = [];
-    let detectedNames: string[] = [];
+    let personalInfo = {
+      emails: [] as string[],
+      phones: [] as string[],
+      names: [] as string[]
+    };
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Enhanced PDF processing...');
+        console.log('📄 Processing PDF...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // Method 1: Extract readable text patterns
+        // Convert PDF bytes to readable text
         let textContent = '';
-        let buffer = '';
+        let currentWord = '';
         
         for (let i = 0; i < uint8Array.length; i++) {
           const byte = uint8Array[i];
           
-          // Look for readable ASCII text
+          // Focus on readable ASCII characters
           if (byte >= 32 && byte <= 126) {
-            buffer += String.fromCharCode(byte);
-          } else if (buffer.length > 0) {
-            if (buffer.length >= 2) {
-              textContent += buffer + ' ';
+            currentWord += String.fromCharCode(byte);
+          } else if (byte === 10 || byte === 13 || byte === 32) { // newline or space
+            if (currentWord.length > 1) {
+              textContent += currentWord + ' ';
             }
-            buffer = '';
+            currentWord = '';
+          } else {
+            if (currentWord.length > 1) {
+              textContent += currentWord + ' ';
+            }
+            currentWord = '';
           }
         }
         
-        if (buffer.length > 0) {
-          textContent += buffer;
+        // Add remaining word
+        if (currentWord.length > 1) {
+          textContent += currentWord;
         }
         
-        console.log('📝 Raw extracted length:', textContent.length);
+        console.log('📝 Extracted text length:', textContent.length);
         
-        // Method 2: Direct pattern matching for critical info
-        const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+        // Direct pattern matching for critical info
+        const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
         const phonePattern = /(\+46|0)[0-9\s\-\(\)]{8,15}/g;
         const namePattern = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+\b/g;
         
-        detectedEmails = Array.from(textContent.matchAll(emailPattern)).map(match => match[0]);
-        detectedPhones = Array.from(textContent.matchAll(phonePattern)).map(match => match[0].replace(/\s+/g, ''));
-        detectedNames = Array.from(textContent.matchAll(namePattern)).map(match => match[0]);
+        personalInfo.emails = Array.from(textContent.matchAll(emailPattern)).map(match => match[0]);
+        personalInfo.phones = Array.from(textContent.matchAll(phonePattern)).map(match => match[0].replace(/\s+/g, ''));
+        personalInfo.names = Array.from(textContent.matchAll(namePattern)).map(match => match[0]);
         
-        console.log('🔍 Direct detection results:', {
-          emails: detectedEmails,
-          phones: detectedPhones,
-          names: detectedNames
-        });
+        console.log('🔍 Direct detection results:', personalInfo);
         
-        // Clean and filter text for AI analysis
+        // Clean text for AI
         const words = textContent.split(/\s+/)
           .filter(word => 
             word.length >= 2 && 
             word.length <= 50 &&
-            /^[a-zA-Z0-9@.\-+()åäöÅÄÖ\/\s]+$/.test(word) &&
-            !word.includes('obj') &&
-            !word.includes('stream')
+            /^[a-zA-Z0-9@.\-+()åäöÅÄÖ\/\s]+$/.test(word)
           );
         
-        extractedText = words.join(' ').substring(0, 4000);
-        console.log('✅ Cleaned text for AI analysis:', extractedText.length, 'characters');
+        extractedText = words.join(' ').substring(0, 3000);
+        console.log('✅ Cleaned text for AI:', extractedText.length, 'characters');
         
       } else {
-        // For other file types, try to read as text
+        // For non-PDF files
         extractedText = await file.text();
-        extractedText = extractedText.substring(0, 4000);
+        extractedText = extractedText.substring(0, 3000);
         
-        // Also run pattern detection on non-PDF files
-        const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+        // Pattern detection for other file types
+        const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
         const phonePattern = /(\+46|0)[0-9\s\-\(\)]{8,15}/g;
         const namePattern = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+\b/g;
         
-        detectedEmails = Array.from(extractedText.matchAll(emailPattern)).map(match => match[0]);
-        detectedPhones = Array.from(extractedText.matchAll(phonePattern)).map(match => match[0].replace(/\s+/g, ''));
-        detectedNames = Array.from(extractedText.matchAll(namePattern)).map(match => match[0]);
+        personalInfo.emails = Array.from(extractedText.matchAll(emailPattern)).map(match => match[0]);
+        personalInfo.phones = Array.from(extractedText.matchAll(phonePattern)).map(match => match[0].replace(/\s+/g, ''));
+        personalInfo.names = Array.from(extractedText.matchAll(namePattern)).map(match => match[0]);
       }
     } catch (error) {
       console.warn('⚠️ Content extraction failed:', error);
       extractedText = `CV file: ${file.name} - Unable to extract content`;
     }
 
-    console.log('🤖 Sending to AI with enhanced prompt...');
+    console.log('🤖 Sending to AI...');
 
-    // Shorter, more focused prompt for better results
-    const prompt = `Analyze this CV and extract information. Use detected data when available.
+    // Focused AI prompt for better extraction
+    const prompt = `Extract information from this CV. Use detected data when available.
 
-DETECTED INFO:
-- Emails found: ${detectedEmails.join(', ') || 'None'}
-- Phones found: ${detectedPhones.join(', ') || 'None'}  
-- Names found: ${detectedNames.join(', ') || 'None'}
+DETECTED PERSONAL INFO:
+- Emails: ${personalInfo.emails.join(', ') || 'None found'}
+- Phones: ${personalInfo.phones.join(', ') || 'None found'}  
+- Names: ${personalInfo.names.join(', ') || 'None found'}
 
-CV TEXT (first 2000 chars):
-${extractedText.substring(0, 2000)}
+CV TEXT:
+${extractedText}
 
-Return ONLY this JSON structure with real data:
+Extract and return ONLY this JSON structure:
 
 {
   "personalInfo": {
-    "name": "${detectedNames[0] || 'FIND NAME'}",
-    "email": "${detectedEmails[0] || 'FIND EMAIL'}",
-    "phone": "${detectedPhones[0] || 'FIND PHONE'}",
-    "location": "FIND LOCATION"
+    "name": "USE DETECTED NAME OR FIND IN TEXT",
+    "email": "USE DETECTED EMAIL OR FIND IN TEXT",
+    "phone": "USE DETECTED PHONE OR FIND IN TEXT",
+    "location": "FIND CITY/LOCATION"
   },
   "professionalSummary": {
-    "yearsOfExperience": "CALCULATE YEARS",
-    "currentRole": "FIND CURRENT JOB",
+    "yearsOfExperience": "CALCULATE OR ESTIMATE YEARS",
+    "currentRole": "FIND CURRENT JOB TITLE",
     "seniorityLevel": "Junior/Mid/Senior/Expert",
-    "industryFocus": "FIND INDUSTRY"
+    "industryFocus": "FIND INDUSTRY OR SECTOR"
   },
   "technicalExpertise": {
     "programmingLanguages": {
-      "expert": ["FIND MAIN LANGUAGES"],
-      "proficient": ["FIND SECONDARY"],
-      "familiar": ["FIND MENTIONED"]
+      "expert": ["LIST MAIN PROGRAMMING LANGUAGES"],
+      "proficient": ["LIST SECONDARY LANGUAGES"],
+      "familiar": ["LIST MENTIONED LANGUAGES"]
     },
-    "frameworks": ["FIND FRAMEWORKS"],
-    "tools": ["FIND TOOLS"],
-    "databases": ["FIND DATABASES"]
+    "frameworks": ["LIST FRAMEWORKS AND LIBRARIES"],
+    "tools": ["LIST TOOLS AND SOFTWARE"],
+    "databases": ["LIST DATABASES"]
   },
   "workExperience": [
     {
       "company": "COMPANY NAME",
       "role": "JOB TITLE",
       "duration": "TIME PERIOD",
-      "technologies": ["TECH USED"],
+      "technologies": ["TECHNOLOGIES USED"],
       "achievements": ["KEY ACCOMPLISHMENTS"]
     }
   ],
   "education": {
-    "degrees": ["FIND DEGREES"],
-    "certifications": ["FIND CERTIFICATIONS"]
+    "degrees": ["LIST EDUCATION"],
+    "certifications": ["LIST CERTIFICATIONS"]
   },
   "marketPositioning": {
     "hourlyRateEstimate": {
@@ -173,7 +175,7 @@ Return ONLY this JSON structure with real data:
   }
 }
 
-Fill with real data from CV. If not found, use "Not specified".`;
+Use real data from CV. If information not found, use "Not specified".`;
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -186,7 +188,7 @@ Fill with real data from CV. If not found, use "Not specified".`;
         messages: [
           {
             role: 'system',
-            content: 'You are a CV analysis expert. Extract real information from CV text and return valid JSON only. Use provided detected data when available.'
+            content: 'You are a CV analysis expert. Extract real information from CV text and return valid JSON. Use detected personal information when available.'
           },
           {
             role: 'user',
@@ -194,7 +196,7 @@ Fill with real data from CV. If not found, use "Not specified".`;
           }
         ],
         temperature: 0.1,
-        max_tokens: 1500,
+        max_tokens: 1000,
       }),
     });
 
@@ -221,18 +223,18 @@ Fill with real data from CV. If not found, use "Not specified".`;
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
         
-        // Override with detected data if AI didn't find it
-        if (detectedEmails.length > 0 && analysis.personalInfo.email === 'Not specified') {
-          analysis.personalInfo.email = detectedEmails[0];
+        // Override with detected data if AI didn't find it or found incorrect data
+        if (personalInfo.emails.length > 0 && (!analysis.personalInfo.email || analysis.personalInfo.email === 'Not specified')) {
+          analysis.personalInfo.email = personalInfo.emails[0];
         }
-        if (detectedPhones.length > 0 && analysis.personalInfo.phone === 'Not specified') {
-          analysis.personalInfo.phone = detectedPhones[0];
+        if (personalInfo.phones.length > 0 && (!analysis.personalInfo.phone || analysis.personalInfo.phone === 'Not specified')) {
+          analysis.personalInfo.phone = personalInfo.phones[0];
         }
-        if (detectedNames.length > 0 && analysis.personalInfo.name === 'Not specified') {
-          analysis.personalInfo.name = detectedNames[0];
+        if (personalInfo.names.length > 0 && (!analysis.personalInfo.name || analysis.personalInfo.name === 'Not specified')) {
+          analysis.personalInfo.name = personalInfo.names[0];
         }
         
-        console.log('📊 Final analysis with overrides:', JSON.stringify(analysis, null, 2));
+        console.log('📊 Final analysis:', JSON.stringify(analysis, null, 2));
       } else {
         throw new Error('No JSON found in response');
       }
@@ -242,9 +244,9 @@ Fill with real data from CV. If not found, use "Not specified".`;
       // Fallback using detected patterns
       analysis = {
         personalInfo: {
-          name: detectedNames[0] || 'Not specified',
-          email: detectedEmails[0] || 'Not specified',
-          phone: detectedPhones[0] || 'Not specified',
+          name: personalInfo.names[0] || 'Not specified',
+          email: personalInfo.emails[0] || 'Not specified',
+          phone: personalInfo.phones[0] || 'Not specified',
           location: 'Not specified'
         },
         professionalSummary: {
@@ -272,22 +274,18 @@ Fill with real data from CV. If not found, use "Not specified".`;
       };
     }
 
-    console.log('✅ Enhanced CV analysis completed');
+    console.log('✅ CV analysis completed');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         analysis: analysis,
-        detectedInformation: {
-          emails: detectedEmails,
-          phones: detectedPhones,
-          names: detectedNames
-        },
+        detectedInformation: personalInfo,
         extractionStats: {
           textLength: extractedText.length,
-          emailsFound: detectedEmails.length,
-          phonesFound: detectedPhones.length,
-          namesFound: detectedNames.length
+          emailsFound: personalInfo.emails.length,
+          phonesFound: personalInfo.phones.length,
+          namesFound: personalInfo.names.length
         }
       }),
       {
@@ -296,7 +294,7 @@ Fill with real data from CV. If not found, use "Not specified".`;
     );
 
   } catch (error) {
-    console.error('❌ Enhanced CV parsing error:', error);
+    console.error('❌ CV parsing error:', error);
     
     return new Response(
       JSON.stringify({ 

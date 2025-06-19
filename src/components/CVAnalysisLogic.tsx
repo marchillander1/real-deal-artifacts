@@ -39,7 +39,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     const hasValidLinkedIn = isValidLinkedInUrl(linkedinUrl);
     const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysis;
     
-    console.log('🤖 Enhanced auto-trigger check:', {
+    console.log('🤖 Auto-trigger check:', {
       hasFile: !!file,
       hasValidLinkedIn,
       isAnalyzing,
@@ -48,8 +48,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     });
 
     if (shouldStartAnalysis) {
-      console.log('🚀 Auto-triggering enhanced analysis');
-      handleEnhancedAnalysis();
+      console.log('🚀 Auto-triggering analysis');
+      handleAnalysis();
     }
   }, [file, linkedinUrl, isAnalyzing, analysis]);
 
@@ -59,7 +59,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     setAnalysis(null);
   }, [file, linkedinUrl]);
 
-  const handleEnhancedAnalysis = async () => {
+  const handleAnalysis = async () => {
     if (!file) {
       console.error('❌ No file selected');
       onError('No file selected');
@@ -73,36 +73,34 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     }
 
     try {
-      console.log('🚀 Starting enhanced comprehensive analysis');
+      console.log('🚀 Starting comprehensive analysis');
       setIsAnalyzing(true);
       onAnalysisStart();
       onAnalysisProgress(10);
 
-      // Step 1: Enhanced CV parsing
+      // Step 1: CV parsing
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('📄 Enhanced CV parsing:', file.name);
+      console.log('📄 CV parsing:', file.name);
       
       const cvResponse = await supabase.functions.invoke('parse-cv', {
         body: formData
       });
 
-      console.log('📊 Enhanced CV response:', cvResponse);
+      console.log('📊 CV response:', cvResponse);
       
       if (cvResponse.error) {
-        console.error('❌ Enhanced CV analysis error:', cvResponse.error);
-        throw new Error(`Enhanced CV analysis failed: ${cvResponse.error.message}`);
+        console.error('❌ CV analysis error:', cvResponse.error);
+        throw new Error(`CV analysis failed: ${cvResponse.error.message}`);
       }
 
       const cvAnalysisData = cvResponse.data.analysis;
       const detectedInfo = cvResponse.data.detectedInformation;
-      const extractionStats = cvResponse.data.extractionStats;
       
-      console.log('📋 Enhanced CV analysis data:', {
+      console.log('📋 CV analysis data:', {
         analysis: cvAnalysisData,
-        detected: detectedInfo,
-        stats: extractionStats
+        detected: detectedInfo
       });
       
       setAnalysis({ cvAnalysis: cvResponse.data });
@@ -111,56 +109,64 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Step 2: LinkedIn Analysis
       let linkedinData = null;
       if (linkedinUrl && linkedinUrl.trim()) {
-        console.log('🔗 Enhanced LinkedIn analysis:', linkedinUrl);
+        console.log('🔗 LinkedIn analysis:', linkedinUrl);
         const linkedinResponse = await supabase.functions.invoke('analyze-linkedin', {
           body: { linkedinUrl: linkedinUrl.trim() }
         });
 
-        console.log('📊 Enhanced LinkedIn response:', linkedinResponse);
+        console.log('📊 LinkedIn response:', linkedinResponse);
         
         if (linkedinResponse.error) {
           console.warn('⚠️ LinkedIn analysis failed:', linkedinResponse.error);
           toast({
             title: "LinkedIn analysis failed",
-            description: "Continuing with enhanced CV analysis only",
+            description: "Continuing with CV analysis only",
             variant: "default",
           });
         } else {
           linkedinData = linkedinResponse.data;
-          console.log('✅ Enhanced LinkedIn analysis completed');
+          console.log('✅ LinkedIn analysis completed');
         }
       }
 
       onAnalysisProgress(75);
 
-      // Step 3: Enhanced data extraction with smart fallbacks
+      // Step 3: Extract personal info with smart fallbacks
       const personalInfo = cvAnalysisData?.personalInfo || {};
       
-      // Smart extraction with multiple sources
-      const detectedName = detectedInfo?.names?.[0] || personalInfo.name;
-      const detectedEmail = detectedInfo?.emails?.[0] || personalInfo.email;
-      const detectedPhone = detectedInfo?.phones?.[0] || personalInfo.phone;
-      
-      const extractedName = (detectedName && detectedName !== 'Not specified') ? detectedName : formName || 'Professional Consultant';
-      const extractedEmail = (detectedEmail && detectedEmail !== 'Not specified' && detectedEmail.includes('@')) ? detectedEmail : formEmail || 'temp@temp.com';
-      const extractedPhone = (detectedPhone && detectedPhone !== 'Not specified') ? detectedPhone : '';
+      // Smart extraction with priority: detected -> CV analysis -> form data
+      const extractedName = (detectedInfo?.names?.[0] && detectedInfo.names[0] !== 'Not specified') 
+        ? detectedInfo.names[0] 
+        : (personalInfo.name && personalInfo.name !== 'Not specified') 
+        ? personalInfo.name 
+        : formName || 'Professional Consultant';
+        
+      const extractedEmail = (detectedInfo?.emails?.[0] && detectedInfo.emails[0] !== 'Not specified' && detectedInfo.emails[0].includes('@')) 
+        ? detectedInfo.emails[0] 
+        : (personalInfo.email && personalInfo.email !== 'Not specified' && personalInfo.email.includes('@')) 
+        ? personalInfo.email 
+        : formEmail || 'temp@temp.com';
+        
+      const extractedPhone = (detectedInfo?.phones?.[0] && detectedInfo.phones[0] !== 'Not specified') 
+        ? detectedInfo.phones[0] 
+        : (personalInfo.phone && personalInfo.phone !== 'Not specified') 
+        ? personalInfo.phone 
+        : '';
+        
       const extractedLocation = personalInfo.location !== 'Not specified' ? personalInfo.location : '';
       
-      console.log('🎯 Enhanced extracted values:', {
-        detectedName,
-        detectedEmail, 
-        detectedPhone,
+      console.log('🎯 Extracted values:', {
         extractedName,
         extractedEmail,
         extractedPhone,
         extractedLocation
       });
 
-      // Step 4: Create consultant with enhanced data
+      // Step 4: Create consultant
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
-      // Enhanced skills extraction
+      // Skills extraction
       const allSkills = [
         ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.expert || []),
         ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.proficient || []),
@@ -168,7 +174,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         ...(cvAnalysisData?.technicalExpertise?.frameworks || []),
         ...(cvAnalysisData?.technicalExpertise?.tools || []),
         ...(cvAnalysisData?.technicalExpertise?.databases || [])
-      ].filter(skill => skill && skill.length > 0);
+      ].filter(skill => skill && skill.length > 0 && skill !== 'Not specified');
       
       const experienceYears = cvAnalysisData?.professionalSummary?.yearsOfExperience !== 'Not specified' 
         ? parseInt(cvAnalysisData.professionalSummary.yearsOfExperience.toString().match(/\d+/)?.[0] || '5') 
@@ -176,7 +182,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       const hourlyRate = cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 1000;
       
-      console.log('💾 Creating consultant with enhanced data:', {
+      console.log('💾 Creating consultant with data:', {
         name: extractedName,
         email: extractedEmail,
         phone: extractedPhone,
@@ -203,7 +209,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         certifications: cvAnalysisData?.education?.certifications || [],
         type: isMyConsultant ? 'existing' : 'new',
         user_id: isMyConsultant ? 'temp-user-id' : null,
-        languages: cvAnalysisData?.languages || ['English', 'Swedish'],
+        languages: ['English', 'Swedish'],
         work_style: linkedinData?.teamFitAssessment?.workStyle || 'Collaborative',
         values: ['Professional growth', 'Innovation'],
         personality_traits: linkedinData?.contentAnalysisInsights?.professionalValues || ['Problem-oriented', 'Analytical'],
@@ -216,7 +222,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting enhanced consultant to database');
+      console.log('💾 Inserting consultant to database');
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
@@ -229,11 +235,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`Failed to save consultant: ${insertError.message}`);
       }
 
-      console.log('✅ Enhanced consultant created successfully:', insertedConsultant.id);
+      console.log('✅ Consultant created successfully:', insertedConsultant.id);
       onAnalysisProgress(90);
 
       // Send emails
-      console.log('📧 Sending enhanced welcome emails');
+      console.log('📧 Sending welcome emails');
       try {
         await EmailNotificationHandler.sendWelcomeEmails({
           consultantId: insertedConsultant.id,
@@ -242,19 +248,19 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           isMyConsultant: isMyConsultant,
           toast: toast
         });
-        console.log('✅ Enhanced welcome emails sent');
+        console.log('✅ Welcome emails sent');
       } catch (emailError) {
         console.error('❌ Email sending failed:', emailError);
         toast({
           title: "Registration successful",
-          description: "Enhanced profile created but email notification failed",
+          description: "Profile created but email notification failed",
           variant: "default",
         });
       }
 
       onAnalysisProgress(100);
 
-      // Complete enhanced analysis results
+      // Complete analysis results
       const completeAnalysisResults = {
         cvAnalysis: cvResponse.data,
         linkedinAnalysis: linkedinData,
@@ -264,25 +270,21 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           email: extractedEmail,
           phone: extractedPhone,
           location: extractedLocation
-        },
-        enhancedAnalysisResults: {
-          detectedInformation: detectedInfo,
-          extractionStats: extractionStats
         }
       };
 
       onAnalysisComplete(completeAnalysisResults);
 
       toast({
-        title: "Enhanced analysis completed! 🎉",
-        description: `Enhanced profile created for ${extractedName}`,
+        title: "Analysis completed! 🎉",
+        description: `Profile created for ${extractedName}`,
       });
 
     } catch (error: any) {
-      console.error('❌ Enhanced analysis failed:', error);
-      onError(error.message || 'Enhanced analysis failed');
+      console.error('❌ Analysis failed:', error);
+      onError(error.message || 'Analysis failed');
       toast({
-        title: "Enhanced analysis failed",
+        title: "Analysis failed",
         description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
