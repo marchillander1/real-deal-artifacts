@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,7 +45,7 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* CV Analysis Section */}
+        {/* Original CV Analysis Section */}
         {cvAnalysis && (
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -127,7 +126,7 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
               </div>
             )}
 
-            {/* Technical Skills */}
+            {/* Technical Skills from CV */}
             {cvAnalysis.technicalExpertise?.programmingLanguages && (
               <div className="bg-white rounded-lg p-3 mb-3">
                 <h5 className="font-medium text-gray-900 mb-2">Technical Skills from CV</h5>
@@ -216,7 +215,7 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
               </div>
             )}
 
-            {/* Market Positioning */}
+            {/* Market Positioning from CV */}
             {cvAnalysis.marketPositioning && (
               <div className="bg-white rounded-lg p-3 mb-3">
                 <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
@@ -257,11 +256,127 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
           </div>
         )}
 
+        {/* Original LinkedIn Analysis Section */}
+        {linkedinAnalysis && (
+          <>
+            <Separator className="my-4" />
+            
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Linkedin className="h-4 w-4 text-blue-600" />
+                <h4 className="font-semibold text-blue-900">LinkedIn Analysis</h4>
+              </div>
+              
+              {/* Professional Profile from LinkedIn */}
+              <div className="bg-white rounded-lg p-3 mb-3">
+                <h5 className="font-medium text-gray-900 mb-2">Professional Profile</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  {linkedinAnalysis.communicationStyle && (
+                    <div>
+                      <span className="font-medium text-gray-700">Communication Style:</span>
+                      <p className="text-gray-600 mt-1">{linkedinAnalysis.communicationStyle}</p>
+                    </div>
+                  )}
+                  {linkedinAnalysis.leadershipStyle && (
+                    <div>
+                      <span className="font-medium text-gray-700">Leadership Style:</span>
+                      <p className="text-gray-600 mt-1">{linkedinAnalysis.leadershipStyle}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Scores */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t border-gray-200">
+                  {linkedinAnalysis.innovation && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-blue-600">{linkedinAnalysis.innovation}/5</div>
+                      <div className="text-xs text-gray-600">Innovation</div>
+                    </div>
+                  )}
+                  {linkedinAnalysis.leadership && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-600">{linkedinAnalysis.leadership}/5</div>
+                      <div className="text-xs text-gray-600">Leadership</div>
+                    </div>
+                  )}
+                  {linkedinAnalysis.adaptability && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-purple-600">{linkedinAnalysis.adaptability}/5</div>
+                      <div className="text-xs text-gray-600">Adaptability</div>
+                    </div>
+                  )}
+                  {linkedinAnalysis.culturalFit && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-orange-600">{linkedinAnalysis.culturalFit}/5</div>
+                      <div className="text-xs text-gray-600">Cultural Fit</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Market Positioning from LinkedIn */}
+              {linkedinAnalysis.marketPositioning && (
+                <div className="bg-white rounded-lg p-3 mb-3">
+                  <h5 className="font-medium text-gray-900 mb-2">Market Positioning</h5>
+                  <div className="text-sm space-y-2">
+                    {linkedinAnalysis.marketPositioning.uniqueValueProposition && (
+                      <div>
+                        <span className="font-medium text-gray-700">Value Proposition:</span>
+                        <p className="text-gray-600 mt-1">{linkedinAnalysis.marketPositioning.uniqueValueProposition}</p>
+                      </div>
+                    )}
+                    {linkedinAnalysis.marketPositioning.competitiveAdvantages?.length > 0 && (
+                      <div>
+                        <span className="font-medium text-gray-700">Competitive Advantages:</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {linkedinAnalysis.marketPositioning.competitiveAdvantages.map((advantage: string, index: number) => (
+                            <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                              {advantage}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Content Analysis from LinkedIn */}
+              {linkedinAnalysis.recentPostsAnalysis && (
+                <div className="bg-white rounded-lg p-3">
+                  <h5 className="font-medium text-gray-900 mb-2">Content & Engagement Analysis</h5>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    {linkedinAnalysis.recentPostsAnalysis.contentQuality && (
+                      <div>
+                        <span className="font-medium text-gray-700">Content Quality:</span>
+                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.contentQuality}</span>
+                      </div>
+                    )}
+                    {linkedinAnalysis.recentPostsAnalysis.engagementLevel && (
+                      <div>
+                        <span className="font-medium text-gray-700">Engagement:</span>
+                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.engagementLevel}</span>
+                      </div>
+                    )}
+                    {linkedinAnalysis.recentPostsAnalysis.thoughtLeadership && (
+                      <div>
+                        <span className="font-medium text-gray-700">Thought Leadership:</span>
+                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.thoughtLeadership}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
         {/* Enhanced Analysis Results - Certification Recommendations */}
         {enhancedAnalysisResults?.certificationRecommendations && (
           <>
             <Separator className="my-4" />
             
+            {/* Certification Recommendations */}
             {(enhancedAnalysisResults.certificationRecommendations.technical?.length > 0 || 
               enhancedAnalysisResults.certificationRecommendations.business?.length > 0) && (
               <div>
@@ -467,121 +582,6 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
               </div>
             )}
           </div>
-        )}
-
-        {/* LinkedIn Analysis Section */}
-        {linkedinAnalysis && (
-          <>
-            <Separator className="my-4" />
-            
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Linkedin className="h-4 w-4 text-blue-600" />
-                <h4 className="font-semibold text-blue-900">LinkedIn Analysis</h4>
-              </div>
-              
-              {/* Communication and Leadership */}
-              <div className="bg-white rounded-lg p-3 mb-3">
-                <h5 className="font-medium text-gray-900 mb-2">Professional Profile</h5>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  {linkedinAnalysis.communicationStyle && (
-                    <div>
-                      <span className="font-medium text-gray-700">Communication Style:</span>
-                      <p className="text-gray-600 mt-1">{linkedinAnalysis.communicationStyle}</p>
-                    </div>
-                  )}
-                  {linkedinAnalysis.leadershipStyle && (
-                    <div>
-                      <span className="font-medium text-gray-700">Leadership Style:</span>
-                      <p className="text-gray-600 mt-1">{linkedinAnalysis.leadershipStyle}</p>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Scores */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t border-gray-200">
-                  {linkedinAnalysis.innovation && (
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-600">{linkedinAnalysis.innovation}/5</div>
-                      <div className="text-xs text-gray-600">Innovation</div>
-                    </div>
-                  )}
-                  {linkedinAnalysis.leadership && (
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-green-600">{linkedinAnalysis.leadership}/5</div>
-                      <div className="text-xs text-gray-600">Leadership</div>
-                    </div>
-                  )}
-                  {linkedinAnalysis.adaptability && (
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-purple-600">{linkedinAnalysis.adaptability}/5</div>
-                      <div className="text-xs text-gray-600">Adaptability</div>
-                    </div>
-                  )}
-                  {linkedinAnalysis.culturalFit && (
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-orange-600">{linkedinAnalysis.culturalFit}/5</div>
-                      <div className="text-xs text-gray-600">Cultural Fit</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Market Positioning */}
-              {linkedinAnalysis.marketPositioning && (
-                <div className="bg-white rounded-lg p-3 mb-3">
-                  <h5 className="font-medium text-gray-900 mb-2">Market Positioning</h5>
-                  <div className="text-sm space-y-2">
-                    {linkedinAnalysis.marketPositioning.uniqueValueProposition && (
-                      <div>
-                        <span className="font-medium text-gray-700">Value Proposition:</span>
-                        <p className="text-gray-600 mt-1">{linkedinAnalysis.marketPositioning.uniqueValueProposition}</p>
-                      </div>
-                    )}
-                    {linkedinAnalysis.marketPositioning.competitiveAdvantages?.length > 0 && (
-                      <div>
-                        <span className="font-medium text-gray-700">Competitive Advantages:</span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {linkedinAnalysis.marketPositioning.competitiveAdvantages.map((advantage: string, index: number) => (
-                            <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
-                              {advantage}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Content Analysis */}
-              {linkedinAnalysis.recentPostsAnalysis && (
-                <div className="bg-white rounded-lg p-3">
-                  <h5 className="font-medium text-gray-900 mb-2">Content & Engagement Analysis</h5>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                    {linkedinAnalysis.recentPostsAnalysis.contentQuality && (
-                      <div>
-                        <span className="font-medium text-gray-700">Content Quality:</span>
-                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.contentQuality}</span>
-                      </div>
-                    )}
-                    {linkedinAnalysis.recentPostsAnalysis.engagementLevel && (
-                      <div>
-                        <span className="font-medium text-gray-700">Engagement:</span>
-                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.engagementLevel}</span>
-                      </div>
-                    )}
-                    {linkedinAnalysis.recentPostsAnalysis.thoughtLeadership && (
-                      <div>
-                        <span className="font-medium text-gray-700">Thought Leadership:</span>
-                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.thoughtLeadership}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </>
         )}
       </CardContent>
     </Card>
