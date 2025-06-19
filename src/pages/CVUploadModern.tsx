@@ -49,17 +49,63 @@ const CVUploadModern: React.FC = () => {
     setAnalysisResults(results);
     setIsAnalysisComplete(true);
     
-    // Extract data for editing
+    // Extract data from CV analysis with better parsing
     const cvData = results.cvAnalysis?.analysis;
     const detectedInfo = results.cvAnalysis?.detectedInformation;
     
-    // Smart extraction with fallbacks
-    const extractedName = detectedInfo?.names?.[0] || cvData?.personalInfo?.name || '';
-    const extractedEmail = detectedInfo?.emails?.[0] || cvData?.personalInfo?.email || '';
-    const extractedPhone = detectedInfo?.phones?.[0] || cvData?.personalInfo?.phone || '';
-    const extractedLocation = cvData?.personalInfo?.location || '';
+    console.log('📊 CV Data:', cvData);
+    console.log('🔍 Detected Info:', detectedInfo);
     
-    // Extract skills from multiple sources
+    // Smart extraction with better fallbacks and validation
+    let extractedName = '';
+    if (detectedInfo?.names?.[0] && 
+        detectedInfo.names[0] !== 'Ej specificerat' && 
+        detectedInfo.names[0] !== 'Not specified' &&
+        detectedInfo.names[0] !== 'Subtype Image' &&
+        detectedInfo.names[0].length > 2) {
+      extractedName = detectedInfo.names[0];
+    } else if (cvData?.personalInfo?.name && 
+               cvData.personalInfo.name !== 'Ej specificerat' && 
+               cvData.personalInfo.name !== 'Not specified' &&
+               cvData.personalInfo.name !== 'Subtype Image' &&
+               cvData.personalInfo.name.length > 2) {
+      extractedName = cvData.personalInfo.name;
+    }
+    
+    let extractedEmail = '';
+    if (detectedInfo?.emails?.[0] && 
+        detectedInfo.emails[0].includes('@') && 
+        detectedInfo.emails[0] !== 'Ej specificerat' && 
+        detectedInfo.emails[0] !== 'Not specified') {
+      extractedEmail = detectedInfo.emails[0];
+    } else if (cvData?.personalInfo?.email && 
+               cvData.personalInfo.email.includes('@') && 
+               cvData.personalInfo.email !== 'Ej specificerat' && 
+               cvData.personalInfo.email !== 'Not specified') {
+      extractedEmail = cvData.personalInfo.email;
+    }
+    
+    let extractedPhone = '';
+    if (detectedInfo?.phones?.[0] && 
+        detectedInfo.phones[0] !== 'Ej specificerat' && 
+        detectedInfo.phones[0] !== 'Not specified' &&
+        detectedInfo.phones[0].length > 5) {
+      extractedPhone = detectedInfo.phones[0];
+    } else if (cvData?.personalInfo?.phone && 
+               cvData.personalInfo.phone !== 'Ej specificerat' && 
+               cvData.personalInfo.phone !== 'Not specified' &&
+               cvData.personalInfo.phone.length > 5) {
+      extractedPhone = cvData.personalInfo.phone;
+    }
+    
+    let extractedLocation = '';
+    if (cvData?.personalInfo?.location && 
+        cvData.personalInfo.location !== 'Ej specificerat' && 
+        cvData.personalInfo.location !== 'Not specified') {
+      extractedLocation = cvData.personalInfo.location;
+    }
+    
+    // Extract skills from multiple sources with better filtering
     let allSkills: string[] = [];
     if (cvData?.skills) {
       allSkills = [
@@ -78,20 +124,64 @@ const CVUploadModern: React.FC = () => {
       ];
     }
     
-    // Clean skills
+    // Clean and filter skills more thoroughly
     allSkills = allSkills.filter(skill => 
-      skill && skill.length > 0 && 
+      skill && 
+      skill.length > 1 && 
+      skill.trim() !== '' &&
       skill !== 'Ej specificerat' && 
-      skill !== 'Not specified'
-    );
+      skill !== 'Not specified' &&
+      skill !== 'N/A' &&
+      skill !== 'null' &&
+      skill !== 'undefined'
+    ).map(skill => skill.trim());
     
-    // Extract experience years
+    // Remove duplicates
+    allSkills = [...new Set(allSkills)];
+    
+    // Extract experience years with better parsing
     let experienceYears = 0;
+    
+    // Try multiple sources for experience years
     if (cvData?.experience?.years) {
-      experienceYears = parseInt(cvData.experience.years.toString().match(/\d+/)?.[0] || '0');
+      const yearsStr = cvData.experience.years.toString();
+      const match = yearsStr.match(/(\d+)/);
+      if (match) {
+        experienceYears = parseInt(match[1]);
+      }
     } else if (cvData?.professionalSummary?.yearsOfExperience) {
-      experienceYears = parseInt(cvData.professionalSummary.yearsOfExperience.toString().match(/\d+/)?.[0] || '0');
+      const yearsStr = cvData.professionalSummary.yearsOfExperience.toString();
+      const match = yearsStr.match(/(\d+)/);
+      if (match) {
+        experienceYears = parseInt(match[1]);
+      }
+    } else if (cvData?.workHistory && Array.isArray(cvData.workHistory)) {
+      // Try to calculate from work history
+      let totalYears = 0;
+      cvData.workHistory.forEach((job: any) => {
+        if (job.duration) {
+          const durationMatch = job.duration.match(/(\d+)/);
+          if (durationMatch) {
+            totalYears += parseInt(durationMatch[1]);
+          }
+        }
+      });
+      experienceYears = totalYears;
     }
+    
+    // Ensure experience years is reasonable (between 0 and 50)
+    if (experienceYears < 0 || experienceYears > 50) {
+      experienceYears = 0;
+    }
+    
+    console.log('✅ Extracted data:', {
+      name: extractedName,
+      email: extractedEmail,
+      phone: extractedPhone,
+      location: extractedLocation,
+      skills: allSkills,
+      experience_years: experienceYears
+    });
     
     setExtractedData({
       name: extractedName,
