@@ -85,30 +85,32 @@ const AnalysisPage: React.FC = () => {
     );
   }
 
-  // Extract real data from consultant record
-  const cvAnalysis = consultant.cv_analysis_data;
-  const linkedinAnalysis = consultant.linkedin_analysis_data;
+  // Safely cast and extract data from consultant record with proper type checking
+  const cvAnalysis = consultant.cv_analysis_data as any;
+  const linkedinAnalysis = consultant.linkedin_analysis_data as any;
   
   console.log('📊 CV Analysis Data:', cvAnalysis);
   console.log('🔗 LinkedIn Analysis Data:', linkedinAnalysis);
 
-  // Extract professional summary
-  const professionalSummary = cvAnalysis?.analysis?.professionalSummary || cvAnalysis?.analysis?.summary;
-  const currentRole = professionalSummary?.currentRole || cvAnalysis?.analysis?.personalInfo?.currentRole || 'Consultant';
-  const yearsOfExperience = consultant.experience_years || professionalSummary?.yearsOfExperience || 0;
-  const seniorityLevel = professionalSummary?.seniorityLevel || (yearsOfExperience >= 7 ? 'Senior' : yearsOfExperience >= 3 ? 'Mid-level' : 'Junior');
+  // Extract professional summary with safe property access
+  const analysisData = cvAnalysis?.analysis || {};
+  const professionalSummary = analysisData.professionalSummary || analysisData.summary || {};
+  const personalInfo = analysisData.personalInfo || {};
+  const currentRole = professionalSummary.currentRole || personalInfo.currentRole || 'Consultant';
+  const yearsOfExperience = consultant.experience_years || professionalSummary.yearsOfExperience || 0;
+  const seniorityLevel = professionalSummary.seniorityLevel || (yearsOfExperience >= 7 ? 'Senior' : yearsOfExperience >= 3 ? 'Mid-level' : 'Junior');
 
-  // Extract skills from various sources
+  // Extract skills from various sources with safe property access
   let technicalSkills = consultant.skills || [];
-  if (cvAnalysis?.analysis?.skills) {
-    const skills = cvAnalysis.analysis.skills;
+  if (analysisData.skills) {
+    const skills = analysisData.skills;
     technicalSkills = [
       ...(skills.technical || []),
       ...(skills.languages || []),
       ...(skills.tools || [])
     ].filter(skill => skill && skill.length > 0);
-  } else if (cvAnalysis?.analysis?.technicalSkillsAnalysis) {
-    const techSkills = cvAnalysis.analysis.technicalSkillsAnalysis;
+  } else if (analysisData.technicalSkillsAnalysis) {
+    const techSkills = analysisData.technicalSkillsAnalysis;
     technicalSkills = [
       ...(techSkills.programmingLanguages?.expert || []),
       ...(techSkills.programmingLanguages?.proficient || []),
@@ -121,27 +123,27 @@ const AnalysisPage: React.FC = () => {
   // Remove duplicates
   technicalSkills = [...new Set(technicalSkills)];
 
-  // Market analysis
-  const marketAnalysis = cvAnalysis?.analysis?.marketPositioning || cvAnalysis?.analysis?.marketAnalysis;
-  const hourlyRate = consultant.hourly_rate || marketAnalysis?.hourlyRateEstimate?.recommended || 1200;
-  const rateRange = marketAnalysis?.hourlyRateEstimate || {
+  // Market analysis with safe property access
+  const marketAnalysis = analysisData.marketPositioning || analysisData.marketAnalysis || {};
+  const hourlyRate = consultant.hourly_rate || marketAnalysis.hourlyRateEstimate?.recommended || 1200;
+  const rateRange = marketAnalysis.hourlyRateEstimate || {
     minimum: Math.round(hourlyRate * 0.8),
     recommended: hourlyRate,
     maximum: Math.round(hourlyRate * 1.3)
   };
 
-  // Career potential
-  const careerAnalysis = cvAnalysis?.analysis?.careerPotential || cvAnalysis?.analysis?.careerRecommendations;
-  const strengthsData = cvAnalysis?.analysis?.strengths || careerAnalysis?.strengths || [];
-  const improvementAreas = cvAnalysis?.analysis?.improvementAreas || careerAnalysis?.improvementAreas || [];
+  // Career potential with safe property access
+  const careerAnalysis = analysisData.careerPotential || analysisData.careerRecommendations || {};
+  const strengthsData = analysisData.strengths || careerAnalysis.strengths || [];
+  const improvementAreas = analysisData.improvementAreas || careerAnalysis.improvementAreas || [];
 
-  // LinkedIn insights
-  const linkedinInsights = linkedinAnalysis?.contentAnalysisInsights || linkedinAnalysis?.analysis;
-  const communicationStyle = linkedinInsights?.communicationStyle || linkedinAnalysis?.communicationStyle || 'Professional';
-  const networkingPotential = linkedinInsights?.networkingPotential || 'Good';
+  // LinkedIn insights with safe property access
+  const linkedinInsights = linkedinAnalysis?.contentAnalysisInsights || linkedinAnalysis?.analysis || {};
+  const communicationStyle = linkedinInsights.communicationStyle || linkedinAnalysis?.communicationStyle || 'Professional';
+  const networkingPotential = linkedinInsights.networkingPotential || 'Good';
 
-  // Work history
-  const workHistory = cvAnalysis?.analysis?.workHistory || cvAnalysis?.analysis?.experience || [];
+  // Work history with safe property access
+  const workHistory = analysisData.workHistory || analysisData.experience || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50">
