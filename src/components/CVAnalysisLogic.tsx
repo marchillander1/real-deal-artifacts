@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
@@ -93,6 +94,24 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     setCreatedConsultant(null);
   }, [file, linkedinUrl]);
 
+  // Helper function to safely convert to integer
+  const safeParseInt = (value: any, defaultValue: number = 0): number => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string' && value !== 'Not specified' && value.trim() !== '') {
+      const parsed = parseInt(value.match(/(\d+)/)?.[1] || defaultValue.toString());
+      return isNaN(parsed) ? defaultValue : parsed;
+    }
+    return defaultValue;
+  };
+
+  // Helper function to safely get string value
+  const safeGetString = (value: any, defaultValue: string = ''): string => {
+    if (typeof value === 'string' && value !== 'Not specified' && value.trim() !== '') {
+      return value;
+    }
+    return defaultValue;
+  };
+
   const handleAnalysis = async () => {
     if (!file) {
       console.error('❌ No file selected for analysis');
@@ -183,12 +202,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const cvPersonalInfo = cvAnalysisData?.personalInfo || {};
       const cvProfessionalSummary = cvAnalysisData?.professionalSummary || {};
       const cvTechnicalExpertise = cvAnalysisData?.technicalExpertise || {};
+      const cvMarketPositioning = cvAnalysisData?.marketPositioning || {};
       
-      // Use REAL extracted data from CV analysis
-      const extractedName = cvPersonalInfo.name && cvPersonalInfo.name !== 'Not specified' ? cvPersonalInfo.name : '';
-      const extractedEmail = cvPersonalInfo.email && cvPersonalInfo.email !== 'Not specified' ? cvPersonalInfo.email : '';
-      const extractedPhone = cvPersonalInfo.phone && cvPersonalInfo.phone !== 'Not specified' ? cvPersonalInfo.phone : '';
-      const extractedLocation = cvPersonalInfo.location && cvPersonalInfo.location !== 'Not specified' ? cvPersonalInfo.location : '';
+      // Use REAL extracted data from CV analysis with safe parsing
+      const extractedName = safeGetString(cvPersonalInfo.name);
+      const extractedEmail = safeGetString(cvPersonalInfo.email);
+      const extractedPhone = safeGetString(cvPersonalInfo.phone);
+      const extractedLocation = safeGetString(cvPersonalInfo.location);
       
       // Final values - prioritize extracted CV data over form data for better accuracy
       const finalName = extractedName || formName || 'Consultant';
@@ -206,10 +226,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       // Extract real roles from work experience
       const realRoles = cvAnalysisData?.workExperience?.map(exp => exp.role).filter(role => role && role !== 'Not specified') || [];
-      const finalRoles = realRoles.length > 0 ? realRoles : [cvProfessionalSummary.currentRole || 'Consultant'];
+      const finalRoles = realRoles.length > 0 ? realRoles : [safeGetString(cvProfessionalSummary.currentRole, 'Consultant')];
       
-      // Calculate experience years from CV
-      const experienceYears = parseInt(cvProfessionalSummary.yearsOfExperience?.match(/(\d+)/)?.[1] || '5');
+      // Calculate experience years from CV with safe parsing
+      const experienceYears = safeParseInt(cvProfessionalSummary.yearsOfExperience, 5);
+      
+      // Safe parsing for hourly rate
+      const hourlyRate = safeParseInt(cvMarketPositioning?.hourlyRateEstimate?.recommended, 800);
       
       console.log('💾 Creating consultant profile with REAL extracted CV data:', {
         finalName,
@@ -219,6 +242,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         skillsCount: allSkills.length,
         rolesCount: finalRoles.length,
         experienceYears,
+        hourlyRate,
         isMyConsultant,
         extractedFromCV: {
           name: extractedName,
@@ -234,8 +258,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         phone: finalPhone,
         location: finalLocation,
         skills: allSkills,
-        experience_years: experienceYears,
-        hourly_rate: cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
+        experience_years: experienceYears, // Now safely parsed as integer
+        hourly_rate: hourlyRate, // Now safely parsed as integer
         availability: 'Available',
         cv_file_path: file.name,
         communication_style: cvAnalysisData?.softSkills?.communication?.[0] || 'Professional communication',
