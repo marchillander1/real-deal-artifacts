@@ -61,7 +61,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
     if (isAnalyzing) {
       return { 
         icon: Brain, 
-        text: "🤖 AI analyserar CV och LinkedIn tillsammans...", 
+        text: "🤖 AI analyzing CV and LinkedIn together...", 
         color: "text-blue-600",
         bgColor: "bg-blue-50",
         borderColor: "border-blue-200"
@@ -70,7 +70,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
     if (analysisResults) {
       return { 
         icon: CheckCircle2, 
-        text: "✅ Analys klar! Information autofylld från CV.", 
+        text: "✅ Analysis complete! Information auto-filled from CV.", 
         color: "text-green-600",
         bgColor: "bg-green-50",
         borderColor: "border-green-200"
@@ -79,7 +79,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
     if (file && hasValidLinkedInUrl) {
       return { 
         icon: CheckCircle2, 
-        text: "✅ Redo för analys (kommer autofylla kontaktinfo)", 
+        text: "✅ Ready for analysis (will auto-fill contact info)", 
         color: "text-green-600",
         bgColor: "bg-green-50",
         borderColor: "border-green-200"
@@ -88,7 +88,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
     if (file && !hasValidLinkedInUrl) {
       return { 
         icon: Clock, 
-        text: "⏳ Lägg till LinkedIn URL för att starta analys", 
+        text: "⏳ Add LinkedIn URL to start analysis", 
         color: "text-orange-600",
         bgColor: "bg-orange-50",
         borderColor: "border-orange-200"
@@ -97,7 +97,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
     if (!file) {
       return { 
         icon: Clock, 
-        text: "📄 Ladda upp CV för att börja", 
+        text: "📄 Upload CV to begin", 
         color: "text-gray-600",
         bgColor: "bg-gray-50",
         borderColor: "border-gray-200"
@@ -105,7 +105,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
     }
     return { 
       icon: Clock, 
-      text: "⏳ Väntar på krav", 
+      text: "⏳ Waiting for requirements", 
       color: "text-gray-600",
       bgColor: "bg-gray-50",
       borderColor: "border-gray-200"
@@ -117,26 +117,26 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
 
   const getCardTitle = () => {
     if (isMyConsultant) {
-      return "Lägg till konsult till mitt team";
+      return "Add consultant to my team";
     }
-    return "Starta din analys & gå med i nätverket";
+    return "Start your analysis & join the network";
   };
 
   const getCardDescription = () => {
     if (isMyConsultant) {
-      return "Ladda upp CV och LinkedIn-profil för att starta analys och autofylla information";
+      return "Upload CV and LinkedIn profile to start analysis and auto-fill information";
     }
-    return "Ladda upp CV och LinkedIn-profil för analys - kontaktinformation fylls i automatiskt";
+    return "Upload CV and LinkedIn profile for analysis - contact information will be filled automatically";
   };
 
   const getSubmitButtonText = () => {
     if (isUploading) {
-      return isMyConsultant ? "Lägger till i mitt team..." : "Går med i nätverket...";
+      return isMyConsultant ? "Adding to my team..." : "Joining the network...";
     }
     if (analysisResults) {
-      return isMyConsultant ? "Lägg till i mitt team" : "Slutför registrering & gå med i nätverket";
+      return isMyConsultant ? "Add to my team" : "Complete registration & join network";
     }
-    return "Analys krävs före registrering";
+    return "Analysis required before registration";
   };
 
   return (
@@ -156,7 +156,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           {/* CV Upload Section */}
           <div className="space-y-3">
             <Label htmlFor="cv-upload" className="text-base font-medium flex items-center">
-              CV-fil <span className="text-red-500 ml-1">*</span>
+              CV File <span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center hover:border-purple-300 transition-colors bg-gray-50">
               <input
@@ -185,10 +185,10 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                     <Upload className="h-12 w-12 text-gray-400 mx-auto" />
                     <div>
                       <p className="text-base font-medium text-gray-700 mb-1">
-                        Ladda upp ditt CV
+                        Upload your CV
                       </p>
                       <p className="text-sm text-gray-500">
-                        PDF eller bildformat - Analysen fyllar i kontaktinformation automatiskt
+                        PDF or image format - Analysis will auto-fill contact information
                       </p>
                     </div>
                   </div>
@@ -200,26 +200,26 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           {/* LinkedIn URL Section - Required for analysis */}
           <div className="space-y-3">
             <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
-              LinkedIn-profil <span className="text-red-500 ml-1">*</span>
+              LinkedIn Profile <span className="text-red-500 ml-1">*</span>
             </Label>
             <Input
               id="linkedin"
               value={linkedinUrl}
               onChange={(e) => onLinkedinUrlChange(e.target.value)}
-              placeholder="https://linkedin.com/in/dinprofil"
+              placeholder="https://linkedin.com/in/yourprofile"
               className="h-12"
               required
             />
             {linkedinUrl && !hasValidLinkedInUrl && (
               <div className="flex items-center gap-2 text-red-600 text-sm">
                 <AlertCircle className="h-4 w-4" />
-                Vänligen ange en giltig LinkedIn-URL (måste innehålla 'linkedin.com')
+                Please enter a valid LinkedIn URL (must contain 'linkedin.com')
               </div>
             )}
             {hasValidLinkedInUrl && (
               <div className="flex items-center gap-2 text-green-600 text-sm">
                 <CheckCircle2 className="h-4 w-4" />
-                Giltig LinkedIn-URL - Analysen startar när CV laddas upp
+                Valid LinkedIn URL - Analysis will start when CV is uploaded
               </div>
             )}
           </div>
@@ -229,10 +229,10 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <StatusIcon className={`h-5 w-5 ${analysisStatus.color}`} />
-                <span className={`font-medium ${analysisStatus.color}`}>Analyskrav</span>
+                <span className={`font-medium ${analysisStatus.color}`}>Analysis Requirements</span>
               </div>
               <p className="text-sm text-blue-700">
-                Ladda upp CV och lägg till LinkedIn-URL för att starta analysen. Kontaktinformation extraheras automatiskt och fylls i.
+                Upload CV and add LinkedIn URL to start analysis. Contact information will be extracted automatically and filled in.
               </p>
             </div>
           )}
@@ -243,21 +243,21 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
               <div className="flex items-center gap-3 mb-3">
                 <Brain className="h-6 w-6 text-blue-600 animate-pulse" />
                 <div>
-                  <h4 className="font-semibold text-blue-900">🤖 AI-analys pågår</h4>
-                  <p className="text-sm text-blue-700">Analyserar CV och LinkedIn-profil tillsammans...</p>
+                  <h4 className="font-semibold text-blue-900">🤖 AI Analysis in Progress</h4>
+                  <p className="text-sm text-blue-700">Analyzing CV and LinkedIn profile together...</p>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm text-blue-600">
-                  <span>Framsteg</span>
-                  <span>Extraherar personlig information...</span>
+                  <span>Progress</span>
+                  <span>Extracting personal information...</span>
                 </div>
                 <div className="w-full bg-blue-200 rounded-full h-2">
                   <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
                 </div>
               </div>
               <p className="text-xs text-blue-600 mt-2">
-                ⚡ Detta tar vanligtvis 10-30 sekunder
+                ⚡ This usually takes 10-30 seconds
               </p>
             </div>
           )}
@@ -265,23 +265,23 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           {/* Auto-filled Information Display (only show after analysis) */}
           {analysisResults && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-semibold text-green-900 mb-2">✅ Information autofylld från analys</h4>
+              <h4 className="font-semibold text-green-900 mb-2">✅ Information auto-filled from analysis</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <label className="block text-green-700 font-medium">Namn:</label>
-                  <p className="text-green-800">{fullName || 'Ej detekterat'}</p>
+                  <label className="block text-green-700 font-medium">Name:</label>
+                  <p className="text-green-800">{fullName || 'Not detected'}</p>
                 </div>
                 <div>
-                  <label className="block text-green-700 font-medium">E-post:</label>
-                  <p className="text-green-800">{email || 'Ej detekterat'}</p>
+                  <label className="block text-green-700 font-medium">Email:</label>
+                  <p className="text-green-800">{email || 'Not detected'}</p>
                 </div>
                 <div>
-                  <label className="block text-green-700 font-medium">Telefon:</label>
-                  <p className="text-green-800">{phoneNumber || 'Ej detekterat'}</p>
+                  <label className="block text-green-700 font-medium">Phone:</label>
+                  <p className="text-green-800">{phoneNumber || 'Not detected'}</p>
                 </div>
               </div>
               <p className="text-xs text-green-600 mt-2">
-                Du kan ändra dessa fält i nästa steg om det behövs.
+                You can edit these fields in the next step if needed.
               </p>
             </div>
           )}
@@ -297,11 +297,11 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             <div className="text-sm text-gray-600">
               <Label htmlFor="terms" className="cursor-pointer">
                 <span className="font-medium">
-                  Jag godkänner omfattande analys och autofyllning
+                  I agree to comprehensive analysis and auto-filling
                 </span>
               </Label>
               <p className="mt-1">
-                Jag samtycker till att MatchWise analyserar mitt CV och LinkedIn-profil för att autofylla kontaktinformation och skapa min konsultprofil.
+                I consent to MatchWise analyzing my CV and LinkedIn profile to auto-fill contact information and create my consultant profile.
               </p>
             </div>
           </div>
@@ -332,13 +332,13 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           
           {canStartAnalysis && !analysisResults && !isAnalyzing && (
             <p className="text-center text-sm text-green-600">
-              ✅ Analysen startar automatiskt och autofyller din information
+              ✅ Analysis will start automatically and auto-fill your information
             </p>
           )}
           
           {isAnalyzing && (
             <p className="text-center text-sm text-blue-600 animate-pulse">
-              🔄 Analyserar CV och LinkedIn - autofyller kontaktinformation...
+              🔄 Analyzing CV and LinkedIn - auto-filling contact information...
             </p>
           )}
         </form>

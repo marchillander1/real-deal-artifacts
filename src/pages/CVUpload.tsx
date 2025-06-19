@@ -65,12 +65,12 @@ const CVUpload: React.FC = () => {
     setIsAnalyzing(false);
     setAnalysisProgress(100);
     
-    // 🔥 FÖRBÄTTRAD AUTOFILL: Korrekt mappning från CV-analysen
+    // 🔥 ENHANCED AUTOFILL: Correct mapping from CV analysis
     const cvData = analysis.cvAnalysis?.analysis;
     if (cvData) {
       console.log('📝 Auto-filling form from CV analysis:', cvData.personalInfo);
       
-      // Auto-fill name från personalInfo
+      // Auto-fill name from personalInfo
       if (cvData.personalInfo?.name && 
           cvData.personalInfo.name !== 'Not specified' && 
           cvData.personalInfo.name !== 'Analysis in progress' && 
@@ -81,7 +81,7 @@ const CVUpload: React.FC = () => {
         setFullName(cvData.personalInfo.name);
       }
       
-      // Auto-fill email från personalInfo
+      // Auto-fill email from personalInfo
       if (cvData.personalInfo?.email && 
           cvData.personalInfo.email !== 'Not specified' &&
           cvData.personalInfo.email !== 'analysis@example.com' && 
@@ -93,7 +93,7 @@ const CVUpload: React.FC = () => {
         setEmail(cvData.personalInfo.email);
       }
       
-      // Auto-fill phone från personalInfo
+      // Auto-fill phone from personalInfo
       if (cvData.personalInfo?.phone && 
           cvData.personalInfo.phone !== 'Not specified' &&
           cvData.personalInfo.phone !== '+46 70 123 4567' && 
@@ -104,10 +104,10 @@ const CVUpload: React.FC = () => {
       }
     }
     
-    // Visa toast med extraheringsresultat
+    // Show toast with extraction results
     toast({
-      title: "CV-analys klar!",
-      description: `Personlig information extraherad: ${cvData?.personalInfo?.name || 'Namn ej hittat'}, ${cvData?.personalInfo?.email || 'Email ej hittad'}`,
+      title: "CV analysis complete!",
+      description: `Personal information extracted: ${cvData?.personalInfo?.name || 'Name not found'}, ${cvData?.personalInfo?.email || 'Email not found'}`,
     });
   };
 
@@ -116,7 +116,7 @@ const CVUpload: React.FC = () => {
     setIsAnalyzing(false);
     setAnalysisProgress(0);
     toast({
-      title: "Analysfel",
+      title: "Analysis Error",
       description: message,
       variant: "destructive",
     });
@@ -127,8 +127,8 @@ const CVUpload: React.FC = () => {
     setIsAnalyzing(true);
     setAnalysisProgress(0);
     toast({
-      title: "Analys påbörjad",
-      description: "Analyserar CV och LinkedIn-profil...",
+      title: "Analysis Started",
+      description: "Analyzing CV and LinkedIn profile...",
     });
   };
 
@@ -145,8 +145,8 @@ const CVUpload: React.FC = () => {
     // Validation: Check if we have analysis results and basic info
     if (!file || !analysisResults || !agreeToTerms) {
       toast({
-        title: "Information saknas",
-        description: "Slutför analysen och godkänn villkoren.",
+        title: "Information Missing",
+        description: "Complete the analysis and agree to terms.",
         variant: "destructive",
       });
       return;
@@ -156,8 +156,8 @@ const CVUpload: React.FC = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
       toast({
-        title: "Ogiltig email",
-        description: "Ange en giltig e-postadress.",
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
         variant: "destructive",
       });
       return;
@@ -209,8 +209,8 @@ const CVUpload: React.FC = () => {
     } catch (error: any) {
       console.error('Submit error:', error);
       toast({
-        title: "Submission misslyckades",
-        description: error.message || "Kunde inte slutföra registreringen. Försök igen.",
+        title: "Submission Failed",
+        description: error.message || "Could not complete registration. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -235,50 +235,50 @@ const CVUpload: React.FC = () => {
                 </div>
                 
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                  {isMyConsultant ? "Konsult tillagd! 🎉" : "Välkommen till MatchWise AI! 🚀"}
+                  {isMyConsultant ? "Consultant Added! 🎉" : "Welcome to MatchWise AI! 🚀"}
                 </h1>
                 
                 <div className="max-w-2xl mx-auto">
                   {isMyConsultant ? (
                     <div className="space-y-4">
                       <p className="text-lg text-gray-700">
-                        <strong>{fullName}</strong> har framgångsrikt lagts till i ditt konsultteam!
+                        <strong>{fullName}</strong> has been successfully added to your consultant team!
                       </p>
                       <div className="bg-white rounded-lg p-6 border border-green-200">
-                        <h3 className="font-semibold text-gray-900 mb-2">Vad händer härnäst:</h3>
+                        <h3 className="font-semibold text-gray-900 mb-2">What happens next:</h3>
                         <ul className="text-left text-gray-700 space-y-2">
-                          <li>✅ Konsulten är nu del av ditt team</li>
-                          <li>✅ De kommer att få e-postbekräftelse och instruktioner</li>
-                          <li>✅ Deras profil är redo för uppdragsmatchning</li>
-                          <li>✅ Du hittar dem i din "Mina konsulter"-sektion</li>
+                          <li>✅ Consultant is now part of your team</li>
+                          <li>✅ They will receive email confirmation and instructions</li>
+                          <li>✅ Their profile is ready for assignment matching</li>
+                          <li>✅ You can find them in your "My Consultants" section</li>
                         </ul>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-6">
                       <p className="text-lg text-gray-700">
-                        Grattis <strong>{fullName}</strong>! Du är nu del av vårt konsultnätverk.
+                        Congratulations <strong>{fullName}</strong>! You are now part of our consultant network.
                       </p>
                       
                       <div className="bg-white rounded-lg p-6 border border-green-200">
-                        <h3 className="font-semibold text-gray-900 mb-3">🎯 Du är nu live på vår plattform!</h3>
+                        <h3 className="font-semibold text-gray-900 mb-3">🎯 You are now live on our platform!</h3>
                         <ul className="text-left text-gray-700 space-y-2">
-                          <li>✅ <strong>Synlig för företag:</strong> Din profil är aktiv och sökbar</li>
-                          <li>✅ <strong>AI-driven matchning:</strong> Du kommer att få relevanta möjligheter automatiskt</li>
-                          <li>✅ <strong>Välkomstmail skickat:</strong> Kolla din inkorg för alla detaljer</li>
-                          <li>✅ <strong>Kvalitetsuppdrag:</strong> Få endast förfiltrerade, matchande möjligheter</li>
+                          <li>✅ <strong>Visible to companies:</strong> Your profile is active and searchable</li>
+                          <li>✅ <strong>AI-driven matching:</strong> You will receive relevant opportunities automatically</li>
+                          <li>✅ <strong>Welcome email sent:</strong> Check your inbox for all details</li>
+                          <li>✅ <strong>Quality assignments:</strong> Get only pre-filtered, matching opportunities</li>
                         </ul>
                       </div>
                       
                       <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-                        <h3 className="font-semibold text-blue-900 mb-2">📧 Kolla din e-post!</h3>
+                        <h3 className="font-semibold text-blue-900 mb-2">📧 Check your email!</h3>
                         <p className="text-blue-800">
-                          Vi har skickat ett omfattande välkomstmail till <strong>{email}</strong> med:
+                          We have sent a comprehensive welcome email to <strong>{email}</strong> with:
                         </p>
                         <ul className="text-left text-blue-700 mt-2 space-y-1">
-                          <li>• Pro-tips för att få uppdrag</li>
-                          <li>• Hur vår AI-matchning fungerar</li>
-                          <li>• Nästa steg och bästa praxis</li>
+                          <li>• Pro tips for getting assignments</li>
+                          <li>• How our AI matching works</li>
+                          <li>• Next steps and best practices</li>
                         </ul>
                       </div>
                     </div>
@@ -290,7 +290,7 @@ const CVUpload: React.FC = () => {
                     onClick={() => window.location.href = isMyConsultant ? '/matchwiseai' : '/'}
                     className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
                   >
-                    {isMyConsultant ? "Till Dashboard" : "Tillbaka hem"}
+                    {isMyConsultant ? "Go to Dashboard" : "Back to Home"}
                   </button>
                   <button
                     onClick={() => {
@@ -306,7 +306,7 @@ const CVUpload: React.FC = () => {
                     }}
                     className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-8 py-3 rounded-lg font-semibold transition-colors"
                   >
-                    Lägg till ytterligare konsult
+                    Add Another Consultant
                   </button>
                 </div>
               </CardContent>
@@ -332,12 +332,12 @@ const CVUpload: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isMyConsultant ? "Lägg till konsult till ditt team" : "Gå med i vårt konsultnätverk"}
+              {isMyConsultant ? "Add consultant to your team" : "Join our consultant network"}
             </h1>
             <p className="text-gray-600">
               {isMyConsultant 
-                ? "Ladda upp ett CV för att lägga till en ny konsult till ditt team med AI-driven analys"
-                : "Ladda upp ditt CV och LinkedIn-profil för AI-driven analys och matchning"
+                ? "Upload a CV to add a new consultant to your team with AI-driven analysis"
+                : "Upload your CV and LinkedIn profile for AI-driven analysis and matching"
               }
             </p>
             
@@ -345,23 +345,23 @@ const CVUpload: React.FC = () => {
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-blue-600 mb-2">🔧</div>
-                <h3 className="font-semibold text-sm">CV-analys</h3>
-                <p className="text-xs text-gray-600">Autofyll från CV</p>
+                <h3 className="font-semibold text-sm">CV Analysis</h3>
+                <p className="text-xs text-gray-600">Auto-fill from CV</p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
                 <div className="text-purple-600 mb-2">🔗</div>
-                <h3 className="font-semibold text-sm">LinkedIn-analys</h3>
-                <p className="text-xs text-gray-600">Profiloptimering</p>
+                <h3 className="font-semibold text-sm">LinkedIn Analysis</h3>
+                <p className="text-xs text-gray-600">Profile optimization</p>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg">
                 <div className="text-orange-600 mb-2">✏️</div>
-                <h3 className="font-semibold text-sm">Redigerbara fält</h3>
-                <p className="text-xs text-gray-600">Ändra autofylld data</p>
+                <h3 className="font-semibold text-sm">Editable Fields</h3>
+                <p className="text-xs text-gray-600">Modify auto-filled data</p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <div className="text-green-600 mb-2">📈</div>
-                <h3 className="font-semibold text-sm">Nätverk redo</h3>
-                <p className="text-xs text-gray-600">Omedelbar synlighet</p>
+                <h3 className="font-semibold text-sm">Network Ready</h3>
+                <p className="text-xs text-gray-600">Immediate visibility</p>
               </div>
             </div>
           </div>
@@ -411,36 +411,36 @@ const CVUpload: React.FC = () => {
                   
                   {/* Form for final submission with auto-filled data */}
                   <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h3 className="text-lg font-semibold mb-4">Granska & slutför registrering</h3>
+                    <h3 className="text-lg font-semibold mb-4">Review & complete registration</h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      Information har autofyllts från din CV-analys. Du kan ändra fälten om det behövs.
-                      <strong> Välkomstmailen skickas till e-postadressen du anger nedan.</strong>
+                      Information has been auto-filled from your CV analysis. You can edit the fields if needed.
+                      <strong> Welcome email will be sent to the email address you specify below.</strong>
                     </p>
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Fullständigt namn *
+                            Full Name *
                           </label>
                           <input
                             type="text"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Autofyllt från CV"
+                            placeholder="Auto-filled from CV"
                             required
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            E-post * <span className="text-green-600">(Välkomstmail skickas hit)</span>
+                            Email * <span className="text-green-600">(Welcome email sent here)</span>
                           </label>
                           <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Autofyllt från CV"
+                            placeholder="Auto-filled from CV"
                             required
                           />
                         </div>
@@ -448,14 +448,14 @@ const CVUpload: React.FC = () => {
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Telefonnummer
+                          Phone Number
                         </label>
                         <input
                           type="tel"
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Autofyllt från CV"
+                          placeholder="Auto-filled from CV"
                         />
                       </div>
                       
@@ -471,7 +471,7 @@ const CVUpload: React.FC = () => {
                           required
                           disabled
                         />
-                        <p className="text-xs text-gray-500 mt-1">LinkedIn URL som användes för analys</p>
+                        <p className="text-xs text-gray-500 mt-1">LinkedIn URL used for analysis</p>
                       </div>
                       
                       <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
@@ -486,11 +486,11 @@ const CVUpload: React.FC = () => {
                         <div className="text-sm text-gray-600">
                           <label htmlFor="terms" className="cursor-pointer">
                             <span className="font-medium">
-                              Jag godkänner att gå med i MatchWise konsultnätverk
+                              I agree to join the MatchWise consultant network
                             </span>
                           </label>
                           <p className="mt-1">
-                            Jag samtycker till att MatchWise använder mitt analyserade CV och LinkedIn-profil för konsultmatchning.
+                            I consent to MatchWise using my analyzed CV and LinkedIn profile for consultant matching.
                           </p>
                         </div>
                       </div>
@@ -500,7 +500,7 @@ const CVUpload: React.FC = () => {
                         disabled={isUploading || !agreeToTerms}
                         className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {isUploading ? "Slutför..." : "Slutför registrering & gå med i nätverket"}
+                        {isUploading ? "Completing..." : "Complete registration & join network"}
                       </button>
                     </form>
                   </div>
