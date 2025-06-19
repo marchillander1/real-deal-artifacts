@@ -18,11 +18,39 @@ export const ConsultantFullAnalysisModal: React.FC<ConsultantFullAnalysisModalPr
   open,
   onOpenChange
 }) => {
+  // 🔥 FIX: Use the actual analysis data from the consultant
   const cvAnalysis = consultant.cvAnalysis?.analysis;
   const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
 
+  console.log('🔍 ConsultantFullAnalysisModal - Real analysis data:', {
+    consultantName: consultant.name,
+    hasCvAnalysis: !!cvAnalysis,
+    hasLinkedinAnalysis: !!linkedinAnalysis,
+    cvAnalysisKeys: cvAnalysis ? Object.keys(cvAnalysis) : [],
+    linkedinAnalysisKeys: linkedinAnalysis ? Object.keys(linkedinAnalysis) : [],
+    rawCvAnalysis: cvAnalysis,
+    rawLinkedinAnalysis: linkedinAnalysis
+  });
+
   if (!cvAnalysis && !linkedinAnalysis) {
-    return null;
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-purple-600" />
+              Analysis Data - {consultant.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-6 text-center">
+            <p className="text-gray-600 mb-4">No AI analysis data available for this consultant.</p>
+            <p className="text-sm text-gray-500">
+              This consultant may have been added before the AI analysis feature was implemented.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (
@@ -495,11 +523,74 @@ export const ConsultantFullAnalysisModal: React.FC<ConsultantFullAnalysisModalPr
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-sm text-blue-800 mb-2">LinkedIn analysis data:</p>
-                    <pre className="text-xs text-blue-700 bg-white p-3 rounded border overflow-auto max-h-40">
-                      {JSON.stringify(linkedinAnalysis, null, 2)}
-                    </pre>
+                  <div className="space-y-4">
+                    {/* Communication Style */}
+                    {linkedinAnalysis.communicationStyle && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-600">Communication Style:</span>
+                        <p className="text-gray-700 mt-1">{linkedinAnalysis.communicationStyle}</p>
+                      </div>
+                    )}
+
+                    {/* Leadership Style */}
+                    {linkedinAnalysis.leadershipStyle && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-600">Leadership Style:</span>
+                        <p className="text-gray-700 mt-1">{linkedinAnalysis.leadershipStyle}</p>
+                      </div>
+                    )}
+
+                    {/* Problem Solving */}
+                    {linkedinAnalysis.problemSolving && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-600">Problem Solving:</span>
+                        <p className="text-gray-700 mt-1">{linkedinAnalysis.problemSolving}</p>
+                      </div>
+                    )}
+
+                    {/* Team Collaboration */}
+                    {linkedinAnalysis.teamCollaboration && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-600">Team Collaboration:</span>
+                        <p className="text-gray-700 mt-1">{linkedinAnalysis.teamCollaboration}</p>
+                      </div>
+                    )}
+
+                    {/* Scores */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                      {linkedinAnalysis.innovation && (
+                        <div className="text-center p-3 bg-purple-50 rounded-lg">
+                          <p className="text-xs text-purple-600">Innovation</p>
+                          <p className="text-lg font-bold text-purple-700">{linkedinAnalysis.innovation}/5</p>
+                        </div>
+                      )}
+                      {linkedinAnalysis.culturalFit && (
+                        <div className="text-center p-3 bg-blue-50 rounded-lg">
+                          <p className="text-xs text-blue-600">Cultural Fit</p>
+                          <p className="text-lg font-bold text-blue-700">{linkedinAnalysis.culturalFit}/5</p>
+                        </div>
+                      )}
+                      {linkedinAnalysis.leadership && (
+                        <div className="text-center p-3 bg-green-50 rounded-lg">
+                          <p className="text-xs text-green-600">Leadership</p>
+                          <p className="text-lg font-bold text-green-700">{linkedinAnalysis.leadership}/5</p>
+                        </div>
+                      )}
+                      {linkedinAnalysis.adaptability && (
+                        <div className="text-center p-3 bg-orange-50 rounded-lg">
+                          <p className="text-xs text-orange-600">Adaptability</p>
+                          <p className="text-lg font-bold text-orange-700">{linkedinAnalysis.adaptability}/5</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Overall Consultant Readiness */}
+                    {linkedinAnalysis.overallConsultantReadiness && (
+                      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                        <span className="text-sm font-medium text-gray-600">Overall Consultant Readiness:</span>
+                        <p className="text-2xl font-bold text-purple-700">{linkedinAnalysis.overallConsultantReadiness}/10</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
