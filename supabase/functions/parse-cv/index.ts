@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,9 +12,8 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting optimized CV parsing with size limits...');
+    console.log('🚀 Starting CV parsing...');
     
-    // Get the uploaded file from FormData
     const formData = await req.formData();
     const file = formData.get('file') as File;
     
@@ -25,14 +23,13 @@ serve(async (req) => {
 
     console.log('📄 Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
 
-    // Get GROQ API key from environment
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
     if (!groqApiKey) {
-      console.error('❌ GROQ_API_KEY not found in environment');
+      console.error('❌ GROQ_API_KEY not found');
       throw new Error('GROQ API key not configured');
     }
 
-    // 🔥 OPTIMIZED PDF TEXT EXTRACTION WITH SIZE LIMITS
+    // Enhanced information extraction
     let extractedText = '';
     let detectedInfo = {
       emails: [],
@@ -40,18 +37,16 @@ serve(async (req) => {
       names: [],
       companies: [],
       skills: [],
-      locations: [],
-      years: [],
-      urls: []
+      locations: []
     };
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF with optimized extraction...');
+        console.log('📄 Processing PDF...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // Strategy 1: Smart text extraction with multiple encodings
+        // Try multiple encodings for better text extraction
         const encodings = ['utf-8', 'latin1'];
         let bestText = '';
         
@@ -59,7 +54,7 @@ serve(async (req) => {
           try {
             const decoder = new TextDecoder(encoding, { ignoreBOM: true, fatal: false });
             const decoded = decoder.decode(uint8Array);
-            if (decoded.length > bestText.length && decoded.length < 500000) { // Limit to 500k chars
+            if (decoded.length > bestText.length && decoded.length < 100000) {
               bestText = decoded;
             }
           } catch (e) {
@@ -67,50 +62,39 @@ serve(async (req) => {
           }
         }
         
-        // Strategy 2: Enhanced information extraction patterns
-        const advancedPatterns = {
-          // Email patterns - more comprehensive
+        // Enhanced patterns for Swedish/English CVs
+        const patterns = {
           emails: [
             /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}\b/g,
-            /(?:email|e-mail|mail|Email|E-mail)[:|\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/gi
+            /(?:email|e-mail|mail|Email|E-mail)[:=\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/gi
           ],
-          
-          // Phone patterns - Swedish and international
           phones: [
             /\+46[\s-]?[0-9]{2,3}[\s-]?[0-9]{3}[\s-]?[0-9]{2,4}/g,
             /0[0-9]{2,3}[\s-]?[0-9]{3}[\s-]?[0-9]{2,4}/g,
-            /(?:tel|phone|telefon|mobil|Phone|Tel)[:|\s]*([\+0-9\s\-\(\)]{8,20})/gi
+            /(?:tel|phone|telefon|mobil|Phone|Tel)[:=\s]*([\+0-9\s\-\(\)]{8,20})/gi
           ],
-          
-          // Name patterns - better detection
           names: [
             /\b[A-ZÅÄÖÜ][a-zåäöüé]+\s+[A-ZÅÄÖÜ][a-zåäöüé]+(?:\s+[A-ZÅÄÖÜ][a-zåäöüé]+)?\b/g,
-            /(?:name|namn|Name|NAMN)[:|\s]*([A-ZÅÄÖÜ][a-zåäöüé\s]{3,40})/gi
+            /(?:name|namn|Name|NAMN)[:=\s]*([A-ZÅÄÖÜ][a-zåäöüé\s]{3,40})/gi
           ],
-          
-          // Company patterns
           companies: [
             /\b[A-ZÅÄÖÜ][a-zåäöüé\s&]{2,30}(?:AB|Ltd|Inc|Corp|AS|Oy|GmbH|Group|Solutions|Tech|Consulting|Development)\b/g
           ],
-          
-          // Skills - focused on common tech skills
           skills: [
             /\b(JavaScript|TypeScript|Python|Java|C#|React|Angular|Vue|Node\.js|SQL|HTML|CSS|Git|Docker|AWS|Azure|Kubernetes|PHP|Ruby|Go|Swift|Kotlin|MongoDB|PostgreSQL|MySQL|Linux|Windows|Agile|Scrum|API|REST|GraphQL|Machine Learning|AI|Data Science|UX|UI|Frontend|Backend|Fullstack|DevOps|CI\/CD|Jenkins|GitHub|Jira|Figma|Adobe|Analytics|Excel|Project Management|Leadership|Communication|Problem Solving|Team Work|Analytical|Creative|Strategic)\b/gi
           ],
-          
-          // Locations - focused on major cities
           locations: [
             /\b(Stockholm|Göteborg|Malmö|Uppsala|Linköping|London|Berlin|Amsterdam|Copenhagen|Oslo|Helsinki|New York|San Francisco|Remote|Sweden|Sverige|Denmark|Norge|Finland)\b/gi
           ]
         };
 
-        // Extract information using optimized patterns
-        console.log('🔍 Extracting structured information from text...');
+        // Extract information
+        console.log('🔍 Extracting information...');
         
-        for (const [category, patterns] of Object.entries(advancedPatterns)) {
+        for (const [category, patternList] of Object.entries(patterns)) {
           const categoryMatches = new Set();
           
-          patterns.forEach(pattern => {
+          patternList.forEach(pattern => {
             const matches = bestText.match(pattern) || [];
             matches.forEach(match => {
               const cleaned = match.trim().replace(/[^\w@.+\-\s]/g, ' ').trim();
@@ -120,61 +104,50 @@ serve(async (req) => {
             });
           });
           
-          detectedInfo[category] = Array.from(categoryMatches).slice(0, 5); // Limit to 5 per category
+          detectedInfo[category] = Array.from(categoryMatches).slice(0, 5);
           console.log(`📊 Found ${detectedInfo[category].length} ${category}:`, detectedInfo[category].slice(0, 2));
         }
 
-        // Create focused content for AI analysis - MUCH SMALLER
-        const focusedContent = [
-          `CV FILE: ${file.name}`,
-          `DETECTED EMAILS: ${detectedInfo.emails.join(', ')}`,
-          `DETECTED PHONES: ${detectedInfo.phones.join(', ')}`,
-          `DETECTED NAMES: ${detectedInfo.names.join(', ')}`,
-          `DETECTED COMPANIES: ${detectedInfo.companies.join(', ')}`,
-          `DETECTED SKILLS: ${detectedInfo.skills.join(', ')}`,
-          `DETECTED LOCATIONS: ${detectedInfo.locations.join(', ')}`,
-          `RELEVANT TEXT EXCERPT:`,
-          bestText.substring(0, 8000) // Only first 8k characters
+        // Create focused content for AI - MUCH SHORTER
+        extractedText = [
+          `CV: ${file.name}`,
+          `Emails: ${detectedInfo.emails.join(', ')}`,
+          `Phones: ${detectedInfo.phones.join(', ')}`,
+          `Names: ${detectedInfo.names.join(', ')}`,
+          `Companies: ${detectedInfo.companies.join(', ')}`,
+          `Skills: ${detectedInfo.skills.join(', ')}`,
+          `Locations: ${detectedInfo.locations.join(', ')}`,
+          `Text: ${bestText.substring(0, 3000)}`
         ].join('\n');
-
-        extractedText = focusedContent;
-        console.log('📄 Optimized content length for AI:', extractedText.length);
         
       } else {
-        // For non-PDF files, read as text with size limit
         const rawText = await file.text();
-        extractedText = rawText.substring(0, 10000); // Limit text files to 10k chars
-        console.log('📄 Read text file content length:', extractedText.length);
+        extractedText = rawText.substring(0, 5000);
       }
     } catch (error) {
       console.warn('⚠️ Content extraction failed:', error);
-      extractedText = `CV file: ${file.name} (${file.type}) - Extraction failed, using basic analysis`;
+      extractedText = `CV file: ${file.name} - Extraction failed`;
     }
 
-    // 🔥 OPTIMIZED AI PROMPT - MUCH SHORTER AND MORE FOCUSED
-    const prompt = `Analyze this CV and extract ONLY real, verified information. Use "Not specified" if information is not clearly present.
+    // MUCH SHORTER AI PROMPT
+    const prompt = `Analyze this CV and extract real information only. Use "Not specified" if not found.
 
 ${extractedText}
 
-CRITICAL: Extract ONLY information that is clearly visible. Do not invent or assume anything.
-
-Respond with EXACTLY this JSON format (no other text):
+Return ONLY this JSON:
 
 {
   "personalInfo": {
-    "name": "Extract full name or 'Not specified'",
-    "email": "Extract email address or 'Not specified'",
-    "phone": "Extract phone number or 'Not specified'",
-    "location": "Extract city/location or 'Not specified'",
-    "linkedinProfile": "Extract LinkedIn URL or 'Not specified'"
+    "name": "Real name or 'Not specified'",
+    "email": "Real email or 'Not specified'",
+    "phone": "Real phone or 'Not specified'",
+    "location": "Real location or 'Not specified'"
   },
   "professionalSummary": {
-    "yearsOfExperience": "Calculate from work dates or 'Not specified'",
-    "currentRole": "Extract latest job title or 'Not specified'",
+    "yearsOfExperience": "Calculate years or 'Not specified'",
+    "currentRole": "Latest role or 'Not specified'",
     "seniorityLevel": "Junior/Mid-level/Senior/Expert or 'Not specified'",
-    "careerTrajectory": "Growing/Stable/Senior or 'Not specified'",
-    "industryFocus": "Extract primary industry or 'Not specified'",
-    "specializations": ["List real specializations"]
+    "industryFocus": "Main industry or 'Not specified'"
   },
   "technicalExpertise": {
     "programmingLanguages": {
@@ -182,39 +155,34 @@ Respond with EXACTLY this JSON format (no other text):
       "proficient": ["Languages with 2-4 years"],
       "familiar": ["Languages with <2 years"]
     },
-    "frameworks": ["Extract frameworks mentioned"],
-    "tools": ["Extract tools and software"],
-    "databases": ["Extract database technologies"],
-    "cloudPlatforms": ["Extract cloud platforms"],
-    "methodologies": ["Extract methodologies like Agile"]
+    "frameworks": ["Real frameworks mentioned"],
+    "tools": ["Real tools mentioned"],
+    "databases": ["Real databases mentioned"]
   },
   "workExperience": [
     {
-      "company": "Real company name",
-      "role": "Real job title",
-      "duration": "Real time period",
-      "technologies": ["Technologies for this role"],
-      "achievements": ["Specific achievements"]
+      "company": "Real company",
+      "role": "Real role",
+      "duration": "Real duration",
+      "technologies": ["Tech used"],
+      "achievements": ["Real achievements"]
     }
   ],
   "education": {
-    "degrees": ["Educational qualifications"],
-    "certifications": ["Professional certifications"]
+    "degrees": ["Real degrees"],
+    "certifications": ["Real certifications"]
   },
   "marketPositioning": {
     "hourlyRateEstimate": {
       "min": 800,
       "max": 1200,
       "recommended": 1000,
-      "currency": "SEK",
-      "explanation": "Based on experience and skills"
+      "currency": "SEK"
     }
-  },
-  "languages": ["Extract languages with proficiency"]
+  }
 }`;
 
-    console.log('🤖 Sending optimized CV content to GROQ for analysis');
-    console.log('📊 Prompt length:', prompt.length);
+    console.log('🤖 Sending to GROQ, prompt length:', prompt.length);
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -227,7 +195,7 @@ Respond with EXACTLY this JSON format (no other text):
         messages: [
           {
             role: 'system',
-            content: 'You are a CV analyzer that extracts real information from CV content and responds only with valid JSON.'
+            content: 'Extract CV information and respond with valid JSON only.'
           },
           {
             role: 'user',
@@ -235,72 +203,59 @@ Respond with EXACTLY this JSON format (no other text):
           }
         ],
         temperature: 0.1,
-        max_tokens: 3000,
+        max_tokens: 2000,
       }),
     });
 
     if (!groqResponse.ok) {
       const errorText = await groqResponse.text();
       console.error('❌ GROQ API error:', errorText);
-      throw new Error(`GROQ API request failed: ${groqResponse.status}`);
+      throw new Error(`GROQ API failed: ${groqResponse.status}`);
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ GROQ analysis response received');
+    console.log('✅ GROQ response received');
 
     let analysis;
     try {
       const content = groqData.choices[0]?.message?.content;
       if (!content) {
-        throw new Error('No content in GROQ response');
+        throw new Error('No content in response');
       }
 
-      // Enhanced JSON extraction
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
-        console.log('📊 Successfully parsed CV analysis');
-        console.log('📋 Extracted personal info:', {
-          name: analysis.personalInfo?.name,
-          email: analysis.personalInfo?.email,
-          phone: analysis.personalInfo?.phone,
-          location: analysis.personalInfo?.location
-        });
+        console.log('📊 Parsed CV analysis successfully');
       } else {
-        throw new Error('No valid JSON found in response');
+        throw new Error('No JSON found');
       }
     } catch (parseError) {
-      console.error('❌ Failed to parse GROQ response:', parseError);
-      console.log('Raw GROQ response:', groqData.choices[0]?.message?.content);
+      console.error('❌ Parse error:', parseError);
       
       // Enhanced fallback with detected information
       analysis = {
         personalInfo: {
-          name: detectedInfo.names[0] || 'Not specified',
-          email: detectedInfo.emails[0] || 'Not specified',
-          phone: detectedInfo.phones[0] || 'Not specified',
-          location: detectedInfo.locations[0] || 'Not specified',
-          linkedinProfile: detectedInfo.urls.find(url => url.includes('linkedin')) || 'Not specified'
+          name: detectedInfo.names.find(n => n && n.length > 2 && !n.includes('If Gt')) || 'Not specified',
+          email: detectedInfo.emails.find(e => e && e.includes('@') && e.includes('.')) || 'Not specified',
+          phone: detectedInfo.phones.find(p => p && p.length > 5 && !p.includes('0000000000')) || 'Not specified',
+          location: detectedInfo.locations[0] || 'Not specified'
         },
         professionalSummary: {
           yearsOfExperience: 'Not specified',
           currentRole: 'Not specified',
           seniorityLevel: 'Not specified',
-          careerTrajectory: 'Not specified',
-          industryFocus: 'Not specified',
-          specializations: detectedInfo.skills.slice(0, 3)
+          industryFocus: 'Not specified'
         },
         technicalExpertise: {
           programmingLanguages: { 
             expert: detectedInfo.skills.slice(0, 2), 
-            proficient: detectedInfo.skills.slice(2, 5), 
-            familiar: detectedInfo.skills.slice(5, 8) 
+            proficient: detectedInfo.skills.slice(2, 4), 
+            familiar: detectedInfo.skills.slice(4, 6) 
           },
           frameworks: [],
           tools: [],
-          databases: [],
-          cloudPlatforms: [],
-          methodologies: []
+          databases: []
         },
         workExperience: detectedInfo.companies.slice(0, 2).map(company => ({
           company: company,
@@ -315,20 +270,15 @@ Respond with EXACTLY this JSON format (no other text):
             min: 800,
             max: 1200,
             recommended: 1000,
-            currency: 'SEK',
-            explanation: 'Based on Swedish market rates'
+            currency: 'SEK'
           }
-        },
-        languages: ['Swedish', 'English']
+        }
       };
       
-      console.log('📊 Using enhanced fallback with detected information');
+      console.log('📊 Using fallback with detected info');
     }
 
-    // Create enhanced analysis results
     const enhancedAnalysisResults = {
-      cvAnalysis: analysis,
-      linkedinAnalysis: null,
       detectedInformation: detectedInfo,
       extractionStats: {
         totalTextLength: extractedText.length,
@@ -341,8 +291,7 @@ Respond with EXACTLY this JSON format (no other text):
       }
     };
 
-    console.log('✅ Optimized CV analysis completed successfully');
-    console.log('📊 Final extraction stats:', enhancedAnalysisResults.extractionStats);
+    console.log('✅ CV analysis completed');
 
     return new Response(
       JSON.stringify({ 
@@ -358,30 +307,24 @@ Respond with EXACTLY this JSON format (no other text):
   } catch (error) {
     console.error('❌ CV parsing error:', error);
     
-    // Enhanced fallback for errors
     const fallbackAnalysis = {
       personalInfo: {
         name: 'Not specified',
         email: 'Not specified',
         phone: 'Not specified',
-        location: 'Not specified',
-        linkedinProfile: 'Not specified'
+        location: 'Not specified'
       },
       professionalSummary: {
         yearsOfExperience: 'Not specified',
         currentRole: 'Not specified',
         seniorityLevel: 'Not specified',
-        careerTrajectory: 'Not specified',
-        industryFocus: 'Not specified',
-        specializations: []
+        industryFocus: 'Not specified'
       },
       technicalExpertise: {
         programmingLanguages: { expert: [], proficient: [], familiar: [] },
         frameworks: [],
         tools: [],
-        databases: [],
-        cloudPlatforms: [],
-        methodologies: []
+        databases: []
       },
       workExperience: [],
       education: { degrees: [], certifications: [] },
@@ -390,25 +333,19 @@ Respond with EXACTLY this JSON format (no other text):
           min: 800,
           max: 1200,
           recommended: 1000,
-          currency: 'SEK',
-          explanation: 'Based on Swedish market rates'
+          currency: 'SEK'
         }
-      },
-      languages: ['Swedish', 'English']
+      }
     };
 
-    const fallbackEnhancedResults = {
-      cvAnalysis: fallbackAnalysis,
-      linkedinAnalysis: null,
+    const fallbackEnhanced = {
       detectedInformation: {
         emails: [],
         phones: [],
         names: [],
         companies: [],
         skills: [],
-        locations: [],
-        years: [],
-        urls: []
+        locations: []
       },
       extractionStats: {
         totalTextLength: 0,
@@ -425,7 +362,7 @@ Respond with EXACTLY this JSON format (no other text):
       JSON.stringify({ 
         success: true, 
         analysis: fallbackAnalysis,
-        enhancedAnalysisResults: fallbackEnhancedResults,
+        enhancedAnalysisResults: fallbackEnhanced,
         fallback: true,
         error: error.message 
       }),
