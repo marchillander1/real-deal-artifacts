@@ -502,70 +502,95 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // Enhanced prompt to extract REAL data from CV filename and structure
-    const prompt = `You are analyzing a CV file named "${file.name}". Extract REAL professional information that would typically be found in such a CV.
+    // Read file content for actual CV analysis
+    let fileContent = '';
+    try {
+      if (file.type === 'application/pdf') {
+        // For PDF files, we'll extract text content
+        const arrayBuffer = await file.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        
+        // Simple PDF text extraction (basic approach)
+        const text = new TextDecoder().decode(uint8Array);
+        fileContent = text.replace(/[^\x20-\x7E\s]/g, ' ').trim();
+        console.log('📄 Extracted PDF content length:', fileContent.length);
+      } else {
+        // For other file types, try to read as text
+        fileContent = await file.text();
+        console.log('📄 Read file content length:', fileContent.length);
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not read file content:', error);
+      fileContent = '';
+    }
+
+    // Enhanced prompt to extract REAL data from actual CV content
+    const prompt = `Analyze this CV content and extract REAL professional information. The CV file is named "${file.name}".
+
+CV CONTENT TO ANALYZE:
+${fileContent.substring(0, 3000)} // First 3000 characters to avoid token limits
 
 CRITICAL INSTRUCTIONS:
-- Based on the filename "${file.name}", try to infer realistic information
-- If the filename contains a name pattern, extract it as the person's name
-- Generate realistic Swedish professional profile data
-- Use "Not specified" ONLY when absolutely no reasonable assumption can be made
-- Focus on creating a believable Swedish consultant profile
+- Extract ONLY information that is actually present in the CV content above
+- Look for contact details (email, phone, address), work experience, skills, education
+- Use "Not specified" ONLY when information is genuinely not found in the CV
+- Focus on Swedish professional profile data based on the actual CV content
+- Pay special attention to email addresses, phone numbers, and location information
 
-Analyze this CV file and provide realistic information in this EXACT JSON format:
+Analyze this CV content and provide information in this EXACT JSON format:
 
 {
   "personalInfo": {
-    "name": "Extract or infer name from filename, or realistic Swedish name",
-    "email": "Generate realistic email based on name pattern or 'Not specified'", 
-    "phone": "Realistic Swedish phone number format or 'Not specified'",
-    "location": "Realistic Swedish location (Stockholm, Gothenburg, Malmö, etc.)",
-    "linkedinProfile": "Not specified"
+    "name": "Extract actual name from CV content or 'Not specified'",
+    "email": "Extract actual email from CV content or 'Not specified'", 
+    "phone": "Extract actual phone number from CV content or 'Not specified'",
+    "location": "Extract actual location/address from CV content or 'Not specified'",
+    "linkedinProfile": "Extract LinkedIn URL if found or 'Not specified'"
   },
   "professionalSummary": {
-    "yearsOfExperience": "Realistic experience range (e.g., '5 years')",
-    "currentRole": "Realistic Swedish consultant role",
-    "seniorityLevel": "Mid-level or Senior based on inferred experience",
-    "careerTrajectory": "Growing or Advancing"
+    "yearsOfExperience": "Extract or estimate from work experience section",
+    "currentRole": "Extract current/latest role from CV or estimate",
+    "seniorityLevel": "Determine from experience and roles",
+    "careerTrajectory": "Growing, Advancing, or Stable based on CV"
   },
   "technicalExpertise": {
     "programmingLanguages": {
-      "expert": ["1-2 realistic expert languages"],
-      "proficient": ["2-3 proficient languages"],
-      "familiar": ["1-2 familiar languages"]
+      "expert": ["Extract languages marked as expert level"],
+      "proficient": ["Extract languages marked as proficient"],
+      "familiar": ["Extract languages marked as familiar or basic"]
     },
-    "frameworks": ["2-4 realistic frameworks"],
-    "tools": ["3-5 development tools"],
-    "databases": ["1-3 database technologies"],
-    "cloudPlatforms": ["AWS or Azure"],
-    "methodologies": ["Agile", "Scrum"]
+    "frameworks": ["Extract frameworks/technologies from CV"],
+    "tools": ["Extract tools mentioned in CV"],
+    "databases": ["Extract database technologies"],
+    "cloudPlatforms": ["Extract cloud platforms if mentioned"],
+    "methodologies": ["Extract methodologies mentioned"]
   },
   "workExperience": [
     {
-      "company": "Realistic Swedish company name",
-      "role": "Realistic job title", 
-      "duration": "Realistic time period",
-      "technologies": ["Technologies that match the profile"],
-      "achievements": ["Realistic achievements"]
+      "company": "Extract actual company name from CV",
+      "role": "Extract actual role title", 
+      "duration": "Extract actual time period",
+      "technologies": ["Extract technologies used in this role"],
+      "achievements": ["Extract achievements mentioned"]
     }
   ],
   "education": {
-    "degrees": ["Realistic Swedish education"],
-    "certifications": ["Relevant tech certifications"],
-    "training": ["Professional training"]
+    "degrees": ["Extract actual educational background"],
+    "certifications": ["Extract certifications mentioned"],
+    "training": ["Extract training mentioned"]
   },
   "softSkills": {
-    "communication": ["Strong communication"],
-    "leadership": ["Team leadership"],
-    "problemSolving": ["Analytical thinking"],
-    "teamwork": ["Collaborative approach"]
+    "communication": ["Extract communication skills mentioned"],
+    "leadership": ["Extract leadership experience"],
+    "problemSolving": ["Extract problem-solving abilities"],
+    "teamwork": ["Extract teamwork experience"]
   },
-  "languages": ["Swedish", "English"]
+  "languages": ["Extract languages mentioned in CV"]
 }
 
 Respond with ONLY the JSON object, no additional text.`;
 
-    console.log('🤖 Sending enhanced prompt to GROQ for realistic data extraction');
+    console.log('🤖 Sending CV content to GROQ for analysis');
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -578,14 +603,14 @@ Respond with ONLY the JSON object, no additional text.`;
         messages: [
           {
             role: 'system',
-            content: 'You are a professional CV analyzer. Generate realistic Swedish professional profiles based on CV filenames. Always respond with valid JSON only.'
+            content: 'You are a professional CV analyzer. Extract ONLY real information from CV content. Always respond with valid JSON only.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.3,
+        temperature: 0.1, // Lower temperature for more accurate extraction
         max_tokens: 2000,
       }),
     });
@@ -597,7 +622,7 @@ Respond with ONLY the JSON object, no additional text.`;
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ GROQ response received:', groqData);
+    console.log('✅ GROQ response received');
 
     let analysis;
     try {
@@ -610,7 +635,7 @@ Respond with ONLY the JSON object, no additional text.`;
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
-        console.log('📊 Parsed analysis with personal info:', {
+        console.log('📊 Parsed CV analysis with personal info:', {
           name: analysis.personalInfo?.name,
           email: analysis.personalInfo?.email,
           phone: analysis.personalInfo?.phone,
@@ -620,114 +645,58 @@ Respond with ONLY the JSON object, no additional text.`;
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
-      console.warn('⚠️ Failed to parse GROQ response, creating realistic fallback:', parseError);
+      console.warn('⚠️ Failed to parse CV content, creating minimal fallback:', parseError);
       
-      // Create realistic fallback based on filename patterns
-      const fileName = file.name.toLowerCase();
-      const isSwedishPattern = fileName.includes('cv') || fileName.includes('_') || fileName.includes('-');
-      
-      // Try to extract name from filename
-      let extractedName = 'Not specified';
-      if (fileName.includes('_')) {
-        const nameParts = fileName.split('_')[0];
-        if (nameParts && nameParts.length > 2) {
-          extractedName = nameParts.charAt(0).toUpperCase() + nameParts.slice(1);
-        }
-      } else if (fileName.includes('-')) {
-        const nameParts = fileName.split('-')[0];
-        if (nameParts && nameParts.length > 2) {
-          extractedName = nameParts.charAt(0).toUpperCase() + nameParts.slice(1);
-        }
-      }
-      
+      // Create minimal fallback when CV content cannot be parsed
       analysis = {
         personalInfo: {
-          name: extractedName,
-          email: extractedName !== 'Not specified' ? `${extractedName.toLowerCase()}@email.com` : 'Not specified',
-          phone: isSwedishPattern ? '+46 70 123 4567' : 'Not specified', 
-          location: 'Stockholm, Sweden',
+          name: 'Not specified',
+          email: 'Not specified',
+          phone: 'Not specified',
+          location: 'Not specified',
           linkedinProfile: 'Not specified'
         },
         professionalSummary: {
-          yearsOfExperience: '5 years',
-          currentRole: 'Senior Developer',
-          seniorityLevel: 'Senior',
-          careerTrajectory: 'Advancing'
+          yearsOfExperience: 'Not specified',
+          currentRole: 'Not specified',
+          seniorityLevel: 'Not specified',
+          careerTrajectory: 'Not specified'
         },
         technicalExpertise: {
           programmingLanguages: {
-            expert: ['JavaScript', 'Python'],
-            proficient: ['TypeScript', 'Java'],
-            familiar: ['C#']
+            expert: [],
+            proficient: [],
+            familiar: []
           },
-          frameworks: ['React', 'Node.js', 'Express'],
-          tools: ['Git', 'VS Code', 'Docker'],
-          databases: ['PostgreSQL', 'MongoDB'],
-          cloudPlatforms: ['AWS'],
-          methodologies: ['Agile', 'Scrum']
+          frameworks: [],
+          tools: [],
+          databases: [],
+          cloudPlatforms: [],
+          methodologies: []
         },
-        workExperience: [
-          {
-            company: 'Tech Solutions AB',
-            role: 'Senior Developer',
-            duration: '2021-Present',
-            technologies: ['JavaScript', 'React', 'Node.js'],
-            achievements: ['Led development team', 'Delivered 5+ projects']
-          }
-        ],
+        workExperience: [],
         education: {
-          degrees: ['Master in Computer Science'],
-          certifications: ['AWS Certified Developer'],
-          training: ['Agile Development']
+          degrees: [],
+          certifications: [],
+          training: []
         },
         softSkills: {
-          communication: ['Strong communication'],
-          leadership: ['Team leadership'],
-          problemSolving: ['Analytical thinking'],
-          teamwork: ['Collaborative approach']
+          communication: [],
+          leadership: [],
+          problemSolving: [],
+          teamwork: []
         },
-        languages: ['Swedish', 'English']
+        languages: []
       };
     }
 
-    // Validate and clean the analysis data - remove any remaining mock data
-    if (analysis.personalInfo) {
-      // Clean up any mock email addresses
-      if (analysis.personalInfo.email && (
-        analysis.personalInfo.email.includes('example.com') ||
-        analysis.personalInfo.email.includes('test.com') ||
-        analysis.personalInfo.email === 'johndoe@email.com' ||
-        analysis.personalInfo.email === 'anna.johansson@email.com'
-      )) {
-        analysis.personalInfo.email = 'Not specified';
-      }
-      
-      // Clean up mock phone numbers
-      if (analysis.personalInfo.phone && (
-        analysis.personalInfo.phone.includes('+46 70 123 4567') ||
-        analysis.personalInfo.phone.includes('123-456-7890') ||
-        analysis.personalInfo.phone.includes('555-')
-      )) {
-        analysis.personalInfo.phone = 'Not specified';
-      }
-      
-      // Clean up generic mock names
-      if (analysis.personalInfo.name && (
-        analysis.personalInfo.name === 'John Doe' ||
-        analysis.personalInfo.name === 'Anna Johansson' ||
-        analysis.personalInfo.name === 'Professional Consultant'
-      )) {
-        analysis.personalInfo.name = 'Not specified';
-      }
-    }
-
-    // Calculate market positioning
+    // Calculate market positioning with extracted data
     const marketPositioning = calculateMarketRate(analysis);
     
     // Add market positioning to analysis
     analysis.marketPositioning = {
       hourlyRateEstimate: marketPositioning,
-      targetRoles: [analysis.professionalSummary?.currentRole || 'Developer'],
+      targetRoles: analysis.workExperience?.map(exp => exp.role).filter(role => role && role !== 'Not specified') || ['Consultant'],
       competitiveAdvantages: getAllSkills(analysis).slice(0, 5),
       marketDemand: 'Medium'
     };
@@ -769,7 +738,7 @@ Respond with ONLY the JSON object, no additional text.`;
   } catch (error) {
     console.error('❌ CV parsing error:', error);
     
-    // Return minimal fallback without fake data
+    // Return minimal fallback for errors
     const fallbackAnalysis = {
       personalInfo: {
         name: 'Not specified',
@@ -779,15 +748,15 @@ Respond with ONLY the JSON object, no additional text.`;
         linkedinProfile: 'Not specified'
       },
       professionalSummary: {
-        yearsOfExperience: '3 years',
-        currentRole: 'Developer', 
-        seniorityLevel: 'Mid-level',
-        careerTrajectory: 'Growing'
+        yearsOfExperience: 'Not specified',
+        currentRole: 'Not specified', 
+        seniorityLevel: 'Not specified',
+        careerTrajectory: 'Not specified'
       },
       technicalExpertise: {
         programmingLanguages: {
           expert: [],
-          proficient: ['Programming'],
+          proficient: [],
           familiar: []
         },
         frameworks: [],
@@ -796,27 +765,19 @@ Respond with ONLY the JSON object, no additional text.`;
         cloudPlatforms: [],
         methodologies: []
       },
-      workExperience: [
-        {
-          company: 'Not specified',
-          role: 'Developer',
-          duration: 'Not specified',
-          technologies: [],
-          achievements: []
-        }
-      ],
+      workExperience: [],
       education: {
         degrees: [],
         certifications: [],
         training: []
       },
       softSkills: {
-        communication: ['Professional communication'],
-        leadership: ['Team collaboration'],
-        problemSolving: ['Problem solving'],
-        teamwork: ['Team player']
+        communication: [],
+        leadership: [],
+        problemSolving: [],
+        teamwork: []
       },
-      languages: ['English'],
+      languages: [],
       marketPositioning: {
         hourlyRateEstimate: {
           min: 600,
@@ -825,8 +786,8 @@ Respond with ONLY the JSON object, no additional text.`;
           currency: 'SEK',
           explanation: 'Estimated rate based on available information.'
         },
-        targetRoles: ['Developer'],
-        competitiveAdvantages: ['Programming'],
+        targetRoles: ['Consultant'],
+        competitiveAdvantages: [],
         marketDemand: 'Medium'
       }
     };
