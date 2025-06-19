@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -33,11 +34,9 @@ function App() {
                 <Route path="/pricing-auth" element={<PricingAuth />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/pricing" element={<Pricing />} />
-                <Route path="/cv-upload" element={<CVUploadModern />} />
+                <Route path="/cv-upload" element={<CVUpload />} />
+                <Route path="/cv-upload-modern" element={<CVUploadModern />} />
                 <Route path="/analysis" element={<AnalysisPage />} />
-                
-                {/* Legacy CV upload (keep for backwards compatibility) */}
-                <Route path="/cv-upload-legacy" element={<CVUpload />} />
                 
                 {/* Protected routes */}
                 <Route path="/matchwiseai" element={
