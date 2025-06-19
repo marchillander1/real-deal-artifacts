@@ -44,9 +44,30 @@ export const useSupabaseConsultantsWithDemo = () => {
         
         console.log(`👤 Consultant ${consultant.name}: user_id=${consultant.user_id}, db_type=${consultant.type}, final_type=${consultantType}`);
         
+        // 🔥 FIX: Get the correct name from CV analysis if available
+        const cvAnalysis = (consultant as any).cv_analysis_data?.analysis;
+        let displayName = consultant.name;
+        
+        // For network consultants (type = 'new'), prioritize CV analysis name
+        if (consultantType === 'new' && cvAnalysis?.personalInfo?.name) {
+          const cvName = cvAnalysis.personalInfo.name;
+          // Only use CV name if it's valid (not placeholder text)
+          if (cvName && 
+              cvName !== 'Ej specificerat' && 
+              cvName !== 'Not specified' &&
+              cvName !== 'Subtype Image' &&
+              cvName.length > 2 &&
+              !cvName.includes('PDF') &&
+              !cvName.includes('Type') &&
+              !cvName.includes('obj')) {
+            displayName = cvName;
+            console.log(`✅ Using CV analysis name for ${consultant.name}: ${displayName}`);
+          }
+        }
+        
         return {
           id: consultant.id,
-          name: consultant.name,
+          name: displayName, // 🔥 Use the corrected display name
           email: consultant.email,
           phone: consultant.phone || '',
           location: consultant.location || '',
