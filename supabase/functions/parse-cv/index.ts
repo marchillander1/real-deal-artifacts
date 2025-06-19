@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -483,7 +484,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting CV parsing...');
+    console.log('🚀 Starting comprehensive CV parsing...');
     
     // Get the uploaded file from FormData
     const formData = await req.formData();
@@ -516,21 +517,24 @@ serve(async (req) => {
         const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
         let rawText = decoder.decode(uint8Array);
         
-        // Extract readable text from PDF structure
-        // Look for common PDF text patterns and clean them
-        const textPatterns = rawText.match(/[A-Za-zÅÄÖåäö0-9\s\-\+\(\)@\.]{10,}/g) || [];
+        // Extract readable text from PDF structure with better patterns
+        const textPatterns = rawText.match(/[A-Za-zÅÄÖåäö0-9\s\-\+\(\)@\.\,\;\:\/\%\&\=\?\!\"\'\[\]]{5,}/g) || [];
         extractedText = textPatterns.join(' ').replace(/\s+/g, ' ').trim();
         
-        // Also try to extract email and phone patterns specifically
+        // Enhanced pattern extraction for CV data
         const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
-        const phoneMatch = rawText.match(/\+?[\d\s\-\(\)]{8,}/g);
+        const phoneMatch = rawText.match(/[\+]?[\d\s\-\(\)]{8,}/g);
+        const nameMatch = rawText.match(/([A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+)/g);
+        const yearMatch = rawText.match(/\b(19|20)\d{2}\b/g);
         
         if (emailMatch) extractedText += ' EMAIL_FOUND: ' + emailMatch.join(' ');
         if (phoneMatch) extractedText += ' PHONE_FOUND: ' + phoneMatch.join(' ');
+        if (nameMatch) extractedText += ' NAME_FOUND: ' + nameMatch.join(' ');
+        if (yearMatch) extractedText += ' YEARS_FOUND: ' + yearMatch.join(' ');
         
-        fileContent = extractedText.substring(0, 4000); // Increase limit
+        fileContent = extractedText.substring(0, 6000); // Increase limit for more content
         console.log('📄 Extracted PDF content length:', fileContent.length);
-        console.log('📄 Sample extracted text:', fileContent.substring(0, 200));
+        console.log('📄 Sample extracted text:', fileContent.substring(0, 300));
       } else {
         // For other file types, try to read as text
         fileContent = await file.text();
@@ -541,75 +545,170 @@ serve(async (req) => {
       fileContent = `CV file: ${file.name} (${file.type}) - Could not extract text content directly`;
     }
 
-    // Enhanced prompt for accurate data extraction
-    const prompt = `You are a professional CV analyzer. Extract ONLY the real information that is actually present in this CV content.
+    // Comprehensive CV analysis prompt
+    const prompt = `You are an expert CV analyzer. Extract ALL available information from this CV content to create a comprehensive professional profile.
 
 CV FILE: ${file.name}
 CONTENT TO ANALYZE:
 ${fileContent}
 
 CRITICAL INSTRUCTIONS:
-1. Look for REAL contact information (email addresses, phone numbers, names, addresses)
-2. Extract ACTUAL work experience, companies, roles, and dates
-3. Find REAL technical skills, programming languages, and tools mentioned
-4. Use "Not specified" ONLY when information is genuinely not found
-5. DO NOT make up or guess any information
-6. BE PRECISE - only extract what you can clearly see in the content
+1. Extract REAL personal information (name, email, phone, location) from the CV content
+2. Analyze ACTUAL work experience, education, and skills mentioned
+3. Calculate experience years from work history dates
+4. Identify specific technologies, frameworks, and tools
+5. Extract certifications, education, and achievements
+6. Assess professional level and career trajectory
+7. Identify soft skills and leadership experience
+8. Extract language skills mentioned
+9. Generate realistic market positioning based on extracted data
+10. Create comprehensive technical assessment
+11. Provide specific certification recommendations
+12. Generate growth potential analysis
+13. Create profile optimization suggestions
 
-Respond with this EXACT JSON format:
+Respond with this COMPREHENSIVE JSON format:
 
 {
   "personalInfo": {
-    "name": "Extract the actual full name from CV or 'Not specified'",
-    "email": "Extract the actual email address from CV or 'Not specified'", 
-    "phone": "Extract the actual phone number from CV or 'Not specified'",
-    "location": "Extract actual city/location from CV or 'Not specified'",
+    "name": "Extract actual full name from CV",
+    "email": "Extract actual email address from CV", 
+    "phone": "Extract actual phone number from CV",
+    "location": "Extract actual city/location from CV",
     "linkedinProfile": "Extract LinkedIn URL if found or 'Not specified'"
   },
   "professionalSummary": {
-    "yearsOfExperience": "Calculate from work history or estimate",
-    "currentRole": "Extract most recent job title or 'Not specified'",
-    "seniorityLevel": "Determine from experience level",
-    "careerTrajectory": "Growing, Stable, or Senior based on progression"
+    "yearsOfExperience": "Calculate from actual work history dates",
+    "currentRole": "Extract most recent job title",
+    "seniorityLevel": "Junior/Mid-level/Senior/Expert based on experience",
+    "careerTrajectory": "Growing/Stable/Senior based on progression",
+    "industryFocus": "Extract primary industry from work experience",
+    "specializations": ["List specific specialization areas"]
   },
   "technicalExpertise": {
     "programmingLanguages": {
-      "expert": ["List languages marked as expert/advanced"],
-      "proficient": ["List languages marked as proficient/intermediate"],
-      "familiar": ["List languages marked as basic/familiar"]
+      "expert": ["Languages with 5+ years or marked as expert"],
+      "proficient": ["Languages with 2-4 years or marked as proficient"], 
+      "familiar": ["Languages with <2 years or marked as basic"]
     },
-    "frameworks": ["Extract actual frameworks mentioned"],
-    "tools": ["Extract actual tools mentioned"],
-    "databases": ["Extract database technologies mentioned"],
-    "cloudPlatforms": ["Extract cloud platforms if mentioned"],
-    "methodologies": ["Extract methodologies like Agile, Scrum"]
+    "frameworks": ["Extract all frameworks mentioned"],
+    "tools": ["Extract all tools and software mentioned"],
+    "databases": ["Extract database technologies"],
+    "cloudPlatforms": ["Extract cloud platforms mentioned"],
+    "methodologies": ["Extract methodologies like Agile, Scrum"],
+    "architecturePatterns": ["Extract architecture patterns if mentioned"],
+    "testingFrameworks": ["Extract testing tools/frameworks"]
   },
   "workExperience": [
     {
       "company": "Extract actual company name",
       "role": "Extract actual job title", 
-      "duration": "Extract actual time period worked",
-      "technologies": ["Extract technologies used in this role"],
-      "achievements": ["Extract specific achievements mentioned"]
+      "duration": "Extract actual time period",
+      "technologies": ["Technologies used in this role"],
+      "achievements": ["Specific achievements and results"],
+      "responsibilities": ["Key responsibilities"]
     }
   ],
   "education": {
-    "degrees": ["Extract actual educational qualifications"],
-    "certifications": ["Extract certifications mentioned"],
-    "training": ["Extract training courses mentioned"]
+    "degrees": ["Extract educational qualifications with institutions"],
+    "certifications": ["Extract professional certifications"],
+    "training": ["Extract training courses and programs"],
+    "academicAchievements": ["Extract academic honors, GPA if mentioned"]
   },
   "softSkills": {
-    "communication": ["Extract communication skills mentioned"],
-    "leadership": ["Extract leadership experience mentioned"],
+    "communication": ["Extract communication skills and examples"],
+    "leadership": ["Extract leadership experience and examples"],
     "problemSolving": ["Extract problem-solving examples"],
-    "teamwork": ["Extract teamwork experience mentioned"]
+    "teamwork": ["Extract teamwork and collaboration examples"],
+    "projectManagement": ["Extract project management experience"]
   },
-  "languages": ["Extract spoken languages mentioned"]
+  "certificationRecommendations": {
+    "immediate": [
+      {
+        "certification": "Specific certification name",
+        "priority": "High/Medium/Low",
+        "reason": "Why this certification would benefit the candidate",
+        "timeToComplete": "Estimated time",
+        "marketValue": "Potential rate increase"
+      }
+    ],
+    "longTerm": [
+      {
+        "certification": "Advanced certification name",
+        "priority": "High/Medium/Low", 
+        "reason": "Strategic career benefit",
+        "timeToComplete": "Estimated time",
+        "marketValue": "Potential rate increase"
+      }
+    ]
+  },
+  "technicalAssessment": {
+    "strengths": ["List technical strengths based on experience"],
+    "skillGaps": ["Identify missing high-value skills"],
+    "improvementAreas": [
+      {
+        "area": "Skill area to improve",
+        "priority": "High/Medium/Low",
+        "reasoning": "Why this improvement is important",
+        "timeline": "Suggested timeline for improvement"
+      }
+    ],
+    "marketReadiness": "Assessment of consulting market readiness (1-10)",
+    "technicalMaturity": "Junior/Mid/Senior/Expert assessment"
+  },
+  "profileOptimization": {
+    "cvImprovements": [
+      {
+        "section": "CV section to improve",
+        "suggestion": "Specific improvement suggestion",
+        "impact": "Expected impact on profile strength"
+      }
+    ],
+    "linkedinOptimization": [
+      {
+        "area": "LinkedIn section to optimize",
+        "recommendation": "Specific recommendation",
+        "priority": "High/Medium/Low"
+      }
+    ]
+  },
+  "growthPotential": {
+    "careerTrajectory": "Projected career path based on current skills",
+    "rateGrowthPotential": {
+      "currentEstimate": "Current market rate estimate",
+      "sixMonthPotential": "Rate potential in 6 months with improvements",
+      "oneYearPotential": "Rate potential in 1 year with strategic development",
+      "factors": ["Factors that could increase market value"]
+    },
+    "skillDevelopmentPath": [
+      {
+        "skill": "Skill to develop",
+        "timeline": "Development timeline",
+        "marketImpact": "Impact on market value"
+      }
+    ]
+  },
+  "marketPositioning": {
+    "hourlyRateEstimate": {
+      "min": "Calculate based on experience and skills",
+      "max": "Calculate based on experience and skills", 
+      "recommended": "Calculate based on experience and skills",
+      "currency": "SEK",
+      "explanation": "Reasoning for rate calculation"
+    },
+    "targetRoles": ["List suitable consulting roles"],
+    "competitiveAdvantages": ["List unique selling points"],
+    "marketDemand": "High/Medium/Low based on skills",
+    "nicheOpportunities": ["Identify niche market opportunities"]
+  },
+  "languages": ["Extract spoken languages with proficiency levels"]
 }
+
+EXTRACT ONLY REAL INFORMATION FROM THE CV CONTENT. Do not make up data. If information is not available, use 'Not specified' or empty arrays.
 
 RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
 
-    console.log('🤖 Sending enhanced CV content to GROQ for analysis');
+    console.log('🤖 Sending comprehensive CV content to GROQ for detailed analysis');
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -622,15 +721,15 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
         messages: [
           {
             role: 'system',
-            content: 'You are a professional CV analyzer specializing in accurate data extraction. Extract ONLY information that is clearly visible in the CV content. Never make assumptions or create fake data.'
+            content: 'You are an expert CV analyzer and career consultant. Extract comprehensive information from CVs to create detailed professional profiles with market positioning, technical assessments, and growth recommendations.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.1, // Very low temperature for accuracy
-        max_tokens: 2500,
+        temperature: 0.1,
+        max_tokens: 4000,
       }),
     });
 
@@ -641,7 +740,7 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ GROQ response received');
+    console.log('✅ GROQ comprehensive analysis response received');
 
     let analysis;
     try {
@@ -654,12 +753,12 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
-        console.log('📊 Successfully parsed CV analysis');
-        console.log('📋 Extracted personal info:', {
-          name: analysis.personalInfo?.name,
-          email: analysis.personalInfo?.email,
-          phone: analysis.personalInfo?.phone,
-          location: analysis.personalInfo?.location
+        console.log('📊 Successfully parsed comprehensive CV analysis');
+        console.log('📋 Extracted comprehensive data:', {
+          personalInfo: analysis.personalInfo,
+          technicalSkills: analysis.technicalExpertise?.programmingLanguages,
+          certificationCount: analysis.certificationRecommendations?.immediate?.length || 0,
+          improvementAreas: analysis.technicalAssessment?.improvementAreas?.length || 0
         });
       } else {
         throw new Error('No valid JSON found in response');
@@ -668,11 +767,11 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
       console.error('❌ Failed to parse GROQ response:', parseError);
       console.log('Raw GROQ response:', groqData.choices[0]?.message?.content);
       
-      // Create minimal fallback
+      // Create comprehensive fallback
       analysis = {
         personalInfo: {
           name: 'Not specified',
-          email: 'Not specified',
+          email: 'Not specified', 
           phone: 'Not specified',
           location: 'Not specified',
           linkedinProfile: 'Not specified'
@@ -681,7 +780,9 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
           yearsOfExperience: 'Not specified',
           currentRole: 'Not specified',
           seniorityLevel: 'Not specified',
-          careerTrajectory: 'Not specified'
+          careerTrajectory: 'Not specified',
+          industryFocus: 'Not specified',
+          specializations: []
         },
         technicalExpertise: {
           programmingLanguages: { expert: [], proficient: [], familiar: [] },
@@ -689,43 +790,72 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
           tools: [],
           databases: [],
           cloudPlatforms: [],
-          methodologies: []
+          methodologies: [],
+          architecturePatterns: [],
+          testingFrameworks: []
         },
         workExperience: [],
-        education: { degrees: [], certifications: [], training: [] },
-        softSkills: { communication: [], leadership: [], problemSolving: [], teamwork: [] },
+        education: { degrees: [], certifications: [], training: [], academicAchievements: [] },
+        softSkills: { 
+          communication: [], 
+          leadership: [], 
+          problemSolving: [], 
+          teamwork: [],
+          projectManagement: []
+        },
+        certificationRecommendations: {
+          immediate: [],
+          longTerm: []
+        },
+        technicalAssessment: {
+          strengths: [],
+          skillGaps: [],
+          improvementAreas: [],
+          marketReadiness: 5,
+          technicalMaturity: 'Not specified'
+        },
+        profileOptimization: {
+          cvImprovements: [],
+          linkedinOptimization: []
+        },
+        growthPotential: {
+          careerTrajectory: 'Not specified',
+          rateGrowthPotential: {
+            currentEstimate: '800 SEK/h',
+            sixMonthPotential: '900 SEK/h',
+            oneYearPotential: '1000 SEK/h',
+            factors: []
+          },
+          skillDevelopmentPath: []
+        },
+        marketPositioning: {
+          hourlyRateEstimate: {
+            min: 600,
+            max: 900,
+            recommended: 750,
+            currency: 'SEK',
+            explanation: 'Estimated rate based on available information.'
+          },
+          targetRoles: ['Consultant'],
+          competitiveAdvantages: [],
+          marketDemand: 'Medium',
+          nicheOpportunities: []
+        },
         languages: []
       };
     }
 
-    // Calculate market positioning with extracted data
-    const marketPositioning = calculateMarketRate(analysis);
-    
-    // Add market positioning to analysis
-    analysis.marketPositioning = {
-      hourlyRateEstimate: marketPositioning,
-      targetRoles: analysis.workExperience?.map(exp => exp.role).filter(role => role && role !== 'Not specified') || ['Consultant'],
-      competitiveAdvantages: getAllSkills(analysis).slice(0, 5),
-      marketDemand: 'Medium'
-    };
-
-    // Generate comprehensive insights
-    const certificationRecommendations = generateCertificationRecommendations(analysis);
-    const technicalAssessment = generateTechnicalAssessment(analysis);
-    const roiPredictions = generateROIPredictions(analysis);
-    const preUploadGuidance = generatePreUploadGuidance(analysis);
-
-    console.log('✅ CV analysis completed with real extracted data');
-
-    // Return enhanced analysis with all insights
+    // Generate enhanced analysis results
     const enhancedAnalysisResults = {
       cvAnalysis: analysis,
-      linkedinAnalysis: null, // Will be populated separately
-      certificationRecommendations,
-      technicalAssessment,
-      roiPredictions,
-      preUploadGuidance
+      linkedinAnalysis: null,
+      certificationRecommendations: analysis.certificationRecommendations,
+      technicalAssessment: analysis.technicalAssessment,
+      profileOptimization: analysis.profileOptimization,
+      growthPotential: analysis.growthPotential
     };
+
+    console.log('✅ Comprehensive CV analysis completed with all sections filled');
 
     return new Response(
       JSON.stringify({ 
@@ -741,37 +871,67 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
   } catch (error) {
     console.error('❌ CV parsing error:', error);
     
-    // Return minimal fallback for errors
+    // Return comprehensive fallback for errors
     const fallbackAnalysis = {
       personalInfo: {
         name: 'Not specified',
         email: 'Not specified',
-        phone: 'Not specified',
+        phone: 'Not specified', 
         location: 'Not specified',
         linkedinProfile: 'Not specified'
       },
       professionalSummary: {
         yearsOfExperience: 'Not specified',
-        currentRole: 'Not specified', 
+        currentRole: 'Not specified',
         seniorityLevel: 'Not specified',
-        careerTrajectory: 'Not specified'
+        careerTrajectory: 'Not specified',
+        industryFocus: 'Not specified',
+        specializations: []
       },
       technicalExpertise: {
-        programmingLanguages: {
-          expert: [],
-          proficient: [],
-          familiar: []
-        },
+        programmingLanguages: { expert: [], proficient: [], familiar: [] },
         frameworks: [],
         tools: [],
         databases: [],
         cloudPlatforms: [],
-        methodologies: []
+        methodologies: [],
+        architecturePatterns: [],
+        testingFrameworks: []
       },
       workExperience: [],
-      education: { degrees: [], certifications: [], training: [] },
-      softSkills: { communication: [], leadership: [], problemSolving: [], teamwork: [] },
-      languages: [],
+      education: { degrees: [], certifications: [], training: [], academicAchievements: [] },
+      softSkills: { 
+        communication: [], 
+        leadership: [], 
+        problemSolving: [], 
+        teamwork: [],
+        projectManagement: []
+      },
+      certificationRecommendations: {
+        immediate: [],
+        longTerm: []
+      },
+      technicalAssessment: {
+        strengths: [],
+        skillGaps: [],
+        improvementAreas: [],
+        marketReadiness: 5,
+        technicalMaturity: 'Not specified'
+      },
+      profileOptimization: {
+        cvImprovements: [],
+        linkedinOptimization: []
+      },
+      growthPotential: {
+        careerTrajectory: 'Not specified',
+        rateGrowthPotential: {
+          currentEstimate: '800 SEK/h',
+          sixMonthPotential: '900 SEK/h', 
+          oneYearPotential: '1000 SEK/h',
+          factors: []
+        },
+        skillDevelopmentPath: []
+      },
       marketPositioning: {
         hourlyRateEstimate: {
           min: 600,
@@ -782,17 +942,19 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
         },
         targetRoles: ['Consultant'],
         competitiveAdvantages: [],
-        marketDemand: 'Medium'
-      }
+        marketDemand: 'Medium',
+        nicheOpportunities: []
+      },
+      languages: []
     };
 
     const fallbackEnhancedResults = {
       cvAnalysis: fallbackAnalysis,
       linkedinAnalysis: null,
-      certificationRecommendations: generateCertificationRecommendations(fallbackAnalysis),
-      technicalAssessment: generateTechnicalAssessment(fallbackAnalysis),
-      roiPredictions: generateROIPredictions(fallbackAnalysis),
-      preUploadGuidance: generatePreUploadGuidance(fallbackAnalysis)
+      certificationRecommendations: fallbackAnalysis.certificationRecommendations,
+      technicalAssessment: fallbackAnalysis.technicalAssessment,
+      profileOptimization: fallbackAnalysis.profileOptimization,
+      growthPotential: fallbackAnalysis.growthPotential
     };
 
     return new Response(
