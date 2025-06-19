@@ -34,7 +34,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     return url.includes('linkedin.com');
   };
 
-  // Auto-trigger analysis when file and LinkedIn URL are available
+  // Auto-trigger analysis när båda file och LinkedIn URL finns
   useEffect(() => {
     const hasValidLinkedIn = isValidLinkedInUrl(linkedinUrl);
     const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysis;
@@ -53,7 +53,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     }
   }, [file, linkedinUrl, isAnalyzing, analysis]);
 
-  // Reset analysis when file or URL changes
+  // Reset analysis när file eller URL ändras
   useEffect(() => {
     console.log('🔄 Resetting analysis due to input change');
     setAnalysis(null);
@@ -62,13 +62,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   const handleAnalysis = async () => {
     if (!file) {
       console.error('❌ No file selected');
-      onError('No file selected');
+      onError('Ingen fil vald');
       return;
     }
 
     if (!isValidLinkedInUrl(linkedinUrl)) {
       console.error('❌ Invalid LinkedIn URL');
-      onError('Valid LinkedIn URL required');
+      onError('Giltig LinkedIn URL krävs');
       return;
     }
 
@@ -78,7 +78,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisStart();
       onAnalysisProgress(10);
 
-      // Step 1: CV parsing
+      // Steg 1: CV-analys
       const formData = new FormData();
       formData.append('file', file);
 
@@ -92,7 +92,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
       if (cvResponse.error) {
         console.error('❌ CV analysis error:', cvResponse.error);
-        throw new Error(`CV analysis failed: ${cvResponse.error.message}`);
+        throw new Error(`CV-analys misslyckades: ${cvResponse.error.message}`);
       }
 
       const cvAnalysisData = cvResponse.data.analysis;
@@ -106,7 +106,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setAnalysis({ cvAnalysis: cvResponse.data });
       onAnalysisProgress(50);
 
-      // Step 2: LinkedIn Analysis
+      // Steg 2: LinkedIn-analys
       let linkedinData = null;
       if (linkedinUrl && linkedinUrl.trim()) {
         console.log('🔗 LinkedIn analysis:', linkedinUrl);
@@ -119,8 +119,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         if (linkedinResponse.error) {
           console.warn('⚠️ LinkedIn analysis failed:', linkedinResponse.error);
           toast({
-            title: "LinkedIn analysis failed",
-            description: "Continuing with CV analysis only",
+            title: "LinkedIn-analys misslyckades",
+            description: "Fortsätter med endast CV-analys",
             variant: "default",
           });
         } else {
@@ -131,29 +131,29 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(75);
 
-      // Step 3: Extract personal info with smart fallbacks
+      // Steg 3: Extrahera personlig info med smart fallback
       const personalInfo = cvAnalysisData?.personalInfo || {};
       
-      // Smart extraction with priority: detected -> CV analysis -> form data
-      const extractedName = (detectedInfo?.names?.[0] && detectedInfo.names[0] !== 'Not specified') 
+      // Smart extraktion med prioritet: detekterad -> CV-analys -> form data
+      const extractedName = (detectedInfo?.names?.[0] && detectedInfo.names[0] !== 'Ej specificerat') 
         ? detectedInfo.names[0] 
-        : (personalInfo.name && personalInfo.name !== 'Not specified') 
+        : (personalInfo.name && personalInfo.name !== 'Ej specificerat') 
         ? personalInfo.name 
-        : formName || 'Professional Consultant';
+        : formName || 'Professionell konsult';
         
-      const extractedEmail = (detectedInfo?.emails?.[0] && detectedInfo.emails[0] !== 'Not specified' && detectedInfo.emails[0].includes('@')) 
+      const extractedEmail = (detectedInfo?.emails?.[0] && detectedInfo.emails[0] !== 'Ej specificerat' && detectedInfo.emails[0].includes('@')) 
         ? detectedInfo.emails[0] 
-        : (personalInfo.email && personalInfo.email !== 'Not specified' && personalInfo.email.includes('@')) 
+        : (personalInfo.email && personalInfo.email !== 'Ej specificerat' && personalInfo.email.includes('@')) 
         ? personalInfo.email 
         : formEmail || 'temp@temp.com';
         
-      const extractedPhone = (detectedInfo?.phones?.[0] && detectedInfo.phones[0] !== 'Not specified') 
+      const extractedPhone = (detectedInfo?.phones?.[0] && detectedInfo.phones[0] !== 'Ej specificerat') 
         ? detectedInfo.phones[0] 
-        : (personalInfo.phone && personalInfo.phone !== 'Not specified') 
+        : (personalInfo.phone && personalInfo.phone !== 'Ej specificerat') 
         ? personalInfo.phone 
         : '';
         
-      const extractedLocation = personalInfo.location !== 'Not specified' ? personalInfo.location : '';
+      const extractedLocation = personalInfo.location !== 'Ej specificerat' ? personalInfo.location : '';
       
       console.log('🎯 Extracted values:', {
         extractedName,
@@ -162,25 +162,22 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         extractedLocation
       });
 
-      // Step 4: Create consultant
+      // Steg 4: Skapa konsult
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
-      // Skills extraction
+      // Skills extraktion
       const allSkills = [
-        ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.expert || []),
-        ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.proficient || []),
-        ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.familiar || []),
-        ...(cvAnalysisData?.technicalExpertise?.frameworks || []),
-        ...(cvAnalysisData?.technicalExpertise?.tools || []),
-        ...(cvAnalysisData?.technicalExpertise?.databases || [])
-      ].filter(skill => skill && skill.length > 0 && skill !== 'Not specified');
+        ...(cvAnalysisData?.skills?.technical || []),
+        ...(cvAnalysisData?.skills?.languages || []),
+        ...(cvAnalysisData?.skills?.tools || [])
+      ].filter(skill => skill && skill.length > 0 && skill !== 'Ej specificerat');
       
-      const experienceYears = cvAnalysisData?.professionalSummary?.yearsOfExperience !== 'Not specified' 
-        ? parseInt(cvAnalysisData.professionalSummary.yearsOfExperience.toString().match(/\d+/)?.[0] || '5') 
+      const experienceYears = cvAnalysisData?.experience?.years !== 'Ej specificerat' 
+        ? parseInt(cvAnalysisData.experience.years.toString().match(/\d+/)?.[0] || '5') 
         : 5;
       
-      const hourlyRate = cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 1000;
+      const hourlyRate = 1000; // Default hourly rate
       
       console.log('💾 Creating consultant with data:', {
         name: extractedName,
@@ -202,18 +199,18 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         hourly_rate: hourlyRate,
         availability: 'Available',
         cv_file_path: file.name,
-        communication_style: linkedinData?.communicationStyle || 'Professional communication',
+        communication_style: linkedinData?.communicationStyle || 'Professionell kommunikation',
         rating: 4.8,
         projects_completed: 0,
-        roles: cvAnalysisData?.workExperience?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Not specified') || [cvAnalysisData?.professionalSummary?.currentRole || 'Consultant'],
-        certifications: cvAnalysisData?.education?.certifications || [],
+        roles: cvAnalysisData?.workHistory?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Ej specificerat') || [cvAnalysisData?.experience?.currentRole || 'Konsult'],
+        certifications: [],
         type: isMyConsultant ? 'existing' : 'new',
         user_id: isMyConsultant ? 'temp-user-id' : null,
         languages: ['English', 'Swedish'],
-        work_style: linkedinData?.teamFitAssessment?.workStyle || 'Collaborative',
-        values: ['Professional growth', 'Innovation'],
-        personality_traits: linkedinData?.contentAnalysisInsights?.professionalValues || ['Problem-oriented', 'Analytical'],
-        team_fit: linkedinData?.teamFitAssessment?.workStyle || 'Team player',
+        work_style: linkedinData?.teamFitAssessment?.workStyle || 'Kollaborativ',
+        values: ['Professionell utveckling', 'Innovation'],
+        personality_traits: linkedinData?.contentAnalysisInsights?.professionalValues || ['Problemorienterad', 'Analytisk'],
+        team_fit: linkedinData?.teamFitAssessment?.workStyle || 'Teamspelare',
         cultural_fit: linkedinData?.culturalFit || 5,
         adaptability: linkedinData?.adaptability || 5,
         leadership: linkedinData?.leadership || Math.min(experienceYears >= 5 ? 4 : 3, 5),
@@ -232,13 +229,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       if (insertError) {
         console.error('❌ Database insert error:', insertError);
-        throw new Error(`Failed to save consultant: ${insertError.message}`);
+        throw new Error(`Misslyckades spara konsult: ${insertError.message}`);
       }
 
       console.log('✅ Consultant created successfully:', insertedConsultant.id);
       onAnalysisProgress(90);
 
-      // Send emails
+      // Skicka e-post
       console.log('📧 Sending welcome emails');
       try {
         await EmailNotificationHandler.sendWelcomeEmails({
@@ -252,15 +249,15 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       } catch (emailError) {
         console.error('❌ Email sending failed:', emailError);
         toast({
-          title: "Registration successful",
-          description: "Profile created but email notification failed",
+          title: "Registrering lyckades",
+          description: "Profil skapad men e-postnotifiering misslyckades",
           variant: "default",
         });
       }
 
       onAnalysisProgress(100);
 
-      // Complete analysis results
+      // Slutför analysresultat
       const completeAnalysisResults = {
         cvAnalysis: cvResponse.data,
         linkedinAnalysis: linkedinData,
@@ -276,16 +273,16 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisComplete(completeAnalysisResults);
 
       toast({
-        title: "Analysis completed! 🎉",
-        description: `Profile created for ${extractedName}`,
+        title: "Analys slutförd! 🎉",
+        description: `Profil skapad för ${extractedName}`,
       });
 
     } catch (error: any) {
       console.error('❌ Analysis failed:', error);
-      onError(error.message || 'Analysis failed');
+      onError(error.message || 'Analys misslyckades');
       toast({
-        title: "Analysis failed",
-        description: error.message || "An unexpected error occurred",
+        title: "Analys misslyckades",
+        description: error.message || "Ett oväntat fel inträffade",
         variant: "destructive",
       });
     } finally {
