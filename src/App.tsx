@@ -12,7 +12,6 @@ import Auth from "./pages/Auth";
 import { PricingAuth } from "./components/PricingAuth";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
-import CVUpload from "./pages/CVUpload";
 import CVUploadModern from "./pages/CVUploadModern";
 import AnalysisPage from "./pages/AnalysisPage";
 import Demo from "./pages/Demo";
@@ -34,8 +33,7 @@ function App() {
                 <Route path="/pricing-auth" element={<PricingAuth />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/pricing" element={<Pricing />} />
-                <Route path="/cv-upload" element={<CVUpload />} />
-                <Route path="/cv-upload-modern" element={<CVUploadModern />} />
+                <Route path="/cv-upload" element={<CVUploadModern />} />
                 <Route path="/analysis" element={<AnalysisPage />} />
                 
                 {/* Protected routes */}
