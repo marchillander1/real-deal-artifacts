@@ -117,7 +117,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('📄 Uploading and analyzing CV file...');
+      console.log('📄 Uploading and analyzing CV file:', file.name, 'Size:', file.size, 'Type:', file.type);
       
       // Call parse-cv function with FormData
       const cvResponse = await supabase.functions.invoke('parse-cv', {
@@ -131,9 +131,16 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`CV analysis failed: ${cvResponse.error.message}`);
       }
 
-      // Extract both basic analysis and enhanced results
+      // Extract analysis data
       const cvAnalysisData = cvResponse.data.analysis;
       const enhancedAnalysisResults = cvResponse.data.enhancedAnalysisResults;
+      
+      console.log('📋 Extracted CV data:', {
+        personalInfo: cvAnalysisData?.personalInfo,
+        hasRealName: cvAnalysisData?.personalInfo?.name !== 'Not specified',
+        hasRealEmail: cvAnalysisData?.personalInfo?.email !== 'Not specified',
+        hasRealPhone: cvAnalysisData?.personalInfo?.phone !== 'Not specified'
+      });
       
       setAnalysis(cvResponse.data);
       onAnalysisProgress(60);
@@ -141,7 +148,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Step 3: Analyze LinkedIn (if URL provided)
       let linkedinData = null;
       if (linkedinUrl && linkedinUrl.trim()) {
-        console.log('🔗 Analyzing LinkedIn profile...');
+        console.log('🔗 Analyzing LinkedIn profile:', linkedinUrl);
         const linkedinResponse = await supabase.functions.invoke('analyze-linkedin', {
           body: { linkedinUrl: linkedinUrl.trim() }
         });
@@ -177,17 +184,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const cvProfessionalSummary = cvAnalysisData?.professionalSummary || {};
       const cvTechnicalExpertise = cvAnalysisData?.technicalExpertise || {};
       
-      // Use REAL data or form data, avoiding mock data
-      const finalName = formName || 
-                       (cvPersonalInfo.name !== 'Not specified' ? cvPersonalInfo.name : '') || 
-                       'Consultant';
+      // Use REAL data prioritizing CV extraction over form data for auto-fill
+      const extractedName = cvPersonalInfo.name !== 'Not specified' ? cvPersonalInfo.name : '';
+      const extractedEmail = cvPersonalInfo.email !== 'Not specified' ? cvPersonalInfo.email : '';
+      const extractedPhone = cvPersonalInfo.phone !== 'Not specified' ? cvPersonalInfo.phone : '';
+      const extractedLocation = cvPersonalInfo.location !== 'Not specified' ? cvPersonalInfo.location : '';
       
-      const finalEmail = formEmail || 
-                        (cvPersonalInfo.email !== 'Not specified' ? cvPersonalInfo.email : '') || 
-                        'temp@temp.com';
-      
-      const finalPhone = cvPersonalInfo.phone !== 'Not specified' ? cvPersonalInfo.phone : '';
-      const finalLocation = cvPersonalInfo.location !== 'Not specified' ? cvPersonalInfo.location : '';
+      // Final values - use form data if available, otherwise CV extracted data
+      const finalName = formName || extractedName || 'Consultant';
+      const finalEmail = formEmail || extractedEmail || 'temp@temp.com';
+      const finalPhone = extractedPhone;
+      const finalLocation = extractedLocation;
       
       // Extract real skills, avoiding empty arrays
       const allSkills = [
@@ -204,7 +211,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Calculate experience years
       const experienceYears = parseInt(cvProfessionalSummary.yearsOfExperience?.match(/(\d+)/)?.[1] || '3');
       
-      console.log('💾 Creating consultant profile with REAL extracted data:', {
+      console.log('💾 Creating consultant profile with extracted data:', {
         finalName,
         finalEmail,
         finalPhone,
@@ -212,7 +219,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         skillsCount: allSkills.length,
         rolesCount: finalRoles.length,
         experienceYears,
-        isMyConsultant
+        isMyConsultant,
+        extractedFromCV: {
+          name: extractedName,
+          email: extractedEmail,
+          phone: extractedPhone,
+          location: extractedLocation
+        }
       });
 
       const consultantData = {
@@ -245,7 +258,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting consultant data with real information:', consultantData);
+      console.log('💾 Inserting consultant data with extracted information');
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
@@ -263,7 +276,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisProgress(90);
 
       // Send emails immediately after successful creation
-      console.log('📧 🚨 SENDING WELCOME EMAILS IMMEDIATELY WITH REAL DATA');
+      console.log('📧 Sending welcome emails with extracted data');
       try {
         await EmailNotificationHandler.sendWelcomeEmails({
           consultantId: insertedConsultant.id,
@@ -275,7 +288,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         console.log('✅ Welcome emails sent successfully!');
       } catch (emailError) {
         console.error('❌ Email sending failed:', emailError);
-        // Don't fail the whole process if email fails
         toast({
           title: "Registration successful",
           description: "Profile created but email notification failed. Please contact support.",
@@ -295,7 +307,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis and registration completed!",
-        description: `Welcome emails sent to ${finalEmail}`,
+        description: `Profile created with extracted CV data`,
       });
 
     } catch (error: any) {
