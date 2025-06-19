@@ -7,6 +7,7 @@ import { ConfirmStep } from '@/components/modern/ConfirmStep';
 import { BackgroundAnalysis } from '@/components/modern/BackgroundAnalysis';
 import { ModernNavbar } from '@/components/modern/ModernNavbar';
 import { TrustSection } from '@/components/modern/TrustSection';
+import { MatchWiseChat } from '@/components/MatchWiseChat';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,6 +35,7 @@ const CVUploadModern: React.FC = () => {
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isAnalysisComplete, setIsAnalysisComplete] = useState(false);
   const [consultantId, setConsultantId] = useState<string>('');
+  const [showChat, setShowChat] = useState(false);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -213,7 +215,7 @@ const CVUploadModern: React.FC = () => {
       <ModernNavbar />
       
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           
           {/* Hero Section */}
           <div className="text-center mb-12">
@@ -226,32 +228,47 @@ const CVUploadModern: React.FC = () => {
             </p>
           </div>
 
-          {/* Main Content */}
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
-            {currentStep === 'upload' && (
-              <CVUploadStep onFileUpload={handleFileUpload} />
-            )}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {currentStep === 'analyzing' && (
-              <AnalysisStep 
-                file={file!}
-                linkedinUrl={linkedinUrl}
-                onAnalysisComplete={handleAnalysisComplete}
-              />
-            )}
-            
-            {currentStep === 'confirm' && (
-              <ConfirmStep
-                extractedData={extractedData}
-                onUpdateData={updateExtractedData}
-                onConfirm={handleConfirm}
-                consultantId={consultantId}
-              />
-            )}
-          </div>
+            {/* Main Content */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+                {currentStep === 'upload' && (
+                  <CVUploadStep onFileUpload={handleFileUpload} />
+                )}
+                
+                {currentStep === 'analyzing' && (
+                  <AnalysisStep 
+                    file={file!}
+                    linkedinUrl={linkedinUrl}
+                    onAnalysisComplete={handleAnalysisComplete}
+                  />
+                )}
+                
+                {currentStep === 'confirm' && (
+                  <ConfirmStep
+                    extractedData={extractedData}
+                    onUpdateData={updateExtractedData}
+                    onConfirm={handleConfirm}
+                    consultantId={consultantId}
+                  />
+                )}
+              </div>
 
-          {/* Trust Section */}
-          <TrustSection />
+              {/* Trust Section */}
+              <TrustSection />
+            </div>
+
+            {/* AI Chat Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-8">
+                <MatchWiseChat 
+                  analysisResults={analysisResults}
+                  isMinimized={false}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       

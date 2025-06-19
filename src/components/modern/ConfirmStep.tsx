@@ -1,9 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Edit2, CheckCircle, ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { User, Mail, Phone, MapPin, Calendar, Briefcase, X, Plus } from 'lucide-react';
+import { ExtractedData } from '@/pages/CVUploadModern';
 import { useToast } from '@/hooks/use-toast';
-import type { ExtractedData } from '@/pages/CVUploadModern';
+import { EmailNotificationHandler } from '@/components/EmailNotificationHandler';
+import { useNavigate } from 'react-router-dom';
 
 interface ConfirmStepProps {
   extractedData: ExtractedData;
@@ -18,58 +23,97 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
   onConfirm,
   consultantId
 }) => {
-  const [isEditing, setIsEditing] = useState({
-    name: false,
-    email: false,
-    phone: false,
-    location: false
-  });
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newSkill, setNewSkill] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSave = async () => {
-    setIsSaving(true);
+  const handleSubmit = async () => {
+    console.log('🚀 Starting form submission process...');
+    console.log('📋 Current extracted data:', extractedData);
     
-    try {
-      // Update consultant with final data
-      const { error } = await supabase
-        .from('consultants')
-        .update({
-          name: extractedData.name,
-          email: extractedData.email,
-          phone: extractedData.phone,
-          location: extractedData.location,
-          skills: extractedData.skills,
-          experience_years: extractedData.experience_years,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', consultantId);
-
-      if (error) throw error;
-
+    // Validation
+    if (!extractedData.name?.trim()) {
       toast({
-        title: "Information saved!",
-        description: "Your profile has been updated successfully.",
+        title: "Name required",
+        description: "Please enter your name",
+        variant: "destructive",
       });
-      
-      onConfirm();
-    } catch (error: any) {
-      console.error('Error saving consultant data:', error);
+      return;
+    }
+
+    if (!extractedData.email?.trim() || !extractedData.email.includes('@')) {
       toast({
-        title: "Failed to save",
-        description: error.message || "Please try again.",
+        title: "Valid email required",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      console.log('📧 About to send welcome emails...');
+      console.log('🆔 Consultant ID:', consultantId);
+      console.log('📧 Email address:', extractedData.email);
+      console.log('👤 Name:', extractedData.name);
+
+      // Send welcome emails using the EmailNotificationHandler
+      const emailResult = await EmailNotificationHandler.sendWelcomeEmails({
+        consultantId: consultantId,
+        finalEmail: extractedData.email,
+        finalName: extractedData.name,
+        isMyConsultant: false,
+        toast: toast
+      });
+
+      console.log('📧 Email sending result:', emailResult);
+
+      if (emailResult.success) {
+        console.log('✅ Emails sent successfully, navigating to success page...');
+        
+        // Navigate to success page
+        navigate(`/network-success?consultant=${consultantId}`);
+      } else {
+        console.error('❌ Email sending failed:', emailResult.error);
+        
+        // Still navigate to success page even if email fails
+        toast({
+          title: "Profile created!",
+          description: "Your profile was created successfully, but there was an issue sending the welcome email.",
+          variant: "default",
+        });
+        navigate(`/network-success?consultant=${consultantId}`);
+      }
+
+    } catch (error: any) {
+      console.error('❌ Form submission error:', error);
+      toast({
+        title: "Submission failed",
+        description: error.message || "There was an error submitting your profile. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsSaving(false);
+      setIsSubmitting(false);
     }
   };
 
-  const toggleEdit = (field: keyof typeof isEditing) => {
-    setIsEditing(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
+  const handleSkillAdd = () => {
+    if (newSkill.trim() && !extractedData.skills.includes(newSkill.trim())) {
+      onUpdateData('skills', [...extractedData.skills, newSkill.trim()]);
+      setNewSkill('');
+    }
+  };
+
+  const handleSkillRemove = (skillToRemove: string) => {
+    onUpdateData('skills', extractedData.skills.filter(skill => skill !== skillToRemove));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSkillAdd();
+    }
   };
 
   return (
@@ -79,174 +123,165 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
           Confirm Your Information
         </h2>
         <p className="text-lg text-slate-600">
-          Please review and edit your extracted information before proceeding.
+          Please review and confirm your details before joining the network
         </p>
       </div>
 
       <div className="space-y-6 max-w-2xl mx-auto">
-        {/* Name */}
-        <div className="bg-slate-50 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-slate-600" />
-              <label className="font-semibold text-slate-700">Full Name</label>
+        
+        {/* Personal Information */}
+        <Card className="border-slate-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <User className="h-5 w-5" />
+              Personal Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Full Name *
+                </label>
+                <Input
+                  value={extractedData.name}
+                  onChange={(e) => onUpdateData('name', e.target.value)}
+                  placeholder="Enter your full name"
+                  className="w-full"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Email Address *
+                </label>
+                <Input
+                  type="email"
+                  value={extractedData.email}
+                  onChange={(e) => onUpdateData('email', e.target.value)}
+                  placeholder="Enter your email"
+                  className="w-full"
+                />
+              </div>
             </div>
-            <button
-              onClick={() => toggleEdit('name')}
-              className="text-blue-600 hover:text-blue-700 p-1"
-            >
-              <Edit2 className="h-4 w-4" />
-            </button>
-          </div>
-          
-          {isEditing.name ? (
-            <input
-              type="text"
-              value={extractedData.name}
-              onChange={(e) => onUpdateData('name', e.target.value)}
-              onBlur={() => toggleEdit('name')}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              autoFocus
-            />
-          ) : (
-            <p className="text-slate-900 font-medium">{extractedData.name || 'Not specified'}</p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div className="bg-slate-50 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-slate-600" />
-              <label className="font-semibold text-slate-700">Email</label>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Phone Number
+                </label>
+                <Input
+                  type="tel"
+                  value={extractedData.phone}
+                  onChange={(e) => onUpdateData('phone', e.target.value)}
+                  placeholder="Enter your phone number"
+                  className="w-full"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Location
+                </label>
+                <Input
+                  value={extractedData.location}
+                  onChange={(e) => onUpdateData('location', e.target.value)}
+                  placeholder="Enter your location"
+                  className="w-full"
+                />
+              </div>
             </div>
-            <button
-              onClick={() => toggleEdit('email')}
-              className="text-blue-600 hover:text-blue-700 p-1"
-            >
-              <Edit2 className="h-4 w-4" />
-            </button>
-          </div>
-          
-          {isEditing.email ? (
-            <input
-              type="email"
-              value={extractedData.email}
-              onChange={(e) => onUpdateData('email', e.target.value)}
-              onBlur={() => toggleEdit('email')}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              autoFocus
-            />
-          ) : (
-            <p className="text-slate-900 font-medium">{extractedData.email || 'Not specified'}</p>
-          )}
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Phone */}
-        <div className="bg-slate-50 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Phone className="h-5 w-5 text-slate-600" />
-              <label className="font-semibold text-slate-700">Phone</label>
+        {/* Professional Information */}
+        <Card className="border-slate-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <Briefcase className="h-5 w-5" />
+              Professional Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Years of Experience
+              </label>
+              <Input
+                type="number"
+                min="0"
+                max="50"
+                value={extractedData.experience_years}
+                onChange={(e) => onUpdateData('experience_years', parseInt(e.target.value) || 0)}
+                placeholder="Enter years of experience"
+                className="w-full"
+              />
             </div>
-            <button
-              onClick={() => toggleEdit('phone')}
-              className="text-blue-600 hover:text-blue-700 p-1"
-            >
-              <Edit2 className="h-4 w-4" />
-            </button>
-          </div>
-          
-          {isEditing.phone ? (
-            <input
-              type="tel"
-              value={extractedData.phone}
-              onChange={(e) => onUpdateData('phone', e.target.value)}
-              onBlur={() => toggleEdit('phone')}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              autoFocus
-            />
-          ) : (
-            <p className="text-slate-900 font-medium">{extractedData.phone || 'Not specified'}</p>
-          )}
-        </div>
-
-        {/* Location */}
-        <div className="bg-slate-50 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-slate-600" />
-              <label className="font-semibold text-slate-700">Location</label>
-            </div>
-            <button
-              onClick={() => toggleEdit('location')}
-              className="text-blue-600 hover:text-blue-700 p-1"
-            >
-              <Edit2 className="h-4 w-4" />
-            </button>
-          </div>
-          
-          {isEditing.location ? (
-            <input
-              type="text"
-              value={extractedData.location}
-              onChange={(e) => onUpdateData('location', e.target.value)}
-              onBlur={() => toggleEdit('location')}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              autoFocus
-            />
-          ) : (
-            <p className="text-slate-900 font-medium">{extractedData.location || 'Not specified'}</p>
-          )}
-        </div>
-
-        {/* Skills Preview */}
-        {extractedData.skills.length > 0 && (
-          <div className="bg-slate-50 rounded-xl p-6">
-            <h4 className="font-semibold text-slate-700 mb-3">Detected Skills</h4>
-            <div className="flex flex-wrap gap-2">
-              {extractedData.skills.slice(0, 10).map((skill, index) => (
-                <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                  {skill}
-                </span>
-              ))}
-              {extractedData.skills.length > 10 && (
-                <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm">
-                  +{extractedData.skills.length - 10} more
-                </span>
+            
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Skills & Technologies
+              </label>
+              <div className="flex gap-2 mb-3">
+                <Input
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Add a skill..."
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleSkillAdd}
+                  variant="outline"
+                  size="sm"
+                  className="px-3"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {extractedData.skills.map((skill, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="flex items-center gap-1 px-3 py-1"
+                  >
+                    {skill}
+                    <button
+                      onClick={() => handleSkillRemove(skill)}
+                      className="ml-1 hover:text-red-600"
+                      type="button"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              
+              {extractedData.skills.length === 0 && (
+                <p className="text-sm text-slate-500 mt-2">
+                  No skills added yet. Add your technical skills and technologies.
+                </p>
               )}
             </div>
-          </div>
-        )}
+          </CardContent>
+        </Card>
 
-        {/* Experience */}
-        {extractedData.experience_years > 0 && (
-          <div className="bg-slate-50 rounded-xl p-6">
-            <h4 className="font-semibold text-slate-700 mb-3">Experience</h4>
-            <p className="text-slate-900">{extractedData.experience_years} years of experience</p>
-          </div>
-        )}
-
-        {/* Save and Continue Button */}
+        {/* Confirm Button */}
         <div className="pt-6">
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full py-4 px-8 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-xl font-semibold text-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50"
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !extractedData.name?.trim() || !extractedData.email?.trim()}
+            className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-200 hover:shadow-lg"
           >
-            {isSaving ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Saving...</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center space-x-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>Save & View Analysis</span>
-                <ArrowRight className="h-5 w-5" />
-              </div>
-            )}
-          </button>
+            {isSubmitting ? 'Joining Network...' : 'Join Network & Get Analysis'}
+          </Button>
+          
+          <p className="text-sm text-slate-500 text-center mt-4">
+            By joining, you agree to be contacted about relevant consulting opportunities
+          </p>
         </div>
       </div>
     </div>
