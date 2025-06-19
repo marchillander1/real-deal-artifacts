@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -211,12 +210,12 @@ export default function Demo() {
           </div>
 
           {/* CTA Section */}
-          <Card className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30">
+          <Card className="bg-slate-900 border-slate-700">
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-white mb-4">
                 Ready to Connect with These Consultants?
               </h2>
-              <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
+              <p className="text-slate-200 mb-6 max-w-2xl mx-auto">
                 Sign up now to access full consultant profiles, contact information, and our complete consultant network.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
