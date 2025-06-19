@@ -9,7 +9,7 @@ export interface CVAnalysisLogicProps {
   linkedinUrl: string;
   formEmail: string;
   formName: string;
-  onAnalysisComplete: (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any; enhancedAnalysisResults?: any }) => void;
+  onAnalysisComplete: (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any }) => void;
   onError: (message: string) => void;
   onAnalysisStart: () => void;
   onAnalysisProgress: (progress: number) => void;
@@ -37,18 +37,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       hasLinkedinUrl: !!linkedinUrl,
       linkedinUrl,
       isAnalyzing,
-      hasAnalysis: !!analysis,
       formEmail,
       formName
     });
-  }, [file, linkedinUrl, isAnalyzing, analysis, formEmail, formName]);
+  }, [file, linkedinUrl, isAnalyzing, formEmail, formName]);
 
   const isValidLinkedInUrl = (url: string) => {
     if (!url || url.trim() === '') return false;
     return url.includes('linkedin.com');
   };
 
-  // Auto-trigger analysis
+  // Auto-trigger analysis when file and LinkedIn URL are available
   useEffect(() => {
     const hasValidLinkedIn = isValidLinkedInUrl(linkedinUrl);
     const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysis;
@@ -69,25 +68,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
   // Reset analysis when file or URL changes
   useEffect(() => {
-    console.log('🔄 Resetting analysis');
+    console.log('🔄 Resetting analysis due to input change');
     setAnalysis(null);
   }, [file, linkedinUrl]);
-
-  const safeGetString = (value: any, defaultValue: string = ''): string => {
-    if (typeof value === 'string' && value !== 'Not specified' && value.trim() !== '') {
-      return value;
-    }
-    return defaultValue;
-  };
-
-  const safeParseInt = (value: any, defaultValue: number = 0): number => {
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string' && value !== 'Not specified' && value.trim() !== '') {
-      const parsed = parseInt(value.match(/(\d+)/)?.[1] || defaultValue.toString());
-      return isNaN(parsed) ? defaultValue : parsed;
-    }
-    return defaultValue;
-  };
 
   const handleAnalysis = async () => {
     if (!file) {
@@ -103,7 +86,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     }
 
     try {
-      console.log('🚀 Starting analysis');
+      console.log('🚀 Starting comprehensive analysis');
       setIsAnalyzing(true);
       onAnalysisStart();
       onAnalysisProgress(10);
@@ -126,15 +109,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       }
 
       const cvAnalysisData = cvResponse.data.analysis;
-      const enhancedAnalysisResults = cvResponse.data.enhancedAnalysisResults;
+      console.log('📋 CV analysis data received:', cvAnalysisData);
       
-      console.log('📋 CV analysis data:', {
-        personalInfo: cvAnalysisData?.personalInfo,
-        professionalSummary: cvAnalysisData?.professionalSummary,
-        technicalExpertise: cvAnalysisData?.technicalExpertise
-      });
-      
-      setAnalysis(cvResponse.data);
+      setAnalysis({ cvAnalysis: cvResponse.data });
       onAnalysisProgress(50);
 
       // Step 2: LinkedIn Analysis
@@ -162,62 +139,28 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(75);
 
-      // Step 3: Extract and map data intelligently
-      const cvPersonalInfo = cvAnalysisData?.personalInfo || {};
-      const detectedInfo = enhancedAnalysisResults?.detectedInformation || {};
+      // Step 3: Extract data for consultant creation
+      const personalInfo = cvAnalysisData?.personalInfo || {};
       
-      console.log('📝 Data extraction:', {
-        cvPersonalInfo,
-        detectedInfo
-      });
+      // Smart data extraction
+      const extractedName = personalInfo.name !== 'Not specified' ? personalInfo.name : formName || 'Professional Consultant';
+      const extractedEmail = personalInfo.email !== 'Not specified' && personalInfo.email?.includes('@') ? personalInfo.email : formEmail || 'temp@temp.com';
+      const extractedPhone = personalInfo.phone !== 'Not specified' ? personalInfo.phone : '';
+      const extractedLocation = personalInfo.location !== 'Not specified' ? personalInfo.location : '';
       
-      // Smart data extraction with priority
-      let extractedName = safeGetString(cvPersonalInfo.name);
-      if (!extractedName && detectedInfo.names && detectedInfo.names.length > 0) {
-        extractedName = detectedInfo.names.find(name => 
-          name && name.length > 2 && !name.includes('If Gt') && !name.includes('Analysis')
-        ) || '';
-      }
-      
-      let extractedEmail = safeGetString(cvPersonalInfo.email);
-      if (!extractedEmail && detectedInfo.emails && detectedInfo.emails.length > 0) {
-        extractedEmail = detectedInfo.emails.find(email => 
-          email && email.includes('@') && email.includes('.') && 
-          !email.includes('example.com') && !email.includes('temp.com')
-        ) || '';
-      }
-      
-      let extractedPhone = safeGetString(cvPersonalInfo.phone);
-      if (!extractedPhone && detectedInfo.phones && detectedInfo.phones.length > 0) {
-        extractedPhone = detectedInfo.phones.find(phone => 
-          phone && phone.length > 5 && !phone.includes('0000000000') && !phone.includes('123')
-        ) || '';
-      }
-      
-      let extractedLocation = safeGetString(cvPersonalInfo.location);
-      if (!extractedLocation && detectedInfo.locations && detectedInfo.locations.length > 0) {
-        extractedLocation = detectedInfo.locations[0] || '';
-      }
-      
-      // Final values with intelligent fallbacks
-      const finalName = extractedName || formName || 'Professional Consultant';
-      const finalEmail = extractedEmail || formEmail || 'temp@temp.com';
-      const finalPhone = extractedPhone;
-      const finalLocation = extractedLocation;
-      
-      console.log('🎯 Final extracted values:', {
-        finalName,
-        finalEmail,
-        finalPhone,
-        finalLocation
+      console.log('🎯 Extracted values:', {
+        extractedName,
+        extractedEmail,
+        extractedPhone,
+        extractedLocation
       });
 
       // Step 4: Create consultant
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
-      // Extract comprehensive skills
-      const cvSkills = [
+      // Extract skills and experience
+      const allSkills = [
         ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.expert || []),
         ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.proficient || []),
         ...(cvAnalysisData?.technicalExpertise?.programmingLanguages?.familiar || []),
@@ -226,48 +169,44 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         ...(cvAnalysisData?.technicalExpertise?.databases || [])
       ].filter(skill => skill && skill.length > 0);
       
-      const detectedSkills = detectedInfo.skills || [];
-      const allSkills = [...new Set([...cvSkills, ...detectedSkills])];
+      const experienceYears = cvAnalysisData?.professionalSummary?.yearsOfExperience !== 'Not specified' 
+        ? parseInt(cvAnalysisData.professionalSummary.yearsOfExperience.toString().match(/\d+/)?.[0] || '5') 
+        : 5;
       
-      const realRoles = cvAnalysisData?.workExperience?.map(exp => exp.role).filter(role => role && role !== 'Not specified') || [];
-      const finalRoles = realRoles.length > 0 ? realRoles : [safeGetString(cvAnalysisData?.professionalSummary?.currentRole, 'Consultant')];
+      const hourlyRate = cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 1000;
       
-      const experienceYears = safeParseInt(cvAnalysisData?.professionalSummary?.yearsOfExperience, 5);
-      const hourlyRate = safeParseInt(cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended, 1000);
-      
-      console.log('💾 Creating consultant with extracted data:', {
-        finalName,
-        finalEmail,
-        finalPhone,
-        finalLocation,
+      console.log('💾 Creating consultant with data:', {
+        name: extractedName,
+        email: extractedEmail,
+        phone: extractedPhone,
+        location: extractedLocation,
         skillsCount: allSkills.length,
-        rolesCount: finalRoles.length,
         experienceYears,
         hourlyRate
       });
 
       const consultantData = {
-        name: finalName,
-        email: finalEmail,
-        phone: finalPhone,
-        location: finalLocation,
+        name: extractedName,
+        email: extractedEmail,
+        phone: extractedPhone,
+        location: extractedLocation,
         skills: allSkills,
         experience_years: experienceYears,
         hourly_rate: hourlyRate,
         availability: 'Available',
         cv_file_path: file.name,
-        communication_style: linkedinData?.communicationStyle || cvAnalysisData?.softSkills?.communication?.[0] || 'Professional communication',
+        communication_style: linkedinData?.communicationStyle || 'Professional communication',
         rating: 4.8,
         projects_completed: 0,
-        roles: finalRoles,
+        roles: cvAnalysisData?.workExperience?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Not specified') || [cvAnalysisData?.professionalSummary?.currentRole || 'Consultant'],
         certifications: cvAnalysisData?.education?.certifications || [],
         type: isMyConsultant ? 'existing' : 'new',
         user_id: isMyConsultant ? 'temp-user-id' : null,
         languages: cvAnalysisData?.languages || ['English', 'Swedish'],
-        work_style: linkedinData?.teamFitAssessment?.workStyle || cvAnalysisData?.softSkills?.teamwork?.[0] || 'Collaborative',
-        values: cvAnalysisData?.softSkills?.leadership || ['Professional growth', 'Innovation'],
-        personality_traits: linkedinData?.contentAnalysisInsights?.professionalValues || cvAnalysisData?.softSkills?.problemSolving || ['Problem-oriented', 'Analytical'],
-        team_fit: linkedinData?.teamFitAssessment?.workStyle || cvAnalysisData?.softSkills?.teamwork?.[0] || 'Team player',
+        work_style: linkedinData?.teamFitAssessment?.workStyle || 'Collaborative',
+        values: ['Professional growth', 'Innovation'],
+        personality_traits: linkedinData?.contentAnalysisInsights?.professionalValues || ['Problem-oriented', 'Analytical'],
+        team_fit: linkedinData?.teamFitAssessment?.workStyle || 'Team player',
         cultural_fit: linkedinData?.culturalFit || 5,
         adaptability: linkedinData?.adaptability || 5,
         leadership: linkedinData?.leadership || Math.min(experienceYears >= 5 ? 4 : 3, 5),
@@ -276,7 +215,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting consultant');
+      console.log('💾 Inserting consultant to database');
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
@@ -289,7 +228,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`Failed to save consultant: ${insertError.message}`);
       }
 
-      console.log('✅ Consultant created successfully');
+      console.log('✅ Consultant created successfully:', insertedConsultant.id);
       onAnalysisProgress(90);
 
       // Send emails
@@ -297,8 +236,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       try {
         await EmailNotificationHandler.sendWelcomeEmails({
           consultantId: insertedConsultant.id,
-          finalEmail: finalEmail,
-          finalName: finalName,
+          finalEmail: extractedEmail,
+          finalName: extractedName,
           isMyConsultant: isMyConsultant,
           toast: toast
         });
@@ -314,12 +253,11 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(100);
 
-      // Complete analysis results
+      // Complete analysis results with extracted personal info
       const completeAnalysisResults = {
         cvAnalysis: cvResponse.data,
         linkedinAnalysis: linkedinData,
         consultant: insertedConsultant,
-        enhancedAnalysisResults: enhancedAnalysisResults || null,
         extractedPersonalInfo: {
           name: extractedName,
           email: extractedEmail,
@@ -331,8 +269,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisComplete(completeAnalysisResults);
 
       toast({
-        title: "Analysis completed!",
-        description: `Profile created: ${finalName}`,
+        title: "Analysis completed! 🎉",
+        description: `Profile created for ${extractedName}`,
       });
 
     } catch (error: any) {
