@@ -76,7 +76,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
 
       toast({
         title: "Consultant deleted",
-        description: "The consultant has been successfully removed from your team",
+        description: "The consultant has been successfully removed",
       });
 
       // Refresh the page to update the list
@@ -277,6 +277,14 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
                     />
                   </div>
                 )}
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDeleteConsultant(consultant.id)}
+                  className="h-8 w-8 p-0"
+                >
+                  ×
+                </Button>
               </div>
             ))}
           </div>
@@ -307,16 +315,14 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
                       onSave={(updated) => updateConsultant(updated)}
                     />
                   )}
-                  {consultant.type === 'existing' && showDeleteForMyConsultants && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteConsultant(consultant.id)}
-                      className="h-8 w-8 p-0"
-                    >
-                      ×
-                    </Button>
-                  )}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDeleteConsultant(consultant.id)}
+                    className="h-8 w-8 p-0"
+                  >
+                    ×
+                  </Button>
                 </div>
               </div>
             ))}
