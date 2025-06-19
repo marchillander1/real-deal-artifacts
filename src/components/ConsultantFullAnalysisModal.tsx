@@ -18,11 +18,11 @@ export const ConsultantFullAnalysisModal: React.FC<ConsultantFullAnalysisModalPr
   open,
   onOpenChange
 }) => {
-  // 🔥 FIX: Use the correct data structure from consultant
-  const cvAnalysis = consultant.cvAnalysis;
-  const linkedinAnalysis = consultant.linkedinAnalysis;
+  // 🔥 FIX: Use the actual analysis data from the consultant
+  const cvAnalysis = consultant.cvAnalysis?.analysis;
+  const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
 
-  console.log('🔍 ConsultantFullAnalysisModal - Corrected analysis data:', {
+  console.log('🔍 ConsultantFullAnalysisModal - Real analysis data:', {
     consultantName: consultant.name,
     hasCvAnalysis: !!cvAnalysis,
     hasLinkedinAnalysis: !!linkedinAnalysis,
