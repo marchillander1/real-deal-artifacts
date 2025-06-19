@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +23,6 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
   consultantId
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newSkill, setNewSkill] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -66,23 +66,6 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
       });
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleSkillAdd = () => {
-    if (newSkill.trim() && !extractedData.skills.includes(newSkill.trim())) {
-      onUpdateData('skills', [...extractedData.skills, newSkill.trim()]);
-      setNewSkill('');
-    }
-  };
-
-  const handleSkillRemove = (skillToRemove: string) => {
-    onUpdateData('skills', extractedData.skills.filter(skill => skill !== skillToRemove));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSkillAdd();
     }
   };
 
@@ -160,81 +143,6 @@ export const ConfirmStep: React.FC<ConfirmStepProps> = ({
                   className="w-full"
                 />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Professional Information */}
-        <Card className="border-slate-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-900">
-              <Briefcase className="h-5 w-5" />
-              Professional Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Years of Experience
-              </label>
-              <Input
-                type="number"
-                min="0"
-                max="50"
-                value={extractedData.experience_years}
-                onChange={(e) => onUpdateData('experience_years', parseInt(e.target.value) || 0)}
-                placeholder="Enter years of experience"
-                className="w-full"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Skills & Technologies
-              </label>
-              <div className="flex gap-2 mb-3">
-                <Input
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Add a skill..."
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  onClick={handleSkillAdd}
-                  variant="outline"
-                  size="sm"
-                  className="px-3"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {extractedData.skills.map((skill, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="flex items-center gap-1 px-3 py-1"
-                  >
-                    {skill}
-                    <button
-                      onClick={() => handleSkillRemove(skill)}
-                      className="ml-1 hover:text-red-600"
-                      type="button"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              
-              {extractedData.skills.length === 0 && (
-                <p className="text-sm text-slate-500 mt-2">
-                  No skills added yet. Add your technical skills and technologies.
-                </p>
-              )}
             </div>
           </CardContent>
         </Card>

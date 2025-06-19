@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { 
   User, 
   Mail, 
@@ -30,13 +31,17 @@ import {
   Users,
   CheckCircle,
   AlertTriangle,
-  ArrowRight
+  ArrowRight,
+  Network
 } from 'lucide-react';
 
 const AnalysisPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const consultantId = searchParams.get('id');
   const [showChat, setShowChat] = React.useState(false);
+  const [isJoining, setIsJoining] = React.useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: consultant, isLoading, error } = useQuery({
     queryKey: ['consultant', consultantId],
@@ -54,6 +59,37 @@ const AnalysisPage: React.FC = () => {
     },
     enabled: !!consultantId,
   });
+
+  const handleJoinNetwork = async () => {
+    if (!consultant) return;
+    
+    setIsJoining(true);
+    
+    try {
+      console.log('🌐 Joining network for consultant:', consultantId);
+      
+      // Here you could add any additional logic for joining the network
+      // For now, we'll just navigate to the success page
+      
+      toast({
+        title: "Welcome to the Network!",
+        description: "You're now part of our exclusive consultant network.",
+        variant: "default",
+      });
+      
+      navigate(`/network-success?consultant=${consultantId}`);
+      
+    } catch (error: any) {
+      console.error('❌ Error joining network:', error);
+      toast({
+        title: "Network join failed",
+        description: error.message || "There was an error joining the network. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -97,31 +133,74 @@ const AnalysisPage: React.FC = () => {
   const professionalSummary = analysisData.professionalSummary || analysisData.summary || {};
   const personalInfo = analysisData.personalInfo || {};
   const currentRole = professionalSummary.currentRole || personalInfo.currentRole || 'Consultant';
-  const yearsOfExperience = consultant.experience_years || professionalSummary.yearsOfExperience || 0;
+  
+  // Calculate experience years from CV analysis or use consultant data
+  let yearsOfExperience = consultant.experience_years || 0;
+  
+  // Try to extract experience from CV analysis
+  if (analysisData.workHistory && Array.isArray(analysisData.workHistory)) {
+    const workHistory = analysisData.workHistory;
+    if (workHistory.length > 0) {
+      // Calculate total years from work history
+      const totalYears = workHistory.reduce((total: number, job: any) => {
+        if (job.duration) {
+          const years = job.duration.match(/(\d+)\s*years?/i);
+          if (years) {
+            return total + parseInt(years[1]);
+          }
+        }
+        return total;
+      }, 0);
+      
+      if (totalYears > 0) {
+        yearsOfExperience = totalYears;
+      }
+    }
+  }
+  
+  // If still no experience, try to get from professional summary
+  if (yearsOfExperience === 0 && professionalSummary.yearsOfExperience) {
+    yearsOfExperience = professionalSummary.yearsOfExperience;
+  }
+  
   const seniorityLevel = professionalSummary.seniorityLevel || (yearsOfExperience >= 7 ? 'Senior' : yearsOfExperience >= 3 ? 'Mid-level' : 'Junior');
 
-  // Extract skills from various sources with safe property access
+  // Extract skills from various sources with enhanced extraction
   let technicalSkills = consultant.skills || [];
+  
+  // Extract technical skills from CV analysis
   if (analysisData.skills) {
     const skills = analysisData.skills;
-    technicalSkills = [
+    const extractedSkills = [
       ...(skills.technical || []),
       ...(skills.languages || []),
-      ...(skills.tools || [])
+      ...(skills.tools || []),
+      ...(skills.frameworks || []),
+      ...(skills.databases || [])
     ].filter(skill => skill && skill.length > 0);
-  } else if (analysisData.technicalSkillsAnalysis) {
+    
+    technicalSkills = [...technicalSkills, ...extractedSkills];
+  }
+  
+  // Also check technicalSkillsAnalysis
+  if (analysisData.technicalSkillsAnalysis) {
     const techSkills = analysisData.technicalSkillsAnalysis;
-    technicalSkills = [
+    const extractedSkills = [
       ...(techSkills.programmingLanguages?.expert || []),
       ...(techSkills.programmingLanguages?.proficient || []),
+      ...(techSkills.programmingLanguages?.intermediate || []),
       ...(techSkills.frameworks || []),
       ...(techSkills.tools || []),
-      ...(techSkills.databases || [])
+      ...(techSkills.databases || []),
+      ...(techSkills.cloudPlatforms || []),
+      ...(techSkills.operatingSystems || [])
     ].filter(skill => skill && skill.length > 0);
+    
+    technicalSkills = [...technicalSkills, ...extractedSkills];
   }
 
-  // Remove duplicates
-  technicalSkills = [...new Set(technicalSkills)];
+  // Remove duplicates and clean up
+  technicalSkills = [...new Set(technicalSkills)].filter(skill => skill && skill.trim().length > 0);
 
   // Market analysis with safe property access
   const marketAnalysis = analysisData.marketPositioning || analysisData.marketAnalysis || {};
@@ -160,6 +239,27 @@ const AnalysisPage: React.FC = () => {
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               AI-powered insights into your consulting potential, market value, and growth opportunities
             </p>
+          </div>
+
+          {/* Join Network CTA */}
+          <div className="mb-8">
+            <Card className="bg-gradient-to-r from-blue-600 to-green-600 text-white border-0 shadow-xl">
+              <CardContent className="p-8 text-center">
+                <Network className="h-12 w-12 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold mb-4">Ready to Join Our Network?</h2>
+                <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+                  Connect with premium clients and unlock exclusive consulting opportunities. 
+                  Join our network of top-tier consultants today.
+                </p>
+                <Button
+                  onClick={handleJoinNetwork}
+                  disabled={isJoining}
+                  className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold"
+                >
+                  {isJoining ? 'Joining Network...' : 'Join Network'}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -253,7 +353,7 @@ const AnalysisPage: React.FC = () => {
                         </Badge>
                       ))
                     ) : (
-                      <p className="text-slate-500">Technical skills will be extracted from your CV analysis</p>
+                      <p className="text-slate-500">Technical skills extracted from your CV analysis</p>
                     )}
                   </div>
                 </CardContent>
