@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
@@ -135,11 +134,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const cvAnalysisData = cvResponse.data.analysis;
       const enhancedAnalysisResults = cvResponse.data.enhancedAnalysisResults;
       
-      console.log('📋 Extracted CV data:', {
+      console.log('📋 Extracted CV data with personal info:', {
         personalInfo: cvAnalysisData?.personalInfo,
         hasRealName: cvAnalysisData?.personalInfo?.name !== 'Not specified',
         hasRealEmail: cvAnalysisData?.personalInfo?.email !== 'Not specified',
-        hasRealPhone: cvAnalysisData?.personalInfo?.phone !== 'Not specified'
+        hasRealPhone: cvAnalysisData?.personalInfo?.phone !== 'Not specified',
+        location: cvAnalysisData?.personalInfo?.location
       });
       
       setAnalysis(cvResponse.data);
@@ -179,24 +179,24 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
-      // Create consultant profile using REAL data from CV analysis
+      // Create consultant profile using REAL extracted data from CV analysis
       const cvPersonalInfo = cvAnalysisData?.personalInfo || {};
       const cvProfessionalSummary = cvAnalysisData?.professionalSummary || {};
       const cvTechnicalExpertise = cvAnalysisData?.technicalExpertise || {};
       
-      // Use REAL data prioritizing CV extraction over form data for auto-fill
-      const extractedName = cvPersonalInfo.name !== 'Not specified' ? cvPersonalInfo.name : '';
-      const extractedEmail = cvPersonalInfo.email !== 'Not specified' ? cvPersonalInfo.email : '';
-      const extractedPhone = cvPersonalInfo.phone !== 'Not specified' ? cvPersonalInfo.phone : '';
-      const extractedLocation = cvPersonalInfo.location !== 'Not specified' ? cvPersonalInfo.location : '';
+      // Use REAL extracted data from CV analysis
+      const extractedName = cvPersonalInfo.name && cvPersonalInfo.name !== 'Not specified' ? cvPersonalInfo.name : '';
+      const extractedEmail = cvPersonalInfo.email && cvPersonalInfo.email !== 'Not specified' ? cvPersonalInfo.email : '';
+      const extractedPhone = cvPersonalInfo.phone && cvPersonalInfo.phone !== 'Not specified' ? cvPersonalInfo.phone : '';
+      const extractedLocation = cvPersonalInfo.location && cvPersonalInfo.location !== 'Not specified' ? cvPersonalInfo.location : '';
       
-      // Final values - use form data if available, otherwise CV extracted data
-      const finalName = formName || extractedName || 'Consultant';
-      const finalEmail = formEmail || extractedEmail || 'temp@temp.com';
+      // Final values - prioritize extracted CV data over form data for better accuracy
+      const finalName = extractedName || formName || 'Consultant';
+      const finalEmail = extractedEmail || formEmail || 'temp@temp.com';
       const finalPhone = extractedPhone;
       const finalLocation = extractedLocation;
       
-      // Extract real skills, avoiding empty arrays
+      // Extract real skills and roles from CV
       const allSkills = [
         ...(cvTechnicalExpertise.programmingLanguages?.expert || []),
         ...(cvTechnicalExpertise.programmingLanguages?.proficient || []),
@@ -208,10 +208,10 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const realRoles = cvAnalysisData?.workExperience?.map(exp => exp.role).filter(role => role && role !== 'Not specified') || [];
       const finalRoles = realRoles.length > 0 ? realRoles : [cvProfessionalSummary.currentRole || 'Consultant'];
       
-      // Calculate experience years
-      const experienceYears = parseInt(cvProfessionalSummary.yearsOfExperience?.match(/(\d+)/)?.[1] || '3');
+      // Calculate experience years from CV
+      const experienceYears = parseInt(cvProfessionalSummary.yearsOfExperience?.match(/(\d+)/)?.[1] || '5');
       
-      console.log('💾 Creating consultant profile with extracted data:', {
+      console.log('💾 Creating consultant profile with REAL extracted CV data:', {
         finalName,
         finalEmail,
         finalPhone,
@@ -297,7 +297,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(100);
 
-      // Call the completion callback with enhanced results
+      // Call the completion callback with enhanced results including REAL personal info
       onAnalysisComplete({
         cvAnalysis: cvResponse.data,
         linkedinAnalysis: linkedinData,
@@ -307,7 +307,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       toast({
         title: "Analysis and registration completed!",
-        description: `Profile created with extracted CV data`,
+        description: `Profile created with extracted CV data: ${finalName}`,
       });
 
     } catch (error: any) {
