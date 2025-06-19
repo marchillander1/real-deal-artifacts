@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Upload, Sparkles } from 'lucide-react';
 
-export const CTASection = () => {
+const CTASection = () => {
   return (
     <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
       <div className="container mx-auto px-4 text-center">
@@ -51,3 +51,5 @@ export const CTASection = () => {
     </section>
   );
 };
+
+export default CTASection;
