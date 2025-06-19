@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -143,108 +144,107 @@ const AnalysisPage: React.FC = () => {
     );
   }
 
-  // Safely cast and extract data from consultant record with proper type checking
+  // Enhanced data extraction from CV analysis
   const cvAnalysis = consultant.cv_analysis_data as any;
   const linkedinAnalysis = consultant.linkedin_analysis_data as any;
   
-  console.log('📊 CV Analysis Data:', cvAnalysis);
-  console.log('🔗 LinkedIn Analysis Data:', linkedinAnalysis);
+  console.log('📊 Raw CV Analysis Data:', cvAnalysis);
+  console.log('🔗 Raw LinkedIn Analysis Data:', linkedinAnalysis);
 
-  // Extract professional summary with safe property access
+  // Extract data with better fallback logic
   const analysisData = cvAnalysis?.analysis || {};
-  const professionalSummary = analysisData.professionalSummary || analysisData.summary || {};
-  const personalInfo = analysisData.personalInfo || {};
-  const currentRole = professionalSummary.currentRole || personalInfo.currentRole || 'Consultant';
   
-  // Calculate experience years from CV analysis or use consultant data
+  // Get personal info with smart fallback
+  const personalInfo = analysisData.personalInfo || {};
+  const detectedInfo = cvAnalysis?.detectedInformation || {};
+  
+  // Extract experience with enhanced logic
   let yearsOfExperience = consultant.experience_years || 0;
   
-  // Try to extract experience from CV analysis
-  if (analysisData.workHistory && Array.isArray(analysisData.workHistory)) {
-    const workHistory = analysisData.workHistory;
-    if (workHistory.length > 0) {
-      // Calculate total years from work history
-      const totalYears = workHistory.reduce((total: number, job: any) => {
-        if (job.duration) {
-          const years = job.duration.match(/(\d+)\s*years?/i);
-          if (years) {
-            return total + parseInt(years[1]);
-          }
-        }
-        return total;
-      }, 0);
-      
-      if (totalYears > 0) {
-        yearsOfExperience = totalYears;
-      }
+  // Try to get from CV analysis first
+  if (analysisData.experience?.years && analysisData.experience.years !== 'Ej specificerat') {
+    const match = String(analysisData.experience.years).match(/(\d+)/);
+    if (match) {
+      yearsOfExperience = parseInt(match[1]);
+    }
+  } else if (analysisData.professionalSummary?.yearsOfExperience) {
+    const match = String(analysisData.professionalSummary.yearsOfExperience).match(/(\d+)/);
+    if (match) {
+      yearsOfExperience = parseInt(match[1]);
     }
   }
-  
-  // If still no experience, try to get from professional summary
-  if (yearsOfExperience === 0 && professionalSummary.yearsOfExperience) {
-    yearsOfExperience = professionalSummary.yearsOfExperience;
-  }
-  
-  const seniorityLevel = professionalSummary.seniorityLevel || (yearsOfExperience >= 7 ? 'Senior' : yearsOfExperience >= 3 ? 'Mid-level' : 'Junior');
 
-  // Extract skills from various sources with enhanced extraction
+  // Get current role with fallback
+  const currentRole = analysisData.experience?.currentRole || 
+                     analysisData.professionalSummary?.currentRole || 
+                     personalInfo.currentRole || 
+                     'Consultant';
+
+  // Calculate seniority level
+  const seniorityLevel = analysisData.experience?.level || 
+                        analysisData.professionalSummary?.seniorityLevel || 
+                        (yearsOfExperience >= 7 ? 'Senior' : yearsOfExperience >= 3 ? 'Mid-level' : 'Junior');
+
+  // Enhanced technical skills extraction
   let technicalSkills = consultant.skills || [];
   
-  // Extract technical skills from CV analysis
+  // Extract from CV analysis with multiple sources
   if (analysisData.skills) {
-    const skills = analysisData.skills;
+    const skillsData = analysisData.skills;
     const extractedSkills = [
-      ...(skills.technical || []),
-      ...(skills.languages || []),
-      ...(skills.tools || []),
-      ...(skills.frameworks || []),
-      ...(skills.databases || [])
-    ].filter(skill => skill && skill.length > 0);
+      ...(skillsData.technical || []),
+      ...(skillsData.languages || []),
+      ...(skillsData.tools || [])
+    ].filter(skill => skill && skill.trim() !== '' && skill !== 'Ej specificerat');
     
     technicalSkills = [...technicalSkills, ...extractedSkills];
   }
-  
-  // Also check technicalSkillsAnalysis
-  if (analysisData.technicalSkillsAnalysis) {
-    const techSkills = analysisData.technicalSkillsAnalysis;
+
+  // Also check if there's a technicalExpertise section
+  if (analysisData.technicalExpertise) {
+    const techExp = analysisData.technicalExpertise;
     const extractedSkills = [
-      ...(techSkills.programmingLanguages?.expert || []),
-      ...(techSkills.programmingLanguages?.proficient || []),
-      ...(techSkills.programmingLanguages?.intermediate || []),
-      ...(techSkills.frameworks || []),
-      ...(techSkills.tools || []),
-      ...(techSkills.databases || []),
-      ...(techSkills.cloudPlatforms || []),
-      ...(techSkills.operatingSystems || [])
-    ].filter(skill => skill && skill.length > 0);
+      ...(techExp.programmingLanguages?.expert || []),
+      ...(techExp.programmingLanguages?.proficient || []),
+      ...(techExp.programmingLanguages?.familiar || []),
+      ...(techExp.frameworks || []),
+      ...(techExp.tools || []),
+      ...(techExp.databases || [])
+    ].filter(skill => skill && skill.trim() !== '' && skill !== 'Ej specificerat');
     
     technicalSkills = [...technicalSkills, ...extractedSkills];
   }
 
   // Remove duplicates and clean up
-  technicalSkills = [...new Set(technicalSkills)].filter(skill => skill && skill.trim().length > 0);
+  technicalSkills = [...new Set(technicalSkills)].filter(skill => 
+    skill && 
+    skill.trim().length > 0 && 
+    skill !== 'Ej specificerat' &&
+    skill !== 'Not specified'
+  );
 
-  // Market analysis with safe property access
-  const marketAnalysis = analysisData.marketPositioning || analysisData.marketAnalysis || {};
-  const hourlyRate = consultant.hourly_rate || marketAnalysis.hourlyRateEstimate?.recommended || 1200;
-  const rateRange = marketAnalysis.hourlyRateEstimate || {
+  console.log('🎯 Processed technical skills:', technicalSkills);
+
+  // Market analysis and rate calculation
+  const hourlyRate = consultant.hourly_rate || 1200;
+  const rateRange = {
     minimum: Math.round(hourlyRate * 0.8),
     recommended: hourlyRate,
     maximum: Math.round(hourlyRate * 1.3)
   };
 
-  // Career potential with safe property access
-  const careerAnalysis = analysisData.careerPotential || analysisData.careerRecommendations || {};
-  const strengthsData = analysisData.strengths || careerAnalysis.strengths || [];
-  const improvementAreas = analysisData.improvementAreas || careerAnalysis.improvementAreas || [];
+  // Extract work history
+  const workHistory = analysisData.workHistory || analysisData.workExperience || [];
 
-  // LinkedIn insights with safe property access
-  const linkedinInsights = linkedinAnalysis?.contentAnalysisInsights || linkedinAnalysis?.analysis || {};
-  const communicationStyle = linkedinInsights.communicationStyle || linkedinAnalysis?.communicationStyle || 'Professional';
-  const networkingPotential = linkedinInsights.networkingPotential || 'Good';
+  // LinkedIn insights
+  const communicationStyle = linkedinAnalysis?.communicationStyle || 'Professional';
+  const networkingPotential = linkedinAnalysis?.overallConsultantReadiness ? 
+    (linkedinAnalysis.overallConsultantReadiness >= 8 ? 'Excellent' : 
+     linkedinAnalysis.overallConsultantReadiness >= 6 ? 'Good' : 'Developing') : 'Good';
 
-  // Work history with safe property access
-  const workHistory = analysisData.workHistory || analysisData.experience || [];
+  // Strengths and improvement areas
+  const strengthsData = linkedinAnalysis?.bioAnalysis?.keyStrengths || [];
+  const improvementAreas = linkedinAnalysis?.recommendedImprovements || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50">
@@ -255,10 +255,10 @@ const AnalysisPage: React.FC = () => {
           
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">
               Your Comprehensive Analysis
             </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               AI-powered insights into your consulting potential, market value, and growth opportunities
             </p>
           </div>
@@ -375,7 +375,7 @@ const AnalysisPage: React.FC = () => {
                         </Badge>
                       ))
                     ) : (
-                      <p className="text-slate-500">Technical skills extracted from your CV analysis</p>
+                      <p className="text-slate-500">Technical skills will be extracted from your CV analysis</p>
                     )}
                   </div>
                 </CardContent>
