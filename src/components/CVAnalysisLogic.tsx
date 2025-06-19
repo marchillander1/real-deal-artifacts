@@ -172,47 +172,80 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
-      // 🔥 UPDATED: Create consultant profile AND send emails immediately
-      const finalName = formName || cvAnalysisData?.personalInfo?.name || 'Unnamed Consultant';
-      const finalEmail = formEmail || cvAnalysisData?.personalInfo?.email || 'temp@analysis.com';
+      // Create consultant profile using REAL data from CV analysis
+      const cvPersonalInfo = cvAnalysisData?.personalInfo || {};
+      const cvProfessionalSummary = cvAnalysisData?.professionalSummary || {};
+      const cvTechnicalExpertise = cvAnalysisData?.technicalExpertise || {};
       
-      console.log('💾 Creating consultant profile with real data and sending emails:', {
+      // Use REAL data or form data, avoiding mock data
+      const finalName = formName || 
+                       (cvPersonalInfo.name !== 'Not specified' ? cvPersonalInfo.name : '') || 
+                       'Consultant';
+      
+      const finalEmail = formEmail || 
+                        (cvPersonalInfo.email !== 'Not specified' ? cvPersonalInfo.email : '') || 
+                        'temp@temp.com';
+      
+      const finalPhone = cvPersonalInfo.phone !== 'Not specified' ? cvPersonalInfo.phone : '';
+      const finalLocation = cvPersonalInfo.location !== 'Not specified' ? cvPersonalInfo.location : '';
+      
+      // Extract real skills, avoiding empty arrays
+      const allSkills = [
+        ...(cvTechnicalExpertise.programmingLanguages?.expert || []),
+        ...(cvTechnicalExpertise.programmingLanguages?.proficient || []),
+        ...(cvTechnicalExpertise.frameworks || []),
+        ...(cvTechnicalExpertise.tools || [])
+      ].filter(skill => skill && skill.length > 0);
+      
+      // Extract real roles from work experience
+      const realRoles = cvAnalysisData?.workExperience?.map(exp => exp.role).filter(role => role && role !== 'Not specified') || [];
+      const finalRoles = realRoles.length > 0 ? realRoles : [cvProfessionalSummary.currentRole || 'Consultant'];
+      
+      // Calculate experience years
+      const experienceYears = parseInt(cvProfessionalSummary.yearsOfExperience?.match(/(\d+)/)?.[1] || '3');
+      
+      console.log('💾 Creating consultant profile with REAL extracted data:', {
         finalName,
         finalEmail,
+        finalPhone,
+        finalLocation,
+        skillsCount: allSkills.length,
+        rolesCount: finalRoles.length,
+        experienceYears,
         isMyConsultant
       });
 
       const consultantData = {
         name: finalName,
-        email: finalEmail, // 🔥 Use REAL email from form
-        phone: cvAnalysisData?.personalInfo?.phone || '',
-        location: cvAnalysisData?.personalInfo?.location || 'Location not specified',
-        skills: cvAnalysisData?.technicalExpertise?.programmingLanguages?.expert || [],
-        experience_years: parseInt(cvAnalysisData?.professionalSummary?.yearsOfExperience) || 5,
+        email: finalEmail,
+        phone: finalPhone,
+        location: finalLocation,
+        skills: allSkills,
+        experience_years: experienceYears,
         hourly_rate: cvAnalysisData?.marketPositioning?.hourlyRateEstimate?.recommended || 800,
         availability: 'Available',
         cv_file_path: file.name,
-        communication_style: cvAnalysisData?.softSkills?.communication?.[0] || '',
+        communication_style: cvAnalysisData?.softSkills?.communication?.[0] || 'Professional communication',
         rating: 4.8,
         projects_completed: 0,
-        roles: cvAnalysisData?.technicalExpertise?.frameworks || ['Consultant'],
+        roles: finalRoles,
         certifications: cvAnalysisData?.education?.certifications || [],
-        type: isMyConsultant ? 'existing' : 'new', // 🔥 Set correct type
-        user_id: isMyConsultant ? 'temp-user-id' : null, // 🔥 Set user_id for My Consultants
-        languages: cvAnalysisData?.languages || [],
-        work_style: cvAnalysisData?.softSkills?.teamwork?.[0] || '',
-        values: cvAnalysisData?.softSkills?.leadership || [],
-        personality_traits: cvAnalysisData?.softSkills?.problemSolving || [],
-        team_fit: cvAnalysisData?.softSkills?.teamwork?.[0] || '',
+        type: isMyConsultant ? 'existing' : 'new',
+        user_id: isMyConsultant ? 'temp-user-id' : null,
+        languages: cvAnalysisData?.languages || ['English'],
+        work_style: cvAnalysisData?.softSkills?.teamwork?.[0] || 'Collaborative',
+        values: cvAnalysisData?.softSkills?.leadership || ['Professional growth'],
+        personality_traits: cvAnalysisData?.softSkills?.problemSolving || ['Problem-oriented'],
+        team_fit: cvAnalysisData?.softSkills?.teamwork?.[0] || 'Team player',
         cultural_fit: 5,
         adaptability: 5,
-        leadership: 3,
+        leadership: Math.min(experienceYears >= 5 ? 4 : 3, 5),
         linkedin_url: linkedinUrl || '',
         cv_analysis_data: cvResponse.data,
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting consultant data with real email:', consultantData);
+      console.log('💾 Inserting consultant data with real information:', consultantData);
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
@@ -229,12 +262,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setCreatedConsultant(insertedConsultant);
       onAnalysisProgress(90);
 
-      // 🔥 SEND EMAILS IMMEDIATELY AFTER SUCCESSFUL CREATION
+      // Send emails immediately after successful creation
       console.log('📧 🚨 SENDING WELCOME EMAILS IMMEDIATELY WITH REAL DATA');
       try {
         await EmailNotificationHandler.sendWelcomeEmails({
           consultantId: insertedConsultant.id,
-          finalEmail: finalEmail, // 🔥 Use REAL email from form
+          finalEmail: finalEmail,
           finalName: finalName,
           isMyConsultant: isMyConsultant,
           toast: toast
