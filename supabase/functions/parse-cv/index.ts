@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting CV parsing...');
+    console.log('🚀 Starting enhanced CV parsing...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -29,120 +29,151 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // Improved text extraction for PDF files
+    // Enhanced text extraction with multiple methods
     let extractedText = '';
+    let detectedEmails: string[] = [];
+    let detectedPhones: string[] = [];
+    let detectedNames: string[] = [];
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF - extracting text with improved method...');
+        console.log('📄 Enhanced PDF processing...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // More sophisticated text extraction
-        let rawText = '';
-        let currentWord = '';
+        // Method 1: Extract readable text patterns
+        let textContent = '';
+        let buffer = '';
         
-        for (let i = 0; i < Math.min(uint8Array.length, 100000); i++) {
+        for (let i = 0; i < uint8Array.length; i++) {
           const byte = uint8Array[i];
           
-          if (byte >= 32 && byte <= 126) { // Printable ASCII
-            currentWord += String.fromCharCode(byte);
-          } else if (byte === 10 || byte === 13 || byte === 32) { // Whitespace
-            if (currentWord.length > 0) {
-              rawText += currentWord + ' ';
-              currentWord = '';
+          // Look for readable ASCII text
+          if (byte >= 32 && byte <= 126) {
+            buffer += String.fromCharCode(byte);
+          } else if (buffer.length > 0) {
+            if (buffer.length >= 2) {
+              textContent += buffer + ' ';
             }
+            buffer = '';
           }
         }
         
-        // Add final word
-        if (currentWord.length > 0) {
-          rawText += currentWord;
+        if (buffer.length > 0) {
+          textContent += buffer;
         }
         
-        // Clean and filter meaningful text
-        const words = rawText.split(/\s+/)
+        console.log('📝 Raw extracted length:', textContent.length);
+        
+        // Method 2: Direct pattern matching for critical info
+        const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+        const phonePattern = /(\+46|0)[0-9\s\-\(\)]{8,15}/g;
+        const namePattern = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+\b/g;
+        
+        detectedEmails = Array.from(textContent.matchAll(emailPattern)).map(match => match[0]);
+        detectedPhones = Array.from(textContent.matchAll(phonePattern)).map(match => match[0].replace(/\s+/g, ''));
+        detectedNames = Array.from(textContent.matchAll(namePattern)).map(match => match[0]);
+        
+        console.log('🔍 Direct detection results:', {
+          emails: detectedEmails,
+          phones: detectedPhones,
+          names: detectedNames
+        });
+        
+        // Clean and filter text for AI analysis
+        const words = textContent.split(/\s+/)
           .filter(word => 
             word.length >= 2 && 
             word.length <= 50 &&
-            /^[a-zA-Z0-9@.\-+()åäöÅÄÖ]+$/.test(word)
+            /^[a-zA-Z0-9@.\-+()åäöÅÄÖ\/\s]+$/.test(word) &&
+            !word.includes('obj') &&
+            !word.includes('stream')
           );
         
-        extractedText = words.join(' ').substring(0, 6000);
-        console.log('📄 Extracted meaningful text length:', extractedText.length);
-        console.log('📄 Sample text:', extractedText.substring(0, 200));
+        extractedText = words.join(' ').substring(0, 4000);
+        console.log('✅ Cleaned text for AI analysis:', extractedText.length, 'characters');
         
       } else {
         // For other file types, try to read as text
         extractedText = await file.text();
-        extractedText = extractedText.substring(0, 6000);
+        extractedText = extractedText.substring(0, 4000);
+        
+        // Also run pattern detection on non-PDF files
+        const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+        const phonePattern = /(\+46|0)[0-9\s\-\(\)]{8,15}/g;
+        const namePattern = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+\b/g;
+        
+        detectedEmails = Array.from(extractedText.matchAll(emailPattern)).map(match => match[0]);
+        detectedPhones = Array.from(extractedText.matchAll(phonePattern)).map(match => match[0].replace(/\s+/g, ''));
+        detectedNames = Array.from(extractedText.matchAll(namePattern)).map(match => match[0]);
       }
     } catch (error) {
       console.warn('⚠️ Content extraction failed:', error);
       extractedText = `CV file: ${file.name} - Unable to extract content`;
     }
 
-    console.log('🤖 Sending to AI for analysis...');
+    console.log('🤖 Sending to AI with enhanced prompt...');
 
-    // Improved and focused prompt for better extraction
-    const prompt = `Analyze this CV text and extract specific information. Return ONLY valid JSON.
+    // Shorter, more focused prompt for better results
+    const prompt = `Analyze this CV and extract information. Use detected data when available.
 
-CV TEXT:
-${extractedText}
+DETECTED INFO:
+- Emails found: ${detectedEmails.join(', ') || 'None'}
+- Phones found: ${detectedPhones.join(', ') || 'None'}  
+- Names found: ${detectedNames.join(', ') || 'None'}
 
-Extract information and return this EXACT JSON structure with real data:
+CV TEXT (first 2000 chars):
+${extractedText.substring(0, 2000)}
+
+Return ONLY this JSON structure with real data:
 
 {
   "personalInfo": {
-    "name": "FIND FULL NAME - look for person's name",
-    "email": "FIND EMAIL - look for @ symbol", 
-    "phone": "FIND PHONE - look for numbers like +46, 07, phone patterns",
-    "location": "FIND LOCATION - look for city, address, Sweden, Stockholm etc"
+    "name": "${detectedNames[0] || 'FIND NAME'}",
+    "email": "${detectedEmails[0] || 'FIND EMAIL'}",
+    "phone": "${detectedPhones[0] || 'FIND PHONE'}",
+    "location": "FIND LOCATION"
   },
   "professionalSummary": {
-    "yearsOfExperience": "CALCULATE YEARS - look at work history dates",
-    "currentRole": "FIND LATEST JOB TITLE",
-    "seniorityLevel": "DETERMINE: Junior/Mid-level/Senior/Expert based on experience",
-    "industryFocus": "IDENTIFY MAIN INDUSTRY - IT, Tech, Finance etc"
+    "yearsOfExperience": "CALCULATE YEARS",
+    "currentRole": "FIND CURRENT JOB",
+    "seniorityLevel": "Junior/Mid/Senior/Expert",
+    "industryFocus": "FIND INDUSTRY"
   },
   "technicalExpertise": {
     "programmingLanguages": {
-      "expert": ["FIND MAIN LANGUAGES - Python, Java, C# etc"],
-      "proficient": ["FIND SECONDARY LANGUAGES"], 
-      "familiar": ["FIND MENTIONED LANGUAGES"]
+      "expert": ["FIND MAIN LANGUAGES"],
+      "proficient": ["FIND SECONDARY"],
+      "familiar": ["FIND MENTIONED"]
     },
-    "frameworks": ["FIND FRAMEWORKS - React, Angular, Spring etc"],
-    "tools": ["FIND TOOLS - Docker, Git, AWS etc"],
-    "databases": ["FIND DATABASES - MySQL, PostgreSQL etc"]
+    "frameworks": ["FIND FRAMEWORKS"],
+    "tools": ["FIND TOOLS"],
+    "databases": ["FIND DATABASES"]
   },
   "workExperience": [
     {
-      "company": "FIND COMPANY NAME",
-      "role": "FIND JOB TITLE", 
-      "duration": "FIND TIME PERIOD",
-      "technologies": ["FIND TECH USED"],
-      "achievements": ["FIND KEY ACCOMPLISHMENTS"]
+      "company": "COMPANY NAME",
+      "role": "JOB TITLE",
+      "duration": "TIME PERIOD",
+      "technologies": ["TECH USED"],
+      "achievements": ["KEY ACCOMPLISHMENTS"]
     }
   ],
   "education": {
-    "degrees": ["FIND UNIVERSITY DEGREES"],
+    "degrees": ["FIND DEGREES"],
     "certifications": ["FIND CERTIFICATIONS"]
   },
   "marketPositioning": {
     "hourlyRateEstimate": {
       "min": 800,
-      "max": 1500, 
+      "max": 1500,
       "recommended": 1200,
       "currency": "SEK"
     }
   }
 }
 
-IMPORTANT: 
-- Look carefully for names, emails, phone numbers in the text
-- If you can't find something, put "Not specified" 
-- Focus on extracting REAL data from the CV text
-- Make sure ALL fields have values, not empty strings`;
+Fill with real data from CV. If not found, use "Not specified".`;
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -155,7 +186,7 @@ IMPORTANT:
         messages: [
           {
             role: 'system',
-            content: 'You are a CV analysis expert. Extract real information from CV text. Always respond with valid JSON only. If information is missing, use "Not specified".'
+            content: 'You are a CV analysis expert. Extract real information from CV text and return valid JSON only. Use provided detected data when available.'
           },
           {
             role: 'user',
@@ -163,7 +194,7 @@ IMPORTANT:
           }
         ],
         temperature: 0.1,
-        max_tokens: 2000,
+        max_tokens: 1500,
       }),
     });
 
@@ -174,7 +205,7 @@ IMPORTANT:
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ GROQ response received');
+    console.log('✅ AI response received');
 
     let analysis;
     try {
@@ -183,34 +214,43 @@ IMPORTANT:
         throw new Error('No content in response');
       }
 
-      console.log('🔍 Raw AI response:', content);
+      console.log('🔍 AI response content:', content);
 
       // Extract JSON from response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
-        console.log('📊 Successfully parsed CV analysis:', JSON.stringify(analysis, null, 2));
+        
+        // Override with detected data if AI didn't find it
+        if (detectedEmails.length > 0 && analysis.personalInfo.email === 'Not specified') {
+          analysis.personalInfo.email = detectedEmails[0];
+        }
+        if (detectedPhones.length > 0 && analysis.personalInfo.phone === 'Not specified') {
+          analysis.personalInfo.phone = detectedPhones[0];
+        }
+        if (detectedNames.length > 0 && analysis.personalInfo.name === 'Not specified') {
+          analysis.personalInfo.name = detectedNames[0];
+        }
+        
+        console.log('📊 Final analysis with overrides:', JSON.stringify(analysis, null, 2));
       } else {
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
-      console.error('❌ Parse error, creating structured fallback:', parseError);
+      console.error('❌ Parse error, using detected data fallback:', parseError);
       
-      // Create fallback with some basic extracted info if possible
-      const emailMatch = extractedText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-      const phoneMatch = extractedText.match(/(\+46|0)[0-9\s\-]{8,15}/);
-      
+      // Fallback using detected patterns
       analysis = {
         personalInfo: {
-          name: 'Not specified',
-          email: emailMatch ? emailMatch[0] : 'Not specified', 
-          phone: phoneMatch ? phoneMatch[0] : 'Not specified',
+          name: detectedNames[0] || 'Not specified',
+          email: detectedEmails[0] || 'Not specified',
+          phone: detectedPhones[0] || 'Not specified',
           location: 'Not specified'
         },
         professionalSummary: {
           yearsOfExperience: 'Not specified',
           currentRole: 'Not specified',
-          seniorityLevel: 'Not specified', 
+          seniorityLevel: 'Not specified',
           industryFocus: 'Not specified'
         },
         technicalExpertise: {
@@ -232,17 +272,22 @@ IMPORTANT:
       };
     }
 
-    console.log('✅ CV analysis completed successfully');
+    console.log('✅ Enhanced CV analysis completed');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         analysis: analysis,
-        extractedText: extractedText.substring(0, 500), // For debugging
-        debugInfo: {
+        detectedInformation: {
+          emails: detectedEmails,
+          phones: detectedPhones,
+          names: detectedNames
+        },
+        extractionStats: {
           textLength: extractedText.length,
-          hasEmailInText: extractedText.includes('@'),
-          hasPhonePattern: /(\+46|07|08)/.test(extractedText)
+          emailsFound: detectedEmails.length,
+          phonesFound: detectedPhones.length,
+          namesFound: detectedNames.length
         }
       }),
       {
@@ -251,7 +296,7 @@ IMPORTANT:
     );
 
   } catch (error) {
-    console.error('❌ CV parsing error:', error);
+    console.error('❌ Enhanced CV parsing error:', error);
     
     return new Response(
       JSON.stringify({ 
