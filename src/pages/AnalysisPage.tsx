@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
+import { EmailNotificationHandler } from '@/components/EmailNotificationHandler';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -67,13 +68,34 @@ const AnalysisPage: React.FC = () => {
     
     try {
       console.log('🌐 Joining network for consultant:', consultantId);
+      console.log('📋 Consultant data:', consultant);
       
-      // Here you could add any additional logic for joining the network
-      // For now, we'll just navigate to the success page
-      
+      // Update consultant type to 'new' to show in Network Consultants
+      const { error: updateError } = await supabase
+        .from('consultants')
+        .update({ type: 'new' })
+        .eq('id', consultantId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      console.log('✅ Consultant type updated to "new"');
+
+      // Send welcome email using EmailNotificationHandler
+      const emailResult = await EmailNotificationHandler.sendWelcomeEmails({
+        consultantId: consultantId,
+        finalEmail: consultant.email,
+        finalName: consultant.name,
+        isMyConsultant: false,
+        toast: toast
+      });
+
+      console.log('📧 Email sending result:', emailResult);
+
       toast({
         title: "Welcome to the Network!",
-        description: "You're now part of our exclusive consultant network.",
+        description: "You're now part of our exclusive consultant network. Check your email for welcome information.",
         variant: "default",
       });
       
