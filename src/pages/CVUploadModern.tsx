@@ -51,148 +51,33 @@ const CVUploadModern: React.FC = () => {
     setAnalysisResults(results);
     setIsAnalysisComplete(true);
     
-    // Extract data from CV analysis with better parsing
-    const cvData = results.cvAnalysis?.analysis;
-    const detectedInfo = results.cvAnalysis?.detectedInformation;
+    // Get the consultant data that was just created
+    const consultant = results.consultant;
     
-    console.log('📊 CV Data:', cvData);
-    console.log('🔍 Detected Info:', detectedInfo);
-    
-    // Smart extraction with better fallbacks and validation
-    let extractedName = '';
-    if (detectedInfo?.names?.[0] && 
-        detectedInfo.names[0] !== 'Ej specificerat' && 
-        detectedInfo.names[0] !== 'Not specified' &&
-        detectedInfo.names[0] !== 'Subtype Image' &&
-        detectedInfo.names[0].length > 2) {
-      extractedName = detectedInfo.names[0];
-    } else if (cvData?.personalInfo?.name && 
-               cvData.personalInfo.name !== 'Ej specificerat' && 
-               cvData.personalInfo.name !== 'Not specified' &&
-               cvData.personalInfo.name !== 'Subtype Image' &&
-               cvData.personalInfo.name.length > 2) {
-      extractedName = cvData.personalInfo.name;
-    }
-    
-    let extractedEmail = '';
-    if (detectedInfo?.emails?.[0] && 
-        detectedInfo.emails[0].includes('@') && 
-        detectedInfo.emails[0] !== 'Ej specificerat' && 
-        detectedInfo.emails[0] !== 'Not specified') {
-      extractedEmail = detectedInfo.emails[0];
-    } else if (cvData?.personalInfo?.email && 
-               cvData.personalInfo.email.includes('@') && 
-               cvData.personalInfo.email !== 'Ej specificerat' && 
-               cvData.personalInfo.email !== 'Not specified') {
-      extractedEmail = cvData.personalInfo.email;
-    }
-    
-    let extractedPhone = '';
-    if (detectedInfo?.phones?.[0] && 
-        detectedInfo.phones[0] !== 'Ej specificerat' && 
-        detectedInfo.phones[0] !== 'Not specified' &&
-        detectedInfo.phones[0].length > 5) {
-      extractedPhone = detectedInfo.phones[0];
-    } else if (cvData?.personalInfo?.phone && 
-               cvData.personalInfo.phone !== 'Ej specificerat' && 
-               cvData.personalInfo.phone !== 'Not specified' &&
-               cvData.personalInfo.phone.length > 5) {
-      extractedPhone = cvData.personalInfo.phone;
-    }
-    
-    let extractedLocation = '';
-    if (cvData?.personalInfo?.location && 
-        cvData.personalInfo.location !== 'Ej specificerat' && 
-        cvData.personalInfo.location !== 'Not specified') {
-      extractedLocation = cvData.personalInfo.location;
-    }
-    
-    // Extract skills from multiple sources with better filtering
-    let allSkills: string[] = [];
-    if (cvData?.skills) {
-      allSkills = [
-        ...(cvData.skills.technical || []),
-        ...(cvData.skills.languages || []),
-        ...(cvData.skills.tools || [])
-      ];
-    } else if (cvData?.technicalExpertise) {
-      const tech = cvData.technicalExpertise;
-      allSkills = [
-        ...(tech.programmingLanguages?.expert || []),
-        ...(tech.programmingLanguages?.proficient || []),
-        ...(tech.frameworks || []),
-        ...(tech.tools || []),
-        ...(tech.databases || [])
-      ];
-    }
-    
-    // Clean and filter skills more thoroughly
-    allSkills = allSkills.filter(skill => 
-      skill && 
-      skill.length > 1 && 
-      skill.trim() !== '' &&
-      skill !== 'Ej specificerat' && 
-      skill !== 'Not specified' &&
-      skill !== 'N/A' &&
-      skill !== 'null' &&
-      skill !== 'undefined'
-    ).map(skill => skill.trim());
-    
-    // Remove duplicates
-    allSkills = [...new Set(allSkills)];
-    
-    // Extract experience years with better parsing
-    let experienceYears = 0;
-    
-    // Try multiple sources for experience years
-    if (cvData?.experience?.years) {
-      const yearsStr = cvData.experience.years.toString();
-      const match = yearsStr.match(/(\d+)/);
-      if (match) {
-        experienceYears = parseInt(match[1]);
-      }
-    } else if (cvData?.professionalSummary?.yearsOfExperience) {
-      const yearsStr = cvData.professionalSummary.yearsOfExperience.toString();
-      const match = yearsStr.match(/(\d+)/);
-      if (match) {
-        experienceYears = parseInt(match[1]);
-      }
-    } else if (cvData?.workHistory && Array.isArray(cvData.workHistory)) {
-      // Try to calculate from work history
-      let totalYears = 0;
-      cvData.workHistory.forEach((job: any) => {
-        if (job.duration) {
-          const durationMatch = job.duration.match(/(\d+)/);
-          if (durationMatch) {
-            totalYears += parseInt(durationMatch[1]);
-          }
-        }
+    if (consultant) {
+      console.log('📊 Using consultant data:', consultant);
+      
+      // Use the consultant data directly since it's already processed
+      setExtractedData({
+        name: consultant.name || '',
+        email: consultant.email || '',
+        phone: consultant.phone || '',
+        skills: consultant.skills || [],
+        experience_years: consultant.experience_years || 0,
+        location: consultant.location || ''
       });
-      experienceYears = totalYears;
+      
+      console.log('✅ Extracted data set:', {
+        name: consultant.name,
+        email: consultant.email,
+        phone: consultant.phone,
+        skills: consultant.skills,
+        experience_years: consultant.experience_years,
+        location: consultant.location
+      });
+    } else {
+      console.warn('⚠️ No consultant data found in results');
     }
-    
-    // Ensure experience years is reasonable (between 0 and 50)
-    if (experienceYears < 0 || experienceYears > 50) {
-      experienceYears = 0;
-    }
-    
-    console.log('✅ Extracted data:', {
-      name: extractedName,
-      email: extractedEmail,
-      phone: extractedPhone,
-      location: extractedLocation,
-      skills: allSkills,
-      experience_years: experienceYears
-    });
-    
-    setExtractedData({
-      name: extractedName,
-      email: extractedEmail,
-      phone: extractedPhone,
-      skills: allSkills,
-      experience_years: experienceYears,
-      location: extractedLocation
-    });
     
     setConsultantId(results.consultant?.id || '');
     setCurrentStep('confirm');
