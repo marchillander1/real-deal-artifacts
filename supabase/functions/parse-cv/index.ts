@@ -32,207 +32,154 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // Enhanced file content extraction
+    // 🔥 FÖRBÄTTRAD PDF-TEXTEXTRAKTION
     let fileContent = '';
     let extractedText = '';
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF file...');
+        console.log('📄 Processing PDF file with improved extraction...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // Convert PDF binary to text - much improved extraction
+        // Konvertera till text och sök efter läsbar text
         const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
         let rawText = decoder.decode(uint8Array);
         
-        // Enhanced text pattern extraction for better CV parsing
-        const textPatterns = rawText.match(/[A-Za-zÅÄÖåäö0-9\s\-\+\(\)@\.\,\;\:\/\%\&\=\?\!\"\'\[\]]{3,}/g) || [];
-        extractedText = textPatterns.join(' ').replace(/\s+/g, ' ').trim();
+        // Extrahera text mellan stream/obj markörer (PDF-innehåll)
+        const streamMatches = rawText.match(/stream\s*([\s\S]*?)\s*endstream/g) || [];
+        const objMatches = rawText.match(/\d+\s+0\s+obj\s*([\s\S]*?)\s*endobj/g) || [];
         
-        // Extract structured data patterns specifically for CVs
-        const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
-        const phoneMatch = rawText.match(/[\+]?[\d\s\-\(\)]{8,}/g);
-        const nameMatch = rawText.match(/([A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+)/g);
-        const yearMatch = rawText.match(/\b(19|20)\d{2}\b/g);
-        const skillMatch = rawText.match(/\b(JavaScript|TypeScript|Python|Java|React|Angular|Vue|Node|Docker|AWS|Azure|SQL|HTML|CSS|Git|Linux)\b/gi);
+        // Kombinera alla textavsnitt
+        let allTextContent = [...streamMatches, ...objMatches].join(' ');
         
-        // Add structured markers for better AI parsing
-        if (emailMatch) extractedText += ' EMAILS: ' + emailMatch.join(', ');
-        if (phoneMatch) extractedText += ' PHONES: ' + phoneMatch.join(', ');
-        if (nameMatch) extractedText += ' NAMES: ' + nameMatch.join(', ');
-        if (yearMatch) extractedText += ' YEARS: ' + yearMatch.join(', ');
-        if (skillMatch) extractedText += ' TECH_SKILLS: ' + skillMatch.join(', ');
+        // Sök efter läsbar text med förbättrade mönster
+        const readableTextPatterns = [
+          /\b[A-ZÅÄÖ][a-zåäöé]+(?:\s+[A-ZÅÄÖ][a-zåäöé]+)+/g, // Namn
+          /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, // E-post
+          /[\+]?[\d\s\-\(\)]{8,}/g, // Telefonnummer
+          /\b(19|20)\d{2}\b/g, // År
+          /\b(JavaScript|TypeScript|Python|Java|React|Angular|Vue|Node|Docker|AWS|Azure|SQL|HTML|CSS|Git|Linux|C\#|PHP|Swift|Kotlin|Ruby|Go|Rust|Scala|MongoDB|PostgreSQL|MySQL|Firebase|Kubernetes|Jenkins|Terraform|Ansible|Scrum|Agile|DevOps|Microservices|REST|GraphQL|Machine Learning|AI|Blockchain|IoT|Cloud|Backend|Frontend|Fullstack|Senior|Junior|Lead|Manager|Developer|Engineer|Consultant|Architect)\b/gi, // Tekniska färdigheter
+          /\b(Stockholm|Göteborg|Malmö|Uppsala|Linköping|Örebro|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Södertälje|Karlstad|Täby|Sundsvall|Växjö|Halmstad|Sweden|Sverige|Denmark|Norge|Finland)\b/gi, // Platser
+          /\b[A-ZÅÄÖ][a-zåäöé\s]{2,30}(?:AB|Ltd|Inc|Corp|AS|Oy|GmbH)\b/g, // Företagsnamn
+          /\b(CEO|CTO|CFO|Developer|Engineer|Manager|Director|Lead|Senior|Junior|Consultant|Analyst|Specialist|Coordinator|Administrator|Assistant|Executive|Vice President|VP)\b/gi // Roller
+        ];
         
-        fileContent = extractedText.substring(0, 8000); // Increase limit for more content
-        console.log('📄 Extracted PDF content length:', fileContent.length);
-        console.log('📄 Sample extracted text:', fileContent.substring(0, 500));
+        let extractedParts = [];
+        readableTextPatterns.forEach(pattern => {
+          const matches = allTextContent.match(pattern) || [];
+          extractedParts.push(...matches);
+          
+          // Sök också i rå-texten
+          const rawMatches = rawText.match(pattern) || [];
+          extractedParts.push(...rawMatches);
+        });
+        
+        // Ta bort dubbletter och filtrera bort för korta strängar
+        extractedText = [...new Set(extractedParts)]
+          .filter(text => text && text.length > 2 && !text.match(/^[\d\s\-\(\)]+$/))
+          .join(' ');
+        
+        console.log('📄 Extracted readable content:', extractedText.substring(0, 500));
+        
+        // Om vi inte hittade tillräckligt med text, försök med enklare textextraktion
+        if (extractedText.length < 50) {
+          console.log('⚠️ Limited text found, trying alternative extraction...');
+          const simpleText = rawText.match(/[A-Za-zÅÄÖåäöé0-9\s\@\.\-\+\(\)]{3,}/g) || [];
+          extractedText = simpleText.join(' ');
+        }
+        
+        fileContent = extractedText.substring(0, 10000); // Öka gränsen för mer innehåll
+        console.log('📊 Final extracted content length:', fileContent.length);
+        
       } else {
-        // For other file types, try to read as text
+        // För andra filtyper, försök läsa som text
         fileContent = await file.text();
-        console.log('📄 Read file content length:', fileContent.length);
+        console.log('📄 Read text file content length:', fileContent.length);
       }
     } catch (error) {
       console.warn('⚠️ Could not extract file content:', error);
-      fileContent = `CV file: ${file.name} (${file.type}) - Could not extract text content directly`;
+      fileContent = `CV file: ${file.name} (${file.type}) - Text extraction failed, using filename analysis`;
     }
 
-    // Much more detailed and specific CV analysis prompt
-    const prompt = `You are an expert CV analyzer specializing in extracting real, accurate information from CVs. Your job is to carefully read the CV content and extract ONLY the information that is actually present.
+    // 🔥 FÖRBÄTTRAD AI-PROMPT MED EXEMPEL
+    const prompt = `Du är en expert CV-analytiker som extraherar verklig, korrekt information från CV-innehåll. Din uppgift är att noggrant läsa CV-innehållet och extrahera ENDAST information som faktiskt finns där.
 
-CV FILE: ${file.name}
-CONTENT TO ANALYZE:
+CV-FIL: ${file.name}
+INNEHÅLL ATT ANALYSERA:
 ${fileContent}
 
-CRITICAL INSTRUCTIONS:
-1. Extract ONLY real information that you can clearly see in the CV content
-2. Look for actual personal details, work experience, and skills mentioned
-3. Pay attention to structured markers like EMAILS:, PHONES:, NAMES:, TECH_SKILLS:
-4. If information is not clearly visible, use "Not specified" 
-5. Extract years of experience by looking at work history dates
-6. Identify specific technologies, programming languages, and frameworks mentioned
-7. Look for education, certifications, and achievements
-8. Calculate experience based on actual work history dates shown
+KRITISKA INSTRUKTIONER:
+1. Extrahera ENDAST verklig information som du tydligt kan se i CV-innehållet
+2. Leta efter faktiska personuppgifter, arbetslivserfarenhet och färdigheter som nämns
+3. Om information inte är tydligt synlig, använd "Not specified"
+4. Extrahera år av erfarenhet genom att titta på arbetsdatum
+5. Identifiera specifika teknologier, programmeringsspråk och ramverk som nämns
+6. Leta efter utbildning, certifieringar och prestationer
 
-Respond with this EXACT JSON format (no additional text):
+EXEMPEL PÅ KORREKT EXTRAKTION:
+- Om du ser "John Andersson", extrahera "John Andersson" (inte "Not specified")
+- Om du ser "john@example.com", extrahera "john@example.com"
+- Om du ser "React, JavaScript, Node.js", lägg till dessa i teknisk expertis
+- Om du ser "2019-2023 Senior Developer", beräkna 4 års erfarenhet
+
+Svara med detta EXAKTA JSON-format (ingen ytterligare text):
 
 {
   "personalInfo": {
-    "name": "Extract actual full name from CV or 'Not specified'",
-    "email": "Extract actual email address from CV or 'Not specified'", 
-    "phone": "Extract actual phone number from CV or 'Not specified'",
-    "location": "Extract actual city/location from CV or 'Not specified'",
-    "linkedinProfile": "Extract LinkedIn URL if found or 'Not specified'"
+    "name": "Extrahera verkligt fullständigt namn från CV eller 'Not specified'",
+    "email": "Extrahera verklig e-postadress från CV eller 'Not specified'", 
+    "phone": "Extrahera verkligt telefonnummer från CV eller 'Not specified'",
+    "location": "Extrahera verklig stad/plats från CV eller 'Not specified'",
+    "linkedinProfile": "Extrahera LinkedIn-URL om den finns eller 'Not specified'"
   },
   "professionalSummary": {
-    "yearsOfExperience": "Calculate from actual work history dates or 'Not specified'",
-    "currentRole": "Extract most recent job title or 'Not specified'",
-    "seniorityLevel": "Junior/Mid-level/Senior/Expert based on actual experience or 'Not specified'",
-    "careerTrajectory": "Growing/Stable/Senior based on career progression or 'Not specified'",
-    "industryFocus": "Extract primary industry from work experience or 'Not specified'",
-    "specializations": ["List actual specialization areas mentioned or empty array"]
+    "yearsOfExperience": "Beräkna från verkliga arbetsdatum eller 'Not specified'",
+    "currentRole": "Extrahera senaste jobbtitel eller 'Not specified'",
+    "seniorityLevel": "Junior/Mid-level/Senior/Expert baserat på verklig erfarenhet eller 'Not specified'",
+    "careerTrajectory": "Växande/Stabil/Senior baserat på karriärutveckling eller 'Not specified'",
+    "industryFocus": "Extrahera primär bransch från arbetserfarenhet eller 'Not specified'",
+    "specializations": ["Lista verkliga specialiseringsområden som nämns eller tom array"]
   },
   "technicalExpertise": {
     "programmingLanguages": {
-      "expert": ["Languages with 5+ years or marked as expert"],
-      "proficient": ["Languages with 2-4 years or marked as proficient"], 
-      "familiar": ["Languages with <2 years or marked as basic"]
+      "expert": ["Språk med 5+ år eller markerade som expert"],
+      "proficient": ["Språk med 2-4 år eller markerade som skickliga"], 
+      "familiar": ["Språk med <2 år eller markerade som grundläggande"]
     },
-    "frameworks": ["Extract all frameworks actually mentioned"],
-    "tools": ["Extract all tools and software actually mentioned"],
-    "databases": ["Extract database technologies mentioned"],
-    "cloudPlatforms": ["Extract cloud platforms mentioned"],
-    "methodologies": ["Extract methodologies like Agile, Scrum mentioned"],
-    "architecturePatterns": ["Extract architecture patterns if mentioned"],
-    "testingFrameworks": ["Extract testing tools/frameworks mentioned"]
+    "frameworks": ["Extrahera alla ramverk som faktiskt nämns"],
+    "tools": ["Extrahera alla verktyg och mjukvara som faktiskt nämns"],
+    "databases": ["Extrahera databasteknologier som nämns"],
+    "cloudPlatforms": ["Extrahera molnplattformar som nämns"],
+    "methodologies": ["Extrahera metoder som Agile, Scrum som nämns"]
   },
   "workExperience": [
     {
-      "company": "Extract actual company name",
-      "role": "Extract actual job title", 
-      "duration": "Extract actual time period",
-      "technologies": ["Technologies used in this role"],
-      "achievements": ["Specific achievements mentioned"],
-      "responsibilities": ["Key responsibilities listed"]
+      "company": "Extrahera verkligt företagsnamn",
+      "role": "Extrahera verklig jobbtitel", 
+      "duration": "Extrahera verklig tidsperiod",
+      "technologies": ["Teknologier som använts i denna roll"],
+      "achievements": ["Specifika prestationer som nämns"]
     }
   ],
   "education": {
-    "degrees": ["Extract educational qualifications with institutions"],
-    "certifications": ["Extract professional certifications mentioned"],
-    "training": ["Extract training courses mentioned"],
-    "academicAchievements": ["Extract academic honors if mentioned"]
-  },
-  "softSkills": {
-    "communication": ["Extract communication skills mentioned"],
-    "leadership": ["Extract leadership experience mentioned"],
-    "problemSolving": ["Extract problem-solving examples"],
-    "teamwork": ["Extract teamwork examples"],
-    "projectManagement": ["Extract project management experience"]
-  },
-  "certificationRecommendations": {
-    "immediate": [
-      {
-        "certification": "AWS Solutions Architect Associate",
-        "priority": "High",
-        "reason": "Cloud skills are in high demand",
-        "timeToComplete": "2-3 months",
-        "marketValue": "+150-250 SEK/h potential increase"
-      }
-    ],
-    "longTerm": [
-      {
-        "certification": "Project Management Professional (PMP)",
-        "priority": "Medium", 
-        "reason": "Leadership certification for senior roles",
-        "timeToComplete": "3-4 months",
-        "marketValue": "+200-300 SEK/h potential increase"
-      }
-    ]
-  },
-  "technicalAssessment": {
-    "strengths": ["List technical strengths based on actual experience"],
-    "skillGaps": ["Identify missing high-value skills"],
-    "improvementAreas": [
-      {
-        "area": "Cloud Technologies",
-        "priority": "High",
-        "reasoning": "Critical for modern consulting",
-        "timeline": "3-6 months"
-      }
-    ],
-    "marketReadiness": 7,
-    "technicalMaturity": "Mid-level"
-  },
-  "profileOptimization": {
-    "cvImprovements": [
-      {
-        "section": "Technical Skills",
-        "suggestion": "Add clear proficiency levels",
-        "impact": "Higher visibility in searches"
-      }
-    ],
-    "linkedinOptimization": [
-      {
-        "area": "Professional Headline",
-        "recommendation": "Update with consulting availability",
-        "priority": "High"
-      }
-    ]
-  },
-  "growthPotential": {
-    "careerTrajectory": "Projected path based on current skills",
-    "rateGrowthPotential": {
-      "currentEstimate": "1000 SEK/h",
-      "sixMonthPotential": "1200 SEK/h",
-      "oneYearPotential": "1400 SEK/h",
-      "factors": ["Cloud certifications", "Leadership experience"]
-    },
-    "skillDevelopmentPath": [
-      {
-        "skill": "Cloud Architecture",
-        "timeline": "6 months",
-        "marketImpact": "High demand skill"
-      }
-    ]
+    "degrees": ["Extrahera utbildningskvalifikationer med institutioner"],
+    "certifications": ["Extrahera professionella certifieringar som nämns"]
   },
   "marketPositioning": {
     "hourlyRateEstimate": {
       "min": 800,
-      "max": 1200, 
+      "max": 1200,
       "recommended": 1000,
       "currency": "SEK",
-      "explanation": "Based on experience and skills in Swedish market"
-    },
-    "targetRoles": ["List suitable consulting roles"],
-    "competitiveAdvantages": ["List unique selling points"],
-    "marketDemand": "High",
-    "nicheOpportunities": ["Identify niche market opportunities"]
+      "explanation": "Baserat på erfarenhet och färdigheter på svenska marknaden"
+    }
   },
-  "languages": ["Extract spoken languages with proficiency levels"]
+  "languages": ["Extrahera talade språk med kunskapsnivåer"]
 }
 
-EXTRACT ONLY REAL INFORMATION FROM THE CV CONTENT. Use "Not specified" for missing data.
-RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
+EXTRAHERA ENDAST VERKLIG INFORMATION FRÅN CV-INNEHÅLLET. Använd "Not specified" för saknad data.
+SVARA MED ENDAST JSON-OBJEKTET - INGEN YTTERLIGARE TEXT ELLER FÖRKLARINGAR.`;
 
     console.log('🤖 Sending enhanced CV content to GROQ for detailed analysis');
 
@@ -247,14 +194,14 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
         messages: [
           {
             role: 'system',
-            content: 'You are an expert CV analyzer that extracts comprehensive, accurate information from CVs. You only extract information that is clearly present in the CV content and use "Not specified" for missing information.'
+            content: 'Du är en expert CV-analytiker som extraherar verklig, korrekt information från CV-innehåll. Du extraherar endast information som tydligt finns i CV-innehållet och använder "Not specified" för saknad information.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.1, // Lower temperature for more consistent extraction
+        temperature: 0.1,
         max_tokens: 4000,
       }),
     });
@@ -275,7 +222,7 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
         throw new Error('No content in GROQ response');
       }
 
-      // Extract JSON from response more reliably
+      // Extrahera JSON från svar mer tillförlitligt
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
@@ -286,8 +233,7 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
           hasRealEmail: analysis.personalInfo?.email !== 'Not specified',
           technicalSkillsCount: (analysis.technicalExpertise?.programmingLanguages?.expert?.length || 0) + 
                                (analysis.technicalExpertise?.programmingLanguages?.proficient?.length || 0),
-          workExperienceCount: analysis.workExperience?.length || 0,
-          certificationRecommendations: analysis.certificationRecommendations?.immediate?.length || 0
+          workExperienceCount: analysis.workExperience?.length || 0
         });
       } else {
         throw new Error('No valid JSON found in response');
@@ -296,7 +242,7 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
       console.error('❌ Failed to parse GROQ response:', parseError);
       console.log('Raw GROQ response:', groqData.choices[0]?.message?.content);
       
-      // Enhanced fallback with more realistic sample data
+      // Fallback med mer realistisk exempeldata
       analysis = {
         personalInfo: {
           name: 'Not specified',
@@ -319,110 +265,27 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
           tools: [],
           databases: [],
           cloudPlatforms: [],
-          methodologies: [],
-          architecturePatterns: [],
-          testingFrameworks: []
+          methodologies: []
         },
         workExperience: [],
-        education: { degrees: [], certifications: [], training: [], academicAchievements: [] },
-        softSkills: { 
-          communication: [], 
-          leadership: [], 
-          problemSolving: [], 
-          teamwork: [],
-          projectManagement: []
-        },
-        certificationRecommendations: {
-          immediate: [
-            {
-              certification: "AWS Solutions Architect Associate",
-              priority: "High",
-              reason: "Cloud skills are in extremely high demand",
-              timeToComplete: "2-3 months",
-              marketValue: "+150-250 SEK/h potential increase"
-            }
-          ],
-          longTerm: [
-            {
-              certification: "Project Management Professional (PMP)",
-              priority: "Medium",
-              reason: "Leadership certification for senior consulting roles",
-              timeToComplete: "3-4 months",
-              marketValue: "+200-300 SEK/h potential increase"
-            }
-          ]
-        },
-        technicalAssessment: {
-          strengths: ["To be determined from CV analysis"],
-          skillGaps: ["Cloud technologies", "Modern frameworks"],
-          improvementAreas: [
-            {
-              area: "Cloud Technologies",
-              priority: "High",
-              reasoning: "Critical for modern consulting assignments",
-              timeline: "3-6 months"
-            }
-          ],
-          marketReadiness: 6,
-          technicalMaturity: "Mid-level"
-        },
-        profileOptimization: {
-          cvImprovements: [
-            {
-              section: "Technical Skills",
-              suggestion: "Add clear proficiency levels for each technology",
-              impact: "Higher visibility in consultant searches"
-            }
-          ],
-          linkedinOptimization: [
-            {
-              area: "Professional Headline",
-              recommendation: "Update headline to show consulting availability",
-              priority: "High"
-            }
-          ]
-        },
-        growthPotential: {
-          careerTrajectory: "Potential for senior consultant roles",
-          rateGrowthPotential: {
-            currentEstimate: "1000 SEK/h",
-            sixMonthPotential: "1200 SEK/h",
-            oneYearPotential: "1400 SEK/h",
-            factors: ["Cloud certifications", "Specialized skills", "Market positioning"]
-          },
-          skillDevelopmentPath: [
-            {
-              skill: "Cloud Architecture",
-              timeline: "6 months",
-              marketImpact: "High demand skill with premium rates"
-            }
-          ]
-        },
+        education: { degrees: [], certifications: [] },
         marketPositioning: {
           hourlyRateEstimate: {
-            min: 800,
-            max: 1200,
-            recommended: 1000,
+            min: 700,
+            max: 1100,
+            recommended: 900,
             currency: 'SEK',
-            explanation: 'Estimated rate based on Swedish consulting market.'
-          },
-          targetRoles: ['Consultant', 'Senior Developer', 'Technical Consultant'],
-          competitiveAdvantages: ["To be determined from detailed CV analysis"],
-          marketDemand: 'High',
-          nicheOpportunities: ["Cloud migration", "Digital transformation"]
+            explanation: 'Baserat på svenska konsultmarknaden.'
+          }
         },
         languages: []
       };
     }
 
-    // Create enhanced analysis results with all sections filled
+    // Skapa förbättrade analysresultat
     const enhancedAnalysisResults = {
       cvAnalysis: analysis,
-      linkedinAnalysis: null,
-      certificationRecommendations: analysis.certificationRecommendations,
-      technicalAssessment: analysis.technicalAssessment,
-      profileOptimization: analysis.profileOptimization,
-      growthPotential: analysis.growthPotential
+      linkedinAnalysis: null
     };
 
     console.log('✅ Enhanced CV analysis completed with comprehensive data');
@@ -441,7 +304,7 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
   } catch (error) {
     console.error('❌ CV parsing error:', error);
     
-    // Return enhanced fallback for errors with meaningful data
+    // Returnera förbättrad fallback för fel
     const fallbackAnalysis = {
       personalInfo: {
         name: 'Not specified',
@@ -464,108 +327,25 @@ RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT OR EXPLANATIONS.`;
         tools: [],
         databases: [],
         cloudPlatforms: [],
-        methodologies: [],
-        architecturePatterns: [],
-        testingFrameworks: []
+        methodologies: []
       },
       workExperience: [],
-      education: { degrees: [], certifications: [], training: [], academicAchievements: [] },
-      softSkills: { 
-        communication: [], 
-        leadership: [], 
-        problemSolving: [], 
-        teamwork: [],
-        projectManagement: []
-      },
-      certificationRecommendations: {
-        immediate: [
-          {
-            certification: "AWS Solutions Architect Associate",
-            priority: "High", 
-            reason: "Cloud expertise is highly valued in consulting",
-            timeToComplete: "2-3 months",
-            marketValue: "+150-250 SEK/h increase"
-          }
-        ],
-        longTerm: [
-          {
-            certification: "Advanced Project Management",
-            priority: "Medium",
-            reason: "Leadership skills for senior consulting",
-            timeToComplete: "4-6 months", 
-            marketValue: "+200-300 SEK/h increase"
-          }
-        ]
-      },
-      technicalAssessment: {
-        strengths: ["Professional experience", "Technical background"],
-        skillGaps: ["Cloud technologies", "Modern development practices"],
-        improvementAreas: [
-          {
-            area: "Cloud Platform Skills",
-            priority: "High",
-            reasoning: "Essential for modern consulting engagements",
-            timeline: "3-6 months"
-          }
-        ],
-        marketReadiness: 6,
-        technicalMaturity: "Developing"
-      },
-      profileOptimization: {
-        cvImprovements: [
-          {
-            section: "Skills Section",
-            suggestion: "Add specific technology proficiency levels",
-            impact: "Better matching with client needs"
-          }
-        ],
-        linkedinOptimization: [
-          {
-            area: "Profile Summary",
-            recommendation: "Highlight consulting availability and expertise", 
-            priority: "High"
-          }
-        ]
-      },
-      growthPotential: {
-        careerTrajectory: "Strong potential for consulting growth",
-        rateGrowthPotential: {
-          currentEstimate: "900 SEK/h",
-          sixMonthPotential: "1100 SEK/h",
-          oneYearPotential: "1300 SEK/h",
-          factors: ["Skill development", "Market positioning", "Certifications"]
-        },
-        skillDevelopmentPath: [
-          {
-            skill: "Cloud Technologies",
-            timeline: "6 months", 
-            marketImpact: "High-value skill with strong market demand"
-          }
-        ]
-      },
+      education: { degrees: [], certifications: [] },
       marketPositioning: {
         hourlyRateEstimate: {
           min: 700,
           max: 1100,
           recommended: 900,
           currency: 'SEK',
-          explanation: 'Based on Swedish consulting market standards.'
-        },
-        targetRoles: ['Technical Consultant', 'Software Developer', 'Solutions Consultant'],
-        competitiveAdvantages: ["Technical expertise", "Problem-solving skills"],
-        marketDemand: 'Medium',
-        nicheOpportunities: ["Digital transformation", "Technical consulting"]
+          explanation: 'Baserat på svenska konsultmarknaden.'
+        }
       },
       languages: ['Swedish', 'English']
     };
 
     const fallbackEnhancedResults = {
       cvAnalysis: fallbackAnalysis,
-      linkedinAnalysis: null,
-      certificationRecommendations: fallbackAnalysis.certificationRecommendations,
-      technicalAssessment: fallbackAnalysis.technicalAssessment,
-      profileOptimization: fallbackAnalysis.profileOptimization,
-      growthPotential: fallbackAnalysis.growthPotential
+      linkedinAnalysis: null
     };
 
     return new Response(
