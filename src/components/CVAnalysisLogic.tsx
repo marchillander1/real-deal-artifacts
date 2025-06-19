@@ -26,7 +26,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   onAnalysisProgress
 }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<any>(null);
+  const [analysisCompleted, setAnalysisCompleted] = useState(false);
   const { toast } = useToast();
 
   const isValidLinkedInUrl = (url: string) => {
@@ -37,13 +37,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   // Auto-trigger analysis när båda file och LinkedIn URL finns
   useEffect(() => {
     const hasValidLinkedIn = isValidLinkedInUrl(linkedinUrl);
-    const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysis;
+    const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysisCompleted;
     
     console.log('🤖 Auto-trigger check:', {
       hasFile: !!file,
       hasValidLinkedIn,
       isAnalyzing,
-      hasAnalysis: !!analysis,
+      analysisCompleted,
       shouldStartAnalysis
     });
 
@@ -51,12 +51,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('🚀 Auto-triggering analysis');
       handleAnalysis();
     }
-  }, [file, linkedinUrl, isAnalyzing, analysis]);
+  }, [file, linkedinUrl, isAnalyzing, analysisCompleted]);
 
   // Reset analysis när file eller URL ändras
   useEffect(() => {
     console.log('🔄 Resetting analysis due to input change');
-    setAnalysis(null);
+    setAnalysisCompleted(false);
   }, [file, linkedinUrl]);
 
   const handleAnalysis = async () => {
@@ -103,7 +103,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         detected: detectedInfo
       });
       
-      setAnalysis({ cvAnalysis: cvResponse.data });
       onAnalysisProgress(50);
 
       // Steg 2: LinkedIn-analys
@@ -166,16 +165,36 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
-      // Skills extraktion
-      const allSkills = [
-        ...(cvAnalysisData?.skills?.technical || []),
-        ...(cvAnalysisData?.skills?.languages || []),
-        ...(cvAnalysisData?.skills?.tools || [])
-      ].filter(skill => skill && skill.length > 0 && skill !== 'Ej specificerat');
+      // Skills extraktion - handle both old and new structure
+      let allSkills = [];
+      if (cvAnalysisData?.skills) {
+        allSkills = [
+          ...(cvAnalysisData.skills.technical || []),
+          ...(cvAnalysisData.skills.languages || []),
+          ...(cvAnalysisData.skills.tools || [])
+        ];
+      } else if (cvAnalysisData?.technicalExpertise) {
+        // Handle new structure
+        const tech = cvAnalysisData.technicalExpertise;
+        allSkills = [
+          ...(tech.programmingLanguages?.expert || []),
+          ...(tech.programmingLanguages?.proficient || []),
+          ...(tech.programmingLanguages?.familiar || []),
+          ...(tech.frameworks || []),
+          ...(tech.tools || []),
+          ...(tech.databases || [])
+        ];
+      }
       
-      const experienceYears = cvAnalysisData?.experience?.years !== 'Ej specificerat' 
-        ? parseInt(cvAnalysisData.experience.years.toString().match(/\d+/)?.[0] || '5') 
-        : 5;
+      allSkills = allSkills.filter(skill => skill && skill.length > 0 && skill !== 'Ej specificerat');
+      
+      // Experience years - handle both old and new structure
+      let experienceYears = 5;
+      if (cvAnalysisData?.experience?.years && cvAnalysisData.experience.years !== 'Ej specificerat') {
+        experienceYears = parseInt(cvAnalysisData.experience.years.toString().match(/\d+/)?.[0] || '5');
+      } else if (cvAnalysisData?.professionalSummary?.yearsOfExperience && cvAnalysisData.professionalSummary.yearsOfExperience !== 'Not specified') {
+        experienceYears = parseInt(cvAnalysisData.professionalSummary.yearsOfExperience.toString().match(/\d+/)?.[0] || '5');
+      }
       
       const hourlyRate = 1000; // Default hourly rate
       
@@ -202,7 +221,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         communication_style: linkedinData?.communicationStyle || 'Professionell kommunikation',
         rating: 4.8,
         projects_completed: 0,
-        roles: cvAnalysisData?.workHistory?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Ej specificerat') || [cvAnalysisData?.experience?.currentRole || 'Konsult'],
+        roles: cvAnalysisData?.workHistory?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Ej specificerat') || [cvAnalysisData?.experience?.currentRole || cvAnalysisData?.professionalSummary?.currentRole || 'Konsult'],
         certifications: [],
         type: isMyConsultant ? 'existing' : 'new',
         user_id: isMyConsultant ? 'temp-user-id' : null,
@@ -270,6 +289,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         }
       };
 
+      setAnalysisCompleted(true);
       onAnalysisComplete(completeAnalysisResults);
 
       toast({
