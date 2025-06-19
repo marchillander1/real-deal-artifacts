@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,17 +57,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
       id: '1',
       text: `👋 **Welcome to MatchWise AI!**
 
-I'm your personal consultant career advisor, powered by advanced AI.
-
-**🚀 What I can help you with:**
-
-💼 **Career Development** - Technical progression strategies  
-💰 **Market Positioning** - Competitive rates & negotiation  
-📊 **Profile Optimization** - CV and LinkedIn enhancement  
-🎯 **Skill Development** - High-value certifications & technologies  
-🤝 **Client Relations** - Business development strategies
-
-*Ask me anything about advancing your consulting career!*`,
+I'm your personal consultant career advisor, powered by advanced AI.`,
       sender: 'bot',
       timestamp: new Date()
     }
