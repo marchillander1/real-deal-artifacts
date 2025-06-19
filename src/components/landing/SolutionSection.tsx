@@ -22,7 +22,7 @@ export default function SolutionSection() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Values & Personality</h3>
-                <p className="text-slate-300">
+                <p className="text-slate-200 text-base leading-relaxed">
                   AI analyzes communication style, work approach, and personal values for deep compatibility
                 </p>
               </div>
@@ -34,7 +34,7 @@ export default function SolutionSection() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Cultural Fit</h3>
-                <p className="text-slate-300">
+                <p className="text-slate-200 text-base leading-relaxed">
                   Advanced algorithms match team dynamics, leadership style, and adaptability
                 </p>
               </div>
@@ -46,14 +46,14 @@ export default function SolutionSection() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Communication Style</h3>
-                <p className="text-slate-300">
+                <p className="text-slate-200 text-base leading-relaxed">
                   Identifies and matches communication types for optimal team harmony and productivity
                 </p>
               </div>
             </div>
           </div>
 
-          <Card className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-slate-800/80 border-slate-600 backdrop-blur-sm">
             <CardContent className="p-8">
               <h3 className="text-2xl font-bold text-white mb-6">How It Works</h3>
               
@@ -61,24 +61,24 @@ export default function SolutionSection() {
                 <div className="flex items-center space-x-4 group hover:scale-105 transition-transform">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg">1</div>
                   <div>
-                    <h4 className="font-semibold text-white">Upload CV & Requirements</h4>
-                    <p className="text-slate-400 text-sm">Define both technical and soft requirements for the project</p>
+                    <h4 className="font-semibold text-white text-base">Upload CV & Requirements</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Define both technical and soft requirements for the project</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4 group hover:scale-105 transition-transform">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg">2</div>
                   <div>
-                    <h4 className="font-semibold text-white">Human-First AI Analysis</h4>
-                    <p className="text-slate-400 text-sm">AI analyzes values, communication, and personality</p>
+                    <h4 className="font-semibold text-white text-base">Human-First AI Analysis</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">AI analyzes values, communication, and personality</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4 group hover:scale-105 transition-transform">
                   <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg">3</div>
                   <div>
-                    <h4 className="font-semibold text-white">Perfect Human Match</h4>
-                    <p className="text-slate-400 text-sm">Get ranked candidates based on holistic fit</p>
+                    <h4 className="font-semibold text-white text-base">Perfect Human Match</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Get ranked candidates based on holistic fit</p>
                   </div>
                 </div>
               </div>

@@ -16,14 +16,14 @@ export default function ComparisonSection() {
 
         <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Traditional Matching */}
-          <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-slate-900/80 border-slate-700 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="text-center mb-8">
                 <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <X className="w-8 h-8 text-red-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">Traditional CV Matching</h3>
-                <p className="text-slate-400">Skills-only approach with high failure rates</p>
+                <p className="text-slate-300 text-base">Skills-only approach with high failure rates</p>
               </div>
               
               <div className="space-y-6">
@@ -32,8 +32,8 @@ export default function ComparisonSection() {
                     <X className="w-4 h-4 text-red-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">Skills-Only Focus</h4>
-                    <p className="text-slate-300 text-sm">Matches based purely on technical competencies, ignoring personality and cultural fit</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">Skills-Only Focus</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Matches based purely on technical competencies, ignoring personality and cultural fit</p>
                   </div>
                 </div>
 
@@ -42,8 +42,8 @@ export default function ComparisonSection() {
                     <X className="w-4 h-4 text-red-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">40% Failure Rate</h4>
-                    <p className="text-slate-300 text-sm">High project failure due to poor team chemistry and communication issues</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">40% Failure Rate</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">High project failure due to poor team chemistry and communication issues</p>
                   </div>
                 </div>
 
@@ -52,8 +52,8 @@ export default function ComparisonSection() {
                     <X className="w-4 h-4 text-red-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">15+ Hours Per Hire</h4>
-                    <p className="text-slate-300 text-sm">Time-consuming process with multiple interview rounds and assessments</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">15+ Hours Per Hire</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Time-consuming process with multiple interview rounds and assessments</p>
                   </div>
                 </div>
 
@@ -62,8 +62,8 @@ export default function ComparisonSection() {
                     <X className="w-4 h-4 text-red-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">€250K Annual Cost</h4>
-                    <p className="text-slate-300 text-sm">Expensive mistakes from poor fits leading to project restarts and delays</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">€250K Annual Cost</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Expensive mistakes from poor fits leading to project restarts and delays</p>
                   </div>
                 </div>
               </div>
@@ -71,14 +71,14 @@ export default function ComparisonSection() {
           </Card>
 
           {/* MatchWise AI */}
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border-emerald-500/30 backdrop-blur-sm">
+          <Card className="bg-slate-800/80 border-emerald-500/30 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="text-center mb-8">
                 <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-emerald-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">MatchWise AI Human-First</h3>
-                <p className="text-slate-400">Complete person analysis with superior results</p>
+                <p className="text-slate-300 text-base">Complete person analysis with superior results</p>
               </div>
               
               <div className="space-y-6">
@@ -87,8 +87,8 @@ export default function ComparisonSection() {
                     <Check className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">Holistic Analysis</h4>
-                    <p className="text-slate-300 text-sm">Analyzes technical skills + personality + values + communication style for perfect fit</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">Holistic Analysis</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Analyzes technical skills + personality + values + communication style for perfect fit</p>
                   </div>
                 </div>
 
@@ -97,8 +97,8 @@ export default function ComparisonSection() {
                     <Check className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">96% Success Rate</h4>
-                    <p className="text-slate-300 text-sm">Superior human fit leads to better team chemistry and project outcomes</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">96% Success Rate</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Superior human fit leads to better team chemistry and project outcomes</p>
                   </div>
                 </div>
 
@@ -107,8 +107,8 @@ export default function ComparisonSection() {
                     <Check className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">12-Second Analysis</h4>
-                    <p className="text-slate-300 text-sm">AI processes years of experience and personality data instantly</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">12-Second Analysis</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">AI processes years of experience and personality data instantly</p>
                   </div>
                 </div>
 
@@ -117,8 +117,8 @@ export default function ComparisonSection() {
                     <Check className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <h4 className="text-white font-semibold mb-1">€210K Annual Savings</h4>
-                    <p className="text-slate-300 text-sm">Massive cost reduction through better human fit and reduced failures</p>
+                    <h4 className="text-white font-semibold mb-1 text-base">€210K Annual Savings</h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">Massive cost reduction through better human fit and reduced failures</p>
                   </div>
                 </div>
               </div>
@@ -127,10 +127,10 @@ export default function ComparisonSection() {
         </div>
 
         <div className="text-center mt-16">
-          <Card className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/50 inline-block backdrop-blur-sm">
+          <Card className="bg-slate-800/80 border-blue-500/30 inline-block backdrop-blur-sm">
             <CardContent className="p-8">
-              <div className="text-5xl font-bold text-white mb-2">75x Faster</div>
-              <div className="text-blue-300 text-lg">with 36% higher satisfaction</div>
+              <div className="text-6xl font-bold text-white mb-4">75x Faster</div>
+              <div className="text-blue-300 text-xl font-medium">with 36% higher satisfaction</div>
             </CardContent>
           </Card>
         </div>
