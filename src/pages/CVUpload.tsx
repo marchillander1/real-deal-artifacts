@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CVUploadForm } from '@/components/CVUploadForm';
 import { CVAnalysisLogic } from '@/components/CVAnalysisLogic';
@@ -59,55 +58,101 @@ const CVUpload: React.FC = () => {
     setLinkedinUrl(value);
   };
 
-  const handleAnalysisComplete = (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any }) => {
+  const handleAnalysisComplete = (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any; enhancedAnalysisResults?: any }) => {
     console.log('✅ Analysis complete received in CVUpload:', analysis);
     setAnalysisResults(analysis);
     setIsAnalyzing(false);
     setAnalysisProgress(100);
     
-    // 🔥 ENHANCED AUTOFILL: Correct mapping from CV analysis
+    // 🔥 IMPROVED AUTOFILL: Enhanced mapping from both CV and LinkedIn analysis
     const cvData = analysis.cvAnalysis?.analysis;
+    const enhancedData = analysis.enhancedAnalysisResults;
+    const detectedInfo = enhancedData?.detectedInformation;
+    
+    console.log('📝 Full analysis data for auto-fill:', {
+      cvData: cvData?.personalInfo,
+      detectedInfo,
+      enhancedData
+    });
+    
     if (cvData) {
-      console.log('📝 Auto-filling form from CV analysis:', cvData.personalInfo);
+      // Priority 1: Use CV analysis personal info
+      const cvPersonalInfo = cvData.personalInfo;
       
-      // Auto-fill name from personalInfo
-      if (cvData.personalInfo?.name && 
-          cvData.personalInfo.name !== 'Not specified' && 
-          cvData.personalInfo.name !== 'Analysis in progress' && 
-          cvData.personalInfo.name !== 'Professional Consultant' &&
-          cvData.personalInfo.name !== 'John Doe' &&
-          cvData.personalInfo.name.length > 2) {
-        console.log('📝 Auto-filling name from CV:', cvData.personalInfo.name);
-        setFullName(cvData.personalInfo.name);
+      // Auto-fill name - try multiple sources
+      let extractedName = '';
+      if (cvPersonalInfo?.name && 
+          cvPersonalInfo.name !== 'Not specified' && 
+          cvPersonalInfo.name !== 'Analysis in progress' && 
+          cvPersonalInfo.name !== 'Professional Consultant' &&
+          cvPersonalInfo.name !== 'John Doe' &&
+          cvPersonalInfo.name.length > 2) {
+        extractedName = cvPersonalInfo.name;
+      } else if (detectedInfo?.names && detectedInfo.names.length > 0) {
+        // Fallback to detected names from enhanced analysis
+        extractedName = detectedInfo.names.find(name => 
+          name && name.length > 2 && !name.includes('If Gt')
+        ) || '';
       }
       
-      // Auto-fill email from personalInfo
-      if (cvData.personalInfo?.email && 
-          cvData.personalInfo.email !== 'Not specified' &&
-          cvData.personalInfo.email !== 'analysis@example.com' && 
-          cvData.personalInfo.email !== 'consultant@example.com' &&
-          cvData.personalInfo.email !== 'johndoe@email.com' &&
-          cvData.personalInfo.email.includes('@') &&
-          cvData.personalInfo.email.includes('.')) {
-        console.log('📧 Auto-filling email from CV:', cvData.personalInfo.email);
-        setEmail(cvData.personalInfo.email);
+      if (extractedName) {
+        console.log('📝 Auto-filling name from analysis:', extractedName);
+        setFullName(extractedName);
       }
       
-      // Auto-fill phone from personalInfo
-      if (cvData.personalInfo?.phone && 
-          cvData.personalInfo.phone !== 'Not specified' &&
-          cvData.personalInfo.phone !== '+46 70 123 4567' && 
-          cvData.personalInfo.phone !== '+1 555 123 4567' &&
-          cvData.personalInfo.phone.length > 5) {
-        console.log('📞 Auto-filling phone from CV:', cvData.personalInfo.phone);
-        setPhoneNumber(cvData.personalInfo.phone);
+      // Auto-fill email - try multiple sources
+      let extractedEmail = '';
+      if (cvPersonalInfo?.email && 
+          cvPersonalInfo.email !== 'Not specified' &&
+          cvPersonalInfo.email !== 'analysis@example.com' && 
+          cvPersonalInfo.email !== 'consultant@example.com' &&
+          cvPersonalInfo.email !== 'johndoe@email.com' &&
+          cvPersonalInfo.email.includes('@') &&
+          cvPersonalInfo.email.includes('.')) {
+        extractedEmail = cvPersonalInfo.email;
+      } else if (detectedInfo?.emails && detectedInfo.emails.length > 0) {
+        // Fallback to detected emails from enhanced analysis
+        extractedEmail = detectedInfo.emails.find(email => 
+          email && email.includes('@') && email.includes('.')
+        ) || '';
+      }
+      
+      if (extractedEmail) {
+        console.log('📧 Auto-filling email from analysis:', extractedEmail);
+        setEmail(extractedEmail);
+      }
+      
+      // Auto-fill phone - try multiple sources
+      let extractedPhone = '';
+      if (cvPersonalInfo?.phone && 
+          cvPersonalInfo.phone !== 'Not specified' &&
+          cvPersonalInfo.phone !== '+46 70 123 4567' && 
+          cvPersonalInfo.phone !== '+1 555 123 4567' &&
+          cvPersonalInfo.phone.length > 5) {
+        extractedPhone = cvPersonalInfo.phone;
+      } else if (detectedInfo?.phones && detectedInfo.phones.length > 0) {
+        // Fallback to detected phones from enhanced analysis
+        extractedPhone = detectedInfo.phones.find(phone => 
+          phone && phone.length > 5 && !phone.includes('0000000000')
+        ) || '';
+      }
+      
+      if (extractedPhone) {
+        console.log('📞 Auto-filling phone from analysis:', extractedPhone);
+        setPhoneNumber(extractedPhone);
       }
     }
     
-    // Show toast with extraction results
+    // Show detailed toast with extraction results
+    const extractionSummary = {
+      name: fullName || 'Not detected',
+      email: email || 'Not detected', 
+      phone: phoneNumber || 'Not detected'
+    };
+    
     toast({
       title: "CV analysis complete!",
-      description: `Personal information extracted: ${cvData?.personalInfo?.name || 'Name not found'}, ${cvData?.personalInfo?.email || 'Email not found'}`,
+      description: `Information extracted: ${extractionSummary.name}, ${extractionSummary.email}`,
     });
   };
 

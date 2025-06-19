@@ -149,16 +149,18 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         throw new Error(`CV analysis failed: ${cvResponse.error.message}`);
       }
 
-      // Extract analysis data
+      // Extract analysis data with enhanced fallback handling
       const cvAnalysisData = cvResponse.data.analysis;
       const enhancedAnalysisResults = cvResponse.data.enhancedAnalysisResults;
       
-      console.log('📋 Extracted CV data with personal info:', {
+      console.log('📋 Extracted CV data with enhanced results:', {
         personalInfo: cvAnalysisData?.personalInfo,
         hasRealName: cvAnalysisData?.personalInfo?.name !== 'Not specified',
         hasRealEmail: cvAnalysisData?.personalInfo?.email !== 'Not specified',
         hasRealPhone: cvAnalysisData?.personalInfo?.phone !== 'Not specified',
-        location: cvAnalysisData?.personalInfo?.location
+        location: cvAnalysisData?.personalInfo?.location,
+        detectedInfo: enhancedAnalysisResults?.detectedInformation,
+        extractionStats: enhancedAnalysisResults?.extractionStats
       });
       
       setAnalysis(cvResponse.data);
@@ -198,17 +200,44 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
-      // Create consultant profile using REAL extracted data from CV analysis
+      // Create consultant profile using REAL extracted data from CV analysis with enhanced fallback
       const cvPersonalInfo = cvAnalysisData?.personalInfo || {};
       const cvProfessionalSummary = cvAnalysisData?.professionalSummary || {};
       const cvTechnicalExpertise = cvAnalysisData?.technicalExpertise || {};
       const cvMarketPositioning = cvAnalysisData?.marketPositioning || {};
+      const detectedInfo = enhancedAnalysisResults?.detectedInformation || {};
       
-      // Use REAL extracted data from CV analysis with safe parsing
-      const extractedName = safeGetString(cvPersonalInfo.name);
-      const extractedEmail = safeGetString(cvPersonalInfo.email);
-      const extractedPhone = safeGetString(cvPersonalInfo.phone);
-      const extractedLocation = safeGetString(cvPersonalInfo.location);
+      // 🔥 ENHANCED DATA EXTRACTION: Use multiple sources with priority
+      // Priority 1: CV analysis personal info
+      // Priority 2: Enhanced detected information
+      // Priority 3: Form data
+      // Priority 4: Defaults
+      
+      let extractedName = safeGetString(cvPersonalInfo.name);
+      if (!extractedName && detectedInfo.names && detectedInfo.names.length > 0) {
+        extractedName = detectedInfo.names.find(name => 
+          name && name.length > 2 && !name.includes('If Gt')
+        ) || '';
+      }
+      
+      let extractedEmail = safeGetString(cvPersonalInfo.email);
+      if (!extractedEmail && detectedInfo.emails && detectedInfo.emails.length > 0) {
+        extractedEmail = detectedInfo.emails.find(email => 
+          email && email.includes('@') && email.includes('.')
+        ) || '';
+      }
+      
+      let extractedPhone = safeGetString(cvPersonalInfo.phone);
+      if (!extractedPhone && detectedInfo.phones && detectedInfo.phones.length > 0) {
+        extractedPhone = detectedInfo.phones.find(phone => 
+          phone && phone.length > 5 && !phone.includes('0000000000')
+        ) || '';
+      }
+      
+      let extractedLocation = safeGetString(cvPersonalInfo.location);
+      if (!extractedLocation && detectedInfo.locations && detectedInfo.locations.length > 0) {
+        extractedLocation = detectedInfo.locations[0] || '';
+      }
       
       // Final values - prioritize extracted CV data over form data for better accuracy
       const finalName = extractedName || formName || 'Consultant';
@@ -216,13 +245,16 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       const finalPhone = extractedPhone;
       const finalLocation = extractedLocation;
       
-      // Extract real skills and roles from CV
-      const allSkills = [
+      // Extract real skills from multiple sources
+      const cvSkills = [
         ...(cvTechnicalExpertise.programmingLanguages?.expert || []),
         ...(cvTechnicalExpertise.programmingLanguages?.proficient || []),
         ...(cvTechnicalExpertise.frameworks || []),
         ...(cvTechnicalExpertise.tools || [])
       ].filter(skill => skill && skill.length > 0);
+      
+      const detectedSkills = detectedInfo.skills || [];
+      const allSkills = [...new Set([...cvSkills, ...detectedSkills])];
       
       // Extract real roles from work experience
       const realRoles = cvAnalysisData?.workExperience?.map(exp => exp.role).filter(role => role && role !== 'Not specified') || [];
@@ -234,7 +266,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       // Safe parsing for hourly rate
       const hourlyRate = safeParseInt(cvMarketPositioning?.hourlyRateEstimate?.recommended, 800);
       
-      console.log('💾 Creating consultant profile with REAL extracted CV data:', {
+      console.log('💾 Creating consultant profile with ENHANCED extracted data:', {
         finalName,
         finalEmail,
         finalPhone,
@@ -249,6 +281,12 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
           email: extractedEmail,
           phone: extractedPhone,
           location: extractedLocation
+        },
+        detectedInfo: {
+          namesCount: detectedInfo.names?.length || 0,
+          emailsCount: detectedInfo.emails?.length || 0,
+          phonesCount: detectedInfo.phones?.length || 0,
+          skillsCount: detectedInfo.skills?.length || 0
         }
       });
 
@@ -282,7 +320,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         linkedin_analysis_data: linkedinData
       };
 
-      console.log('💾 Inserting consultant data with extracted information');
+      console.log('💾 Inserting consultant data with enhanced extracted information');
 
       const { data: insertedConsultant, error: insertError } = await supabase
         .from('consultants')
