@@ -224,7 +224,11 @@ export default function Demo() {
                     Get Full Access
                   </Button>
                 </Link>
-                <Button variant="outline" onClick={handleStartOver} className="border-slate-600 text-white hover:bg-slate-800">
+                <Button 
+                  onClick={handleStartOver} 
+                  size="lg" 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
                   Try Another Search
                 </Button>
               </div>
