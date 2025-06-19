@@ -493,7 +493,7 @@ serve(async (req) => {
       throw new Error('No file provided');
     }
 
-    console.log('📄 Processing file:', file.name, 'Type:', file.type);
+    console.log('📄 Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
 
     // Get GROQ API key from environment
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
@@ -502,95 +502,114 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // Read file content for actual CV analysis
+    // Enhanced file content extraction
     let fileContent = '';
+    let extractedText = '';
+    
     try {
       if (file.type === 'application/pdf') {
-        // For PDF files, we'll extract text content
+        console.log('📄 Processing PDF file...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // Simple PDF text extraction (basic approach)
-        const text = new TextDecoder().decode(uint8Array);
-        fileContent = text.replace(/[^\x20-\x7E\s]/g, ' ').trim();
+        // Convert PDF binary to text - improved extraction
+        const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+        let rawText = decoder.decode(uint8Array);
+        
+        // Extract readable text from PDF structure
+        // Look for common PDF text patterns and clean them
+        const textPatterns = rawText.match(/[A-Za-zÅÄÖåäö0-9\s\-\+\(\)@\.]{10,}/g) || [];
+        extractedText = textPatterns.join(' ').replace(/\s+/g, ' ').trim();
+        
+        // Also try to extract email and phone patterns specifically
+        const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
+        const phoneMatch = rawText.match(/\+?[\d\s\-\(\)]{8,}/g);
+        
+        if (emailMatch) extractedText += ' EMAIL_FOUND: ' + emailMatch.join(' ');
+        if (phoneMatch) extractedText += ' PHONE_FOUND: ' + phoneMatch.join(' ');
+        
+        fileContent = extractedText.substring(0, 4000); // Increase limit
         console.log('📄 Extracted PDF content length:', fileContent.length);
+        console.log('📄 Sample extracted text:', fileContent.substring(0, 200));
       } else {
         // For other file types, try to read as text
         fileContent = await file.text();
         console.log('📄 Read file content length:', fileContent.length);
       }
     } catch (error) {
-      console.warn('⚠️ Could not read file content:', error);
-      fileContent = '';
+      console.warn('⚠️ Could not extract file content:', error);
+      fileContent = `CV file: ${file.name} (${file.type}) - Could not extract text content directly`;
     }
 
-    // Enhanced prompt to extract REAL data from actual CV content
-    const prompt = `Analyze this CV content and extract REAL professional information. The CV file is named "${file.name}".
+    // Enhanced prompt for accurate data extraction
+    const prompt = `You are a professional CV analyzer. Extract ONLY the real information that is actually present in this CV content.
 
-CV CONTENT TO ANALYZE:
-${fileContent.substring(0, 3000)} // First 3000 characters to avoid token limits
+CV FILE: ${file.name}
+CONTENT TO ANALYZE:
+${fileContent}
 
 CRITICAL INSTRUCTIONS:
-- Extract ONLY information that is actually present in the CV content above
-- Look for contact details (email, phone, address), work experience, skills, education
-- Use "Not specified" ONLY when information is genuinely not found in the CV
-- Focus on Swedish professional profile data based on the actual CV content
-- Pay special attention to email addresses, phone numbers, and location information
+1. Look for REAL contact information (email addresses, phone numbers, names, addresses)
+2. Extract ACTUAL work experience, companies, roles, and dates
+3. Find REAL technical skills, programming languages, and tools mentioned
+4. Use "Not specified" ONLY when information is genuinely not found
+5. DO NOT make up or guess any information
+6. BE PRECISE - only extract what you can clearly see in the content
 
-Analyze this CV content and provide information in this EXACT JSON format:
+Respond with this EXACT JSON format:
 
 {
   "personalInfo": {
-    "name": "Extract actual name from CV content or 'Not specified'",
-    "email": "Extract actual email from CV content or 'Not specified'", 
-    "phone": "Extract actual phone number from CV content or 'Not specified'",
-    "location": "Extract actual location/address from CV content or 'Not specified'",
+    "name": "Extract the actual full name from CV or 'Not specified'",
+    "email": "Extract the actual email address from CV or 'Not specified'", 
+    "phone": "Extract the actual phone number from CV or 'Not specified'",
+    "location": "Extract actual city/location from CV or 'Not specified'",
     "linkedinProfile": "Extract LinkedIn URL if found or 'Not specified'"
   },
   "professionalSummary": {
-    "yearsOfExperience": "Extract or estimate from work experience section",
-    "currentRole": "Extract current/latest role from CV or estimate",
-    "seniorityLevel": "Determine from experience and roles",
-    "careerTrajectory": "Growing, Advancing, or Stable based on CV"
+    "yearsOfExperience": "Calculate from work history or estimate",
+    "currentRole": "Extract most recent job title or 'Not specified'",
+    "seniorityLevel": "Determine from experience level",
+    "careerTrajectory": "Growing, Stable, or Senior based on progression"
   },
   "technicalExpertise": {
     "programmingLanguages": {
-      "expert": ["Extract languages marked as expert level"],
-      "proficient": ["Extract languages marked as proficient"],
-      "familiar": ["Extract languages marked as familiar or basic"]
+      "expert": ["List languages marked as expert/advanced"],
+      "proficient": ["List languages marked as proficient/intermediate"],
+      "familiar": ["List languages marked as basic/familiar"]
     },
-    "frameworks": ["Extract frameworks/technologies from CV"],
-    "tools": ["Extract tools mentioned in CV"],
-    "databases": ["Extract database technologies"],
+    "frameworks": ["Extract actual frameworks mentioned"],
+    "tools": ["Extract actual tools mentioned"],
+    "databases": ["Extract database technologies mentioned"],
     "cloudPlatforms": ["Extract cloud platforms if mentioned"],
-    "methodologies": ["Extract methodologies mentioned"]
+    "methodologies": ["Extract methodologies like Agile, Scrum"]
   },
   "workExperience": [
     {
-      "company": "Extract actual company name from CV",
-      "role": "Extract actual role title", 
-      "duration": "Extract actual time period",
+      "company": "Extract actual company name",
+      "role": "Extract actual job title", 
+      "duration": "Extract actual time period worked",
       "technologies": ["Extract technologies used in this role"],
-      "achievements": ["Extract achievements mentioned"]
+      "achievements": ["Extract specific achievements mentioned"]
     }
   ],
   "education": {
-    "degrees": ["Extract actual educational background"],
+    "degrees": ["Extract actual educational qualifications"],
     "certifications": ["Extract certifications mentioned"],
-    "training": ["Extract training mentioned"]
+    "training": ["Extract training courses mentioned"]
   },
   "softSkills": {
     "communication": ["Extract communication skills mentioned"],
-    "leadership": ["Extract leadership experience"],
-    "problemSolving": ["Extract problem-solving abilities"],
-    "teamwork": ["Extract teamwork experience"]
+    "leadership": ["Extract leadership experience mentioned"],
+    "problemSolving": ["Extract problem-solving examples"],
+    "teamwork": ["Extract teamwork experience mentioned"]
   },
-  "languages": ["Extract languages mentioned in CV"]
+  "languages": ["Extract spoken languages mentioned"]
 }
 
-Respond with ONLY the JSON object, no additional text.`;
+RESPOND WITH ONLY THE JSON OBJECT - NO ADDITIONAL TEXT.`;
 
-    console.log('🤖 Sending CV content to GROQ for analysis');
+    console.log('🤖 Sending enhanced CV content to GROQ for analysis');
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -603,15 +622,15 @@ Respond with ONLY the JSON object, no additional text.`;
         messages: [
           {
             role: 'system',
-            content: 'You are a professional CV analyzer. Extract ONLY real information from CV content. Always respond with valid JSON only.'
+            content: 'You are a professional CV analyzer specializing in accurate data extraction. Extract ONLY information that is clearly visible in the CV content. Never make assumptions or create fake data.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.1, // Lower temperature for more accurate extraction
-        max_tokens: 2000,
+        temperature: 0.1, // Very low temperature for accuracy
+        max_tokens: 2500,
       }),
     });
 
@@ -635,19 +654,21 @@ Respond with ONLY the JSON object, no additional text.`;
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
-        console.log('📊 Parsed CV analysis with personal info:', {
+        console.log('📊 Successfully parsed CV analysis');
+        console.log('📋 Extracted personal info:', {
           name: analysis.personalInfo?.name,
           email: analysis.personalInfo?.email,
           phone: analysis.personalInfo?.phone,
           location: analysis.personalInfo?.location
         });
       } else {
-        throw new Error('No JSON found in response');
+        throw new Error('No valid JSON found in response');
       }
     } catch (parseError) {
-      console.warn('⚠️ Failed to parse CV content, creating minimal fallback:', parseError);
+      console.error('❌ Failed to parse GROQ response:', parseError);
+      console.log('Raw GROQ response:', groqData.choices[0]?.message?.content);
       
-      // Create minimal fallback when CV content cannot be parsed
+      // Create minimal fallback
       analysis = {
         personalInfo: {
           name: 'Not specified',
@@ -663,11 +684,7 @@ Respond with ONLY the JSON object, no additional text.`;
           careerTrajectory: 'Not specified'
         },
         technicalExpertise: {
-          programmingLanguages: {
-            expert: [],
-            proficient: [],
-            familiar: []
-          },
+          programmingLanguages: { expert: [], proficient: [], familiar: [] },
           frameworks: [],
           tools: [],
           databases: [],
@@ -675,17 +692,8 @@ Respond with ONLY the JSON object, no additional text.`;
           methodologies: []
         },
         workExperience: [],
-        education: {
-          degrees: [],
-          certifications: [],
-          training: []
-        },
-        softSkills: {
-          communication: [],
-          leadership: [],
-          problemSolving: [],
-          teamwork: []
-        },
+        education: { degrees: [], certifications: [], training: [] },
+        softSkills: { communication: [], leadership: [], problemSolving: [], teamwork: [] },
         languages: []
       };
     }
@@ -707,12 +715,7 @@ Respond with ONLY the JSON object, no additional text.`;
     const roiPredictions = generateROIPredictions(analysis);
     const preUploadGuidance = generatePreUploadGuidance(analysis);
 
-    console.log('✅ CV analysis completed with extracted data:', {
-      hasRealEmail: analysis.personalInfo?.email !== 'Not specified',
-      hasRealPhone: analysis.personalInfo?.phone !== 'Not specified',
-      hasRealName: analysis.personalInfo?.name !== 'Not specified',
-      extractedSkills: getAllSkills(analysis).length
-    });
+    console.log('✅ CV analysis completed with real extracted data');
 
     // Return enhanced analysis with all insights
     const enhancedAnalysisResults = {
@@ -766,17 +769,8 @@ Respond with ONLY the JSON object, no additional text.`;
         methodologies: []
       },
       workExperience: [],
-      education: {
-        degrees: [],
-        certifications: [],
-        training: []
-      },
-      softSkills: {
-        communication: [],
-        leadership: [],
-        problemSolving: [],
-        teamwork: []
-      },
+      education: { degrees: [], certifications: [], training: [] },
+      softSkills: { communication: [], leadership: [], problemSolving: [], teamwork: [] },
       languages: [],
       marketPositioning: {
         hourlyRateEstimate: {
