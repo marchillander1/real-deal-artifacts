@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -212,11 +211,7 @@ I'm your personal consultant career advisor, powered by advanced AI.
   };
 
   const quickQuestions = [
-    "How to increase my hourly rate?",
-    "Improve my CV for consulting",
-    "Best tech certifications 2024",
-    "Pricing negotiation strategies",
-    "LinkedIn optimization tips"
+    "What can you do?"
   ];
 
   const handleQuickQuestion = (question: string) => {
