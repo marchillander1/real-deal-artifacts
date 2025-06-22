@@ -67,16 +67,16 @@ const MyProfile: React.FC = () => {
       
       console.log('🔍 Looking for consultant with email:', normalizedEmail);
 
-      // Use ilike for case-insensitive search
-      const { data: consultant, error } = await supabase
+      // Use ilike for case-insensitive search and take first match if multiple exist
+      const { data: consultants, error } = await supabase
         .from('consultants')
         .select('*')
         .ilike('email', normalizedEmail)
-        .single();
+        .order('created_at', { ascending: false }); // Get most recent if multiple
 
-      console.log('📊 Database query result:', { consultant, error });
+      console.log('📊 Database query result:', { consultants, error });
 
-      if (error || !consultant) {
+      if (error || !consultants || consultants.length === 0) {
         console.error('❌ No consultant found:', error);
         
         // Let's also try a broader search to debug
@@ -94,6 +94,13 @@ const MyProfile: React.FC = () => {
         });
         setLoading(false);
         return;
+      }
+
+      // Take the first consultant if multiple exist
+      const consultant = consultants[0];
+      
+      if (consultants.length > 1) {
+        console.log(`⚠️ Found ${consultants.length} consultants with email ${normalizedEmail}, using the most recent one`);
       }
 
       // Simple password check (in production, use proper hashing)
