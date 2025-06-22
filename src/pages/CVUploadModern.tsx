@@ -41,42 +41,46 @@ const CVUploadModern: React.FC = () => {
   const navigate = useNavigate();
 
   const handleFileUpload = (uploadedFile: File, linkedin: string) => {
+    console.log('📁 File uploaded:', uploadedFile.name, 'LinkedIn:', linkedin);
     setFile(uploadedFile);
     setLinkedinUrl(linkedin);
     setCurrentStep('analyzing');
   };
 
   const handleAnalysisComplete = (results: any) => {
-    console.log('🎉 Analysis complete:', results);
+    console.log('🎉 Analysis complete with enhanced results:', results);
     setAnalysisResults(results);
     setIsAnalysisComplete(true);
     
-    // Get the consultant data that was just created
+    // Get the consultant data and extracted personal info
     const consultant = results.consultant;
+    const extractedPersonalInfo = results.extractedPersonalInfo;
+    const cvAnalysis = results.cvAnalysis;
     
-    if (consultant) {
-      console.log('📊 Using consultant data:', consultant);
+    if (consultant && extractedPersonalInfo) {
+      console.log('📊 Using enhanced extracted data:', extractedPersonalInfo);
+      console.log('👤 Consultant data:', consultant);
       
-      // Use the consultant data directly since it's already processed
+      // Use the enhanced extracted data with fallbacks
       setExtractedData({
-        name: consultant.name || '',
-        email: consultant.email || '',
-        phone: consultant.phone || '',
-        skills: consultant.skills || [],
-        experience_years: consultant.experience_years || 0,
-        location: consultant.location || ''
+        name: extractedPersonalInfo.name || consultant.name || '',
+        email: extractedPersonalInfo.email || consultant.email || '',
+        phone: extractedPersonalInfo.phone || consultant.phone || '',
+        skills: consultant.skills || cvAnalysis?.primary_tech_stack || [],
+        experience_years: consultant.experience_years || cvAnalysis?.years_of_experience || 0,
+        location: extractedPersonalInfo.location || consultant.location || 'Sverige'
       });
       
-      console.log('✅ Extracted data set:', {
-        name: consultant.name,
-        email: consultant.email,
-        phone: consultant.phone,
-        skills: consultant.skills,
+      console.log('✅ Enhanced extracted data set:', {
+        name: extractedPersonalInfo.name || consultant.name,
+        email: extractedPersonalInfo.email || consultant.email,
+        phone: extractedPersonalInfo.phone || consultant.phone,
+        skills: consultant.skills?.length || 0,
         experience_years: consultant.experience_years,
-        location: consultant.location
+        location: extractedPersonalInfo.location || consultant.location
       });
     } else {
-      console.warn('⚠️ No consultant data found in results');
+      console.warn('⚠️ No enhanced consultant data found in results');
     }
     
     setConsultantId(results.consultant?.id || '');
@@ -152,11 +156,11 @@ const CVUploadModern: React.FC = () => {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-              Let AI unlock your 
-              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent"> freelance potential</span>
+              Låt AI låsa upp din 
+              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent"> freelance-potential</span>
             </h1>
             <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Upload your CV and LinkedIn profile – and receive a personalized AI-driven career report with improvement tips, rate estimation, and a roadmap for growth.
+              Ladda upp ditt CV och LinkedIn-profil – och få en personlig AI-driven karriärrapport med förbättringstips, marknadsvärdebedömning och en färdplan för tillväxt.
             </p>
           </div>
 

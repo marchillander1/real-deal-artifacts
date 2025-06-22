@@ -26,7 +26,7 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
         // Generate unique session token
         const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-        // Use only the enhanced-profile-analysis function
+        // Use the enhanced-profile-analysis function
         const formData = new FormData();
         formData.append('file', file);
         formData.append('linkedinUrl', linkedinUrl || '');
@@ -52,21 +52,34 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
 
         console.log('✅ Analysis completed successfully:', response.data);
 
-        // Extract the results
+        // Extract the results with enhanced data
         const results = {
           cvAnalysis: response.data.analysisResults,
           linkedinAnalysis: response.data.linkedinData,
-          consultant: response.data.consultant
+          consultant: response.data.consultant,
+          // Lägg till extraherad personlig info för auto-fill
+          extractedPersonalInfo: {
+            name: response.data.consultant?.name || response.data.analysisResults?.full_name || '',
+            email: response.data.consultant?.email || response.data.analysisResults?.email || '',
+            phone: response.data.consultant?.phone || response.data.analysisResults?.phone_number || '',
+            location: response.data.consultant?.location || 'Sverige'
+          }
         };
 
-        console.log('🎉 Calling onComplete with results:', results);
+        console.log('🎉 Calling onComplete with enhanced results:', results);
         onComplete(results);
+
+        // Visa framgångsmeddelande
+        toast({
+          title: "Analys slutförd! 🎉",
+          description: `Profil analyserad för ${results.extractedPersonalInfo.name || 'konsult'}`,
+        });
 
       } catch (error: any) {
         console.error('❌ Background analysis failed:', error);
         toast({
-          title: "Analysis failed",
-          description: error.message || "Please try again with a different file or check your LinkedIn URL.",
+          title: "Analys misslyckades",
+          description: error.message || "Försök igen med en annan fil eller kontrollera din LinkedIn URL.",
           variant: "destructive",
         });
       }
