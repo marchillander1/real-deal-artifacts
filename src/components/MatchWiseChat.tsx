@@ -19,12 +19,14 @@ interface MatchWiseChatProps {
   analysisResults?: any;
   isMinimized?: boolean;
   showWelcome?: boolean;
+  onToggleMinimize?: () => void;
 }
 
 export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({ 
   analysisResults, 
   isMinimized = false,
-  showWelcome = false
+  showWelcome = false,
+  onToggleMinimize
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
@@ -131,11 +133,19 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
     }
   };
 
+  const handleMinimizeToggle = () => {
+    if (onToggleMinimize) {
+      onToggleMinimize();
+    } else {
+      setMinimized(!minimized);
+    }
+  };
+
   if (minimized) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
         <Button
-          onClick={() => setMinimized(false)}
+          onClick={handleMinimizeToggle}
           className="rounded-full w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
         >
           <MessageCircle className="h-6 w-6" />
@@ -155,7 +165,7 @@ export const MatchWiseChat: React.FC<MatchWiseChatProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setMinimized(true)}
+            onClick={handleMinimizeToggle}
           >
             <Minimize2 className="h-4 w-4" />
           </Button>
