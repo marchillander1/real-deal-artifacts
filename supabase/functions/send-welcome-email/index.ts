@@ -15,13 +15,18 @@ serve(async (req) => {
   }
 
   try {
-    const { email, name, consultantId } = await req.json();
+    const { consultantEmail, consultantName, isMyConsultant } = await req.json();
 
-    if (!email || !name) {
-      throw new Error('Email and name are required');
+    if (!consultantEmail || !consultantName) {
+      throw new Error('Consultant email and name are required');
     }
 
-    console.log('Sending welcome email to:', email);
+    console.log('Sending welcome email to:', consultantEmail);
+    console.log('Consultant name:', consultantName);
+    console.log('Is my consultant:', isMyConsultant);
+
+    // Generate simple password for consultant profile access
+    const profilePassword = `${consultantName.toLowerCase().replace(/\s+/g, '')}123`;
 
     const welcomeEmailHtml = `
     <!DOCTYPE html>
@@ -42,7 +47,7 @@ serve(async (req) => {
         <!-- Main Content -->
         <div style="background: #ffffff; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
             
-            <h2 style="color: #2563eb; margin-bottom: 20px;">Hi ${name}! 👋</h2>
+            <h2 style="color: #2563eb; margin-bottom: 20px;">Hi ${consultantName}! 👋</h2>
             
             <p style="font-size: 16px; margin-bottom: 20px;">
                 Congratulations! Your profile analysis is complete and you're now <strong>live</strong> on the MatchWise platform. 
@@ -60,10 +65,23 @@ serve(async (req) => {
                 </ul>
             </div>
             
-            <!-- Next Steps -->
+            <!-- Profile Management -->
             <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                <h3 style="color: #1d4ed8; margin: 0 0 15px 0; font-size: 18px;">🎯 Pro Tips for Success</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #1e40af;">
+                <h3 style="color: #1d4ed8; margin: 0 0 15px 0; font-size: 18px;">🔧 Manage Your Profile</h3>
+                <p style="margin: 0 0 10px 0; color: #1e40af;">
+                    Access your personal profile portal at: <strong>matchwise.tech/my-profile</strong>
+                </p>
+                <p style="margin: 0 0 5px 0; color: #1e40af;"><strong>Login:</strong> ${consultantEmail}</p>
+                <p style="margin: 0 0 15px 0; color: #1e40af;"><strong>Password:</strong> ${profilePassword}</p>
+                <p style="margin: 0; font-size: 14px; color: #4b5563;">
+                    Update your skills, availability, rates, and view your AI analysis anytime.
+                </p>
+            </div>
+            
+            <!-- Next Steps -->
+            <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #a16207; margin: 0 0 15px 0; font-size: 18px;">🎯 Pro Tips for Success</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #92400e;">
                     <li><strong>Update regularly:</strong> Keep your skills and availability current</li>
                     <li><strong>Respond quickly:</strong> Fast responses increase your match rate</li>
                     <li><strong>Build your profile:</strong> Add certifications and project highlights</li>
@@ -72,9 +90,9 @@ serve(async (req) => {
             </div>
             
             <!-- How Matching Works -->
-            <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                <h3 style="color: #a16207; margin: 0 0 15px 0; font-size: 18px;">🤖 How AI Matching Works</h3>
-                <p style="margin: 0; color: #92400e;">
+            <div style="background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #374151; margin: 0 0 15px 0; font-size: 18px;">🤖 How AI Matching Works</h3>
+                <p style="margin: 0; color: #4b5563;">
                     Our AI analyzes your skills, experience, values, and personality traits to match you with 
                     assignments that truly fit. You'll only receive opportunities that align with your 
                     expertise and career goals.
@@ -83,9 +101,9 @@ serve(async (req) => {
             
             <!-- Dashboard Link -->
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://matchwise.tech/matchwiseai" 
+                <a href="https://matchwise.tech/my-profile" 
                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                    Access Your Dashboard →
+                    Access Your Profile →
                 </a>
             </div>
             
@@ -108,7 +126,7 @@ serve(async (req) => {
         <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
             <p style="margin: 0;">
                 MatchWise Technologies AB | Stockholm, Sweden<br>
-                This email was sent to ${email} because you joined our consultant network.
+                This email was sent to ${consultantEmail} because you joined our consultant network.
             </p>
         </div>
         
@@ -117,9 +135,9 @@ serve(async (req) => {
     `;
 
     const emailData = {
-      from: 'MatchWise <noreply@matchwise.tech>',
-      to: [email],
-      subject: `🚀 Welcome to MatchWise Network, ${name}!`,
+      from: '🚀 MatchWise <noreply@matchwise.tech>',
+      to: [consultantEmail],
+      subject: `🚀 Welcome to MatchWise Network, ${consultantName}!`,
       html: welcomeEmailHtml
     };
 
