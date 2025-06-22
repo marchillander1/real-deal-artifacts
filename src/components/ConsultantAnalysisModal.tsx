@@ -108,7 +108,7 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                       <FileText className="h-4 w-4" />
                       <span className="text-sm font-medium">CV Analyzed</span>
                       <Badge variant="outline" className="text-xs">
-                        {new Date(consultant.analysis_timestamp || Date.now()).toLocaleDateString()}
+                        Recently analyzed
                       </Badge>
                     </div>
                   )}
