@@ -14,6 +14,95 @@ const groqApiKey = Deno.env.get('GROQ_API_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Improved PDF text extraction function
+async function extractTextFromPDF(fileBuffer: ArrayBuffer): Promise<{text: string, personalInfo: any}> {
+  const uint8Array = new Uint8Array(fileBuffer);
+  let extractedText = '';
+  
+  // Try multiple extraction strategies
+  try {
+    // Strategy 1: Look for text objects in PDF
+    const pdfString = new TextDecoder('latin1').decode(uint8Array);
+    
+    // Extract text from PDF streams
+    const textMatches = pdfString.match(/\(([^)]+)\)/g) || [];
+    const streamTexts = textMatches.map(match => match.slice(1, -1)).filter(text => 
+      text.length > 2 && /[a-zA-Z]/.test(text)
+    );
+    
+    if (streamTexts.length > 0) {
+      extractedText = streamTexts.join(' ');
+    }
+    
+    // Strategy 2: Look for readable text patterns
+    if (extractedText.length < 100) {
+      const readableText = pdfString.match(/[A-Za-z][A-Za-z\s@.-]{10,}/g) || [];
+      extractedText = readableText.join(' ');
+    }
+    
+    // Strategy 3: Try UTF-8 decoding on segments
+    if (extractedText.length < 100) {
+      try {
+        const segments = [];
+        for (let i = 0; i < Math.min(uint8Array.length, 50000); i += 1000) {
+          const segment = uint8Array.slice(i, i + 1000);
+          try {
+            const decoded = new TextDecoder('utf-8').decode(segment);
+            if (decoded.length > 10 && /[a-zA-Z]{3,}/.test(decoded)) {
+              segments.push(decoded);
+            }
+          } catch (e) {
+            // Skip invalid segments
+          }
+        }
+        if (segments.length > 0) {
+          extractedText = segments.join(' ');
+        }
+      } catch (e) {
+        console.warn('UTF-8 strategy failed:', e);
+      }
+    }
+    
+    // Clean up extracted text
+    extractedText = extractedText
+      .replace(/[^\w\s@.\-+()åäöÅÄÖ]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 5000);
+    
+    console.log('📝 Extracted text sample:', extractedText.substring(0, 300));
+    
+  } catch (error) {
+    console.warn('⚠️ PDF extraction failed:', error);
+    extractedText = 'PDF content could not be extracted for text analysis';
+  }
+  
+  // Enhanced personal information detection
+  const personalInfo = {
+    emails: [],
+    phones: [],
+    names: [],
+    locations: []
+  };
+  
+  if (extractedText && extractedText.length > 10) {
+    // Enhanced regex patterns
+    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+    const phoneRegex = /(\+46|0)[0-9\s\-\(\)]{8,15}/g;
+    const nameRegex = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+(?:\s+[A-ZÅÄÖ][a-zåäö]+)*/g;
+    const locationRegex = /\b(Stockholm|Göteborg|Malmö|Uppsala|Västerås|Örebro|Linköping|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Halmstad|Växjö|Karlstad|Sundsvall|Sverige|Sweden)\b/gi;
+    
+    personalInfo.emails = [...extractedText.matchAll(emailRegex)].map(m => m[0]);
+    personalInfo.phones = [...extractedText.matchAll(phoneRegex)].map(m => m[0].replace(/\s/g, ''));
+    personalInfo.names = [...extractedText.matchAll(nameRegex)].map(m => m[0]);
+    personalInfo.locations = [...extractedText.matchAll(locationRegex)].map(m => m[0]);
+  }
+  
+  console.log('🔍 Enhanced detected info:', personalInfo);
+  
+  return { text: extractedText, personalInfo };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -31,124 +120,84 @@ serve(async (req) => {
 
     console.log('🚀 Starting enhanced profile analysis for:', file.name, linkedinUrl || 'No LinkedIn URL');
 
-    // Step 1: Förbättrad text-extraktion från CV
+    // Step 1: Enhanced text extraction from CV
     const fileBuffer = await file.arrayBuffer();
-    
-    let cvText = '';
-    let detectedInfo = {
-      emails: [] as string[],
-      phones: [] as string[],
-      names: [] as string[]
-    };
-    
-    try {
-      if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF with improved extraction...');
-        const uint8Array = new Uint8Array(fileBuffer);
-        
-        // Förbättrad PDF text-extraktion
-        let rawText = '';
-        let currentChar = '';
-        
-        // Läs igenom PDF och extrahera läsbar text
-        for (let i = 0; i < Math.min(uint8Array.length, 100000); i++) {
-          const byte = uint8Array[i];
-          
-          // Fokusera på ASCII-tecken som bildar ord
-          if (byte >= 32 && byte <= 126) {
-            currentChar = String.fromCharCode(byte);
-            
-            // Bygg upp text med spaces mellan ord
-            if (currentChar.match(/[a-zA-Z0-9@.\-+åäöÅÄÖ]/)) {
-              rawText += currentChar;
-            } else if (currentChar === ' ' && rawText.slice(-1) !== ' ') {
-              rawText += ' ';
-            }
-          } else if (byte === 10 || byte === 13) {
-            // Ny rad
-            if (rawText.slice(-1) !== ' ') {
-              rawText += ' ';
-            }
-          }
-        }
-        
-        // Rensa och strukturera text
-        cvText = rawText
-          .replace(/\s+/g, ' ')
-          .replace(/[^\w\s@.\-+()åäöÅÄÖ]/g, ' ')
-          .trim()
-          .substring(0, 4000);
-        
-        console.log('📝 Extracted text length:', cvText.length);
-        console.log('📝 Text sample:', cvText.substring(0, 300));
-        
-        // Förbättrad regex-detektion för personlig info
-        const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-        const phoneRegex = /(\+46|0)[0-9\s\-\(\)]{8,15}/g;
-        const nameRegex = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+(?:\s+[A-ZÅÄÖ][a-zåäö]+)*/g;
-        
-        detectedInfo.emails = [...cvText.matchAll(emailRegex)].map(m => m[0]);
-        detectedInfo.phones = [...cvText.matchAll(phoneRegex)].map(m => m[0].replace(/\s/g, ''));
-        detectedInfo.names = [...cvText.matchAll(nameRegex)].map(m => m[0]);
-        
-        console.log('🔍 Detected info:', detectedInfo);
-        
-      } else {
-        // Text-filer
-        const text = new TextDecoder().decode(fileBuffer);
-        cvText = text.substring(0, 4000);
-      }
-    } catch (e) {
-      console.warn('⚠️ Text extraction failed:', e);
-      cvText = `CV file: ${file.name}`;
-    }
+    const { text: cvText, personalInfo } = await extractTextFromPDF(fileBuffer);
 
-    // Step 2: Förbättrad AI-analys med GROQ
+    // Step 2: Enhanced AI analysis with comprehensive English prompts
     const analysisPrompt = `
-Analysera detta CV noggrant och extrahera strukturerad information på svenska.
+You are an expert CV and career analyst. Analyze this CV thoroughly and provide comprehensive insights in ENGLISH.
 
-DETEKTERAD PERSONLIG INFORMATION:
-Email: ${detectedInfo.emails[0] || 'Ej funnen'}
-Telefon: ${detectedInfo.phones[0] || 'Ej funnen'}
-Namn: ${detectedInfo.names[0] || 'Ej funnet'}
+DETECTED PERSONAL INFORMATION:
+Email: ${personalInfo.emails[0] || 'Not detected'}
+Phone: ${personalInfo.phones[0] || 'Not detected'}
+Name: ${personalInfo.names[0] || 'Not detected'}
+Location: ${personalInfo.locations[0] || 'Not detected'}
 
 CV TEXT:
 ${cvText}
 
-Returnera ENDAST denna JSON-struktur med verklig data från CV:n:
+Return ONLY this JSON structure with comprehensive analysis in ENGLISH:
 
 {
-  "full_name": "ANVÄND DETEKTERAT NAMN eller hitta från CV-text",
-  "email": "ANVÄND DETEKTERAD EMAIL eller hitta från CV-text", 
-  "phone_number": "ANVÄND DETEKTERAD TELEFON eller hitta från CV-text",
-  "title": "Aktuell jobbtitel från CV",
-  "years_of_experience": "Antal år inom IT (siffra)",
-  "primary_tech_stack": ["Huvudteknologier som JavaScript, React, etc"],
-  "secondary_tech_stack": ["Sekundära teknologier"],
-  "certifications": ["Certifieringar från CV"],
-  "industries": ["Branschexpertis från CV"],
-  "top_values": ["Professionella värderingar"],
-  "personality_traits": ["Personlighetsegenskaper baserat på CV"],
-  "communication_style": "Kommunikationsstil baserat på CV-text",
-  "tone_of_voice": "Professionell ton",
-  "thought_leadership_score": "Poäng 0-10 för tankeledning",
-  "linkedin_engagement_level": "low/medium/high",
-  "brand_themes": ["Varumärkesteman"],
-  "cv_tips": ["3 konkreta tips för CV-förbättring"],
-  "linkedin_tips": ["3 tips för LinkedIn-profil"],
-  "certification_recommendations": ["Rekommenderade certifieringar"],
-  "suggested_learning_paths": ["Föreslagna utbildningsvägar"],
-  "market_rate_current": "Nuvarande marknadsvärde i SEK per timme",
-  "market_rate_optimized": "Optimerat marknadsvärde i SEK per timme"
+  "full_name": "USE DETECTED NAME or extract from CV text",
+  "email": "USE DETECTED EMAIL or extract from CV text", 
+  "phone_number": "USE DETECTED PHONE or extract from CV text",
+  "location": "USE DETECTED LOCATION or extract from CV text",
+  "title": "Current job title from CV",
+  "years_of_experience": "Years in IT/tech (number)",
+  "primary_tech_stack": ["Main technologies like JavaScript, React, Python, etc"],
+  "secondary_tech_stack": ["Secondary technologies and tools"],
+  "certifications": ["Professional certifications from CV"],
+  "industries": ["Industry expertise from CV"],
+  "top_values": ["Professional values derived from CV content"],
+  "personality_traits": ["Personality traits based on CV analysis"],
+  "communication_style": "Communication style assessment from CV",
+  "tone_of_voice": "Professional tone assessment",
+  "thought_leadership_score": "Score 0-10 for thought leadership potential",
+  "linkedin_engagement_level": "low/medium/high based on profile",
+  "brand_themes": ["Personal brand themes"],
+  "cv_tips": [
+    "Add more quantifiable achievements and metrics to demonstrate impact",
+    "Include specific technologies and versions used in projects",
+    "Highlight leadership experiences and team collaboration",
+    "Add relevant certifications to strengthen technical credibility",
+    "Include soft skills that complement technical expertise"
+  ],
+  "linkedin_tips": [
+    "Share technical insights and industry trends regularly",
+    "Engage with thought leaders in your technology space",
+    "Publish case studies or project learnings",
+    "Optimize headline with key technologies and value proposition",
+    "Connect strategically with industry professionals"
+  ],
+  "certification_recommendations": ["AWS Solutions Architect", "Scrum Master", "Google Cloud Professional", "Microsoft Azure Fundamentals"],
+  "suggested_learning_paths": ["Cloud Computing", "DevOps & CI/CD", "Machine Learning", "Cybersecurity", "Leadership & Management"],
+  "market_rate_current": "Current market rate in SEK per hour",
+  "market_rate_optimized": "Optimized market rate in SEK per hour",
+  "professional_perception": {
+    "strengths": ["Key strengths as perceived by employers"],
+    "growth_areas": ["Areas for professional development"],
+    "market_positioning": "How you're positioned in the market",
+    "unique_value_proposition": "What makes you stand out",
+    "consultant_readiness": "Assessment of consulting readiness (1-10)"
+  },
+  "profile_optimization": {
+    "technical_gaps": ["Technical skills to develop"],
+    "experience_enhancement": ["Ways to strengthen experience"],
+    "presentation_improvements": ["How to better present qualifications"],
+    "networking_strategy": ["Professional networking recommendations"],
+    "career_progression": ["Next steps for career advancement"]
+  }
 }
 
-Använd verklig data från CV:n. Prioritera detekterad personlig information.
+Use real data from the CV. Prioritize detected personal information. Provide comprehensive, actionable insights in ENGLISH.
 `;
 
     let analysisResults;
     
     try {
-      console.log('🤖 Calling GROQ API for analysis...');
+      console.log('🤖 Calling GROQ API for comprehensive analysis...');
       
       const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -161,7 +210,7 @@ Använd verklig data från CV:n. Prioritera detekterad personlig information.
           messages: [
             {
               role: 'system',
-              content: 'Du är expert på CV-analys och HR. Extrahera verklig information från CV:n och returnera giltig JSON på svenska. Prioritera detekterad personlig information.'
+              content: 'You are an expert CV and career analyst. Extract real information from CVs and provide comprehensive career insights in ENGLISH. Always prioritize detected personal information and provide actionable advice.'
             },
             {
               role: 'user',
@@ -169,7 +218,7 @@ Använd verklig data från CV:n. Prioritera detekterad personlig information.
             }
           ],
           temperature: 0.1,
-          max_tokens: 2000
+          max_tokens: 3000
         }),
       });
 
@@ -184,23 +233,26 @@ Använd verklig data från CV:n. Prioritera detekterad personlig information.
       
       console.log('🔍 AI response content:', content);
       
-      // Extrahera JSON från svar
+      // Extract JSON from response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysisResults = JSON.parse(jsonMatch[0]);
         
-        // Säkerställ att detekterad data används
-        if (detectedInfo.emails.length > 0) {
-          analysisResults.email = detectedInfo.emails[0];
+        // Ensure detected data is used
+        if (personalInfo.emails.length > 0) {
+          analysisResults.email = personalInfo.emails[0];
         }
-        if (detectedInfo.phones.length > 0) {
-          analysisResults.phone_number = detectedInfo.phones[0];
+        if (personalInfo.phones.length > 0) {
+          analysisResults.phone_number = personalInfo.phones[0];
         }
-        if (detectedInfo.names.length > 0) {
-          analysisResults.full_name = detectedInfo.names[0];
+        if (personalInfo.names.length > 0) {
+          analysisResults.full_name = personalInfo.names[0];
+        }
+        if (personalInfo.locations.length > 0) {
+          analysisResults.location = personalInfo.locations[0];
         }
         
-        console.log('✅ Final analysis results:', analysisResults);
+        console.log('✅ Enhanced analysis results:', analysisResults);
       } else {
         throw new Error('No valid JSON found in AI response');
       }
@@ -208,44 +260,63 @@ Använd verklig data från CV:n. Prioritera detekterad personlig information.
     } catch (aiError) {
       console.warn('⚠️ AI analysis failed, using enhanced fallback:', aiError);
       
-      // Förbättrad fallback med detekterad data
+      // Enhanced fallback with detected data
       analysisResults = {
-        full_name: detectedInfo.names[0] || 'Professionell Konsult',
-        email: detectedInfo.emails[0] || '',
-        phone_number: detectedInfo.phones[0] || '',
-        title: 'IT Konsult',
+        full_name: personalInfo.names[0] || 'Professional Consultant',
+        email: personalInfo.emails[0] || '',
+        phone_number: personalInfo.phones[0] || '',
+        location: personalInfo.locations[0] || 'Sweden',
+        title: 'IT Consultant',
         years_of_experience: 5,
         primary_tech_stack: ['JavaScript', 'React', 'Node.js'],
-        secondary_tech_stack: ['TypeScript', 'Python'],
+        secondary_tech_stack: ['TypeScript', 'Python', 'Docker'],
         certifications: [],
-        industries: ['Teknologi', 'IT'],
-        top_values: ['Innovation', 'Kvalitet', 'Professionell utveckling'],
-        personality_traits: ['Analytisk', 'Problemlösare', 'Teamspelare'],
-        communication_style: 'Professionell och tydlig',
-        tone_of_voice: 'Professionell',
+        industries: ['Technology', 'IT Services'],
+        top_values: ['Innovation', 'Quality', 'Professional Development'],
+        personality_traits: ['Analytical', 'Problem Solver', 'Team Player'],
+        communication_style: 'Professional and Clear',
+        tone_of_voice: 'Professional',
         thought_leadership_score: 5,
         linkedin_engagement_level: 'medium',
-        brand_themes: ['Teknisk excellens', 'Innovation'],
+        brand_themes: ['Technical Excellence', 'Innovation'],
         cv_tips: [
-          'Lägg till fler kvantifierbara resultat',
-          'Förtydliga tekniska kompetenser',
-          'Inkludera certifieringar'
+          'Add more quantifiable achievements and metrics',
+          'Include specific technologies and versions used',
+          'Highlight leadership experiences and team collaboration',
+          'Add relevant certifications to strengthen credibility',
+          'Include soft skills that complement technical expertise'
         ],
         linkedin_tips: [
-          'Dela mer tekniskt innehåll',
-          'Engagera dig i branschgrupper',
-          'Uppdatera profilen regelbundet'
+          'Share technical insights and industry trends regularly',
+          'Engage with thought leaders in your technology space',
+          'Publish case studies or project learnings',
+          'Optimize headline with key technologies',
+          'Connect strategically with industry professionals'
         ],
-        certification_recommendations: ['AWS Certified Solutions Architect', 'Scrum Master'],
-        suggested_learning_paths: ['Cloud Computing', 'DevOps', 'AI/ML'],
+        certification_recommendations: ['AWS Solutions Architect', 'Scrum Master', 'Google Cloud Professional'],
+        suggested_learning_paths: ['Cloud Computing', 'DevOps & CI/CD', 'Machine Learning'],
         market_rate_current: 800,
-        market_rate_optimized: 1000
+        market_rate_optimized: 1000,
+        professional_perception: {
+          strengths: ['Technical competence', 'Problem-solving skills'],
+          growth_areas: ['Leadership experience', 'Industry certifications'],
+          market_positioning: 'Mid-level technical consultant',
+          unique_value_proposition: 'Strong technical foundation with growth potential',
+          consultant_readiness: 7
+        },
+        profile_optimization: {
+          technical_gaps: ['Cloud certifications', 'Advanced frameworks'],
+          experience_enhancement: ['Lead technical projects', 'Mentor junior developers'],
+          presentation_improvements: ['Quantify achievements', 'Highlight business impact'],
+          networking_strategy: ['Join tech communities', 'Attend industry events'],
+          career_progression: ['Gain team leadership experience', 'Develop business acumen']
+        }
       };
     }
 
     console.log('✅ AI analysis completed');
 
-    // Step 3: LinkedIn-analys (förenklad)
+    // Step 3: LinkedIn analysis (simplified)
     let linkedinData = null;
     if (linkedinUrl) {
       try {
@@ -266,44 +337,44 @@ Använd verklig data från CV:n. Prioritera detekterad personlig information.
     }
 
     linkedinData = linkedinData || {
-      profile_summary: 'LinkedIn-profil analyserad',
+      profile_summary: 'LinkedIn profile analyzed',
       engagement_metrics: { likes: 0, comments: 0, shares: 0 },
       connections: 500,
       activity_level: 'medium'
     };
 
-    // Step 4: Skapa konsult med förbättrade data
+    // Step 4: Create consultant with enhanced data
     const consultantData = {
-      name: analysisResults.full_name || 'Professionell Konsult',
+      name: analysisResults.full_name || 'Professional Consultant',
       email: analysisResults.email || 'temp@matchwise.tech',
       phone: analysisResults.phone_number || '',
-      title: analysisResults.title || 'IT Konsult',
-      location: 'Sverige',
+      title: analysisResults.title || 'IT Consultant',
+      location: analysisResults.location || 'Sweden',
       skills: [...(analysisResults.primary_tech_stack || []), ...(analysisResults.secondary_tech_stack || [])],
       experience_years: analysisResults.years_of_experience || 5,
       hourly_rate: analysisResults.market_rate_current || 800,
-      availability: 'Tillgänglig',
+      availability: 'Available',
       cv_file_path: file.name,
       certifications: analysisResults.certifications || [],
-      languages: ['Svenska', 'Engelska'],
-      roles: [analysisResults.title || 'IT Konsult'],
+      languages: ['Swedish', 'English'],
+      roles: [analysisResults.title || 'IT Consultant'],
       values: analysisResults.top_values || [],
-      communication_style: analysisResults.communication_style || 'Professionell',
-      work_style: 'Kollaborativ',
+      communication_style: analysisResults.communication_style || 'Professional',
+      work_style: 'Collaborative',
       personality_traits: analysisResults.personality_traits || [],
-      team_fit: 'Teamspelare',
+      team_fit: 'Team Player',
       cultural_fit: 5,
       adaptability: 5,
       leadership: Math.min(Math.floor((analysisResults.years_of_experience || 5) / 3), 5),
       type: 'new',
       linkedin_url: linkedinUrl || '',
       
-      // Förbättrade fält
+      // Enhanced fields
       primary_tech_stack: analysisResults.primary_tech_stack || [],
       secondary_tech_stack: analysisResults.secondary_tech_stack || [],
       industries: analysisResults.industries || [],
       top_values: analysisResults.top_values || [],
-      tone_of_voice: analysisResults.tone_of_voice || 'Professionell',
+      tone_of_voice: analysisResults.tone_of_voice || 'Professional',
       thought_leadership_score: analysisResults.thought_leadership_score || 0,
       linkedin_engagement_level: analysisResults.linkedin_engagement_level || 'medium',
       brand_themes: analysisResults.brand_themes || [],
@@ -320,11 +391,13 @@ Använd verklig data från CV:n. Prioritera detekterad personlig information.
       visibility_status: 'private',
       profile_completeness: 0.9,
       
-      // Lagra råanalysdata
+      // Store enhanced analysis data
       cv_analysis_data: { 
-        cvText: cvText.substring(0, 1000), // Begränsa storlek
+        cvText: cvText.substring(0, 1000),
         analysisResults, 
-        detectedInfo 
+        personalInfo,
+        professionalPerception: analysisResults.professional_perception,
+        profileOptimization: analysisResults.profile_optimization
       },
       linkedin_analysis_data: linkedinData
     };
@@ -342,7 +415,7 @@ Använd verklig data från CV:n. Prioritera detekterad personlig information.
       throw new Error(`Failed to save consultant: ${insertError.message}`);
     }
 
-    // Uppdatera analyssession
+    // Update analysis session
     if (sessionToken) {
       await supabase
         .from('analysis_sessions')

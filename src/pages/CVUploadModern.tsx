@@ -68,7 +68,7 @@ const CVUploadModern: React.FC = () => {
         phone: extractedPersonalInfo.phone || consultant.phone || '',
         skills: consultant.skills || cvAnalysis?.primary_tech_stack || [],
         experience_years: consultant.experience_years || cvAnalysis?.years_of_experience || 0,
-        location: extractedPersonalInfo.location || consultant.location || 'Sverige'
+        location: extractedPersonalInfo.location || consultant.location || 'Sweden'
       });
       
       console.log('✅ Enhanced extracted data set:', {
@@ -156,11 +156,11 @@ const CVUploadModern: React.FC = () => {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-              Låt AI låsa upp din 
-              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent"> freelance-potential</span>
+              Let AI unlock your 
+              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent"> freelance potential</span>
             </h1>
             <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Ladda upp ditt CV och LinkedIn-profil – och få en personlig AI-driven karriärrapport med förbättringstips, marknadsvärdebedömning och en färdplan för tillväxt.
+              Upload your CV and LinkedIn profile – get a personalized AI-driven career report with improvement tips, market value assessment, and a roadmap for growth.
             </p>
           </div>
 
@@ -195,12 +195,13 @@ const CVUploadModern: React.FC = () => {
               <TrustSection />
             </div>
 
-            {/* AI Chat Sidebar */}
+            {/* AI Chat Sidebar - Always visible */}
             <div className="lg:col-span-1">
               <div className="sticky top-8">
                 <MatchWiseChat 
                   analysisResults={analysisResults}
                   isMinimized={false}
+                  showWelcome={currentStep === 'upload'}
                 />
               </div>
             </div>
