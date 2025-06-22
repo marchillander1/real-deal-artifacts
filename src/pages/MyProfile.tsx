@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -63,14 +62,31 @@ const MyProfile: React.FC = () => {
     setLoading(true);
 
     try {
-      // Find consultant by email
+      // Clean and normalize the email input
+      const normalizedEmail = loginData.email.trim().toLowerCase();
+      
+      console.log('🔍 Looking for consultant with email:', normalizedEmail);
+
+      // Use ilike for case-insensitive search
       const { data: consultant, error } = await supabase
         .from('consultants')
         .select('*')
-        .eq('email', loginData.email)
+        .ilike('email', normalizedEmail)
         .single();
 
+      console.log('📊 Database query result:', { consultant, error });
+
       if (error || !consultant) {
+        console.error('❌ No consultant found:', error);
+        
+        // Let's also try a broader search to debug
+        const { data: allConsultants } = await supabase
+          .from('consultants')
+          .select('id, name, email')
+          .limit(10);
+        
+        console.log('📋 Available consultants in database:', allConsultants);
+        
         toast({
           title: "Login failed",
           description: "No consultant found with this email address.",
@@ -82,6 +98,8 @@ const MyProfile: React.FC = () => {
 
       // Simple password check (in production, use proper hashing)
       const expectedPassword = `${consultant.name.toLowerCase().replace(/\s+/g, '')}123`;
+      
+      console.log('🔑 Expected password format:', expectedPassword);
       
       if (loginData.password !== expectedPassword) {
         toast({
@@ -95,7 +113,7 @@ const MyProfile: React.FC = () => {
 
       // Store authentication
       localStorage.setItem('consultant_auth', JSON.stringify({
-        email: loginData.email,
+        email: normalizedEmail,
         consultantId: consultant.id
       }));
 
@@ -109,7 +127,7 @@ const MyProfile: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       toast({
         title: "Login error",
         description: "An unexpected error occurred.",
