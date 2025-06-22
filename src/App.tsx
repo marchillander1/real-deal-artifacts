@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Landing from '@/pages/Landing';
@@ -7,9 +8,9 @@ import CVUploadComplete from '@/pages/CVUploadComplete';
 import AnalysisPage from '@/pages/AnalysisPage';
 import NetworkSuccess from '@/pages/NetworkSuccess';
 import Pricing from '@/pages/Pricing';
-import PricingAuth from '@/pages/PricingAuth';
+import { PricingAuth } from '@/components/PricingAuth';
 import Auth from '@/pages/Auth';
-import Dashboard from '@/pages/Dashboard';
+import Dashboard from '@/components/Dashboard';
 import NotFound from '@/pages/NotFound';
 import { AuthGuard } from '@/components/AuthGuard';
 import { Toaster } from '@/components/ui/toaster';
