@@ -13,7 +13,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <Navbar />
-      <HeroSection user={null} totalNetworkConsultants={150} />
+      <HeroSection />
       <ProblemSection />
       <SolutionSection />
       <TestimonialsSection />

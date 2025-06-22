@@ -53,7 +53,7 @@ interface ConsultantData {
   linkedin_engagement_level: string;
   market_rate_current: number;
   market_rate_optimized: number;
-  years_of_experience: number;
+  experience_years: number; // Changed from years_of_experience to match database
   tagline?: string;
 }
 
@@ -598,7 +598,7 @@ const CVUploadComplete: React.FC = () => {
               </div>
               <div>
                 <Label className="text-slate-600">Experience</Label>
-                <p className="font-medium">{consultant.years_of_experience} years</p>
+                <p className="font-medium">{consultant.experience_years} years</p>
               </div>
               <div>
                 <Label className="text-slate-600">Market Rate</Label>
@@ -652,7 +652,7 @@ const CVUploadComplete: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-slate-600">Experience Level</Label>
-                  <p className="font-medium">{consultant.years_of_experience} years in IT</p>
+                  <p className="font-medium">{consultant.experience_years} years in IT</p>
                 </div>
                 <div>
                   <Label className="text-slate-600">Specialization</Label>
@@ -862,7 +862,7 @@ const CVUploadComplete: React.FC = () => {
                     <Star key={i} className="h-4 w-4 fill-current" />
                   ))}
                 </div>
-                <p className="text-sm text-slate-600 mt-1">{consultant.years_of_experience} years experience</p>
+                <p className="text-sm text-slate-600 mt-1">{consultant.experience_years} years experience</p>
               </div>
             </div>
           </CardHeader>
