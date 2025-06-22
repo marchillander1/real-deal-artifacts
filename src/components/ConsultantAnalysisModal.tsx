@@ -35,11 +35,22 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
   open,
   onOpenChange,
 }) => {
+  console.log('🔍 ConsultantAnalysisModal - Full consultant data:', consultant);
+  console.log('🔍 CV Analysis data:', consultant.cvAnalysis);
+  console.log('🔍 LinkedIn Analysis data:', consultant.linkedinAnalysis);
+
+  // Access analysis data correctly
   const cvAnalysis = consultant.cvAnalysis?.analysis;
+  console.log('🔍 Parsed CV Analysis:', cvAnalysis);
+  
   const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
+  console.log('🔍 Parsed LinkedIn Analysis:', linkedinAnalysis);
+  
   const hasAnalysisData = cvAnalysis || linkedinAnalysis;
+  console.log('🔍 Has analysis data:', hasAnalysisData);
 
   if (!hasAnalysisData) {
+    console.log('❌ No analysis data available, showing placeholder');
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
@@ -60,6 +71,8 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
       </Dialog>
     );
   }
+
+  console.log('✅ Rendering full analysis modal with data');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,6 +107,9 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                     <div className="flex items-center gap-2 text-green-600">
                       <FileText className="h-4 w-4" />
                       <span className="text-sm font-medium">CV Analyzed</span>
+                      <Badge variant="outline" className="text-xs">
+                        {new Date(consultant.analysis_timestamp || Date.now()).toLocaleDateString()}
+                      </Badge>
                     </div>
                   )}
                   {consultant.linkedinAnalysis && (
@@ -116,11 +132,11 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-600">Current Role</p>
-                      <p className="font-medium">{cvAnalysis.professionalSummary.currentRole}</p>
+                      <p className="font-medium">{cvAnalysis.professionalSummary.currentRole || 'Not specified'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Years of Experience</p>
-                      <p className="font-medium">{cvAnalysis.professionalSummary.yearsOfExperience} years</p>
+                      <p className="font-medium">{cvAnalysis.professionalSummary.yearsOfExperience || 0} years</p>
                     </div>
                   </div>
                   {cvAnalysis.professionalSummary.summary && (
@@ -134,7 +150,7 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
             )}
 
             {/* Competitive Advantages */}
-            {cvAnalysis?.marketPositioning?.competitiveAdvantages && (
+            {cvAnalysis?.marketPositioning?.competitiveAdvantages && cvAnalysis.marketPositioning.competitiveAdvantages.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -153,6 +169,43 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                 </CardContent>
               </Card>
             )}
+
+            {/* Personal Information from CV */}
+            {cvAnalysis?.personalInfo && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Personal Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {cvAnalysis.personalInfo.name && (
+                      <div>
+                        <p className="text-sm text-gray-600">Name</p>
+                        <p className="font-medium">{cvAnalysis.personalInfo.name}</p>
+                      </div>
+                    )}
+                    {cvAnalysis.personalInfo.location && (
+                      <div>
+                        <p className="text-sm text-gray-600">Location</p>
+                        <p className="font-medium">{cvAnalysis.personalInfo.location}</p>
+                      </div>
+                    )}
+                    {cvAnalysis.personalInfo.email && (
+                      <div>
+                        <p className="text-sm text-gray-600">Email</p>
+                        <p className="font-medium">{cvAnalysis.personalInfo.email}</p>
+                      </div>
+                    )}
+                    {cvAnalysis.personalInfo.phone && (
+                      <div>
+                        <p className="text-sm text-gray-600">Phone</p>
+                        <p className="font-medium">{cvAnalysis.personalInfo.phone}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="technical" className="space-y-6">
@@ -163,26 +216,39 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                   <CardTitle>Technical Expertise</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {cvAnalysis.technicalExpertise.programmingLanguages?.expert && (
+                  {cvAnalysis.technicalExpertise.programmingLanguages?.expert && cvAnalysis.technicalExpertise.programmingLanguages.expert.length > 0 && (
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2">Expert Level</p>
                       <div className="flex flex-wrap gap-1">
                         {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill, index) => (
                           <Badge key={index} className="bg-green-100 text-green-800">
-                            {skill}
+                            ✓ {skill}
                           </Badge>
                         ))}
                       </div>
                     </div>
                   )}
                   
-                  {cvAnalysis.technicalExpertise.programmingLanguages?.intermediate && (
+                  {cvAnalysis.technicalExpertise.programmingLanguages?.intermediate && cvAnalysis.technicalExpertise.programmingLanguages.intermediate.length > 0 && (
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2">Intermediate Level</p>
                       <div className="flex flex-wrap gap-1">
                         {cvAnalysis.technicalExpertise.programmingLanguages.intermediate.map((skill, index) => (
                           <Badge key={index} variant="outline" className="border-yellow-200 text-yellow-800">
                             {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {cvAnalysis.technicalExpertise.frameworks && cvAnalysis.technicalExpertise.frameworks.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Frameworks & Technologies</p>
+                      <div className="flex flex-wrap gap-1">
+                        {cvAnalysis.technicalExpertise.frameworks.map((framework, index) => (
+                          <Badge key={index} variant="outline" className="border-blue-200 text-blue-800">
+                            {framework}
                           </Badge>
                         ))}
                       </div>
@@ -208,24 +274,30 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2">Hourly Rate Estimate</p>
                       <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-600">Minimum</p>
-                          <p className="font-medium text-green-600">
-                            {cvAnalysis.marketPositioning.hourlyRateEstimate.minimum} SEK/hour
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600">Recommended</p>
-                          <p className="font-medium text-blue-600">
-                            {cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} SEK/hour
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600">Premium</p>
-                          <p className="font-medium text-purple-600">
-                            {cvAnalysis.marketPositioning.hourlyRateEstimate.premium} SEK/hour
-                          </p>
-                        </div>
+                        {cvAnalysis.marketPositioning.hourlyRateEstimate.minimum && (
+                          <div>
+                            <p className="text-gray-600">Minimum</p>
+                            <p className="font-medium text-green-600">
+                              {cvAnalysis.marketPositioning.hourlyRateEstimate.minimum} SEK/hour
+                            </p>
+                          </div>
+                        )}
+                        {cvAnalysis.marketPositioning.hourlyRateEstimate.recommended && (
+                          <div>
+                            <p className="text-gray-600">Recommended</p>
+                            <p className="font-medium text-blue-600">
+                              {cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} SEK/hour
+                            </p>
+                          </div>
+                        )}
+                        {cvAnalysis.marketPositioning.hourlyRateEstimate.premium && (
+                          <div>
+                            <p className="text-gray-600">Premium</p>
+                            <p className="font-medium text-purple-600">
+                              {cvAnalysis.marketPositioning.hourlyRateEstimate.premium} SEK/hour
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -280,6 +352,27 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                         {path}
                       </Badge>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Analysis Quality Score */}
+            {consultant.profile_completeness && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-green-600" />
+                    Profile Completeness
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Profile Completeness</span>
+                      <span>{Math.round(consultant.profile_completeness)}%</span>
+                    </div>
+                    <Progress value={consultant.profile_completeness} className="h-2" />
                   </div>
                 </CardContent>
               </Card>
