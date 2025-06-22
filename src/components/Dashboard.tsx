@@ -53,7 +53,7 @@ export const Dashboard: React.FC = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem 
-                      onClick={() => navigate('/my-profile')}
+                      onClick={() => navigate('/user-profile')}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <User className="h-4 w-4" />

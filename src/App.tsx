@@ -17,6 +17,7 @@ import { AuthProvider } from '@/hooks/useAuth';
 import { Toaster } from '@/components/ui/toaster';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import MyProfile from '@/pages/MyProfile';
+import UserProfile from '@/pages/UserProfile';
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,14 @@ function App() {
               <Route path="/pricing-auth" element={<PricingAuth />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/my-profile" element={<MyProfile />} />
+              <Route
+                path="/user-profile"
+                element={
+                  <AuthGuard>
+                    <UserProfile />
+                  </AuthGuard>
+                }
+              />
               <Route
                 path="/matchwiseai"
                 element={
