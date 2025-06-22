@@ -1,13 +1,13 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Search, Users, Star } from 'lucide-react';
+import { Search, Users, Star } from 'lucide-react';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { Consultant } from '@/types/consultant';
+import { CVUploadSection } from './CVUploadSection';
 
 export const ConsultantsSection: React.FC = () => {
   const { consultants, isLoading } = useSupabaseConsultantsWithDemo();
@@ -26,13 +26,6 @@ export const ConsultantsSection: React.FC = () => {
       );
       return matchesSearch && matchesSkill;
     });
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      window.location.href = '/cv-upload?source=my-consultants';
-    }
   };
 
   if (isLoading) {
@@ -84,49 +77,34 @@ export const ConsultantsSection: React.FC = () => {
         </TabsList>
 
         <TabsContent value="my-consultants" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-lg font-semibold">My Consultants</h3>
-              <p className="text-sm text-gray-600">Consultants in your team</p>
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* CV Upload Section */}
+            <div className="lg:col-span-1">
+              <CVUploadSection />
             </div>
-            <div className="relative">
-              <Button className="bg-green-600 hover:bg-green-700 flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Upload CV
-              </Button>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileUpload}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(myConsultants).map((consultant) => (
-              <ConsultantCard key={consultant.id} consultant={consultant} isOwned={true} />
-            ))}
-          </div>
-
-          {myConsultants.length === 0 && (
-            <div className="text-center py-12">
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants yet</h3>
-              <p className="text-gray-600 mb-4">Upload CVs to build your consultant team</p>
-              <div className="relative inline-block">
-                <Button className="bg-green-600 hover:bg-green-700">
-                  Upload First CV
-                </Button>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
+            
+            {/* Consultants Grid */}
+            <div className="lg:col-span-2">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">My Team ({myConsultants.length})</h3>
+                <p className="text-sm text-gray-600">Consultants in your organization</p>
               </div>
+              
+              <div className="grid gap-4 md:grid-cols-2">
+                {filterConsultants(myConsultants).map((consultant) => (
+                  <ConsultantCard key={consultant.id} consultant={consultant} isOwned={true} />
+                ))}
+              </div>
+
+              {myConsultants.length === 0 && (
+                <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants yet</h3>
+                  <p className="text-gray-600">Upload CVs to build your consultant team using the form on the left</p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </TabsContent>
 
         <TabsContent value="network" className="space-y-4">
