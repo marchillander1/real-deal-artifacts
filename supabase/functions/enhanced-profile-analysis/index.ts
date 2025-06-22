@@ -103,6 +103,25 @@ async function extractTextFromPDF(fileBuffer: ArrayBuffer): Promise<{text: strin
   return { text: extractedText, personalInfo };
 }
 
+// Helper function to safely convert values to appropriate types
+function safeValue(value: any, type: 'string' | 'number' | 'array', fallback: any = null) {
+  if (value === undefined || value === null || value === 'Not detected' || value === 'Ej specificerat') {
+    return fallback;
+  }
+  
+  switch (type) {
+    case 'string':
+      return typeof value === 'string' ? value : String(value);
+    case 'number':
+      const num = typeof value === 'number' ? value : parseInt(value);
+      return isNaN(num) ? fallback : num;
+    case 'array':
+      return Array.isArray(value) ? value : (fallback || []);
+    default:
+      return value;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -137,15 +156,15 @@ Location: ${personalInfo.locations[0] || 'Not detected'}
 CV TEXT:
 ${cvText}
 
-Return ONLY this JSON structure with comprehensive analysis in ENGLISH:
+Return ONLY this JSON structure with comprehensive analysis in ENGLISH. Use actual detected data when available, otherwise use "Unknown" or empty arrays:
 
 {
-  "full_name": "USE DETECTED NAME or extract from CV text",
-  "email": "USE DETECTED EMAIL or extract from CV text", 
-  "phone_number": "USE DETECTED PHONE or extract from CV text",
-  "location": "USE DETECTED LOCATION or extract from CV text",
-  "title": "Current job title from CV",
-  "years_of_experience": "Years in IT/tech (number)",
+  "full_name": "USE DETECTED NAME or extract from CV text or Unknown",
+  "email": "USE DETECTED EMAIL or extract from CV text or empty string", 
+  "phone_number": "USE DETECTED PHONE or extract from CV text or empty string",
+  "location": "USE DETECTED LOCATION or extract from CV text or Sweden",
+  "title": "Current job title from CV or IT Consultant",
+  "years_of_experience": 5,
   "primary_tech_stack": ["Main technologies like JavaScript, React, Python, etc"],
   "secondary_tech_stack": ["Secondary technologies and tools"],
   "certifications": ["Professional certifications from CV"],
@@ -154,8 +173,8 @@ Return ONLY this JSON structure with comprehensive analysis in ENGLISH:
   "personality_traits": ["Personality traits based on CV analysis"],
   "communication_style": "Communication style assessment from CV",
   "tone_of_voice": "Professional tone assessment",
-  "thought_leadership_score": "Score 0-10 for thought leadership potential",
-  "linkedin_engagement_level": "low/medium/high based on profile",
+  "thought_leadership_score": 5,
+  "linkedin_engagement_level": "medium",
   "brand_themes": ["Personal brand themes"],
   "cv_tips": [
     "Add more quantifiable achievements and metrics to demonstrate impact",
@@ -171,16 +190,16 @@ Return ONLY this JSON structure with comprehensive analysis in ENGLISH:
     "Optimize headline with key technologies and value proposition",
     "Connect strategically with industry professionals"
   ],
-  "certification_recommendations": ["AWS Solutions Architect", "Scrum Master", "Google Cloud Professional", "Microsoft Azure Fundamentals"],
-  "suggested_learning_paths": ["Cloud Computing", "DevOps & CI/CD", "Machine Learning", "Cybersecurity", "Leadership & Management"],
-  "market_rate_current": "Current market rate in SEK per hour",
-  "market_rate_optimized": "Optimized market rate in SEK per hour",
+  "certification_recommendations": ["AWS Solutions Architect", "Scrum Master", "Google Cloud Professional"],
+  "suggested_learning_paths": ["Cloud Computing", "DevOps & CI/CD", "Machine Learning"],
+  "market_rate_current": 800,
+  "market_rate_optimized": 1000,
   "professional_perception": {
     "strengths": ["Key strengths as perceived by employers"],
     "growth_areas": ["Areas for professional development"],
     "market_positioning": "How you're positioned in the market",
     "unique_value_proposition": "What makes you stand out",
-    "consultant_readiness": "Assessment of consulting readiness (1-10)"
+    "consultant_readiness": 7
   },
   "profile_optimization": {
     "technical_gaps": ["Technical skills to develop"],
@@ -191,7 +210,7 @@ Return ONLY this JSON structure with comprehensive analysis in ENGLISH:
   }
 }
 
-Use real data from the CV. Prioritize detected personal information. Provide comprehensive, actionable insights in ENGLISH.
+IMPORTANT: Return ONLY valid JSON. Use numbers for numeric fields, not strings like "Not detected".
 `;
 
     let analysisResults;
@@ -199,6 +218,7 @@ Use real data from the CV. Prioritize detected personal information. Provide com
     try {
       console.log('🤖 Calling GROQ API for comprehensive analysis...');
       
+      // Use the smaller, faster model to avoid rate limits
       const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -206,11 +226,11 @@ Use real data from the CV. Prioritize detected personal information. Provide com
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama3-70b-8192',
+          model: 'llama3-8b-8192', // Switch to smaller model to avoid rate limits
           messages: [
             {
               role: 'system',
-              content: 'You are an expert CV and career analyst. Extract real information from CVs and provide comprehensive career insights in ENGLISH. Always prioritize detected personal information and provide actionable advice.'
+              content: 'You are an expert CV and career analyst. Extract real information from CVs and provide comprehensive career insights in ENGLISH. Always return valid JSON with proper data types.'
             },
             {
               role: 'user',
@@ -218,14 +238,14 @@ Use real data from the CV. Prioritize detected personal information. Provide com
             }
           ],
           temperature: 0.1,
-          max_tokens: 3000
+          max_tokens: 2000 // Reduce tokens to avoid rate limits
         }),
       });
 
       if (!groqResponse.ok) {
         const errorText = await groqResponse.text();
         console.error('❌ GROQ API error:', errorText);
-        throw new Error(`GROQ API failed: ${groqResponse.status}`);
+        throw new Error(`GROQ API failed: ${groqResponse.status} - Rate limit reached. Using fallback analysis.`);
       }
 
       const groqData = await groqResponse.json();
@@ -238,21 +258,17 @@ Use real data from the CV. Prioritize detected personal information. Provide com
       if (jsonMatch) {
         analysisResults = JSON.parse(jsonMatch[0]);
         
-        // Ensure detected data is used
-        if (personalInfo.emails.length > 0) {
-          analysisResults.email = personalInfo.emails[0];
-        }
-        if (personalInfo.phones.length > 0) {
-          analysisResults.phone_number = personalInfo.phones[0];
-        }
-        if (personalInfo.names.length > 0) {
-          analysisResults.full_name = personalInfo.names[0];
-        }
-        if (personalInfo.locations.length > 0) {
-          analysisResults.location = personalInfo.locations[0];
-        }
+        // Ensure detected data is used and properly typed
+        analysisResults.email = safeValue(personalInfo.emails[0] || analysisResults.email, 'string', '');
+        analysisResults.phone_number = safeValue(personalInfo.phones[0] || analysisResults.phone_number, 'string', '');
+        analysisResults.full_name = safeValue(personalInfo.names[0] || analysisResults.full_name, 'string', 'Professional Consultant');
+        analysisResults.location = safeValue(personalInfo.locations[0] || analysisResults.location, 'string', 'Sweden');
+        analysisResults.years_of_experience = safeValue(analysisResults.years_of_experience, 'number', 5);
+        analysisResults.market_rate_current = safeValue(analysisResults.market_rate_current, 'number', 800);
+        analysisResults.market_rate_optimized = safeValue(analysisResults.market_rate_optimized, 'number', 1000);
+        analysisResults.thought_leadership_score = safeValue(analysisResults.thought_leadership_score, 'number', 5);
         
-        console.log('✅ Enhanced analysis results:', analysisResults);
+        console.log('✅ Enhanced analysis results with proper typing:', analysisResults);
       } else {
         throw new Error('No valid JSON found in AI response');
       }
@@ -260,12 +276,12 @@ Use real data from the CV. Prioritize detected personal information. Provide com
     } catch (aiError) {
       console.warn('⚠️ AI analysis failed, using enhanced fallback:', aiError);
       
-      // Enhanced fallback with detected data
+      // Enhanced fallback with detected data and proper typing
       analysisResults = {
-        full_name: personalInfo.names[0] || 'Professional Consultant',
-        email: personalInfo.emails[0] || '',
-        phone_number: personalInfo.phones[0] || '',
-        location: personalInfo.locations[0] || 'Sweden',
+        full_name: safeValue(personalInfo.names[0], 'string', 'Professional Consultant'),
+        email: safeValue(personalInfo.emails[0], 'string', ''),
+        phone_number: safeValue(personalInfo.phones[0], 'string', ''),
+        location: safeValue(personalInfo.locations[0], 'string', 'Sweden'),
         title: 'IT Consultant',
         years_of_experience: 5,
         primary_tech_stack: ['JavaScript', 'React', 'Node.js'],
@@ -343,47 +359,47 @@ Use real data from the CV. Prioritize detected personal information. Provide com
       activity_level: 'medium'
     };
 
-    // Step 4: Create consultant with enhanced data
+    // Step 4: Create consultant with enhanced data and proper type safety
     const consultantData = {
-      name: analysisResults.full_name || 'Professional Consultant',
-      email: analysisResults.email || 'temp@matchwise.tech',
-      phone: analysisResults.phone_number || '',
-      title: analysisResults.title || 'IT Consultant',
-      location: analysisResults.location || 'Sweden',
-      skills: [...(analysisResults.primary_tech_stack || []), ...(analysisResults.secondary_tech_stack || [])],
-      experience_years: analysisResults.years_of_experience || 5,
-      hourly_rate: analysisResults.market_rate_current || 800,
+      name: safeValue(analysisResults.full_name, 'string', 'Professional Consultant'),
+      email: safeValue(analysisResults.email, 'string', 'temp@matchwise.tech'),
+      phone: safeValue(analysisResults.phone_number, 'string', ''),
+      title: safeValue(analysisResults.title, 'string', 'IT Consultant'),
+      location: safeValue(analysisResults.location, 'string', 'Sweden'),
+      skills: safeValue([...(analysisResults.primary_tech_stack || []), ...(analysisResults.secondary_tech_stack || [])], 'array', []),
+      experience_years: safeValue(analysisResults.years_of_experience, 'number', 5),
+      hourly_rate: safeValue(analysisResults.market_rate_current, 'number', 800),
       availability: 'Available',
       cv_file_path: file.name,
-      certifications: analysisResults.certifications || [],
+      certifications: safeValue(analysisResults.certifications, 'array', []),
       languages: ['Swedish', 'English'],
-      roles: [analysisResults.title || 'IT Consultant'],
-      values: analysisResults.top_values || [],
-      communication_style: analysisResults.communication_style || 'Professional',
+      roles: [safeValue(analysisResults.title, 'string', 'IT Consultant')],
+      values: safeValue(analysisResults.top_values, 'array', []),
+      communication_style: safeValue(analysisResults.communication_style, 'string', 'Professional'),
       work_style: 'Collaborative',
-      personality_traits: analysisResults.personality_traits || [],
+      personality_traits: safeValue(analysisResults.personality_traits, 'array', []),
       team_fit: 'Team Player',
       cultural_fit: 5,
       adaptability: 5,
-      leadership: Math.min(Math.floor((analysisResults.years_of_experience || 5) / 3), 5),
+      leadership: Math.min(Math.floor(safeValue(analysisResults.years_of_experience, 'number', 5) / 3), 5),
       type: 'new',
       linkedin_url: linkedinUrl || '',
       
-      // Enhanced fields
-      primary_tech_stack: analysisResults.primary_tech_stack || [],
-      secondary_tech_stack: analysisResults.secondary_tech_stack || [],
-      industries: analysisResults.industries || [],
-      top_values: analysisResults.top_values || [],
-      tone_of_voice: analysisResults.tone_of_voice || 'Professional',
-      thought_leadership_score: analysisResults.thought_leadership_score || 0,
-      linkedin_engagement_level: analysisResults.linkedin_engagement_level || 'medium',
-      brand_themes: analysisResults.brand_themes || [],
-      cv_tips: analysisResults.cv_tips || [],
-      linkedin_tips: analysisResults.linkedin_tips || [],
-      certification_recommendations: analysisResults.certification_recommendations || [],
-      suggested_learning_paths: analysisResults.suggested_learning_paths || [],
-      market_rate_current: analysisResults.market_rate_current || 800,
-      market_rate_optimized: analysisResults.market_rate_optimized || 1000,
+      // Enhanced fields with proper typing
+      primary_tech_stack: safeValue(analysisResults.primary_tech_stack, 'array', []),
+      secondary_tech_stack: safeValue(analysisResults.secondary_tech_stack, 'array', []),
+      industries: safeValue(analysisResults.industries, 'array', []),
+      top_values: safeValue(analysisResults.top_values, 'array', []),
+      tone_of_voice: safeValue(analysisResults.tone_of_voice, 'string', 'Professional'),
+      thought_leadership_score: safeValue(analysisResults.thought_leadership_score, 'number', 0),
+      linkedin_engagement_level: safeValue(analysisResults.linkedin_engagement_level, 'string', 'medium'),
+      brand_themes: safeValue(analysisResults.brand_themes, 'array', []),
+      cv_tips: safeValue(analysisResults.cv_tips, 'array', []),
+      linkedin_tips: safeValue(analysisResults.linkedin_tips, 'array', []),
+      certification_recommendations: safeValue(analysisResults.certification_recommendations, 'array', []),
+      suggested_learning_paths: safeValue(analysisResults.suggested_learning_paths, 'array', []),
+      market_rate_current: safeValue(analysisResults.market_rate_current, 'number', 800),
+      market_rate_optimized: safeValue(analysisResults.market_rate_optimized, 'number', 1000),
       source_cv_raw_text: true,
       source_linkedin_parsed: !!linkedinUrl,
       analysis_timestamp: new Date().toISOString(),
