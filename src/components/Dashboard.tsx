@@ -9,6 +9,11 @@ import { CVUploadSection } from './dashboard/CVUploadSection';
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'consultants' | 'assignments'>('overview');
 
+  const handleCreateAssignment = () => {
+    // Handle assignment creation - could open a modal or navigate
+    console.log('Create assignment clicked');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -31,7 +36,7 @@ export const Dashboard: React.FC = () => {
           </TabsList>
 
           <TabsContent value="overview">
-            <DashboardOverview />
+            <DashboardOverview onCreateAssignment={handleCreateAssignment} />
           </TabsContent>
 
           <TabsContent value="consultants">

@@ -242,8 +242,8 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
           </TabsContent>
 
           <TabsContent value="recommendations" className="space-y-6">
-            {/* Improvement Tips */}
-            {consultant.cvTips && consultant.cvTips.length > 0 && (
+            {/* CV Improvement Tips */}
+            {consultant.cv_tips && consultant.cv_tips.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -253,7 +253,7 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {consultant.cvTips.map((tip, index) => (
+                    {consultant.cv_tips.map((tip, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <span>{tip}</span>
@@ -264,20 +264,20 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
               </Card>
             )}
 
-            {/* Certification Recommendations */}
-            {consultant.certificationRecommendations && consultant.certificationRecommendations.length > 0 && (
+            {/* Learning Path Recommendations */}
+            {consultant.suggested_learning_paths && consultant.suggested_learning_paths.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-600" />
-                    Recommended Certifications
+                    Recommended Learning Paths
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {consultant.certificationRecommendations.map((cert, index) => (
+                    {consultant.suggested_learning_paths.map((path, index) => (
                       <Badge key={index} variant="outline" className="border-yellow-200 text-yellow-800">
-                        {cert}
+                        {path}
                       </Badge>
                     ))}
                   </div>
