@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,7 +11,7 @@ import Auth from "./pages/Auth";
 import { PricingAuth } from "./components/PricingAuth";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
-import CVUploadModern from "./pages/CVUploadModern";
+import CVUploadComplete from "./pages/CVUploadComplete";
 import AnalysisPage from "./pages/AnalysisPage";
 import NetworkSuccess from "./pages/NetworkSuccess";
 import Demo from "./pages/Demo";
@@ -34,7 +33,7 @@ function App() {
                 <Route path="/pricing-auth" element={<PricingAuth />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/pricing" element={<Pricing />} />
-                <Route path="/cv-upload" element={<CVUploadModern />} />
+                <Route path="/cv-upload" element={<CVUploadComplete />} />
                 <Route path="/analysis" element={<AnalysisPage />} />
                 <Route path="/network-success" element={<NetworkSuccess />} />
                 

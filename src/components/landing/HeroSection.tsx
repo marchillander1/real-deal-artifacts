@@ -1,168 +1,44 @@
-
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Heart, Clock, Shield, Zap, Target, Users, TrendingUp, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Logo from '@/components/Logo';
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Users } from 'lucide-react';
 
-interface HeroSectionProps {
-  user: any;
-  totalNetworkConsultants: number;
-}
-
-export default function HeroSection({ user, totalNetworkConsultants }: HeroSectionProps) {
+export const HeroSection = () => {
   return (
-    <section className="py-20 relative bg-slate-900">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left side - Content */}
-          <div className="relative z-10">
-            <Badge className="mb-6 bg-blue-600/20 text-blue-300 border-blue-500/30 hover:bg-blue-600/30 backdrop-blur-sm">
-              <Heart className="w-3 h-3 mr-1" />
-              Human-First AI Matching
-            </Badge>
-            
-            <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Match the whole
-              <span className="text-blue-400 block">
-                person
-              </span>
-              <span className="text-white">not just the CV</span>
-            </h1>
-            
-            <p className="text-xl text-slate-300 mb-8 max-w-2xl leading-relaxed">
-              MatchWise AI revolutionizes consultant matching by analyzing both technical skills 
-              AND soft factors like values, communication style, and personal fit.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Link to="/demo">
-                <Button size="lg" className="px-8 py-4 text-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg group">
-                  <Play className="mr-2 h-5 w-5" />
-                  Try Free Demo
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
+    <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-20 sm:py-24">
+      <div className="absolute inset-0 pointer-events-none [mask-image:radial-gradient(50%_50%_at_50%_50%,white,transparent)]"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-3xl opacity-30 sm:opacity-50 w-[600px] h-[400px] bg-gradient-to-br from-blue-700 via-blue-500 to-purple-700 rounded-full"></div>
+      
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            AI-Powered Consultant Matching
+          </h1>
+          <p className="mt-6 text-lg text-slate-600">
+            Find the perfect IT consultants for your projects with our AI-driven platform. 
+            Join our network and unlock your career potential.
+          </p>
+          
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all">
+              <Link to="/matchwiseai" className="flex items-center">
+                Find Perfect Consultants
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-
-              {user ? (
-                <Link to="/matchwiseai">
-                  <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-600 text-white hover:bg-slate-800 bg-slate-900/50 backdrop-blur-sm">
-                    <Zap className="mr-2 h-5 w-5" />
-                    Go to Dashboard
-                  </Button>
-                </Link>
-              ) : (
-                <Link to="/auth">
-                  <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-600 text-white hover:bg-slate-800 bg-slate-900/50 backdrop-blur-sm">
-                    <Zap className="mr-2 h-5 w-5" />
-                    Go to Dashboard
-                  </Button>
-                </Link>
-              )}
-            </div>
-
-            {/* Enhanced Features Grid */}
-            <div className="grid grid-cols-3 gap-6">
-              <div className="text-center group hover:scale-105 transition-transform">
-                <div className="flex items-center justify-center mb-3">
-                  <div className="p-3 bg-blue-600/20 rounded-xl backdrop-blur-sm border border-blue-500/30">
-                    <Heart className="h-6 w-6 text-blue-400" />
-                  </div>
-                </div>
-                <span className="text-white font-medium block">Human-First</span>
-                <span className="text-slate-400 text-sm">AI Matching</span>
-              </div>
-              <div className="text-center group hover:scale-105 transition-transform">
-                <div className="flex items-center justify-center mb-3">
-                  <div className="p-3 bg-blue-600/20 rounded-xl backdrop-blur-sm border border-blue-500/30">
-                    <Clock className="h-6 w-6 text-blue-400" />
-                  </div>
-                </div>
-                <span className="text-white font-medium block">12 seconds</span>
-                <span className="text-slate-400 text-sm">Analysis</span>
-              </div>
-              <div className="text-center group hover:scale-105 transition-transform">
-                <div className="flex items-center justify-center mb-3">
-                  <div className="p-3 bg-blue-600/20 rounded-xl backdrop-blur-sm border border-blue-500/30">
-                    <Shield className="h-6 w-6 text-blue-400" />
-                  </div>
-                </div>
-                <span className="text-white font-medium block">GDPR</span>
-                <span className="text-slate-400 text-sm">Secure</span>
-              </div>
-            </div>
+            </Button>
+            <Button variant="outline" size="lg" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg font-semibold transition-all">
+              <Link to="/cv-upload" className="flex items-center">
+                Join as Consultant
+                <Users className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
           </div>
-
-          {/* Right side - Enhanced Dashboard Preview */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-blue-600/20 rounded-3xl blur-xl"></div>
-            <Card className="bg-slate-800/80 border-slate-700 backdrop-blur-sm shadow-2xl relative z-10 hover:scale-105 transition-transform duration-500">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3">
-                    <Logo />
-                    <div>
-                      <span className="text-white font-semibold block">MatchWise AI</span>
-                      <span className="text-slate-400 text-sm">Platform v2.0</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                    <span className="text-emerald-400 text-sm font-medium">Live</span>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  {/* Stats Row */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <Card className="bg-blue-600/20 border-blue-500/30">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <Users className="h-5 w-5 text-blue-400" />
-                          <span className="text-xs text-blue-300">+15%</span>
-                        </div>
-                        <div className="text-xl font-bold text-white">33</div>
-                        <div className="text-xs text-blue-300">Network Consultants</div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-emerald-600/20 border-emerald-500/30">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <TrendingUp className="h-5 w-5 text-emerald-400" />
-                          <span className="text-xs text-emerald-300">96%</span>
-                        </div>
-                        <div className="text-xl font-bold text-white">12s</div>
-                        <div className="text-xs text-emerald-300">Match Time</div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* AI Engine Status */}
-                  <Card className="bg-blue-600/20 border-blue-500/30">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <span className="text-white text-lg">🧠</span>
-                          </div>
-                          <div>
-                            <div className="text-white font-medium">AI Matching Engine</div>
-                            <div className="text-blue-300 text-sm">95% precision • Real-time analysis</div>
-                          </div>
-                        </div>
-                        <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          
+          <p className="mt-8 text-sm text-slate-500">
+            Trusted by leading companies and top-tier consultants in Sweden
+          </p>
         </div>
       </div>
     </section>
   );
-}
+};

@@ -1,187 +1,160 @@
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface WelcomeEmailRequest {
-  consultantEmail: string;
-  consultantName: string;
-  isMyConsultant?: boolean;
-}
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
-const handler = async (req: Request): Promise<Response> => {
-  console.log('🎯 Welcome email function called');
-  
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('🔑 RESEND_API_KEY exists:', !!Deno.env.get("RESEND_API_KEY"));
-    
-    const body = await req.json();
-    console.log('📧 Sending welcome email:', {
-      consultantName: body.consultantName,
-      consultantEmail: body.consultantEmail,
-      isMyConsultant: body.isMyConsultant
-    });
+    const { email, name, consultantId } = await req.json();
 
-    const { consultantEmail, consultantName, isMyConsultant = false }: WelcomeEmailRequest = body;
-
-    console.log('📧 Email will be sent from: marc@matchwise.tech');
-    console.log('📧 Email will be sent to FORM EMAIL (NOT CV EMAIL):', consultantEmail);
-
-    if (!consultantEmail || !consultantName) {
-      throw new Error('Missing required email parameters');
+    if (!email || !name) {
+      throw new Error('Email and name are required');
     }
 
-    const emailSubject = isMyConsultant 
-      ? `Welcome to MatchWise - ${consultantName} added to network!`
-      : `Welcome to MatchWise Network, ${consultantName}! 🎉`;
+    console.log('Sending welcome email to:', email);
 
-    const emailHtml = isMyConsultant ? `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%); padding: 40px 20px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to MatchWise! 🎉</h1>
+    const welcomeEmailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to MatchWise Network!</title>
+    </head>
+    <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">🚀 Welcome to MatchWise!</h1>
+            <p style="color: #e8f4f8; margin: 10px 0 0 0; font-size: 16px;">You're now part of Sweden's premier IT consultant network</p>
         </div>
         
-        <div style="padding: 40px 20px; background: white;">
-          <h2 style="color: #1F2937; margin-bottom: 20px;">Hi ${consultantName}!</h2>
-          
-          <p style="color: #4B5563; line-height: 1.6; margin-bottom: 20px;">
-            Great news! You've been successfully added to the MatchWise consultant network. 
-            Your profile has been analyzed and you're now part of our exclusive talent pool.
-          </p>
-          
-          <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #1F2937; margin-top: 0;">What's Next?</h3>
-            <ul style="color: #4B5563; line-height: 1.6;">
-              <li>Your profile is now live in our consultant database</li>
-              <li>We'll match you with relevant opportunities</li>
-              <li>Expect to hear from us when suitable projects arise</li>
-            </ul>
-          </div>
-          
-          <p style="color: #4B5563; line-height: 1.6;">
-            If you have any questions, feel free to reach out to us at any time.
-          </p>
-          
-          <p style="color: #4B5563; line-height: 1.6; margin-top: 30px;">
-            Best regards,<br>
-            <strong>Marc & The MatchWise Team</strong><br>
-            <a href="mailto:marc@matchwise.tech" style="color: #3B82F6;">marc@matchwise.tech</a>
-          </p>
-        </div>
-      </div>
-    ` : `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%); padding: 40px 20px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to MatchWise Network! 🎉</h1>
-        </div>
-        
-        <div style="padding: 40px 20px; background: white;">
-          <h2 style="color: #1F2937; margin-bottom: 20px;">Congratulations, ${consultantName}!</h2>
-          
-          <p style="color: #4B5563; line-height: 1.6; margin-bottom: 20px;">
-            You've successfully joined the MatchWise Network! Your comprehensive analysis is complete, 
-            and your profile is now live among our exclusive community of top consultants.
-          </p>
-          
-          <div style="background: #EBF8FF; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3B82F6;">
-            <h3 style="color: #1E40AF; margin-top: 0;">🚀 What happens next?</h3>
-            <ul style="color: #1E3A8A; line-height: 1.6; margin: 0;">
-              <li><strong>Profile Activation:</strong> Your profile is now visible to premium clients</li>
-              <li><strong>AI Matching:</strong> Our system will match you with relevant opportunities</li>
-              <li><strong>First Contacts:</strong> Expect initial matches within 24-48 hours</li>
-              <li><strong>Rate Optimization:</strong> Implement the suggestions from your analysis report</li>
-            </ul>
-          </div>
-          
-          <div style="background: #F0FDF4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981;">
-            <h3 style="color: #15803D; margin-top: 0;">💡 Quick Tips for Success</h3>
-            <ul style="color: #166534; line-height: 1.6; margin: 0;">
-              <li>Update your LinkedIn profile with the suggestions from your analysis</li>
-              <li>Consider the strategic certifications we recommended</li>
-              <li>Keep your availability status updated</li>
-              <li>Respond quickly to match notifications</li>
-            </ul>
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="https://matchwise.tech" style="background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-              View Your Dashboard
-            </a>
-          </div>
-          
-          <p style="color: #4B5563; line-height: 1.6;">
-            Remember, you're now part of an exclusive network where 85% of consultants get their first 
-            interview within 2 weeks, and members see an average 40% rate increase.
-          </p>
-          
-          <p style="color: #4B5563; line-height: 1.6; margin-top: 30px;">
-            Questions? We're here to help!<br>
-            <strong>Marc & The MatchWise Team</strong><br>
-            <a href="mailto:marc@matchwise.tech" style="color: #3B82F6;">marc@matchwise.tech</a>
-          </p>
+        <!-- Main Content -->
+        <div style="background: #ffffff; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            
+            <h2 style="color: #2563eb; margin-bottom: 20px;">Hi ${name}! 👋</h2>
+            
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Congratulations! Your profile analysis is complete and you're now <strong>live</strong> on the MatchWise platform. 
+                Here's what happens next:
+            </p>
+            
+            <!-- Status Cards -->
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #15803d; margin: 0 0 15px 0; font-size: 18px;">✅ Your Profile is Active</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #166534;">
+                    <li>Visible to potential clients immediately</li>
+                    <li>AI-powered matching based on your skills and values</li>
+                    <li>Professional profile showcasing your expertise</li>
+                    <li>Market-competitive rate recommendations</li>
+                </ul>
+            </div>
+            
+            <!-- Next Steps -->
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #1d4ed8; margin: 0 0 15px 0; font-size: 18px;">🎯 Pro Tips for Success</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #1e40af;">
+                    <li><strong>Update regularly:</strong> Keep your skills and availability current</li>
+                    <li><strong>Respond quickly:</strong> Fast responses increase your match rate</li>
+                    <li><strong>Build your profile:</strong> Add certifications and project highlights</li>
+                    <li><strong>Network actively:</strong> Engage with opportunities that match your goals</li>
+                </ul>
+            </div>
+            
+            <!-- How Matching Works -->
+            <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #a16207; margin: 0 0 15px 0; font-size: 18px;">🤖 How AI Matching Works</h3>
+                <p style="margin: 0; color: #92400e;">
+                    Our AI analyzes your skills, experience, values, and personality traits to match you with 
+                    assignments that truly fit. You'll only receive opportunities that align with your 
+                    expertise and career goals.
+                </p>
+            </div>
+            
+            <!-- Dashboard Link -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://matchwise.tech/matchwiseai" 
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                    Access Your Dashboard →
+                </a>
+            </div>
+            
+            <!-- Contact Info -->
+            <div style="border-top: 2px solid #e5e7eb; padding-top: 20px; margin-top: 30px;">
+                <p style="margin: 0; font-size: 14px; color: #6b7280;">
+                    <strong>Questions?</strong> Reply to this email or contact us at 
+                    <a href="mailto:support@matchwise.tech" style="color: #2563eb;">support@matchwise.tech</a>
+                </p>
+                <p style="margin: 10px 0 0 0; font-size: 14px; color: #6b7280;">
+                    Follow us: 
+                    <a href="https://linkedin.com/company/matchwise" style="color: #2563eb;">LinkedIn</a> | 
+                    <a href="https://matchwise.tech" style="color: #2563eb;">Website</a>
+                </p>
+            </div>
+            
         </div>
         
-        <div style="background: #F9FAFB; padding: 20px; text-align: center; color: #6B7280; font-size: 12px;">
-          <p>MatchWise - Connecting exceptional consultants with premium opportunities</p>
+        <!-- Footer -->
+        <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
+            <p style="margin: 0;">
+                MatchWise Technologies AB | Stockholm, Sweden<br>
+                This email was sent to ${email} because you joined our consultant network.
+            </p>
         </div>
-      </div>
+        
+    </body>
+    </html>
     `;
 
-    console.log('🚀 About to send email via Resend to FORM EMAIL...');
-    console.log('✅ Welcome email sent successfully to FORM EMAIL', consultantEmail);
+    const emailData = {
+      from: 'MatchWise <noreply@matchwise.tech>',
+      to: [email],
+      subject: `🚀 Welcome to MatchWise Network, ${name}!`,
+      html: welcomeEmailHtml
+    };
 
-    const emailResponse = await resend.emails.send({
-      from: "Marc from MatchWise <marc@matchwise.tech>",
-      to: [consultantEmail],
-      subject: emailSubject,
-      html: emailHtml,
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
     });
 
-    console.log('📨 Resend email response:', JSON.stringify(emailResponse, null, 2));
-
-    if (emailResponse.error) {
-      console.error('❌ Resend error:', emailResponse.error);
-      throw new Error(`Resend error: ${JSON.stringify(emailResponse.error)}`);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Resend API error:', errorData);
+      throw new Error(`Failed to send email: ${response.status}`);
     }
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Welcome email sent successfully',
-        emailId: emailResponse.data?.id 
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    const result = await response.json();
+    console.log('Welcome email sent successfully:', result.id);
 
-  } catch (error: any) {
-    console.error('❌ Error sending welcome email:', error);
-    console.error('❌ Error stack:', error.stack);
-    
-    return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: error.message
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ 
+      success: true, 
+      messageId: result.id 
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  } catch (error) {
+    console.error('Welcome email error:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message || 'Failed to send welcome email' 
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
-};
-
-serve(handler);
+});

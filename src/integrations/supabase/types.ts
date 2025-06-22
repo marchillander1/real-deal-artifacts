@@ -9,6 +9,79 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analysis_sessions: {
+        Row: {
+          completed_at: string | null
+          consultant_id: string | null
+          created_at: string | null
+          id: string
+          session_token: string
+          step: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          consultant_id?: string | null
+          created_at?: string | null
+          id?: string
+          session_token: string
+          step?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          consultant_id?: string | null
+          created_at?: string | null
+          id?: string
+          session_token?: string
+          step?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_sessions_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_events: {
+        Row: {
+          consultant_id: string | null
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          session_token: string | null
+        }
+        Insert: {
+          consultant_id?: string | null
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          session_token?: string | null
+        }
+        Update: {
+          consultant_id?: string | null
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          session_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assignments: {
         Row: {
           budget_currency: string | null
@@ -96,101 +169,167 @@ export type Database = {
       consultants: {
         Row: {
           adaptability: number | null
+          analysis_timestamp: string | null
           availability: string | null
+          brand_themes: string[] | null
+          certification_recommendations: string[] | null
           certifications: string[] | null
           communication_style: string | null
           created_at: string | null
           cultural_fit: number | null
           cv_analysis_data: Json | null
           cv_file_path: string | null
+          cv_tips: string[] | null
           email: string
           experience_years: number | null
           hourly_rate: number | null
           id: string
+          industries: string[] | null
+          is_published: boolean | null
           languages: string[] | null
           last_active: string | null
           leadership: number | null
           linkedin_analysis_data: Json | null
+          linkedin_engagement_level: string | null
+          linkedin_tips: string[] | null
           linkedin_url: string | null
           location: string | null
+          market_rate_current: number | null
+          market_rate_optimized: number | null
           name: string
           personality_traits: string[] | null
           phone: string | null
+          primary_tech_stack: string[] | null
+          profile_completeness: number | null
           projects_completed: number | null
           rating: number | null
           roles: string[] | null
+          secondary_tech_stack: string[] | null
           skills: string[] | null
+          source_cv_raw_text: boolean | null
+          source_linkedin_parsed: boolean | null
+          suggested_learning_paths: string[] | null
+          tagline: string | null
           team_fit: string | null
+          thought_leadership_score: number | null
+          title: string | null
+          tone_of_voice: string | null
+          top_values: string[] | null
           type: string | null
           updated_at: string | null
           user_id: string | null
           values: string[] | null
+          visibility_status: string | null
           work_style: string | null
         }
         Insert: {
           adaptability?: number | null
+          analysis_timestamp?: string | null
           availability?: string | null
+          brand_themes?: string[] | null
+          certification_recommendations?: string[] | null
           certifications?: string[] | null
           communication_style?: string | null
           created_at?: string | null
           cultural_fit?: number | null
           cv_analysis_data?: Json | null
           cv_file_path?: string | null
+          cv_tips?: string[] | null
           email: string
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string
+          industries?: string[] | null
+          is_published?: boolean | null
           languages?: string[] | null
           last_active?: string | null
           leadership?: number | null
           linkedin_analysis_data?: Json | null
+          linkedin_engagement_level?: string | null
+          linkedin_tips?: string[] | null
           linkedin_url?: string | null
           location?: string | null
+          market_rate_current?: number | null
+          market_rate_optimized?: number | null
           name: string
           personality_traits?: string[] | null
           phone?: string | null
+          primary_tech_stack?: string[] | null
+          profile_completeness?: number | null
           projects_completed?: number | null
           rating?: number | null
           roles?: string[] | null
+          secondary_tech_stack?: string[] | null
           skills?: string[] | null
+          source_cv_raw_text?: boolean | null
+          source_linkedin_parsed?: boolean | null
+          suggested_learning_paths?: string[] | null
+          tagline?: string | null
           team_fit?: string | null
+          thought_leadership_score?: number | null
+          title?: string | null
+          tone_of_voice?: string | null
+          top_values?: string[] | null
           type?: string | null
           updated_at?: string | null
           user_id?: string | null
           values?: string[] | null
+          visibility_status?: string | null
           work_style?: string | null
         }
         Update: {
           adaptability?: number | null
+          analysis_timestamp?: string | null
           availability?: string | null
+          brand_themes?: string[] | null
+          certification_recommendations?: string[] | null
           certifications?: string[] | null
           communication_style?: string | null
           created_at?: string | null
           cultural_fit?: number | null
           cv_analysis_data?: Json | null
           cv_file_path?: string | null
+          cv_tips?: string[] | null
           email?: string
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string
+          industries?: string[] | null
+          is_published?: boolean | null
           languages?: string[] | null
           last_active?: string | null
           leadership?: number | null
           linkedin_analysis_data?: Json | null
+          linkedin_engagement_level?: string | null
+          linkedin_tips?: string[] | null
           linkedin_url?: string | null
           location?: string | null
+          market_rate_current?: number | null
+          market_rate_optimized?: number | null
           name?: string
           personality_traits?: string[] | null
           phone?: string | null
+          primary_tech_stack?: string[] | null
+          profile_completeness?: number | null
           projects_completed?: number | null
           rating?: number | null
           roles?: string[] | null
+          secondary_tech_stack?: string[] | null
           skills?: string[] | null
+          source_cv_raw_text?: boolean | null
+          source_linkedin_parsed?: boolean | null
+          suggested_learning_paths?: string[] | null
+          tagline?: string | null
           team_fit?: string | null
+          thought_leadership_score?: number | null
+          title?: string | null
+          tone_of_voice?: string | null
+          top_values?: string[] | null
           type?: string | null
           updated_at?: string | null
           user_id?: string | null
           values?: string[] | null
+          visibility_status?: string | null
           work_style?: string | null
         }
         Relationships: []
