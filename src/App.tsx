@@ -13,6 +13,7 @@ import Auth from '@/pages/Auth';
 import { Dashboard } from '@/components/Dashboard';
 import NotFound from '@/pages/NotFound';
 import { AuthGuard } from '@/components/AuthGuard';
+import { AuthProvider } from '@/hooks/useAuth';
 import { Toaster } from '@/components/ui/toaster';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import MyProfile from '@/pages/MyProfile';
@@ -24,28 +25,30 @@ function App() {
     <Router>
       <div className="App">
         <QueryClientProvider client={queryClient}>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/demo" element={<Demo />} />
-            <Route path="/cv-upload" element={<CVUploadModern />} />
-            <Route path="/cv-upload-complete" element={<CVUploadComplete />} />
-            <Route path="/analysis" element={<AnalysisPage />} />
-            <Route path="/network-success" element={<NetworkSuccess />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/pricing-auth" element={<PricingAuth />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/my-profile" element={<MyProfile />} />
-            <Route
-              path="/matchwiseai"
-              element={
-                <AuthGuard>
-                  <Dashboard />
-                </AuthGuard>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/demo" element={<Demo />} />
+              <Route path="/cv-upload" element={<CVUploadModern />} />
+              <Route path="/cv-upload-complete" element={<CVUploadComplete />} />
+              <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/network-success" element={<NetworkSuccess />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/pricing-auth" element={<PricingAuth />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/my-profile" element={<MyProfile />} />
+              <Route
+                path="/matchwiseai"
+                element={
+                  <AuthGuard>
+                    <Dashboard />
+                  </AuthGuard>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </AuthProvider>
         </QueryClientProvider>
       </div>
     </Router>
