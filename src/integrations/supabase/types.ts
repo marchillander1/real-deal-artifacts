@@ -169,6 +169,7 @@ export type Database = {
       consultants: {
         Row: {
           adaptability: number | null
+          analysis_results: Json | null
           analysis_timestamp: string | null
           availability: string | null
           brand_themes: string[] | null
@@ -205,6 +206,7 @@ export type Database = {
           rating: number | null
           roles: string[] | null
           secondary_tech_stack: string[] | null
+          self_description: string | null
           skills: string[] | null
           source_cv_raw_text: boolean | null
           source_linkedin_parsed: boolean | null
@@ -224,6 +226,7 @@ export type Database = {
         }
         Insert: {
           adaptability?: number | null
+          analysis_results?: Json | null
           analysis_timestamp?: string | null
           availability?: string | null
           brand_themes?: string[] | null
@@ -260,6 +263,7 @@ export type Database = {
           rating?: number | null
           roles?: string[] | null
           secondary_tech_stack?: string[] | null
+          self_description?: string | null
           skills?: string[] | null
           source_cv_raw_text?: boolean | null
           source_linkedin_parsed?: boolean | null
@@ -279,6 +283,7 @@ export type Database = {
         }
         Update: {
           adaptability?: number | null
+          analysis_results?: Json | null
           analysis_timestamp?: string | null
           availability?: string | null
           brand_themes?: string[] | null
@@ -315,6 +320,7 @@ export type Database = {
           rating?: number | null
           roles?: string[] | null
           secondary_tech_stack?: string[] | null
+          self_description?: string | null
           skills?: string[] | null
           source_cv_raw_text?: boolean | null
           source_linkedin_parsed?: boolean | null

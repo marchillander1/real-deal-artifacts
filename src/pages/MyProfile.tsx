@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { User, LogOut, Mail, Phone, MapPin, Briefcase, Star, Calendar, Globe, Edit2, Upload, Eye } from 'lucide-react';
+import { User, LogOut, Mail, Phone, MapPin, Briefcase, Star, Calendar, Globe, Edit2, Upload, Eye, Trash2 } from 'lucide-react';
 import Logo from '@/components/Logo';
 import { AnalysisResults } from '@/components/AnalysisResults';
 
@@ -30,12 +31,14 @@ interface ConsultantProfile {
   is_published: boolean;
   last_active: string;
   created_at: string;
+  self_description?: string;
 }
 
 const MyProfile: React.FC = () => {
   const [profile, setProfile] = useState<ConsultantProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [showLogin, setShowLogin] = useState(true);
@@ -189,6 +192,7 @@ const MyProfile: React.FC = () => {
           availability: profile.availability,
           hourly_rate: profile.hourly_rate,
           is_published: profile.is_published,
+          self_description: profile.self_description,
           updated_at: new Date().toISOString()
         })
         .eq('id', profile.id);
@@ -208,6 +212,36 @@ const MyProfile: React.FC = () => {
       });
     }
     setSaving(false);
+  };
+
+  const handleDeleteProfile = async () => {
+    if (!profile) return;
+    
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('consultants')
+        .delete()
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      // Clear authentication and redirect
+      localStorage.removeItem('consultant_auth');
+      toast({
+        title: "Profile deleted",
+        description: "Your profile has been permanently deleted.",
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      toast({
+        title: "Delete failed",
+        description: "Could not delete your profile.",
+        variant: "destructive",
+      });
+    }
+    setDeleting(false);
   };
 
   const handleLogout = () => {
@@ -372,8 +406,8 @@ const MyProfile: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant={profile.is_published ? "default" : "secondary"}>
-                {profile.is_published ? "Published" : "Draft"}
+              <Badge variant={profile?.is_published ? "default" : "secondary"}>
+                {profile?.is_published ? "Published" : "Draft"}
               </Badge>
               <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
@@ -404,16 +438,16 @@ const MyProfile: React.FC = () => {
                     <Label htmlFor="name">Full Name</Label>
                     <Input
                       id="name"
-                      value={profile.name}
-                      onChange={(e) => setProfile({...profile, name: e.target.value})}
+                      value={profile?.name || ''}
+                      onChange={(e) => setProfile(profile ? {...profile, name: e.target.value} : null)}
                     />
                   </div>
                   <div>
                     <Label htmlFor="title">Professional Title</Label>
                     <Input
                       id="title"
-                      value={profile.title || ''}
-                      onChange={(e) => setProfile({...profile, title: e.target.value})}
+                      value={profile?.title || ''}
+                      onChange={(e) => setProfile(profile ? {...profile, title: e.target.value} : null)}
                     />
                   </div>
                 </div>
@@ -422,13 +456,28 @@ const MyProfile: React.FC = () => {
                   <Label htmlFor="tagline">Professional Tagline</Label>
                   <Textarea
                     id="tagline"
-                    value={profile.tagline || ''}
-                    onChange={(e) => setProfile({...profile, tagline: e.target.value})}
+                    value={profile?.tagline || ''}
+                    onChange={(e) => setProfile(profile ? {...profile, tagline: e.target.value} : null)}
                     placeholder="Brief description of your expertise and value proposition..."
                     maxLength={150}
                   />
                   <p className="text-xs text-slate-500 mt-1">
-                    {(profile.tagline || '').length}/150 characters
+                    {(profile?.tagline || '').length}/150 characters
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="self_description">Personal Description (Optional)</Label>
+                  <Textarea
+                    id="self_description"
+                    value={profile?.self_description || ''}
+                    onChange={(e) => setProfile(profile ? {...profile, self_description: e.target.value} : null)}
+                    placeholder="Tell us about yourself in your own words..."
+                    maxLength={500}
+                    rows={4}
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    {(profile?.self_description || '').length}/500 characters
                   </p>
                 </div>
 
@@ -441,8 +490,8 @@ const MyProfile: React.FC = () => {
                         id="email"
                         type="email"
                         className="pl-10"
-                        value={profile.email}
-                        onChange={(e) => setProfile({...profile, email: e.target.value})}
+                        value={profile?.email || ''}
+                        onChange={(e) => setProfile(profile ? {...profile, email: e.target.value} : null)}
                       />
                     </div>
                   </div>
@@ -453,8 +502,8 @@ const MyProfile: React.FC = () => {
                       <Input
                         id="phone"
                         className="pl-10"
-                        value={profile.phone || ''}
-                        onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                        value={profile?.phone || ''}
+                        onChange={(e) => setProfile(profile ? {...profile, phone: e.target.value} : null)}
                       />
                     </div>
                   </div>
@@ -465,8 +514,8 @@ const MyProfile: React.FC = () => {
                       <Input
                         id="location"
                         className="pl-10"
-                        value={profile.location || ''}
-                        onChange={(e) => setProfile({...profile, location: e.target.value})}
+                        value={profile?.location || ''}
+                        onChange={(e) => setProfile(profile ? {...profile, location: e.target.value} : null)}
                       />
                     </div>
                   </div>
@@ -486,7 +535,7 @@ const MyProfile: React.FC = () => {
                 <div>
                   <Label>Current Skills</Label>
                   <div className="flex flex-wrap gap-2 mt-2 mb-4">
-                    {profile.skills.map((skill, index) => (
+                    {profile?.skills.map((skill, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
@@ -514,8 +563,8 @@ const MyProfile: React.FC = () => {
                     <Input
                       id="experience"
                       type="number"
-                      value={profile.experience_years || 0}
-                      onChange={(e) => setProfile({...profile, experience_years: parseInt(e.target.value) || 0})}
+                      value={profile?.experience_years || 0}
+                      onChange={(e) => setProfile(profile ? {...profile, experience_years: parseInt(e.target.value) || 0} : null)}
                     />
                   </div>
                   <div>
@@ -523,8 +572,8 @@ const MyProfile: React.FC = () => {
                     <Input
                       id="rate"
                       type="number"
-                      value={profile.hourly_rate || 0}
-                      onChange={(e) => setProfile({...profile, hourly_rate: parseInt(e.target.value) || 0})}
+                      value={profile?.hourly_rate || 0}
+                      onChange={(e) => setProfile(profile ? {...profile, hourly_rate: parseInt(e.target.value) || 0} : null)}
                     />
                   </div>
                 </div>
@@ -534,8 +583,8 @@ const MyProfile: React.FC = () => {
                   <select
                     id="availability"
                     className="w-full p-2 border border-slate-300 rounded-md"
-                    value={profile.availability}
-                    onChange={(e) => setProfile({...profile, availability: e.target.value})}
+                    value={profile?.availability}
+                    onChange={(e) => setProfile(profile ? {...profile, availability: e.target.value} : null)}
                   >
                     <option value="Available">Available</option>
                     <option value="Busy">Busy</option>
@@ -581,6 +630,29 @@ const MyProfile: React.FC = () => {
                   </div>
                 </DialogContent>
               </Dialog>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Profile
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your profile
+                      and remove all your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteProfile} disabled={deleting}>
+                      {deleting ? 'Deleting...' : 'Delete Profile'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
 
@@ -594,7 +666,7 @@ const MyProfile: React.FC = () => {
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Switch
-                    checked={profile.is_published}
+                    checked={profile?.is_published}
                     onCheckedChange={(checked) => setProfile({...profile, is_published: checked})}
                   />
                   <Label>Publish Profile</Label>
@@ -604,41 +676,41 @@ const MyProfile: React.FC = () => {
                 <div className="space-y-4">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-3">
-                      {profile.name.split(' ').map(n => n[0]).join('')}
+                      {profile?.name.split(' ').map(n => n[0]).join('')}
                     </div>
-                    <h3 className="font-bold text-lg">{profile.name}</h3>
-                    <p className="text-slate-600">{profile.title}</p>
-                    {profile.tagline && (
-                      <p className="text-sm text-slate-500 mt-2 italic">"{profile.tagline}"</p>
+                    <h3 className="font-bold text-lg">{profile?.name}</h3>
+                    <p className="text-slate-600">{profile?.title}</p>
+                    {profile?.tagline && (
+                      <p className="text-sm text-slate-500 mt-2 italic">"{profile?.tagline}"</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="h-4 w-4 text-slate-400" />
-                      <span>{profile.location || 'Location not set'}</span>
+                      <span>{profile?.location || 'Location not set'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Briefcase className="h-4 w-4 text-slate-400" />
-                      <span>{profile.experience_years} years experience</span>
+                      <span>{profile?.experience_years} years experience</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Star className="h-4 w-4 text-slate-400" />
-                      <span>{profile.hourly_rate} SEK/hour</span>
+                      <span>{profile?.hourly_rate} SEK/hour</span>
                     </div>
                   </div>
 
                   <div>
                     <Label className="text-sm font-medium">Top Skills</Label>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {profile.skills.slice(0, 6).map((skill, index) => (
+                      {profile?.skills.slice(0, 6).map((skill, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
                           {skill}
                         </Badge>
                       ))}
-                      {profile.skills.length > 6 && (
+                      {profile?.skills.length > 6 && (
                         <Badge variant="outline" className="text-xs">
-                          +{profile.skills.length - 6} more
+                          +{profile?.skills.length - 6} more
                         </Badge>
                       )}
                     </div>
@@ -647,7 +719,7 @@ const MyProfile: React.FC = () => {
                   <div className="pt-4 border-t">
                     <div className="flex items-center gap-2 text-xs text-slate-500">
                       <Calendar className="h-3 w-3" />
-                      <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
+                      <span>Joined {new Date(profile?.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
