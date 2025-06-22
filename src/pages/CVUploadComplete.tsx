@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,16 +105,16 @@ const CVUploadComplete: React.FC = () => {
         .eq('session_token', sessionId)
         .single();
       
-      if (session?.consultant) {
-        setConsultant(session.consultant);
+      if (session?.consultants) {
+        setConsultant(session.consultants);
         setStep(session.step as AnalysisStep);
         setEditableData({
-          name: session.consultant.name,
-          email: session.consultant.email,
-          phone: session.consultant.phone || '',
-          tagline: session.consultant.tagline || ''
+          name: session.consultants.name,
+          email: session.consultants.email,
+          phone: session.consultants.phone || '',
+          tagline: session.consultants.tagline || ''
         });
-        setEditingSkills(session.consultant.primary_tech_stack || []);
+        setEditingSkills(session.consultants.primary_tech_stack || []);
       }
     } catch (error) {
       console.error('Failed to load session:', error);
