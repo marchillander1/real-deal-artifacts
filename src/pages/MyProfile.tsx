@@ -293,9 +293,12 @@ const MyProfile: React.FC = () => {
       if (data?.analysis_results) {
         // New format
         analysisData = data.analysis_results;
-      } else if (data?.cv_analysis_data?.analysis) {
-        // Old format
-        analysisData = data.cv_analysis_data.analysis;
+      } else if (data?.cv_analysis_data && typeof data.cv_analysis_data === 'object' && data.cv_analysis_data !== null) {
+        // Old format - safely check if it's an object with analysis property
+        const cvData = data.cv_analysis_data as any;
+        if (cvData.analysis) {
+          analysisData = cvData.analysis;
+        }
       }
       
       if (analysisData) {
