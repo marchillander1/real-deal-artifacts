@@ -6,8 +6,14 @@ import { AssignmentsSection } from './dashboard/AssignmentsSection';
 import { ConsultantsSection } from './dashboard/ConsultantsSection';
 import { NotificationsPanel } from './dashboard/NotificationsPanel';
 import { SkillAlertsManager } from './SkillAlertsManager';
+import { CVUploadSection } from './dashboard/CVUploadSection';
 
 export const Dashboard: React.FC = () => {
+  const handleCreateAssignment = () => {
+    // This will be handled by the assignments section
+    console.log('Create assignment triggered');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-6">
@@ -19,15 +25,16 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
           <div className="lg:col-span-3">
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="assignments">Assignments</TabsTrigger>
                 <TabsTrigger value="consultants">Consultants</TabsTrigger>
                 <TabsTrigger value="alerts">Skill Alerts</TabsTrigger>
+                <TabsTrigger value="upload">Upload CV</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="mt-6">
-                <DashboardOverview />
+                <DashboardOverview onCreateAssignment={handleCreateAssignment} />
               </TabsContent>
 
               <TabsContent value="assignments" className="mt-6">
@@ -40,6 +47,10 @@ export const Dashboard: React.FC = () => {
 
               <TabsContent value="alerts" className="mt-6">
                 <SkillAlertsManager />
+              </TabsContent>
+
+              <TabsContent value="upload" className="mt-6">
+                <CVUploadSection />
               </TabsContent>
             </Tabs>
           </div>
