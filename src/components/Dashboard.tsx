@@ -1,102 +1,70 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ConsultantsSection } from './dashboard/ConsultantsSection';
-import { AssignmentsSection } from './dashboard/AssignmentsSection';
-import { DashboardOverview } from './dashboard/DashboardOverview';
-import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, User } from 'lucide-react';
+import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
+import { ConsultantsSection } from '@/components/dashboard/ConsultantsSection';
+import { AssignmentsSection } from '@/components/dashboard/AssignmentsSection';
+import { useRealTimeTeamNotifications } from '@/hooks/useRealTimeTeamNotifications';
+import { ConsultantsTab } from '@/components/ConsultantsTab';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 
 export const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'consultants' | 'assignments'>('overview');
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { toast } = useToast();
+  const activeTab = searchParams.get('tab') || 'overview';
+  const success = searchParams.get('success');
 
-  const handleCreateAssignment = () => {
-    // Handle assignment creation - could open a modal or navigate
-    console.log('Create assignment clicked');
-  };
+  // Enable real-time notifications
+  useRealTimeTeamNotifications();
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+  useEffect(() => {
+    // Show success message if redirected from CV upload
+    if (success === 'team-member-added') {
+      toast({
+        title: "🎉 Team member added successfully!",
+        description: "The consultant has been added to your team's database",
+      });
+      
+      // Remove success param from URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('success');
+      setSearchParams(newParams);
+    }
+  }, [success, searchParams, setSearchParams, toast]);
+
+  const handleTabChange = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', value);
+    setSearchParams(newParams);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">MatchWise AI Platform</h1>
-              <p className="text-gray-600 mt-1">
-                Advanced AI-powered consultant matching platform
-              </p>
-            </div>
-            
-            {/* User Menu */}
-            {user && (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">
-                  Welcome, {user.email}
-                </span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Account
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem 
-                      onClick={() => navigate('/user-profile')}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <User className="h-4 w-4" />
-                      My Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={handleSignOut}
-                      className="flex items-center gap-2 cursor-pointer text-red-600"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="overview">Dashboard Overview</TabsTrigger>
-            <TabsTrigger value="consultants">Consultants</TabsTrigger>
-            <TabsTrigger value="assignments">Assignments</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview">
-            <DashboardOverview onCreateAssignment={handleCreateAssignment} />
-          </TabsContent>
-
-          <TabsContent value="consultants">
-            <ConsultantsSection />
-          </TabsContent>
-
-          <TabsContent value="assignments">
-            <AssignmentsSection />
-          </TabsContent>
-        </Tabs>
-      </div>
+    <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="consultants">Consultants</TabsTrigger>
+          <TabsTrigger value="assignments">Assignments</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-6">
+          <DashboardOverview />
+        </TabsContent>
+        
+        <TabsContent value="consultants" className="space-y-6">
+          <ConsultantsTab 
+            showEditForNetwork={true}
+            showDeleteForMyConsultants={true}
+            showRemoveDuplicates={true}
+          />
+        </TabsContent>
+        
+        <TabsContent value="assignments" className="space-y-6">
+          <AssignmentsSection />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

@@ -176,6 +176,7 @@ export type Database = {
           certification_recommendations: string[] | null
           certifications: string[] | null
           communication_style: string | null
+          company_id: string | null
           created_at: string | null
           cultural_fit: number | null
           cv_analysis_data: Json | null
@@ -233,6 +234,7 @@ export type Database = {
           certification_recommendations?: string[] | null
           certifications?: string[] | null
           communication_style?: string | null
+          company_id?: string | null
           created_at?: string | null
           cultural_fit?: number | null
           cv_analysis_data?: Json | null
@@ -290,6 +292,7 @@ export type Database = {
           certification_recommendations?: string[] | null
           certifications?: string[] | null
           communication_style?: string | null
+          company_id?: string | null
           created_at?: string | null
           cultural_fit?: number | null
           cv_analysis_data?: Json | null

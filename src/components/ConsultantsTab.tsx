@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import { useRealTimeTeamNotifications } from '@/hooks/useRealTimeTeamNotifications';
 import ConsultantCard from '@/components/ConsultantCard';
 import { ConsultantEditDialog } from '@/components/ConsultantEditDialog';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Upload, Search, Filter, Plus } from 'lucide-react';
+import { Users, Upload, Search, Filter, Plus, Bell, UserCheck } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -27,6 +28,9 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [skillFilter, setSkillFilter] = useState('');
   const { toast } = useToast();
+
+  // Use real-time notifications
+  useRealTimeTeamNotifications();
 
   const existingConsultants = consultants.filter(c => c.type === 'existing');
   const newConsultants = consultants.filter(c => c.type === 'new');
@@ -68,7 +72,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       const { error } = await supabase
         .from('consultants')
         .delete()
-        .eq('id', idString); // Use the string version of the ID
+        .eq('id', idString);
 
       if (error) {
         throw error;
@@ -101,8 +105,8 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header with Stats */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* Header with Enhanced Stats */}
+      <div className="grid md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -118,10 +122,11 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-green-600" />
+              <UserCheck className="h-5 w-5 text-green-600" />
               <div>
-                <p className="text-sm text-gray-600">My Consultants</p>
+                <p className="text-sm text-gray-600">Team Consultants</p>
                 <p className="text-2xl font-bold">{existingConsultants.length}</p>
+                <p className="text-xs text-green-600">Shared with team</p>
               </div>
             </div>
           </CardContent>
@@ -134,6 +139,19 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <div>
                 <p className="text-sm text-gray-600">Network Consultants</p>
                 <p className="text-2xl font-bold">{newConsultants.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Bell className="h-5 w-5 text-orange-600" />
+              <div>
+                <p className="text-sm text-gray-600">Live Updates</p>
+                <p className="text-2xl font-bold">ON</p>
+                <p className="text-xs text-orange-600">Real-time notifications</p>
               </div>
             </div>
           </CardContent>
@@ -188,7 +206,9 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       {/* Consultants List */}
       <Tabs defaultValue="my-consultants" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="my-consultants">My Consultants ({existingConsultants.length})</TabsTrigger>
+          <TabsTrigger value="my-consultants">
+            Team Consultants ({existingConsultants.length})
+          </TabsTrigger>
           <TabsTrigger value="network">Network Consultants ({newConsultants.length})</TabsTrigger>
           <TabsTrigger value="all">All ({consultants.length})</TabsTrigger>
         </TabsList>
@@ -196,8 +216,8 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         <TabsContent value="my-consultants" className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="text-lg font-semibold">My Consultants</h3>
-              <p className="text-sm text-gray-600">Consultants in your team</p>
+              <h3 className="text-lg font-semibold">Team Consultants</h3>
+              <p className="text-sm text-gray-600">Shared with your team members</p>
             </div>
             <div className="relative">
               <Button 
@@ -238,15 +258,15 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               </div>
             ))}
           </div>
-          {existingConsultants.length === 0 && (
+          {filterConsultants(existingConsultants).length === 0 && (
             <div className="text-center py-12">
               <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No consultants in your team yet</h3>
-              <p className="text-gray-600 mb-4">Add consultants to your team by uploading their CVs</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No team consultants yet</h3>
+              <p className="text-gray-600 mb-4">Add consultants to share with your team by uploading their CVs</p>
               <div className="relative inline-block">
                 <Button className="bg-green-600 hover:bg-green-700">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add First Consultant
+                  Add First Team Member
                 </Button>
                 <input
                   type="file"
