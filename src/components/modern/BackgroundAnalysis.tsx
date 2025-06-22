@@ -52,27 +52,50 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
 
         console.log('✅ Analysis completed successfully:', response.data);
 
-        // Extract the results with enhanced data
+        // Extract enhanced personal information with better fallbacks
+        const consultant = response.data.consultant;
+        const analysisResults = response.data.analysisResults;
+        
+        console.log('🔍 Raw consultant data:', consultant);
+        console.log('🔍 Raw analysis results:', analysisResults);
+
+        // Enhanced extraction with multiple fallback sources
+        const extractedPersonalInfo = {
+          name: consultant?.name || 
+                analysisResults?.full_name || 
+                analysisResults?.personalInfo?.name || 
+                '',
+          email: consultant?.email || 
+                 analysisResults?.email || 
+                 analysisResults?.personalInfo?.email || 
+                 '',
+          phone: consultant?.phone || 
+                 analysisResults?.phone_number || 
+                 analysisResults?.personalInfo?.phone || 
+                 '',
+          location: consultant?.location || 
+                    analysisResults?.location || 
+                    analysisResults?.personalInfo?.location || 
+                    'Sweden'
+        };
+
+        console.log('✅ Enhanced extracted personal info:', extractedPersonalInfo);
+
+        // Build complete results object
         const results = {
-          cvAnalysis: response.data.analysisResults,
+          cvAnalysis: analysisResults,
           linkedinAnalysis: response.data.linkedinData,
-          consultant: response.data.consultant,
-          // Säkerställ att extraherad personlig info finns för auto-fill
-          extractedPersonalInfo: {
-            name: response.data.consultant?.name || response.data.analysisResults?.full_name || '',
-            email: response.data.consultant?.email || response.data.analysisResults?.email || '',
-            phone: response.data.consultant?.phone || response.data.analysisResults?.phone_number || '',
-            location: response.data.consultant?.location || response.data.analysisResults?.location || 'Sverige'
-          }
+          consultant: consultant,
+          extractedPersonalInfo: extractedPersonalInfo
         };
 
         console.log('🎉 Calling onComplete with enhanced results:', results);
         onComplete(results);
 
-        // Visa framgångsmeddelande
+        // Show success message with extracted name
         toast({
           title: "Analys slutförd! 🎉",
-          description: `CV och LinkedIn-profil analyserad för ${results.extractedPersonalInfo.name || 'konsult'}`,
+          description: `CV och LinkedIn-profil analyserad${extractedPersonalInfo.name ? ` för ${extractedPersonalInfo.name}` : ''}`,
         });
 
       } catch (error: any) {
