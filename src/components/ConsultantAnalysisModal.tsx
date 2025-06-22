@@ -36,15 +36,20 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
   onOpenChange,
 }) => {
   console.log('🔍 ConsultantAnalysisModal - Full consultant data:', consultant);
-  console.log('🔍 CV Analysis data:', consultant.cvAnalysis);
-  console.log('🔍 LinkedIn Analysis data:', consultant.linkedinAnalysis);
-
-  // Access analysis data correctly
-  const cvAnalysis = consultant.cvAnalysis?.analysis;
-  console.log('🔍 Parsed CV Analysis:', cvAnalysis);
   
-  const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
-  console.log('🔍 Parsed LinkedIn Analysis:', linkedinAnalysis);
+  // 🔥 FIX: Correct way to access CV analysis data
+  const cvAnalysisData = consultant.cvAnalysis;
+  const cvAnalysis = cvAnalysisData?.analysis || cvAnalysisData; // Handle both structures
+  
+  console.log('🔍 CV Analysis raw data:', cvAnalysisData);
+  console.log('🔍 CV Analysis parsed:', cvAnalysis);
+  
+  // 🔥 FIX: Correct way to access LinkedIn analysis data  
+  const linkedinAnalysisData = consultant.linkedinAnalysis;
+  const linkedinAnalysis = linkedinAnalysisData?.analysis || linkedinAnalysisData; // Handle both structures
+  
+  console.log('🔍 LinkedIn Analysis raw data:', linkedinAnalysisData);
+  console.log('🔍 LinkedIn Analysis parsed:', linkedinAnalysis);
   
   const hasAnalysisData = cvAnalysis || linkedinAnalysis;
   console.log('🔍 Has analysis data:', hasAnalysisData);
@@ -103,7 +108,7 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
               </CardHeader>
               <CardContent>
                 <div className="flex gap-4">
-                  {consultant.cvAnalysis && (
+                  {cvAnalysisData && (
                     <div className="flex items-center gap-2 text-green-600">
                       <FileText className="h-4 w-4" />
                       <span className="text-sm font-medium">CV Analyzed</span>
@@ -112,7 +117,7 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                       </Badge>
                     </div>
                   )}
-                  {consultant.linkedinAnalysis && (
+                  {linkedinAnalysisData && (
                     <div className="flex items-center gap-2 text-blue-600">
                       <Linkedin className="h-4 w-4" />
                       <span className="text-sm font-medium">LinkedIn Analyzed</span>
@@ -122,81 +127,33 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
               </CardContent>
             </Card>
 
-            {/* Professional Summary */}
-            {cvAnalysis?.professionalSummary && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Professional Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Current Role</p>
-                      <p className="font-medium">{cvAnalysis.professionalSummary.currentRole || 'Not specified'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Years of Experience</p>
-                      <p className="font-medium">{cvAnalysis.professionalSummary.yearsOfExperience || 0} years</p>
-                    </div>
-                  </div>
-                  {cvAnalysis.professionalSummary.summary && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-2">Summary</p>
-                      <p className="text-sm">{cvAnalysis.professionalSummary.summary}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Competitive Advantages */}
-            {cvAnalysis?.marketPositioning?.competitiveAdvantages && cvAnalysis.marketPositioning.competitiveAdvantages.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-purple-600" />
-                    Competitive Advantages
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {cvAnalysis.marketPositioning.competitiveAdvantages.map((advantage, index) => (
-                      <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800">
-                        {advantage}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             {/* Personal Information from CV */}
             {cvAnalysis?.personalInfo && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
+                  <CardTitle>Personal Information (from CV)</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    {cvAnalysis.personalInfo.name && (
+                    {cvAnalysis.personalInfo.name && cvAnalysis.personalInfo.name !== 'Ej specificerat' && (
                       <div>
                         <p className="text-sm text-gray-600">Name</p>
                         <p className="font-medium">{cvAnalysis.personalInfo.name}</p>
                       </div>
                     )}
-                    {cvAnalysis.personalInfo.location && (
+                    {cvAnalysis.personalInfo.location && cvAnalysis.personalInfo.location !== 'Ej specificerat' && (
                       <div>
                         <p className="text-sm text-gray-600">Location</p>
                         <p className="font-medium">{cvAnalysis.personalInfo.location}</p>
                       </div>
                     )}
-                    {cvAnalysis.personalInfo.email && (
+                    {cvAnalysis.personalInfo.email && cvAnalysis.personalInfo.email !== 'Ej specificerat' && (
                       <div>
                         <p className="text-sm text-gray-600">Email</p>
                         <p className="font-medium">{cvAnalysis.personalInfo.email}</p>
                       </div>
                     )}
-                    {cvAnalysis.personalInfo.phone && (
+                    {cvAnalysis.personalInfo.phone && cvAnalysis.personalInfo.phone !== 'Ej specificerat' && (
                       <div>
                         <p className="text-sm text-gray-600">Phone</p>
                         <p className="font-medium">{cvAnalysis.personalInfo.phone}</p>
@@ -206,126 +163,285 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
                 </CardContent>
               </Card>
             )}
+
+            {/* Work Experience from CV */}
+            {cvAnalysis?.experience && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Experience Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {cvAnalysis.experience.years && cvAnalysis.experience.years !== 'Ej specificerat' && (
+                      <div>
+                        <p className="text-sm text-gray-600">Years of Experience</p>
+                        <p className="font-medium">{cvAnalysis.experience.years}</p>
+                      </div>
+                    )}
+                    {cvAnalysis.experience.currentRole && cvAnalysis.experience.currentRole !== 'Ej specificerat' && (
+                      <div>
+                        <p className="text-sm text-gray-600">Current Role</p>
+                        <p className="font-medium">{cvAnalysis.experience.currentRole}</p>
+                      </div>
+                    )}
+                    {cvAnalysis.experience.level && cvAnalysis.experience.level !== 'Ej specificerat' && (
+                      <div>
+                        <p className="text-sm text-gray-600">Experience Level</p>
+                        <p className="font-medium">{cvAnalysis.experience.level}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Work History from CV */}
+            {cvAnalysis?.workHistory && cvAnalysis.workHistory.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Work History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {cvAnalysis.workHistory.slice(0, 3).map((work: any, index: number) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-medium text-gray-900">{work.role || 'Role not specified'}</h4>
+                          <span className="text-sm text-gray-500">{work.duration || 'Duration not specified'}</span>
+                        </div>
+                        <p className="text-sm text-gray-600">{work.company || 'Company not specified'}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* LinkedIn Professional Profile */}
+            {linkedinAnalysis && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Linkedin className="h-5 w-5 text-blue-600" />
+                    LinkedIn Profile Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {linkedinAnalysis.communicationStyle && (
+                    <div>
+                      <p className="text-sm text-gray-600">Communication Style</p>
+                      <p className="font-medium">{linkedinAnalysis.communicationStyle}</p>
+                    </div>
+                  )}
+                  {linkedinAnalysis.leadershipStyle && (
+                    <div>
+                      <p className="text-sm text-gray-600">Leadership Style</p>
+                      <p className="font-medium">{linkedinAnalysis.leadershipStyle}</p>
+                    </div>
+                  )}
+                  
+                  {/* Professional Scores */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+                    {linkedinAnalysis.innovation && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">{linkedinAnalysis.innovation}/5</div>
+                        <div className="text-sm text-gray-600">Innovation</div>
+                      </div>
+                    )}
+                    {linkedinAnalysis.leadership && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">{linkedinAnalysis.leadership}/5</div>
+                        <div className="text-sm text-gray-600">Leadership</div>
+                      </div>
+                    )}
+                    {linkedinAnalysis.adaptability && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">{linkedinAnalysis.adaptability}/5</div>
+                        <div className="text-sm text-gray-600">Adaptability</div>
+                      </div>
+                    )}
+                    {linkedinAnalysis.culturalFit && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600">{linkedinAnalysis.culturalFit}/5</div>
+                        <div className="text-sm text-gray-600">Cultural Fit</div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="technical" className="space-y-6">
-            {/* Technical Expertise */}
-            {cvAnalysis?.technicalExpertise && (
+            {/* Technical Skills from CV */}
+            {cvAnalysis?.skills && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Technical Expertise</CardTitle>
+                  <CardTitle>Technical Skills (from CV)</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {cvAnalysis.technicalExpertise.programmingLanguages?.expert && cvAnalysis.technicalExpertise.programmingLanguages.expert.length > 0 && (
+                  {cvAnalysis.skills.technical && cvAnalysis.skills.technical.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">Expert Level</p>
-                      <div className="flex flex-wrap gap-1">
-                        {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill, index) => (
-                          <Badge key={index} className="bg-green-100 text-green-800">
-                            ✓ {skill}
-                          </Badge>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Technical Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {cvAnalysis.skills.technical.map((skill: string, index: number) => (
+                          skill !== 'Ej specificerat' && (
+                            <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
+                              {skill}
+                            </Badge>
+                          )
                         ))}
                       </div>
                     </div>
                   )}
                   
-                  {cvAnalysis.technicalExpertise.programmingLanguages?.intermediate && cvAnalysis.technicalExpertise.programmingLanguages.intermediate.length > 0 && (
+                  {cvAnalysis.skills.languages && cvAnalysis.skills.languages.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">Intermediate Level</p>
-                      <div className="flex flex-wrap gap-1">
-                        {cvAnalysis.technicalExpertise.programmingLanguages.intermediate.map((skill, index) => (
-                          <Badge key={index} variant="outline" className="border-yellow-200 text-yellow-800">
-                            {skill}
-                          </Badge>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Programming Languages</p>
+                      <div className="flex flex-wrap gap-2">
+                        {cvAnalysis.skills.languages.map((lang: string, index: number) => (
+                          lang !== 'Ej specificerat' && (
+                            <Badge key={index} variant="outline" className="border-blue-200 text-blue-800">
+                              {lang}
+                            </Badge>
+                          )
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {cvAnalysis.technicalExpertise.frameworks && cvAnalysis.technicalExpertise.frameworks.length > 0 && (
+                  {cvAnalysis.skills.tools && cvAnalysis.skills.tools.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">Frameworks & Technologies</p>
-                      <div className="flex flex-wrap gap-1">
-                        {cvAnalysis.technicalExpertise.frameworks.map((framework, index) => (
-                          <Badge key={index} variant="outline" className="border-blue-200 text-blue-800">
-                            {framework}
-                          </Badge>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Tools & Technologies</p>
+                      <div className="flex flex-wrap gap-2">
+                        {cvAnalysis.skills.tools.map((tool: string, index: number) => (
+                          tool !== 'Ej specificerat' && (
+                            <Badge key={index} variant="outline" className="border-purple-200 text-purple-800">
+                              {tool}
+                            </Badge>
+                          )
                         ))}
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* LinkedIn Technical Insights */}
+            {linkedinAnalysis?.contentAnalysisInsights?.primaryExpertiseAreas && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Primary Expertise Areas (from LinkedIn)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {linkedinAnalysis.contentAnalysisInsights.primaryExpertiseAreas.map((area: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
+                        {area}
+                      </Badge>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="market" className="space-y-6">
-            {/* Market Positioning */}
-            {cvAnalysis?.marketPositioning && (
+            {/* LinkedIn Market Positioning */}
+            {linkedinAnalysis?.marketPositioning && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-blue-600" />
-                    Market Positioning
+                    Market Positioning (from LinkedIn)
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {cvAnalysis.marketPositioning.hourlyRateEstimate && (
+                  {linkedinAnalysis.marketPositioning.uniqueValueProposition && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">Hourly Rate Estimate</p>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        {cvAnalysis.marketPositioning.hourlyRateEstimate.minimum && (
-                          <div>
-                            <p className="text-gray-600">Minimum</p>
-                            <p className="font-medium text-green-600">
-                              {cvAnalysis.marketPositioning.hourlyRateEstimate.minimum} SEK/hour
-                            </p>
-                          </div>
-                        )}
-                        {cvAnalysis.marketPositioning.hourlyRateEstimate.recommended && (
-                          <div>
-                            <p className="text-gray-600">Recommended</p>
-                            <p className="font-medium text-blue-600">
-                              {cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} SEK/hour
-                            </p>
-                          </div>
-                        )}
-                        {cvAnalysis.marketPositioning.hourlyRateEstimate.premium && (
-                          <div>
-                            <p className="text-gray-600">Premium</p>
-                            <p className="font-medium text-purple-600">
-                              {cvAnalysis.marketPositioning.hourlyRateEstimate.premium} SEK/hour
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Unique Value Proposition</p>
+                      <p className="text-sm text-gray-600">{linkedinAnalysis.marketPositioning.uniqueValueProposition}</p>
                     </div>
                   )}
                   
-                  {cvAnalysis.marketPositioning.reasoning && (
+                  {linkedinAnalysis.marketPositioning.competitiveAdvantages && linkedinAnalysis.marketPositioning.competitiveAdvantages.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">Market Analysis</p>
-                      <p className="text-sm text-gray-600">{cvAnalysis.marketPositioning.reasoning}</p>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Competitive Advantages</p>
+                      <div className="flex flex-wrap gap-2">
+                        {linkedinAnalysis.marketPositioning.competitiveAdvantages.map((advantage: string, index: number) => (
+                          <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800">
+                            {advantage}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   )}
+
+                  {linkedinAnalysis.marketPositioning.nicheSpecialization && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Niche Specialization</p>
+                      <p className="text-sm text-gray-600">{linkedinAnalysis.marketPositioning.nicheSpecialization}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Growth Potential */}
+            {linkedinAnalysis?.growthPotential && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Growth Potential</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {linkedinAnalysis.growthPotential.learningMindset && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">{linkedinAnalysis.growthPotential.learningMindset}/5</div>
+                        <div className="text-sm text-gray-600">Learning Mindset</div>
+                      </div>
+                    )}
+                    {linkedinAnalysis.growthPotential.industryAwareness && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">{linkedinAnalysis.growthPotential.industryAwareness}/5</div>
+                        <div className="text-sm text-gray-600">Industry Awareness</div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    {linkedinAnalysis.growthPotential.technicalGrowth && (
+                      <div>
+                        <span className="font-medium text-gray-700">Technical Growth:</span>
+                        <span className="ml-1">{linkedinAnalysis.growthPotential.technicalGrowth}</span>
+                      </div>
+                    )}
+                    {linkedinAnalysis.growthPotential.leadershipGrowth && (
+                      <div>
+                        <span className="font-medium text-gray-700">Leadership Growth:</span>
+                        <span className="ml-1">{linkedinAnalysis.growthPotential.leadershipGrowth}</span>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="recommendations" className="space-y-6">
-            {/* CV Improvement Tips */}
-            {consultant.cv_tips && consultant.cv_tips.length > 0 && (
+            {/* LinkedIn Improvement Recommendations */}
+            {linkedinAnalysis?.recommendedImprovements && linkedinAnalysis.recommendedImprovements.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Award className="h-5 w-5 text-orange-600" />
-                    CV Improvement Tips
+                    LinkedIn Profile Improvements
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {consultant.cv_tips.map((tip, index) => (
+                    {linkedinAnalysis.recommendedImprovements.map((tip: string, index: number) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <span>{tip}</span>
@@ -336,43 +452,62 @@ export const ConsultantAnalysisModal: React.FC<ConsultantAnalysisModalProps> = (
               </Card>
             )}
 
-            {/* Learning Path Recommendations */}
-            {consultant.suggested_learning_paths && consultant.suggested_learning_paths.length > 0 && (
+            {/* Consultant Readiness Score */}
+            {linkedinAnalysis?.overallConsultantReadiness && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-600" />
-                    Recommended Learning Paths
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {consultant.suggested_learning_paths.map((path, index) => (
-                      <Badge key={index} variant="outline" className="border-yellow-200 text-yellow-800">
-                        {path}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Analysis Quality Score */}
-            {consultant.profile_completeness && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-green-600" />
-                    Profile Completeness
+                    Consultant Readiness Score
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Profile Completeness</span>
-                      <span>{Math.round(consultant.profile_completeness)}%</span>
+                      <span>Overall Readiness</span>
+                      <span>{linkedinAnalysis.overallConsultantReadiness}/10</span>
                     </div>
-                    <Progress value={consultant.profile_completeness} className="h-2" />
+                    <Progress value={linkedinAnalysis.overallConsultantReadiness * 10} className="h-3" />
+                    <p className="text-sm text-gray-600 mt-2">
+                      This score indicates how ready this person is to work as a consultant based on their LinkedIn presence.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Content Analysis from LinkedIn */}
+            {linkedinAnalysis?.recentPostsAnalysis && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Content & Engagement Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    {linkedinAnalysis.recentPostsAnalysis.contentQuality && (
+                      <div>
+                        <span className="font-medium text-gray-700">Content Quality:</span>
+                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.contentQuality}</span>
+                      </div>
+                    )}
+                    {linkedinAnalysis.recentPostsAnalysis.engagementLevel && (
+                      <div>
+                        <span className="font-medium text-gray-700">Engagement:</span>
+                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.engagementLevel}</span>
+                      </div>
+                    )}
+                    {linkedinAnalysis.recentPostsAnalysis.thoughtLeadership && (
+                      <div>
+                        <span className="font-medium text-gray-700">Thought Leadership:</span>
+                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.thoughtLeadership}</span>
+                      </div>
+                    )}
+                    {linkedinAnalysis.recentPostsAnalysis.technicalExpertise && (
+                      <div>
+                        <span className="font-medium text-gray-700">Technical Expertise:</span>
+                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.technicalExpertise}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

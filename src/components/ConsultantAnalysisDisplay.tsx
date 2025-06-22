@@ -10,8 +10,13 @@ interface ConsultantAnalysisDisplayProps {
 }
 
 export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps> = ({ consultant }) => {
-  const cvAnalysis = consultant.cvAnalysis?.analysis;
-  const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
+  // 🔥 FIX: Correct way to access analysis data
+  const cvAnalysisData = consultant.cvAnalysis;
+  const cvAnalysis = cvAnalysisData?.analysis || cvAnalysisData; // Handle both structures
+  
+  const linkedinAnalysisData = consultant.linkedinAnalysis;
+  const linkedinAnalysis = linkedinAnalysisData?.analysis || linkedinAnalysisData; // Handle both structures
+  
   const enhancedAnalysisResults = consultant.cvAnalysis?.enhancedAnalysisResults;
 
   console.log('🔍 ConsultantAnalysisDisplay - Analysis data check:', {
@@ -45,7 +50,7 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Original CV Analysis Section */}
+        {/* CV Analysis Section */}
         {cvAnalysis && (
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -61,25 +66,25 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
                   Personal Information
                 </h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  {cvAnalysis.personalInfo.name && (
+                  {cvAnalysis.personalInfo.name && cvAnalysis.personalInfo.name !== 'Ej specificerat' && (
                     <div>
                       <span className="font-medium text-gray-700">Name:</span> 
                       <span className="ml-1">{cvAnalysis.personalInfo.name}</span>
                     </div>
                   )}
-                  {cvAnalysis.personalInfo.email && (
+                  {cvAnalysis.personalInfo.email && cvAnalysis.personalInfo.email !== 'Ej specificerat' && (
                     <div>
                       <span className="font-medium text-gray-700">Email:</span> 
                       <span className="ml-1">{cvAnalysis.personalInfo.email}</span>
                     </div>
                   )}
-                  {cvAnalysis.personalInfo.phone && (
+                  {cvAnalysis.personalInfo.phone && cvAnalysis.personalInfo.phone !== 'Ej specificerat' && (
                     <div>
                       <span className="font-medium text-gray-700">Phone:</span> 
                       <span className="ml-1">{cvAnalysis.personalInfo.phone}</span>
                     </div>
                   )}
-                  {cvAnalysis.personalInfo.location && (
+                  {cvAnalysis.personalInfo.location && cvAnalysis.personalInfo.location !== 'Ej specificerat' && (
                     <div className="flex items-center gap-1">
                       <MapPin className="h-3 w-3 text-gray-500" />
                       <span>{cvAnalysis.personalInfo.location}</span>
@@ -89,37 +94,31 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
               </div>
             )}
 
-            {/* Professional Summary */}
-            {cvAnalysis.professionalSummary && (
+            {/* Experience Summary */}
+            {cvAnalysis.experience && (
               <div className="bg-white rounded-lg p-3 mb-3">
                 <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
                   <Briefcase className="h-4 w-4" />
-                  Professional Summary
+                  Experience Summary
                 </h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  {cvAnalysis.professionalSummary.yearsOfExperience && (
+                  {cvAnalysis.experience.years && cvAnalysis.experience.years !== 'Ej specificerat' && (
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3 text-gray-500" />
                       <span className="font-medium text-gray-700">Experience:</span>
-                      <span className="ml-1">{cvAnalysis.professionalSummary.yearsOfExperience}</span>
+                      <span className="ml-1">{cvAnalysis.experience.years}</span>
                     </div>
                   )}
-                  {cvAnalysis.professionalSummary.currentRole && (
+                  {cvAnalysis.experience.currentRole && cvAnalysis.experience.currentRole !== 'Ej specificerat' && (
                     <div>
                       <span className="font-medium text-gray-700">Current Role:</span> 
-                      <span className="ml-1">{cvAnalysis.professionalSummary.currentRole}</span>
+                      <span className="ml-1">{cvAnalysis.experience.currentRole}</span>
                     </div>
                   )}
-                  {cvAnalysis.professionalSummary.seniorityLevel && (
+                  {cvAnalysis.experience.level && cvAnalysis.experience.level !== 'Ej specificerat' && (
                     <div>
-                      <span className="font-medium text-gray-700">Seniority:</span> 
-                      <span className="ml-1">{cvAnalysis.professionalSummary.seniorityLevel}</span>
-                    </div>
-                  )}
-                  {cvAnalysis.professionalSummary.careerTrajectory && (
-                    <div>
-                      <span className="font-medium text-gray-700">Career:</span> 
-                      <span className="ml-1">{cvAnalysis.professionalSummary.careerTrajectory}</span>
+                      <span className="font-medium text-gray-700">Level:</span> 
+                      <span className="ml-1">{cvAnalysis.experience.level}</span>
                     </div>
                   )}
                 </div>
@@ -127,136 +126,79 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
             )}
 
             {/* Technical Skills from CV */}
-            {cvAnalysis.technicalExpertise?.programmingLanguages && (
+            {cvAnalysis.skills && (
               <div className="bg-white rounded-lg p-3 mb-3">
                 <h5 className="font-medium text-gray-900 mb-2">Technical Skills from CV</h5>
                 <div className="space-y-3">
-                  {cvAnalysis.technicalExpertise.programmingLanguages.expert?.length > 0 && (
+                  {cvAnalysis.skills.technical?.length > 0 && (
                     <div>
-                      <span className="text-xs font-medium text-green-700 block mb-1">Expert Level:</span>
+                      <span className="text-xs font-medium text-blue-700 block mb-1">Technical Skills:</span>
                       <div className="flex flex-wrap gap-1">
-                        {cvAnalysis.technicalExpertise.programmingLanguages.expert.map((skill: string, index: number) => (
-                          <Badge key={index} variant="secondary" className="bg-green-100 text-green-800 text-xs">
-                            {skill}
-                          </Badge>
+                        {cvAnalysis.skills.technical.map((skill: string, index: number) => (
+                          skill !== 'Ej specificerat' && (
+                            <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                              {skill}
+                            </Badge>
+                          )
                         ))}
                       </div>
                     </div>
                   )}
-                  {cvAnalysis.technicalExpertise.programmingLanguages.proficient?.length > 0 && (
+                  {cvAnalysis.skills.languages?.length > 0 && (
                     <div>
-                      <span className="text-xs font-medium text-blue-700 block mb-1">Proficient:</span>
+                      <span className="text-xs font-medium text-green-700 block mb-1">Programming Languages:</span>
                       <div className="flex flex-wrap gap-1">
-                        {cvAnalysis.technicalExpertise.programmingLanguages.proficient.map((skill: string, index: number) => (
-                          <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
-                            {skill}
-                          </Badge>
+                        {cvAnalysis.skills.languages.map((lang: string, index: number) => (
+                          lang !== 'Ej specificerat' && (
+                            <Badge key={index} variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                              {lang}
+                            </Badge>
+                          )
                         ))}
                       </div>
                     </div>
                   )}
-                  {cvAnalysis.technicalExpertise.programmingLanguages.familiar?.length > 0 && (
+                  {cvAnalysis.skills.tools?.length > 0 && (
                     <div>
-                      <span className="text-xs font-medium text-gray-700 block mb-1">Familiar:</span>
+                      <span className="text-xs font-medium text-purple-700 block mb-1">Tools & Technologies:</span>
                       <div className="flex flex-wrap gap-1">
-                        {cvAnalysis.technicalExpertise.programmingLanguages.familiar.map((skill: string, index: number) => (
-                          <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-800 text-xs">
-                            {skill}
-                          </Badge>
+                        {cvAnalysis.skills.tools.map((tool: string, index: number) => (
+                          tool !== 'Ej specificerat' && (
+                            <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800 text-xs">
+                              {tool}
+                            </Badge>
+                          )
                         ))}
                       </div>
                     </div>
                   )}
                 </div>
-
-                {/* Frameworks and Tools */}
-                {(cvAnalysis.technicalExpertise.frameworks?.length > 0 || 
-                  cvAnalysis.technicalExpertise.tools?.length > 0 ||
-                  cvAnalysis.technicalExpertise.databases?.length > 0) && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    {cvAnalysis.technicalExpertise.frameworks?.length > 0 && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-purple-700 block mb-1">Frameworks:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {cvAnalysis.technicalExpertise.frameworks.map((framework: string, index: number) => (
-                            <Badge key={index} variant="outline" className="text-purple-700 border-purple-200 text-xs">
-                              {framework}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {cvAnalysis.technicalExpertise.tools?.length > 0 && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-orange-700 block mb-1">Tools:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {cvAnalysis.technicalExpertise.tools.map((tool: string, index: number) => (
-                            <Badge key={index} variant="outline" className="text-orange-700 border-orange-200 text-xs">
-                              {tool}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {cvAnalysis.technicalExpertise.databases?.length > 0 && (
-                      <div>
-                        <span className="text-xs font-medium text-teal-700 block mb-1">Databases:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {cvAnalysis.technicalExpertise.databases.map((db: string, index: number) => (
-                            <Badge key={index} variant="outline" className="text-teal-700 border-teal-200 text-xs">
-                              {db}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             )}
 
-            {/* Market Positioning from CV */}
-            {cvAnalysis.marketPositioning && (
+            {/* Work History from CV */}
+            {cvAnalysis.workHistory && cvAnalysis.workHistory.length > 0 && (
               <div className="bg-white rounded-lg p-3 mb-3">
-                <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Market Positioning
-                </h5>
-                <div className="text-sm space-y-2">
-                  {cvAnalysis.marketPositioning.hourlyRateEstimate && (
-                    <div className="flex items-center gap-2">
-                      <Star className="h-3 w-3 text-yellow-500" />
-                      <span className="font-medium">Recommended Rate:</span>
-                      <span className="text-green-600 font-semibold">
-                        {cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} {cvAnalysis.marketPositioning.hourlyRateEstimate.currency}/hour
-                      </span>
-                    </div>
-                  )}
-                  {cvAnalysis.marketPositioning.marketDemand && (
-                    <div>
-                      <span className="font-medium">Market Demand:</span> 
-                      <span className="ml-1">{cvAnalysis.marketPositioning.marketDemand}</span>
-                    </div>
-                  )}
-                  {cvAnalysis.marketPositioning.competitiveAdvantages?.length > 0 && (
-                    <div>
-                      <span className="font-medium">Competitive Advantages:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {cvAnalysis.marketPositioning.competitiveAdvantages.map((advantage: string, index: number) => (
-                          <Badge key={index} variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
-                            {advantage}
-                          </Badge>
-                        ))}
+                <h5 className="font-medium text-gray-900 mb-2">Work History</h5>
+                <div className="space-y-2">
+                  {cvAnalysis.workHistory.slice(0, 3).map((work: any, index: number) => (
+                    work.role !== 'Ej specificerat' && work.company !== 'Ej specificerat' && (
+                      <div key={index} className="border border-gray-200 rounded p-2 text-xs">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="font-medium text-gray-900">{work.role || 'Role not specified'}</span>
+                          <span className="text-gray-500">{work.duration || ''}</span>
+                        </div>
+                        <p className="text-gray-600">{work.company || 'Company not specified'}</p>
                       </div>
-                    </div>
-                  )}
+                    )
+                  ))}
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* Original LinkedIn Analysis Section */}
+        {/* LinkedIn Analysis Section */}
         {linkedinAnalysis && (
           <>
             <Separator className="my-4" />
