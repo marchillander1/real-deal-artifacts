@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, FileText, Link as LinkIcon } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -63,7 +64,7 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
     <div className="p-8 md:p-12">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-          Upload My CV & Start Analysis
+          Let AI unlock your potential
         </h2>
         <p className="text-lg text-slate-600">
           Start by uploading your latest CV (PDF or Word). You can also add your LinkedIn profile to improve the analysis.
@@ -152,11 +153,11 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
             />
             <div className="text-sm text-slate-700">
               <label htmlFor="gdpr-consent" className="cursor-pointer font-medium">
-                Jag godkänner att MatchWise analyserar mitt CV och min LinkedIn-profil
+                I agree to let MatchWise analyze my CV and LinkedIn profile
               </label>
               <p className="mt-1 text-slate-600">
-                Genom att kryssa i denna ruta samtycker jag till att MatchWise AI analyserar mitt CV och LinkedIn-profil för att skapa en personlig karriärrapport. 
-                Dina uppgifter behandlas enligt vår integritetspolicy och delas inte med tredje part utan ditt samtycke.
+                By checking this box, I consent to MatchWise AI analyzing my CV and LinkedIn profile to create a personalized career report. 
+                Your data is processed according to our privacy policy and will not be shared with third parties without your consent.
               </p>
             </div>
           </div>
