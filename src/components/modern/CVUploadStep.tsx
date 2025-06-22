@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { Upload, FileText, Link as LinkIcon } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface CVUploadStepProps {
   onFileUpload: (file: File, linkedinUrl: string) => void;
@@ -10,6 +10,7 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const [agreeToGDPR, setAgreeToGDPR] = useState(false);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -53,7 +54,7 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
   };
 
   const handleStartAnalysis = () => {
-    if (file) {
+    if (file && agreeToGDPR) {
       onFileUpload(file, linkedinUrl);
     }
   };
@@ -140,18 +141,44 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
           </p>
         </div>
 
+        {/* GDPR Consent */}
+        <div className="space-y-4">
+          <div className="flex items-start space-x-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <Checkbox
+              id="gdpr-consent"
+              checked={agreeToGDPR}
+              onCheckedChange={(checked) => setAgreeToGDPR(checked as boolean)}
+              className="mt-1"
+            />
+            <div className="text-sm text-slate-700">
+              <label htmlFor="gdpr-consent" className="cursor-pointer font-medium">
+                Jag godkänner att MatchWise analyserar mitt CV och min LinkedIn-profil
+              </label>
+              <p className="mt-1 text-slate-600">
+                Genom att kryssa i denna ruta samtycker jag till att MatchWise AI analyserar mitt CV och LinkedIn-profil för att skapa en personlig karriärrapport. 
+                Dina uppgifter behandlas enligt vår integritetspolicy och delas inte med tredje part utan ditt samtycke.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Start Analysis Button */}
         <div className="pt-4">
           <button
             onClick={handleStartAnalysis}
-            disabled={!file}
+            disabled={!file || !agreeToGDPR}
             className={`w-full py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-200 transform ${
-              file
+              file && agreeToGDPR
                 ? 'bg-gradient-to-r from-blue-600 to-green-600 text-white hover:shadow-lg hover:scale-105 active:scale-95'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed'
             }`}
           >
-            {file ? 'Start Analysis' : 'Please upload your CV first'}
+            {!file 
+              ? 'Please upload your CV first' 
+              : !agreeToGDPR 
+              ? 'Please accept data processing consent'
+              : 'Start Analysis'
+            }
           </button>
         </div>
       </div>
