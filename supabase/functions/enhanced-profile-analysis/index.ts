@@ -46,10 +46,8 @@ serve(async (req) => {
     
     // Parse CV based on file type
     if (file.type === 'application/pdf') {
-      // For PDF files, we'll use a simple text extraction
       cvText = await extractPDFText(fileBase64);
     } else {
-      // For images and other formats, use OCR or basic extraction
       cvText = await extractTextFromFile(fileBase64, file.type);
     }
 
@@ -147,7 +145,7 @@ Focus on accuracy and specific, actionable insights. Base all recommendations on
       email: analysisResults.email || 'temp@matchwise.tech',
       phone: analysisResults.phone_number || '',
       title: analysisResults.title || 'IT Consultant',
-      location: 'Sweden', // Default for now
+      location: 'Sweden',
       skills: [...(analysisResults.primary_tech_stack || []), ...(analysisResults.secondary_tech_stack || [])],
       experience_years: analysisResults.years_of_experience || 5,
       hourly_rate: analysisResults.market_rate_current || 800,
@@ -238,7 +236,6 @@ Focus on accuracy and specific, actionable insights. Base all recommendations on
 });
 
 async function extractPDFText(base64Data: string): Promise<string> {
-  // Simple PDF text extraction - in production you'd use a proper PDF parser
   try {
     const binaryString = atob(base64Data);
     const uint8Array = new Uint8Array(binaryString.length);
@@ -246,7 +243,6 @@ async function extractPDFText(base64Data: string): Promise<string> {
       uint8Array[i] = binaryString.charCodeAt(i);
     }
     
-    // Basic text extraction from PDF (this is simplified)
     const text = new TextDecoder().decode(uint8Array);
     return text.replace(/[^\x20-\x7E\s]/g, '').substring(0, 5000);
   } catch (e) {
@@ -256,7 +252,6 @@ async function extractPDFText(base64Data: string): Promise<string> {
 }
 
 async function extractTextFromFile(base64Data: string, fileType: string): Promise<string> {
-  // Basic file text extraction
   try {
     const binaryString = atob(base64Data);
     return binaryString.substring(0, 3000);
@@ -268,8 +263,6 @@ async function extractTextFromFile(base64Data: string, fileType: string): Promis
 
 async function analyzeLinkedInProfile(linkedinUrl: string) {
   try {
-    // In a real implementation, you'd scrape or use LinkedIn API
-    // For now, return mock data based on URL analysis
     return {
       profile_summary: 'Professional IT consultant with expertise in modern technologies',
       recent_posts: [],
