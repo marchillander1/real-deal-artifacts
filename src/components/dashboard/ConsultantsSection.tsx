@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,11 +8,14 @@ import { Search, Users, Star, TrendingUp, Brain, CheckCircle, FileText, Linkedin
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { Consultant } from '@/types/consultant';
 import { CVUploadSection } from './CVUploadSection';
+import { ConsultantAnalysisModal } from '../ConsultantAnalysisModal';
 
 export const ConsultantsSection: React.FC = () => {
   const { consultants, isLoading } = useSupabaseConsultantsWithDemo();
   const [searchTerm, setSearchTerm] = useState('');
   const [skillFilter, setSkillFilter] = useState('');
+  const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
 
   const myConsultants = consultants.filter(c => c.type === 'existing');
   const networkConsultants = consultants.filter(c => c.type === 'new');
@@ -32,6 +34,11 @@ export const ConsultantsSection: React.FC = () => {
   // Get popular skills from all consultants
   const allSkills = [...new Set(consultants.flatMap(c => c.skills))];
   const popularSkills = allSkills.slice(0, 15);
+
+  const handleViewAnalysis = (consultant: Consultant) => {
+    setSelectedConsultant(consultant);
+    setShowAnalysisModal(true);
+  };
 
   if (isLoading) {
     return (
@@ -168,7 +175,12 @@ export const ConsultantsSection: React.FC = () => {
               
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {filterConsultants(myConsultants).map((consultant) => (
-                  <EnhancedConsultantCard key={consultant.id} consultant={consultant} isOwned={true} />
+                  <EnhancedConsultantCard 
+                    key={consultant.id} 
+                    consultant={consultant} 
+                    isOwned={true} 
+                    onViewAnalysis={handleViewAnalysis}
+                  />
                 ))}
               </div>
 
@@ -193,7 +205,12 @@ export const ConsultantsSection: React.FC = () => {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filterConsultants(networkConsultants).map((consultant) => (
-              <EnhancedConsultantCard key={consultant.id} consultant={consultant} isOwned={false} />
+              <EnhancedConsultantCard 
+                key={consultant.id} 
+                consultant={consultant} 
+                isOwned={false} 
+                onViewAnalysis={handleViewAnalysis}
+              />
             ))}
           </div>
 
@@ -215,11 +232,25 @@ export const ConsultantsSection: React.FC = () => {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filterConsultants(consultants).map((consultant) => (
-              <EnhancedConsultantCard key={consultant.id} consultant={consultant} isOwned={consultant.type === 'existing'} />
+              <EnhancedConsultantCard 
+                key={consultant.id} 
+                consultant={consultant} 
+                isOwned={consultant.type === 'existing'}
+                onViewAnalysis={handleViewAnalysis}
+              />
             ))}
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Analysis Modal */}
+      {selectedConsultant && (
+        <ConsultantAnalysisModal
+          consultant={selectedConsultant}
+          open={showAnalysisModal}
+          onOpenChange={setShowAnalysisModal}
+        />
+      )}
     </div>
   );
 };
@@ -227,9 +258,10 @@ export const ConsultantsSection: React.FC = () => {
 interface EnhancedConsultantCardProps {
   consultant: Consultant;
   isOwned: boolean;
+  onViewAnalysis: (consultant: Consultant) => void;
 }
 
-const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({ consultant, isOwned }) => {
+const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({ consultant, isOwned, onViewAnalysis }) => {
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -382,12 +414,15 @@ const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({ consult
               <Mail className="h-4 w-4 mr-2" />
               Contact
             </Button>
-            {hasAnalysisData && (
-              <Button variant="outline" size="sm" className="text-purple-600 hover:text-purple-700 border-purple-200">
-                <Eye className="h-4 w-4 mr-2" />
-                View Analysis
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-purple-600 hover:text-purple-700 border-purple-200"
+              onClick={() => onViewAnalysis(consultant)}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View Analysis
+            </Button>
           </div>
           {consultant.certifications && consultant.certifications.length > 0 && (
             <div className="flex items-center space-x-2">

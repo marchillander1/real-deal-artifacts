@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConsultantsSection } from './dashboard/ConsultantsSection';
 import { AssignmentsSection } from './dashboard/AssignmentsSection';
 import { DashboardOverview } from './dashboard/DashboardOverview';
-import { CVUploadSection } from './dashboard/CVUploadSection';
 
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'consultants' | 'assignments'>('overview');
