@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, MapPin, Clock, Mail, Award, Brain, FileText, Linkedin, CheckCircle, Eye } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
-import { ConsultantFullAnalysisModal } from './ConsultantFullAnalysisModal';
+import { ConsultantAnalysisModal } from './ConsultantAnalysisModal';
 
 interface ConsultantCardProps {
   consultant: Consultant;
@@ -192,7 +193,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant }) => {
       </Card>
 
       {/* Analysis Modal */}
-      <ConsultantFullAnalysisModal
+      <ConsultantAnalysisModal
         consultant={consultant}
         open={showAnalysisModal}
         onOpenChange={setShowAnalysisModal}
