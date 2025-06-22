@@ -278,18 +278,29 @@ const MyProfile: React.FC = () => {
     
     setLoadingAnalysis(true);
     try {
-      // Try to get analysis results from the database
+      // Try to get analysis results from both new and old columns
       const { data, error } = await supabase
         .from('consultants')
-        .select('analysis_results')
+        .select('analysis_results, cv_analysis_data')
         .eq('id', profile.id)
         .single();
 
       if (error) throw error;
       
+      // Check both analysis_results (new) and cv_analysis_data (old) columns
+      let analysisData = null;
+      
       if (data?.analysis_results) {
+        // New format
+        analysisData = data.analysis_results;
+      } else if (data?.cv_analysis_data?.analysis) {
+        // Old format
+        analysisData = data.cv_analysis_data.analysis;
+      }
+      
+      if (analysisData) {
         setAnalysisResults({
-          cvAnalysis: { analysis: data.analysis_results },
+          cvAnalysis: { analysis: analysisData },
           consultant: profile
         });
       } else {
