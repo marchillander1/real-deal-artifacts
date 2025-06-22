@@ -14,9 +14,6 @@ export default function Navbar() {
             <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
               <Link to="/demo">Try Demo</Link>
             </Button>
-            <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
-              <Link to="/demo">Try Our System</Link>
-            </Button>
             <Button variant="ghost" onClick={() => window.open('/cv-upload', '_blank')} className="text-slate-300 hover:text-white hover:bg-slate-800">
               Upload CV
             </Button>

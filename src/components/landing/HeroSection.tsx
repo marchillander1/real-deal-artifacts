@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, TrendingUp } from 'lucide-react';
+import { ArrowRight, Users, TrendingUp, Zap } from 'lucide-react';
 import { useSupabaseConsultantsWithDemo } from "@/hooks/useSupabaseConsultantsWithDemo";
 
 export const HeroSection = () => {
@@ -26,7 +26,7 @@ export const HeroSection = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all">
               <Link to="/matchwiseai" className="flex items-center">
                 Find Perfect Consultants
@@ -37,6 +37,15 @@ export const HeroSection = () => {
               <Link to="/cv-upload" className="flex items-center">
                 Join as Consultant
                 <Users className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="flex justify-center mb-12">
+            <Button variant="outline" size="lg" className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-3 rounded-lg font-semibold transition-all">
+              <Link to="/demo" className="flex items-center">
+                Try Our System
+                <Zap className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
