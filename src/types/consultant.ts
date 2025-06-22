@@ -1,4 +1,3 @@
-
 export interface Consultant {
   id: string | number;
   name: string;
@@ -27,9 +26,21 @@ export interface Consultant {
   adaptability: number;
   leadership: number;
   linkedinUrl: string;
-  // 🔥 NEW: Add analysis data
+  // Analysis data from CV/LinkedIn parsing
   cvAnalysis?: any;
   linkedinAnalysis?: any;
+  // Enhanced analysis fields from database
+  profile_completeness?: number;
+  linkedin_engagement_level?: string;
+  thought_leadership_score?: number;
+  primary_tech_stack?: string[];
+  secondary_tech_stack?: string[];
+  top_values?: string[];
+  industries?: string[];
+  market_rate_current?: number;
+  market_rate_optimized?: number;
+  cv_tips?: string[];
+  suggested_learning_paths?: string[];
 }
 
 export interface Assignment {

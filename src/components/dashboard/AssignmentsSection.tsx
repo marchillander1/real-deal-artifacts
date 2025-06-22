@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Briefcase, Clock, DollarSign, Users, MapPin, Zap, Search } from 'lucide-react';
 import { Assignment } from '@/types/consultant';
-import { CreateAssignmentForm } from '../CreateAssignmentForm';
+import CreateAssignmentForm from '../CreateAssignmentForm';
 import { AIMatchResults } from '../AIMatchResults';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { generateAIMatches } from '@/utils/aiMatchingEngine';
