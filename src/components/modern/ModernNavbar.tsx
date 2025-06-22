@@ -12,13 +12,7 @@ export const ModernNavbar: React.FC = () => {
             <Logo size="md" variant="full" />
           </Link>
           
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/demo" className="text-slate-600 hover:text-slate-900 transition-colors">
-              Demo
-            </Link>
-            <Link to="/pricing" className="text-slate-600 hover:text-slate-900 transition-colors">
-              Pricing
-            </Link>
+          <div className="flex items-center">
             <Link to="/auth" className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 transform hover:scale-105">
               Sign In
             </Link>

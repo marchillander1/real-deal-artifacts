@@ -57,12 +57,12 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
           cvAnalysis: response.data.analysisResults,
           linkedinAnalysis: response.data.linkedinData,
           consultant: response.data.consultant,
-          // Lägg till extraherad personlig info för auto-fill
+          // Säkerställ att extraherad personlig info finns för auto-fill
           extractedPersonalInfo: {
             name: response.data.consultant?.name || response.data.analysisResults?.full_name || '',
             email: response.data.consultant?.email || response.data.analysisResults?.email || '',
             phone: response.data.consultant?.phone || response.data.analysisResults?.phone_number || '',
-            location: response.data.consultant?.location || 'Sverige'
+            location: response.data.consultant?.location || response.data.analysisResults?.location || 'Sverige'
           }
         };
 
@@ -72,7 +72,7 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
         // Visa framgångsmeddelande
         toast({
           title: "Analys slutförd! 🎉",
-          description: `Profil analyserad för ${results.extractedPersonalInfo.name || 'konsult'}`,
+          description: `CV och LinkedIn-profil analyserad för ${results.extractedPersonalInfo.name || 'konsult'}`,
         });
 
       } catch (error: any) {
