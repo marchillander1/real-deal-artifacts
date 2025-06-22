@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, LogOut, Mail, Phone, MapPin, Briefcase, Star, Calendar, Globe, Edit2, Upload, Eye } from 'lucide-react';
 import Logo from '@/components/Logo';
+import { AnalysisResults } from '@/components/AnalysisResults';
 
 interface ConsultantProfile {
   id: string;
@@ -37,6 +39,9 @@ const MyProfile: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [showLogin, setShowLogin] = useState(true);
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
+  const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -232,6 +237,48 @@ const MyProfile: React.FC = () => {
         skills: profile.skills.filter(skill => skill !== skillToRemove)
       });
     }
+  };
+
+  const loadAnalysisResults = async () => {
+    if (!profile) return;
+    
+    setLoadingAnalysis(true);
+    try {
+      // Try to get analysis results from the database
+      const { data, error } = await supabase
+        .from('consultants')
+        .select('analysis_results')
+        .eq('id', profile.id)
+        .single();
+
+      if (error) throw error;
+      
+      if (data?.analysis_results) {
+        setAnalysisResults({
+          cvAnalysis: { analysis: data.analysis_results },
+          consultant: profile
+        });
+      } else {
+        toast({
+          title: "No analysis found",
+          description: "No analysis results available for this profile.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading analysis:', error);
+      toast({
+        title: "Error loading analysis",
+        description: "Could not load analysis results.",
+        variant: "destructive",
+      });
+    }
+    setLoadingAnalysis(false);
+  };
+
+  const handleViewAnalysis = () => {
+    setShowAnalysisDialog(true);
+    loadAnalysisResults();
   };
 
   if (loading) {
@@ -503,10 +550,37 @@ const MyProfile: React.FC = () => {
               <Button onClick={handleSave} disabled={saving} className="flex-1">
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>
-              <Button variant="outline" onClick={() => navigate(`/analysis?id=${profile.id}`)}>
-                <Eye className="h-4 w-4 mr-2" />
-                View Analysis
-              </Button>
+              <Dialog open={showAnalysisDialog} onOpenChange={setShowAnalysisDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" onClick={handleViewAnalysis}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Analysis
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>CV Analysis Results</DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-4">
+                    {loadingAnalysis ? (
+                      <div className="flex items-center justify-center p-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <span className="ml-2">Loading analysis...</span>
+                      </div>
+                    ) : analysisResults ? (
+                      <AnalysisResults 
+                        analysisResults={analysisResults}
+                        isAnalyzing={false}
+                        analysisProgress={100}
+                      />
+                    ) : (
+                      <div className="text-center p-8">
+                        <p className="text-slate-600">No analysis results available.</p>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
