@@ -1,4 +1,3 @@
-
 import { Consultant, Assignment } from '@/types/consultant';
 
 interface MatchResult {
@@ -13,6 +12,15 @@ interface MatchResult {
   responseTime: string;
   successProbability: number;
 }
+
+// Export the calculateMatch function that was missing
+export const calculateMatch = (consultant: Consultant, assignment: Assignment): { totalMatchScore: number } => {
+  const technicalFit = calculateTechnicalFit(assignment, consultant);
+  const culturalFit = calculateCulturalFit(assignment, consultant);
+  const totalMatchScore = Math.round((technicalFit * 0.6) + (culturalFit * 0.4));
+  
+  return { totalMatchScore };
+};
 
 export const generateAIMatches = async (
   assignment: Assignment,

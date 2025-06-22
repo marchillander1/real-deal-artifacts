@@ -23,7 +23,7 @@ export const useSupabaseAssignments = () => {
         return;
       }
 
-      // Transform database data to Assignment interface
+      // Transform database data to Assignment interface with proper type casting
       const transformedAssignments: Assignment[] = (data || []).map(assignment => ({
         id: assignment.id,
         title: assignment.title,
@@ -37,7 +37,7 @@ export const useSupabaseAssignments = () => {
           ? `${assignment.budget_min}-${assignment.budget_max} ${assignment.budget_currency}`
           : 'Not specified',
         remote: assignment.remote_type || '',
-        urgency: assignment.urgency || 'Medium',
+        urgency: (assignment.urgency || 'Medium') as 'Low' | 'Medium' | 'High',
         teamSize: assignment.team_size || '',
         teamCulture: assignment.team_culture || '',
         industry: assignment.industry || '',
