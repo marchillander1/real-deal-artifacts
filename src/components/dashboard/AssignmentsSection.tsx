@@ -7,14 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Calendar, Building, Users, Clock, Target, AlertCircle } from 'lucide-react';
 import { Assignment, Consultant } from '@/types/consultant';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import { useSupabaseAssignments } from '@/hooks/useSupabaseAssignments';
 import { calculateMatch } from '@/utils/aiMatchingEngine';
 import CreateAssignmentForm from '@/components/CreateAssignmentForm';
 
 export const AssignmentsSection: React.FC = () => {
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { consultants } = useSupabaseConsultantsWithDemo();
+  const { assignments, loading, setAssignments, refetch } = useSupabaseAssignments();
 
   const filteredAssignments = assignments.filter(assignment =>
     assignment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,12 +64,13 @@ export const AssignmentsSection: React.FC = () => {
       const result = await response.json();
       
       if (result.success) {
-        // Add to local state
-        setAssignments(prev => [...prev, { ...newAssignment, id: result.assignment.id }]);
+        // Refresh assignments from database
+        refetch();
         setShowCreateForm(false);
 
         // Check for skill matches and send alerts
-        await checkForSkillMatches(newAssignment);
+        const assignmentWithId = { ...newAssignment, id: result.assignment.id };
+        await checkForSkillMatches(assignmentWithId);
       }
     } catch (error) {
       console.error('Error creating assignment:', error);
@@ -121,6 +123,19 @@ export const AssignmentsSection: React.FC = () => {
       .sort((a, b) => b.matchScore - a.matchScore)
       .slice(0, 3);
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Laddar assignments...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

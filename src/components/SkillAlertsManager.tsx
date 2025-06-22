@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Plus, X, Mail } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SkillAlert {
   id: string;
   skills: string[];
   email: string;
   active: boolean;
-  createdAt: string;
+  created_at: string;
 }
 
 export const SkillAlertsManager: React.FC = () => {
@@ -19,21 +21,39 @@ export const SkillAlertsManager: React.FC = () => {
   const [newSkill, setNewSkill] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Load existing alerts (mockad data för nu)
+  // Load existing alerts from Supabase
   useEffect(() => {
-    const mockAlerts: SkillAlert[] = [
-      {
-        id: '1',
-        skills: ['React', 'TypeScript'],
-        email: 'user@company.com',
-        active: true,
-        createdAt: '2024-01-15'
-      }
-    ];
-    setAlerts(mockAlerts);
+    loadAlerts();
   }, []);
+
+  const loadAlerts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('skill_alerts')
+        .select('*')
+        .eq('active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading alerts:', error);
+        toast({
+          title: "Fel vid laddning",
+          description: "Kunde inte ladda skill alerts",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAlerts(data || []);
+    } catch (error) {
+      console.error('Error loading alerts:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCreateAlert = async () => {
     if (!newSkill.trim() || !newEmail.trim()) {
@@ -48,15 +68,27 @@ export const SkillAlertsManager: React.FC = () => {
     setIsCreating(true);
     
     try {
-      const newAlert: SkillAlert = {
-        id: Date.now().toString(),
-        skills: [newSkill.trim()],
-        email: newEmail.trim(),
-        active: true,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
+      const { data, error } = await supabase
+        .from('skill_alerts')
+        .insert([{
+          skills: [newSkill.trim()],
+          email: newEmail.trim(),
+          active: true
+        }])
+        .select()
+        .single();
 
-      setAlerts(prev => [...prev, newAlert]);
+      if (error) {
+        console.error('Error creating alert:', error);
+        toast({
+          title: "Fel vid skapande",
+          description: "Kunde inte skapa skill alert",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAlerts(prev => [data, ...prev]);
       setNewSkill('');
       setNewEmail('');
 
@@ -77,13 +109,45 @@ export const SkillAlertsManager: React.FC = () => {
     }
   };
 
-  const handleDeleteAlert = (alertId: string) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
-    toast({
-      title: "Alert borttagen",
-      description: "Skill alert har tagits bort",
-    });
+  const handleDeleteAlert = async (alertId: string) => {
+    try {
+      const { error } = await supabase
+        .from('skill_alerts')
+        .update({ active: false })
+        .eq('id', alertId);
+
+      if (error) {
+        console.error('Error deleting alert:', error);
+        toast({
+          title: "Fel vid borttagning",
+          description: "Kunde inte ta bort skill alert",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+      toast({
+        title: "Alert borttagen",
+        description: "Skill alert har tagits bort",
+      });
+    } catch (error) {
+      console.error('Error deleting alert:', error);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Laddar skill alerts...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -157,7 +221,7 @@ export const SkillAlertsManager: React.FC = () => {
                           ))}
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                          Skapad: {alert.createdAt}
+                          Skapad: {new Date(alert.created_at).toLocaleDateString('sv-SE')}
                         </p>
                       </div>
                       <Button

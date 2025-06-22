@@ -436,6 +436,36 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_alerts: {
+        Row: {
+          active: boolean
+          created_at: string
+          email: string
+          id: string
+          skills: string[]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          skills?: string[]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          skills?: string[]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
