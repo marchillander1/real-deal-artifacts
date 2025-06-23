@@ -78,7 +78,38 @@ export const useSupabaseConsultantsWithDemo = () => {
                 tools: cvAnalysisData.skills?.tools || []
               },
               workHistory: cvAnalysisData.workHistory || [],
-              education: cvAnalysisData.education || []
+              education: cvAnalysisData.education || [],
+              softSkills: {
+                communicationStyle: cvAnalysisData.softSkills?.communicationStyle || consultant.communication_style || 'Professional and collaborative',
+                leadershipStyle: cvAnalysisData.softSkills?.leadershipStyle || 'Supportive and goal-oriented',
+                workStyle: cvAnalysisData.softSkills?.workStyle || consultant.work_style || 'Team-oriented and adaptable',
+                values: cvAnalysisData.softSkills?.values || consultant.values || ['Quality', 'Innovation', 'Collaboration'],
+                personalityTraits: cvAnalysisData.softSkills?.personalityTraits || consultant.personality_traits || ['Analytical', 'Detail-oriented', 'Problem-solver']
+              },
+              scores: {
+                leadership: cvAnalysisData.scores?.leadership || consultant.leadership || 4,
+                innovation: cvAnalysisData.scores?.innovation || 4,
+                adaptability: cvAnalysisData.scores?.adaptability || consultant.adaptability || 4,
+                culturalFit: cvAnalysisData.scores?.culturalFit || consultant.cultural_fit || 4,
+                communication: cvAnalysisData.scores?.communication || 4,
+                teamwork: cvAnalysisData.scores?.teamwork || 4
+              },
+              marketAnalysis: {
+                hourlyRate: {
+                  current: cvAnalysisData.marketAnalysis?.hourlyRate?.current || consultant.market_rate_current || 800,
+                  optimized: cvAnalysisData.marketAnalysis?.hourlyRate?.optimized || consultant.market_rate_optimized || 950,
+                  explanation: cvAnalysisData.marketAnalysis?.hourlyRate?.explanation || 'Based on experience level and technical skills in the Swedish market'
+                },
+                competitiveAdvantages: cvAnalysisData.marketAnalysis?.competitiveAdvantages || ['Strong technical foundation', 'Proven track record', 'Excellent communication skills'],
+                marketDemand: cvAnalysisData.marketAnalysis?.marketDemand || 'High demand in the current market',
+                recommendedFocus: cvAnalysisData.marketAnalysis?.recommendedFocus || 'Continue building expertise in current tech stack while exploring emerging technologies'
+              },
+              analysisInsights: {
+                strengths: cvAnalysisData.analysisInsights?.strengths || ['Technical expertise', 'Problem-solving ability', 'Team collaboration'],
+                developmentAreas: cvAnalysisData.analysisInsights?.developmentAreas || ['Leadership development', 'Advanced certifications', 'Public speaking'],
+                careerTrajectory: cvAnalysisData.analysisInsights?.careerTrajectory || 'Strong upward trajectory with opportunities for senior technical or leadership roles',
+                consultingReadiness: cvAnalysisData.analysisInsights?.consultingReadiness || 'Well-prepared for consulting with strong technical and soft skills'
+              }
             } : undefined,
             linkedinAnalysis: linkedinAnalysisData ? {
               communicationStyle: linkedinAnalysisData.communicationStyle || 'Professional',
