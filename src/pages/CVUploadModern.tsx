@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +20,7 @@ export default function CVUploadModern() {
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [step, setStep] = useState<'upload' | 'processing' | 'personal-info' | 'analysis' | 'complete'>('upload');
+  const [step, setStep] = useState<'upload' | 'personal-info' | 'processing' | 'analysis' | 'complete'>('upload');
   const [consultant, setConsultant] = useState<any>(null);
   const [chatMinimized, setChatMinimized] = useState(true);
   
@@ -101,7 +102,7 @@ export default function CVUploadModern() {
     }
   };
 
-  const handleStartProcessing = () => {
+  const handleContinueToPersonalInfo = () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -111,42 +112,10 @@ export default function CVUploadModern() {
       return;
     }
 
-    setIsProcessing(true);
-    setStep('processing');
-    setProgress(0);
-  };
-
-  const handleProcessingComplete = (result: any) => {
-    setConsultant(result);
-    
-    // Pre-fill personal info with extracted data
-    if (result.analysis?.personalInfo) {
-      setPersonalInfo({
-        name: result.analysis.personalInfo.name || '',
-        email: result.analysis.personalInfo.email || '',
-        phone: result.analysis.personalInfo.phone || '',
-        location: result.analysis.personalInfo.location || '',
-        selfDescription: ''
-      });
-    }
-    
     setStep('personal-info');
-    setIsProcessing(false);
-    setProgress(100);
   };
 
-  const handleProcessingError = (error: string) => {
-    setIsProcessing(false);
-    setStep('upload');
-    setProgress(0);
-    toast({
-      title: "Processing failed",
-      description: error,
-      variant: "destructive",
-    });
-  };
-
-  const handlePersonalInfoSubmit = () => {
+  const handleStartProcessing = () => {
     if (!personalInfo.name.trim() || !personalInfo.email.trim()) {
       toast({
         title: "Required fields missing",
@@ -156,7 +125,27 @@ export default function CVUploadModern() {
       return;
     }
     
+    setIsProcessing(true);
+    setStep('processing');
+    setProgress(0);
+  };
+
+  const handleProcessingComplete = (result: any) => {
+    setConsultant(result);
     setStep('analysis');
+    setIsProcessing(false);
+    setProgress(100);
+  };
+
+  const handleProcessingError = (error: string) => {
+    setIsProcessing(false);
+    setStep('personal-info');
+    setProgress(0);
+    toast({
+      title: "Processing failed",
+      description: error,
+      variant: "destructive",
+    });
   };
 
   const handleJoinNetwork = async () => {
@@ -204,7 +193,9 @@ export default function CVUploadModern() {
   };
 
   const goBack = () => {
-    if (isMyConsultant) {
+    if (step === 'personal-info') {
+      setStep('upload');
+    } else if (isMyConsultant) {
       navigate('/matchwiseai');
     } else {
       navigate('/');
@@ -274,23 +265,23 @@ export default function CVUploadModern() {
             {/* Progress Steps */}
             <div className="mb-8">
               <div className="flex items-center justify-center space-x-4">
-                <div className={`flex items-center ${step === 'upload' ? 'text-blue-600' : ['processing', 'personal-info', 'analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'upload' ? 'bg-blue-100' : ['processing', 'personal-info', 'analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    {['processing', 'personal-info', 'analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '1'}
+                <div className={`flex items-center ${step === 'upload' ? 'text-blue-600' : ['personal-info', 'processing', 'analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'upload' ? 'bg-blue-100' : ['personal-info', 'processing', 'analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {['personal-info', 'processing', 'analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '1'}
                   </div>
                   Upload CV
                 </div>
-                <div className={`flex items-center ${step === 'processing' ? 'text-blue-600' : ['personal-info', 'analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'processing' ? 'bg-blue-100' : ['personal-info', 'analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    {['personal-info', 'analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '2'}
-                  </div>
-                  AI Analysis
-                </div>
-                <div className={`flex items-center ${step === 'personal-info' ? 'text-blue-600' : ['analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'personal-info' ? 'bg-blue-100' : ['analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    {['analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '3'}
+                <div className={`flex items-center ${step === 'personal-info' ? 'text-blue-600' : ['processing', 'analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'personal-info' ? 'bg-blue-100' : ['processing', 'analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {['processing', 'analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '2'}
                   </div>
                   Personal Info
+                </div>
+                <div className={`flex items-center ${step === 'processing' ? 'text-blue-600' : ['analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'processing' ? 'bg-blue-100' : ['analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {['analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '3'}
+                  </div>
+                  AI Analysis
                 </div>
                 <div className={`flex items-center ${step === 'analysis' ? 'text-blue-600' : step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'analysis' ? 'bg-blue-100' : step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
@@ -374,40 +365,15 @@ export default function CVUploadModern() {
                     </p>
                   </div>
 
-                  {/* Start Button */}
+                  {/* Continue Button */}
                   <Button
-                    onClick={handleStartProcessing}
-                    disabled={!file || isProcessing}
+                    onClick={handleContinueToPersonalInfo}
+                    disabled={!file}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                     size="lg"
                   >
-                    <Brain className="h-4 w-4 mr-2" />
-                    Start AI Analysis
+                    Continue to Personal Information
                   </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {step === 'processing' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-center">Analyzing Your CV</CardTitle>
-                  <p className="text-center text-gray-600">
-                    Our AI is processing your information...
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <Progress value={progress} className="w-full" />
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600">
-                      {progress < 20 && "Extracting text from CV..."}
-                      {progress >= 20 && progress < 40 && "Analyzing technical skills..."}
-                      {progress >= 40 && progress < 60 && "Processing LinkedIn profile..."}
-                      {progress >= 60 && progress < 80 && "Creating consultant profile..."}
-                      {progress >= 80 && progress < 100 && "Finalizing analysis..."}
-                      {progress === 100 && "Complete!"}
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
             )}
@@ -415,9 +381,9 @@ export default function CVUploadModern() {
             {step === 'personal-info' && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-center">Confirm Your Information</CardTitle>
+                  <CardTitle className="text-center">Personal Information</CardTitle>
                   <p className="text-center text-gray-600">
-                    Please review and edit your personal information
+                    Please provide your information and tell us about yourself
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -432,6 +398,7 @@ export default function CVUploadModern() {
                           onChange={(e) => setPersonalInfo({...personalInfo, name: e.target.value})}
                           className="pl-10"
                           placeholder="Enter your full name"
+                          required
                         />
                       </div>
                     </div>
@@ -447,6 +414,7 @@ export default function CVUploadModern() {
                           onChange={(e) => setPersonalInfo({...personalInfo, email: e.target.value})}
                           className="pl-10"
                           placeholder="Enter your email"
+                          required
                         />
                       </div>
                     </div>
@@ -481,27 +449,53 @@ export default function CVUploadModern() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="selfDescription">Tell us about yourself (Optional)</Label>
+                    <Label htmlFor="selfDescription">Tell us about yourself</Label>
                     <Textarea
                       id="selfDescription"
                       value={personalInfo.selfDescription}
                       onChange={(e) => setPersonalInfo({...personalInfo, selfDescription: e.target.value})}
-                      placeholder="Share your work style, values, passions, or anything else you'd like us to know..."
-                      rows={4}
-                      maxLength={500}
+                      placeholder="Share your work style, values, passions, or anything else you'd like us to know for better analysis..."
+                      rows={5}
+                      maxLength={1000}
                     />
                     <p className="text-xs text-gray-500">
-                      {personalInfo.selfDescription.length}/500 characters - This information will be included in your AI analysis
+                      {personalInfo.selfDescription.length}/1000 characters - This helps our AI provide more accurate personality and soft skills analysis
                     </p>
                   </div>
 
                   <Button
-                    onClick={handlePersonalInfoSubmit}
+                    onClick={handleStartProcessing}
+                    disabled={!personalInfo.name.trim() || !personalInfo.email.trim()}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                     size="lg"
                   >
-                    Continue to Analysis
+                    <Brain className="h-4 w-4 mr-2" />
+                    Start AI Analysis
                   </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {step === 'processing' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-center">Analyzing Your CV</CardTitle>
+                  <p className="text-center text-gray-600">
+                    Our AI is processing your information...
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <Progress value={progress} className="w-full" />
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      {progress < 20 && "Extracting text from CV..."}
+                      {progress >= 20 && progress < 40 && "Analyzing technical skills..."}
+                      {progress >= 40 && progress < 60 && "Processing LinkedIn profile..."}
+                      {progress >= 60 && progress < 80 && "Creating consultant profile..."}
+                      {progress >= 80 && progress < 100 && "Finalizing analysis..."}
+                      {progress === 100 && "Complete!"}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -628,8 +622,8 @@ export default function CVUploadModern() {
               </div>
             )}
 
-            {/* Background Processing with Personal Description */}
-            {isProcessing && file && (
+            {/* Background Processing - Only starts when in processing step */}
+            {isProcessing && file && step === 'processing' && (
               <CVUploadFlow
                 file={file}
                 linkedinUrl={linkedinUrl}
