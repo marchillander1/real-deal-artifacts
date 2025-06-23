@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
+const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -15,82 +15,97 @@ serve(async (req) => {
   }
 
   try {
-    const { message, context } = await req.json();
+    const { message, context, role } = await req.json();
 
     console.log('Received message:', message);
     console.log('Context:', context);
 
-    if (!GROQ_API_KEY) {
-      // Fallback to simple responses if no AI available
+    if (!GEMINI_API_KEY) {
       return new Response(JSON.stringify({ 
-        reply: getSimpleFallbackResponse(message)
+        response: getSimpleFallbackResponse(message)
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Use AI for intelligent responses
-    const systemPrompt = `You are the MatchWise AI Assistant, an expert in tech consulting and career development in Sweden. You help consultants with:
+    // Enhanced system prompt for MatchWise AI Career Coach
+    const systemPrompt = `Du är MatchWise AI Career Coach, en expert på tech-konsulting och karriärutveckling i Sverige. Du hjälper konsulter med:
 
-1. **Career Development:** Technical progression, specialization, certifications
-2. **Pricing Strategy:** Hourly rates, negotiation, market comparisons  
-3. **CV & LinkedIn:** Optimization, keywords, personal branding
-4. **Client Relations:** Business development, networking, long-term relationships
-5. **MatchWise Platform:** How matching works, profile optimization
+**HUVUDOMRÅDEN:**
+1. **Karriärutveckling:** Teknisk progression, specialisering, certifieringar
+2. **Prissättningsstrategi:** Timpriser, förhandling, marknadsanalys
+3. **CV & LinkedIn:** Optimering, nyckelord, personlig branding
+4. **Kundrelationer:** Affärsutveckling, nätverkande, långsiktiga relationer
+5. **MatchWise-plattformen:** Hur matchning fungerar, profiloptimering
 
-Always respond in English. Be concrete, practical and give actionable advice. If users ask about topics outside your expertise areas, redirect them back to what you can help with.
+**SVENSKA MARKNADEN 2024:**
+- Junior (0-2 år): 650-850 SEK/timme
+- Mellannivå (3-5 år): 850-1,200 SEK/timme  
+- Senior (5-8 år): 1,200-1,600 SEK/timme
+- Expert/Lead (8+ år): 1,600-2,200 SEK/timme
 
-User context information: ${context || 'No specific context available'}`;
+**HÖGVÄRDERADE TEKNOLOGIER:**
+- AI/ML: +30-50% premium
+- Cloud Native: +25-40% premium
+- Data Engineering: +30-45% premium
 
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+**STIL & TON:**
+- Svara alltid på engelska
+- Var konkret, praktisk och ge genomförbara råd
+- Använd emojis sparsamt men effektivt
+- Fokusera på värdeskapande för konsulten
+- Om användare frågar om ämnen utanför din expertis, hänvisa tillbaka till vad du kan hjälpa med
+
+**KONTEXT:**
+${context ? `Användarens profil: ${JSON.stringify(context)}` : 'Ingen specifik kontext tillgänglig'}`;
+
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        messages: [
+        contents: [
           {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: message
+            parts: [
+              {
+                text: `${systemPrompt}\n\nAnvändarens meddelande: ${message}`
+              }
+            ]
           }
         ],
-        temperature: 0.7,
-        max_tokens: 1000,
-        top_p: 0.9
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1000,
+        }
       })
     });
 
-    if (!groqResponse.ok) {
-      const errorText = await groqResponse.text();
-      console.error('Groq API error:', groqResponse.status, errorText);
+    if (!geminiResponse.ok) {
+      const errorText = await geminiResponse.text();
+      console.error('Gemini API error:', geminiResponse.status, errorText);
       
-      // Fallback to simple response
       return new Response(JSON.stringify({ 
-        reply: getSimpleFallbackResponse(message)
+        response: getSimpleFallbackResponse(message)
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const groqData = await groqResponse.json();
-    const aiReply = groqData.choices[0].message.content;
+    const geminiData = await geminiResponse.json();
+    const aiResponse = geminiData.candidates[0].content.parts[0].text;
 
-    return new Response(JSON.stringify({ reply: aiReply }), {
+    return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Error in matchwise-chat function:', error);
     
-    // Fallback response
     return new Response(JSON.stringify({ 
-      reply: 'Sorry, I cannot respond right now. Please try again in a moment.'
+      response: 'Sorry, I cannot respond right now. Please try again in a moment.'
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -179,7 +194,7 @@ Which specific situation would you like to discuss?`;
 Which part of your career would you like to develop?`;
   }
   
-  return `# Hi! I'm the MatchWise AI Assistant 🤖
+  return `# Hi! I'm the MatchWise AI Career Coach 🤖
 
 I help you with:
 
