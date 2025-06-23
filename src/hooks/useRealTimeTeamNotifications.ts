@@ -7,8 +7,9 @@ export const useRealTimeTeamNotifications = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Create a unique channel name to avoid conflicts
-    const channelName = `team-notifications-${Date.now()}`;
+    // Create unique channel names using random IDs to avoid conflicts
+    const generateChannelId = () => Math.random().toString(36).substring(2, 15);
+    const channelName = `team-notifications-${generateChannelId()}`;
     
     // Subscribe to consultant changes for team notifications
     const consultantsChannel = supabase
@@ -67,7 +68,7 @@ export const useRealTimeTeamNotifications = () => {
       .subscribe();
 
     // Subscribe to assignment changes with different channel
-    const assignmentChannelName = `assignments-notifications-${Date.now()}`;
+    const assignmentChannelName = `assignments-notifications-${generateChannelId()}`;
     const assignmentsChannel = supabase
       .channel(assignmentChannelName)
       .on(

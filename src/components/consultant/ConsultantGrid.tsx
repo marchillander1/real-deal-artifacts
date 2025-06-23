@@ -30,9 +30,9 @@ export const ConsultantGrid: React.FC<ConsultantGridProps> = ({
         <EnhancedConsultantCard
           key={consultant.id}
           consultant={consultant}
-          onViewAnalysis={onViewAnalysis}
           showEditActions={showEditActions}
           showDeleteActions={showDeleteActions}
+          onClick={() => onViewAnalysis(consultant)}
         />
       ))}
     </div>

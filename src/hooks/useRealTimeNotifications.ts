@@ -20,10 +20,11 @@ export const useRealTimeNotifications = () => {
   useEffect(() => {
     console.log('🔔 Setting up real-time notifications...');
 
-    // Create unique channel names to avoid conflicts
-    const assignmentChannelName = `notifications-assignments-${Date.now()}`;
-    const consultantChannelName = `notifications-consultants-${Date.now()}`;
-    const skillAlertChannelName = `notifications-skill-alerts-${Date.now()}`;
+    // Create unique channel names using random UUIDs to avoid conflicts
+    const generateChannelId = () => Math.random().toString(36).substring(2, 15);
+    const assignmentChannelName = `notifications-assignments-${generateChannelId()}`;
+    const consultantChannelName = `notifications-consultants-${generateChannelId()}`;
+    const skillAlertChannelName = `notifications-skill-alerts-${generateChannelId()}`;
 
     // Listen to new assignments
     const assignmentsChannel = supabase
