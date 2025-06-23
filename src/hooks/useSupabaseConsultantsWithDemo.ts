@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -17,10 +16,26 @@ export const useSupabaseConsultantsWithDemo = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        // If no user, show demo data
+        // If no user, show demo data with all required properties
         const demoData = [
-          ...myDemoConsultants.map(c => ({ ...c, type: 'existing' as const })),
-          ...demoConsultants.map(c => ({ ...c, type: 'new' as const }))
+          ...myDemoConsultants.map(c => ({ 
+            ...c, 
+            type: 'existing' as const,
+            cv: c.cv || '',
+            culturalFit: c.culturalFit || 5,
+            adaptability: c.adaptability || 5,
+            leadership: c.leadership || 3,
+            linkedinUrl: c.linkedinUrl || ''
+          })),
+          ...demoConsultants.map(c => ({ 
+            ...c, 
+            type: 'new' as const,
+            cv: c.cv || '',
+            culturalFit: c.culturalFit || 5,
+            adaptability: c.adaptability || 5,
+            leadership: c.leadership || 3,
+            linkedinUrl: c.linkedinUrl || ''
+          }))
         ];
         setConsultants(demoData);
         setIsLoading(false);
@@ -67,6 +82,11 @@ export const useSupabaseConsultantsWithDemo = () => {
         workStyle: consultant.work_style || '',
         communicationStyle: consultant.communication_style || '',
         teamFit: consultant.team_fit || '',
+        cv: consultant.cv_file_path || '',
+        culturalFit: consultant.cultural_fit || 5,
+        adaptability: consultant.adaptability || 5,
+        leadership: consultant.leadership || 3,
+        linkedinUrl: consultant.linkedin_url || '',
         // Determine type based on user_id and company_id
         type: (() => {
           // Network consultants (no user_id)
@@ -91,10 +111,26 @@ export const useSupabaseConsultantsWithDemo = () => {
         } : undefined,
       }));
 
-      // Add demo data for demonstration
+      // Add demo data for demonstration with all required properties
       const demoData = [
-        ...myDemoConsultants.map(c => ({ ...c, type: 'existing' as const })),
-        ...demoConsultants.map(c => ({ ...c, type: 'new' as const }))
+        ...myDemoConsultants.map(c => ({ 
+          ...c, 
+          type: 'existing' as const,
+          cv: c.cv || '',
+          culturalFit: c.culturalFit || 5,
+          adaptability: c.adaptability || 5,
+          leadership: c.leadership || 3,
+          linkedinUrl: c.linkedinUrl || ''
+        })),
+        ...demoConsultants.map(c => ({ 
+          ...c, 
+          type: 'new' as const,
+          cv: c.cv || '',
+          culturalFit: c.culturalFit || 5,
+          adaptability: c.adaptability || 5,
+          leadership: c.leadership || 3,
+          linkedinUrl: c.linkedinUrl || ''
+        }))
       ];
 
       setConsultants([...transformedConsultants, ...demoData]);
@@ -106,10 +142,26 @@ export const useSupabaseConsultantsWithDemo = () => {
         variant: "destructive",
       });
 
-      // Fallback to demo data
+      // Fallback to demo data with all required properties
       const demoData = [
-        ...myDemoConsultants.map(c => ({ ...c, type: 'existing' as const })),
-        ...demoConsultants.map(c => ({ ...c, type: 'new' as const }))
+        ...myDemoConsultants.map(c => ({ 
+          ...c, 
+          type: 'existing' as const,
+          cv: c.cv || '',
+          culturalFit: c.culturalFit || 5,
+          adaptability: c.adaptability || 5,
+          leadership: c.leadership || 3,
+          linkedinUrl: c.linkedinUrl || ''
+        })),
+        ...demoConsultants.map(c => ({ 
+          ...c, 
+          type: 'new' as const,
+          cv: c.cv || '',
+          culturalFit: c.culturalFit || 5,
+          adaptability: c.adaptability || 5,
+          leadership: c.leadership || 3,
+          linkedinUrl: c.linkedinUrl || ''
+        }))
       ];
       setConsultants(demoData);
     } finally {

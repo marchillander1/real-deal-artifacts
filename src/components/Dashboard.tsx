@@ -40,6 +40,13 @@ export const Dashboard: React.FC = () => {
     setSearchParams(newParams);
   };
 
+  const handleCreateAssignment = () => {
+    // Navigate to assignments tab when creating a new assignment
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', 'assignments');
+    setSearchParams(newParams);
+  };
+
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -50,7 +57,7 @@ export const Dashboard: React.FC = () => {
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
-          <DashboardOverview />
+          <DashboardOverview onCreateAssignment={handleCreateAssignment} />
         </TabsContent>
         
         <TabsContent value="consultants" className="space-y-6">

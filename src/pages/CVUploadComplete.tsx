@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -88,7 +87,8 @@ const CVUploadComplete: React.FC = () => {
         if (consultantError) throw consultantError;
 
         if (consultant?.cv_analysis_data) {
-          setAnalysis(consultant.cv_analysis_data);
+          // Properly type the cv_analysis_data as CVAnalysisResult
+          setAnalysis(consultant.cv_analysis_data as CVAnalysisResult);
         }
       }
     } catch (error) {
