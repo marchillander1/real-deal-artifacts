@@ -42,7 +42,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysisCompleted;
     
     if (shouldStartAnalysis) {
-      console.log('🚀 Auto-triggering analysis');
+      console.log('🚀 Auto-triggering enhanced analysis');
       handleAnalysis();
     }
   }, [file, linkedinUrl, isAnalyzing, analysisCompleted]);
@@ -53,6 +53,8 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   }, [file, linkedinUrl]);
 
   const extractPersonalInfo = (cvAnalysisData: any, detectedInfo: any) => {
+    console.log('📋 Extracting personal info with enhanced logic');
+    
     const personalInfo = cvAnalysisData?.personalInfo || {};
     
     const extractedName = (detectedInfo?.names?.[0] && detectedInfo.names[0] !== 'Ej specificerat') 
@@ -75,12 +77,15 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       
     const extractedLocation = personalInfo.location !== 'Ej specificerat' ? personalInfo.location : '';
     
-    return {
+    const result = {
       name: extractedName,
       email: extractedEmail,
       phone: extractedPhone,
       location: extractedLocation
     };
+
+    console.log('✅ Personal info extracted:', result);
+    return result;
   };
 
   const sendWelcomeEmail = async (consultant: any, personalInfo: any, isMyConsultant: boolean) => {
@@ -132,18 +137,26 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisStart();
       onAnalysisProgress(10);
 
-      // Steg 1: CV-analys
+      console.log('🚀 Starting enhanced CV analysis workflow');
+
+      // Steg 1: Enhanced CV-analys
       const { analysis: cvAnalysisData, detectedInfo } = await CVParser.parseCV(file);
       onAnalysisProgress(50);
+
+      console.log('📊 CV analysis completed:', {
+        hasPersonalInfo: !!cvAnalysisData.personalInfo,
+        hasExperience: !!cvAnalysisData.experience,
+        skillsCount: Object.values(cvAnalysisData.skills || {}).reduce((sum: number, arr: any) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+      });
 
       // Steg 2: LinkedIn-analys
       const linkedinData = await LinkedInAnalyzer.analyzeLinkedIn(linkedinUrl);
       onAnalysisProgress(75);
 
-      // Steg 3: Extrahera personlig info
+      // Steg 3: Extrahera personlig info med förbättrad logik
       const extractedPersonalInfo = extractPersonalInfo(cvAnalysisData, detectedInfo);
       
-      // Steg 4: Skapa konsult
+      // Steg 4: Skapa konsult med standardiserad datastruktur
       const urlParams = new URLSearchParams(window.location.search);
       const isMyConsultant = urlParams.get('source') === 'my-consultants';
 
@@ -163,9 +176,9 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
 
       onAnalysisProgress(100);
 
-      // Slutför analysresultat
+      // Slutför analysresultat med standardiserad struktur
       const completeAnalysisResults = {
-        cvAnalysis: { analysis: cvAnalysisData },
+        cvAnalysis: cvAnalysisData,
         linkedinAnalysis: linkedinData,
         consultant: insertedConsultant,
         extractedPersonalInfo
@@ -175,13 +188,13 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisComplete(completeAnalysisResults);
 
       toast({
-        title: "Analys slutförd! 🎉",
-        description: `Profil skapad för ${extractedPersonalInfo.name}`,
+        title: "Enhanced analys slutförd! 🎉",
+        description: `Förbättrad profil skapad för ${extractedPersonalInfo.name}`,
       });
 
     } catch (error: any) {
-      console.error('❌ Analysis failed:', error);
-      onError(error.message || 'Analys misslyckades');
+      console.error('❌ Enhanced analysis failed:', error);
+      onError(error.message || 'Förbättrad analys misslyckades');
       toast({
         title: "Analys misslyckades",
         description: error.message || "Ett oväntat fel inträffade",

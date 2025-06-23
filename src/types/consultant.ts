@@ -1,3 +1,4 @@
+
 export interface Consultant {
   id: string | number;
   name: string;
@@ -26,9 +27,48 @@ export interface Consultant {
   adaptability: number;
   leadership: number;
   linkedinUrl: string;
-  // Analysis data from CV/LinkedIn parsing
-  cvAnalysis?: any;
-  linkedinAnalysis?: any;
+  // Standardized analysis data structure
+  cvAnalysis?: {
+    personalInfo: {
+      name: string;
+      email: string;
+      phone: string;
+      location: string;
+    };
+    experience: {
+      years: string;
+      currentRole: string;
+      level: string;
+    };
+    skills: {
+      technical: string[];
+      languages: string[];
+      tools: string[];
+    };
+    workHistory: Array<{
+      company: string;
+      role: string;
+      duration: string;
+      description: string;
+    }>;
+    education: Array<{
+      institution: string;
+      degree: string;
+      year: string;
+    }>;
+  };
+  linkedinAnalysis?: {
+    communicationStyle: string;
+    leadershipStyle: string;
+    innovation: number;
+    leadership: number;
+    adaptability: number;
+    culturalFit: number;
+    marketPositioning: {
+      uniqueValueProposition: string;
+      competitiveAdvantages: string[];
+    };
+  };
   // Enhanced analysis fields from database
   profile_completeness?: number;
   linkedin_engagement_level?: string;

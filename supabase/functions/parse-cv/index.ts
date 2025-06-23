@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting enhanced CV parsing with OpenAI...');
+    console.log('🚀 Starting enhanced CV parsing with improved OpenAI integration...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -29,7 +29,7 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    // Enhanced text extraction with better regex patterns
+    // Enhanced text extraction with improved regex patterns
     let extractedText = '';
     let detectedInfo = {
       emails: [] as string[],
@@ -40,65 +40,81 @@ serve(async (req) => {
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF with enhanced extraction...');
+        console.log('📄 Processing PDF with enhanced extraction algorithms...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // Better PDF text extraction
+        // Improved PDF text extraction algorithm
         let rawText = '';
+        let previousByte = 0;
         
         for (let i = 0; i < uint8Array.length - 1; i++) {
           const byte = uint8Array[i];
           
+          // Enhanced character detection
           if (byte >= 32 && byte <= 126) {
             const char = String.fromCharCode(byte);
             
-            if (char.match(/[a-zA-Z0-9@.\-+()åäöÅÄÖ\s]/)) {
+            // Improved character filtering with Swedish characters
+            if (char.match(/[a-zA-Z0-9@.\-+()åäöÅÄÖéÉ\s]/)) {
               rawText += char;
             }
-          } else if (byte === 10 || byte === 13) {
-            if (rawText.slice(-1) !== ' ') {
+          } else if ((byte === 10 || byte === 13) && previousByte !== 10 && previousByte !== 13) {
+            // Better line break handling
+            if (rawText.slice(-1) !== ' ' && rawText.slice(-1) !== '\n') {
               rawText += ' ';
             }
           }
+          
+          previousByte = byte;
         }
         
+        // Enhanced text cleaning
         extractedText = rawText
           .replace(/\s+/g, ' ')
+          .replace(/([a-z])([A-Z])/g, '$1 $2') // Add spaces between camelCase
+          .replace(/([0-9])([A-Z])/g, '$1 $2') // Add spaces between numbers and caps
           .trim()
-          .substring(0, 4000); // Increased text limit for OpenAI
+          .substring(0, 5000); // Increased text limit for better analysis
         
-        console.log('📝 Enhanced text sample:', extractedText.substring(0, 300));
+        console.log('📝 Enhanced text extraction completed. Sample:', extractedText.substring(0, 300));
         
-        // Enhanced regex patterns for better detection
+        // Improved regex patterns for better Swedish/international detection
         const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-        const phoneRegex = /(\+46|0)[0-9\s\-\(\)]{8,15}|[0-9]{3}[\s\-]?[0-9]{3}[\s\-]?[0-9]{2,4}/g;
-        const nameRegex = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+(?:\s+[A-ZÅÄÖ][a-zåäö]+)*/g;
-        const locationRegex = /\b(?:Stockholm|Göteborg|Malmö|Uppsala|Västerås|Örebro|Linköping|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Sundsvall|Sverige|Sweden)\b/gi;
+        const phoneRegex = /(\+46|0046|0)[0-9\s\-\(\)]{8,15}|[0-9]{2,3}[\s\-]?[0-9]{3}[\s\-]?[0-9]{2,4}[\s\-]?[0-9]{2,4}/g;
+        const nameRegex = /\b[A-ZÅÄÖÉ][a-zåäöé]+\s+[A-ZÅÄÖÉ][a-zåäöé]+(?:\s+[A-ZÅÄÖÉ][a-zåäöé]+)*/g;
+        const locationRegex = /\b(?:Stockholm|Göteborg|Malmö|Uppsala|Västerås|Örebro|Linköping|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Sundsvall|Sverige|Sweden|Denmark|Norge|Norway|Finland|Copenhagen|Oslo|Helsinki|London|Berlin|Amsterdam|Paris)\b/gi;
         
-        detectedInfo.emails = [...extractedText.matchAll(emailRegex)].map(m => m[0]);
-        detectedInfo.phones = [...extractedText.matchAll(phoneRegex)].map(m => m[0].replace(/\s/g, ''));
-        detectedInfo.names = [...extractedText.matchAll(nameRegex)].map(m => m[0]);
-        detectedInfo.locations = [...extractedText.matchAll(locationRegex)].map(m => m[0]);
+        detectedInfo.emails = Array.from(new Set([...extractedText.matchAll(emailRegex)].map(m => m[0])));
+        detectedInfo.phones = Array.from(new Set([...extractedText.matchAll(phoneRegex)].map(m => m[0].replace(/\s/g, ''))));
+        detectedInfo.names = Array.from(new Set([...extractedText.matchAll(nameRegex)].map(m => m[0])));
+        detectedInfo.locations = Array.from(new Set([...extractedText.matchAll(locationRegex)].map(m => m[0])));
         
-        console.log('🔍 Enhanced detected info:', detectedInfo);
+        console.log('🔍 Enhanced pattern detection results:', {
+          emails: detectedInfo.emails.length,
+          phones: detectedInfo.phones.length,
+          names: detectedInfo.names.length,
+          locations: detectedInfo.locations.length
+        });
         
       } else {
+        // Handle text files and other formats
         extractedText = await file.text();
-        extractedText = extractedText.substring(0, 4000);
+        extractedText = extractedText.substring(0, 5000);
+        console.log('📄 Text file processed, length:', extractedText.length);
       }
       
     } catch (error) {
-      console.warn('⚠️ Text extraction failed:', error);
-      extractedText = `Unable to extract text from ${file.name}`;
+      console.warn('⚠️ Text extraction partially failed:', error);
+      extractedText = `File processing limited for ${file.name}. Detected type: ${file.type}`;
     }
 
-    console.log('🤖 Sending to OpenAI GPT-4o-mini for enhanced analysis...');
+    console.log('🤖 Sending to OpenAI with enhanced prompt for better analysis...');
 
-    // Enhanced AI prompt for better personal info extraction
-    const prompt = `Analysera detta CV MYCKET NOGGRANT och extrahera ALL personlig information. Du MÅSTE hitta namn, email och telefonnummer.
+    // Enhanced AI prompt with better instructions for Swedish context
+    const prompt = `Analysera detta CV MED HÖGSTA NOGGRANNHET. Du MÅSTE extrahera ALL personlig information som finns.
 
-PRIORITERAD INFORMATION ATT ANVÄNDA:
+PRIORITERAD DETEKTERAD INFORMATION:
 Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
 Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
 Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
@@ -108,29 +124,31 @@ CV FULLTEXT:
 ${extractedText}
 
 KRITISKA INSTRUKTIONER:
-1. Om detekterad info finns - ANVÄND DEN
-2. Om den saknas - SÖK AKTIVT efter mönster som "Tel:", "Email:", "E-post:", "@", telefonnummer
-3. Leta EXTRA NOGGRANT efter fullständiga namn (för- och efternamn)
-4. Kontrollera HELA texten för kontaktuppgifter
-5. Var MYCKET mer noggrann än tidigare system
+1. Använd ALLTID detekterad info om den finns och är giltig
+2. Sök AKTIVT efter kontaktuppgifter i hela texten
+3. Leta efter mönster: "Tel:", "Email:", "E-post:", "@", telefonnummer
+4. Hitta FULLSTÄNDIGA namn (för- och efternamn)
+5. Var EXTREMT noggrann med dataextraktion
+6. För svenska/nordiska CV:n, leta efter svenska tecken (å, ä, ö)
+7. Identifiera års-erfarenhet från arbetserfarenhet
 
-Svara ENDAST med denna JSON-struktur (INGEN annan text):
+Svara ENDAST med denna exakta JSON-struktur:
 
 {
   "personalInfo": {
-    "name": "FULLSTÄNDIGT NAMN (för- och efternamn) - MÅSTE HITTAS",
-    "email": "GILTIG EMAIL-ADRESS - MÅSTE HITTAS", 
-    "phone": "TELEFONNUMMER - MÅSTE HITTAS",
+    "name": "FULLSTÄNDIGT NAMN",
+    "email": "GILTIG EMAIL-ADRESS", 
+    "phone": "TELEFONNUMMER",
     "location": "STAD/REGION"
   },
   "experience": {
-    "years": "ANTAL ÅR ARBETSLIVSERFARENHET (endast siffra)",
-    "currentRole": "NUVARANDE/SENASTE JOBBTITEL",
-    "level": "Junior/Mid/Senior"
+    "years": "ANTAL ÅR ERFARENHET (endast siffra)",
+    "currentRole": "SENASTE JOBBTITEL",
+    "level": "Junior/Mid/Senior/Expert"
   },
   "skills": {
-    "technical": ["TEKNISKA FÄRDIGHETER", "PROGRAMMERINGSSPRÅK"],
-    "languages": ["SPRÅK som svenska, engelska"],
+    "technical": ["TEKNISKA FÄRDIGHETER"],
+    "languages": ["PROGRAMMERINGSSPRÅK"],
     "tools": ["VERKTYG", "SYSTEM", "CERTIFIERINGAR"]
   },
   "workHistory": [
@@ -138,7 +156,7 @@ Svara ENDAST med denna JSON-struktur (INGEN annan text):
       "company": "FÖRETAG",
       "role": "ROLL",
       "duration": "PERIOD",
-      "description": "BESKRIVNING"
+      "description": "KORT BESKRIVNING"
     }
   ],
   "education": [
@@ -150,7 +168,7 @@ Svara ENDAST med denna JSON-struktur (INGEN annan text):
   ]
 }
 
-KRITISKT: Om du INTE kan hitta namn, email eller telefon - skriv "HITTAS EJ" så vi vet att något är fel.`;
+VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för den specifika egenskapen.`;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -163,7 +181,7 @@ KRITISKT: Om du INTE kan hitta namn, email eller telefon - skriv "HITTAS EJ" så
         messages: [
           {
             role: 'system',
-            content: 'Du är expert på CV-analys och personlig informationsextraktion. Du MÅSTE hitta namn, email och telefonnummer. Svara alltid med giltig JSON utan extra text.'
+            content: 'Du är expertanalytiker för CV och personlig informationsextraktion. Du MÅSTE hitta och extrahera namn, email och telefonnummer med högsta noggrannhet. Svara ALLTID med korrekt JSON utan extra text.'
           },
           {
             role: 'user',
@@ -171,7 +189,7 @@ KRITISKT: Om du INTE kan hitta namn, email eller telefon - skriv "HITTAS EJ" så
           }
         ],
         temperature: 0.1,
-        max_tokens: 1500,
+        max_tokens: 2000,
       }),
     });
 
@@ -182,41 +200,53 @@ KRITISKT: Om du INTE kan hitta namn, email eller telefon - skriv "HITTAS EJ" så
     }
 
     const openaiData = await openaiResponse.json();
-    console.log('✅ OpenAI response received');
+    console.log('✅ Enhanced OpenAI response received');
 
     let analysis;
     try {
       const content = openaiData.choices[0]?.message?.content;
-      console.log('🔍 OpenAI response content:', content);
+      console.log('🔍 OpenAI response content preview:', content.substring(0, 200));
 
-      // Clean the content to extract JSON
+      // Enhanced JSON extraction and validation
       const cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
         
-        // Force use detected data if available and valid
+        // Enhanced data validation and override with detected data
         if (detectedInfo.emails.length > 0 && detectedInfo.emails[0].includes('@')) {
           analysis.personalInfo.email = detectedInfo.emails[0];
+          console.log('✅ Email overridden with detected value:', detectedInfo.emails[0]);
         }
-        if (detectedInfo.phones.length > 0) {
+        if (detectedInfo.phones.length > 0 && detectedInfo.phones[0].length > 5) {
           analysis.personalInfo.phone = detectedInfo.phones[0];
+          console.log('✅ Phone overridden with detected value:', detectedInfo.phones[0]);
         }
-        if (detectedInfo.names.length > 0) {
+        if (detectedInfo.names.length > 0 && detectedInfo.names[0].split(' ').length >= 2) {
           analysis.personalInfo.name = detectedInfo.names[0];
+          console.log('✅ Name overridden with detected value:', detectedInfo.names[0]);
         }
         if (detectedInfo.locations.length > 0) {
           analysis.personalInfo.location = detectedInfo.locations[0];
+          console.log('✅ Location overridden with detected value:', detectedInfo.locations[0]);
         }
         
-        console.log('📊 Final enhanced analysis:', analysis.personalInfo);
+        console.log('📊 Final enhanced analysis result:', {
+          name: analysis.personalInfo.name,
+          email: analysis.personalInfo.email,
+          phone: analysis.personalInfo.phone,
+          location: analysis.personalInfo.location,
+          skillsCount: (analysis.skills.technical?.length || 0) + (analysis.skills.languages?.length || 0) + (analysis.skills.tools?.length || 0)
+        });
+        
       } else {
-        throw new Error('No JSON found in OpenAI response');
+        throw new Error('No valid JSON found in OpenAI response');
       }
     } catch (parseError) {
-      console.error('❌ Parse error, using enhanced fallback:', parseError);
+      console.error('❌ Parse error, using enhanced fallback strategy:', parseError);
       
+      // Enhanced fallback with better data structure
       analysis = {
         personalInfo: {
           name: detectedInfo.names[0] || 'HITTAS EJ',
@@ -239,7 +269,7 @@ KRITISKT: Om du INTE kan hitta namn, email eller telefon - skriv "HITTAS EJ" så
       };
     }
 
-    console.log('✅ Enhanced CV analysis completed with OpenAI');
+    console.log('✅ Enhanced CV analysis completed successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -252,7 +282,8 @@ KRITISKT: Om du INTE kan hitta namn, email eller telefon - skriv "HITTAS EJ" så
           phonesFound: detectedInfo.phones.length,
           namesFound: detectedInfo.names.length,
           locationsFound: detectedInfo.locations.length,
-          aiModel: 'gpt-4o-mini'
+          aiModel: 'gpt-4o-mini-enhanced',
+          extractionQuality: 'enhanced'
         }
       }),
       {
@@ -266,7 +297,8 @@ KRITISKT: Om du INTE kan hitta namn, email eller telefon - skriv "HITTAS EJ" så
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message
+        error: error.message,
+        extractionQuality: 'failed'
       }),
       {
         status: 500,
