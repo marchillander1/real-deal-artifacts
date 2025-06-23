@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
 import Logo from '@/components/Logo';
+import { supabase } from '@/lib/supabase';
 
 export default function CVUploadModern() {
   const [dragActive, setDragActive] = useState(false);
@@ -160,16 +161,40 @@ export default function CVUploadModern() {
 
   const handleJoinNetwork = async () => {
     try {
-      // Send welcome email and admin notification
-      // This would typically call an edge function
+      console.log('🌐 Joining MatchWise Network...');
+      
+      // Send welcome email with consultant info
+      const response = await supabase.functions.invoke('send-welcome-email', {
+        body: {
+          consultantEmail: personalInfo.email,
+          consultantName: personalInfo.name,
+          isMyConsultant: false // Network consultant
+        }
+      });
+
+      if (response.error) {
+        console.error('❌ Welcome email failed:', response.error);
+      }
+
+      // Send admin notification to Marc
+      await supabase.functions.invoke('send-registration-notification', {
+        body: {
+          consultantName: personalInfo.name,
+          consultantEmail: personalInfo.email,
+          isMyConsultant: false
+        }
+      });
+
       toast({
-        title: "Welcome to the network! 🎉",
-        description: "Check your email for login details",
+        title: "Welcome to MatchWise Network! 🎉",
+        description: "Check your email for login credentials",
       });
       
-      // Navigate to network consultants
-      navigate('/matchwiseai?tab=network');
+      // Navigate to NetworkSuccess page
+      navigate(`/network-success?consultant=${consultant?.id}`);
+      
     } catch (error) {
+      console.error('❌ Join network failed:', error);
       toast({
         title: "Error joining network",
         description: "Please try again",
