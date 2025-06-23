@@ -20,6 +20,7 @@ import Pricing from "./pages/Pricing";
 import UserProfile from "./pages/UserProfile";
 import AdminPortal from "./pages/AdminPortal";
 import AnalysisPage from "./pages/AnalysisPage";
+import MatchWiseAI from "./pages/MatchWiseAI";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/matchwiseai" element={<Landing />} />
+          <Route path="/matchwiseai" element={<MatchWiseAI assignments={[]} onMatch={() => {}} onAssignmentCreated={() => {}} onFileUpload={() => {}} />} />
           <Route path="/dashboard" element={<Dashboard assignments={[]} onMatch={() => {}} onAssignmentCreated={() => {}} onFileUpload={() => {}} />} />
           <Route path="/cv-upload" element={<CVUpload />} />
           <Route path="/analysis" element={<Analysis />} />
