@@ -2,7 +2,7 @@
 import React from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { ModernNavbar } from '@/components/modern/ModernNavbar';
-import { CheckCircle, Users, Star, ArrowRight, Mail, Calendar } from 'lucide-react';
+import { CheckCircle, Users, Star, ArrowRight, Mail, Calendar, User, Lock } from 'lucide-react';
 
 const NetworkSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -32,6 +32,44 @@ const NetworkSuccess: React.FC = () => {
             Your profile is live and visible to premium clients looking for exactly your expertise.
           </p>
 
+          {/* Login Information Box */}
+          <div className="bg-blue-50 border border-blue-200 rounded-3xl p-6 mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-blue-100 p-3 rounded-full mr-4">
+                <User className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-blue-900">Your Profile Access</h3>
+            </div>
+            <div className="text-blue-800 space-y-3">
+              <div className="flex items-center justify-center space-x-2">
+                <Lock className="h-5 w-5 text-blue-600" />
+                <p className="font-semibold">You will receive login credentials via email</p>
+              </div>
+              <p className="text-sm">
+                Check your inbox for an email with your username and temporary password. 
+                Use these credentials to:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                <div className="bg-white rounded-lg p-3 text-sm">
+                  <strong>View your analysis</strong><br/>
+                  See your complete professional assessment
+                </div>
+                <div className="bg-white rounded-lg p-3 text-sm">
+                  <strong>Update your profile</strong><br/>
+                  Edit information and preferences
+                </div>
+                <div className="bg-white rounded-lg p-3 text-sm">
+                  <strong>Track matches</strong><br/>
+                  Monitor assignment opportunities
+                </div>
+                <div className="bg-white rounded-lg p-3 text-sm">
+                  <strong>Manage availability</strong><br/>
+                  Update your status and rates
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* What Happens Next */}
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">What happens next?</h2>
@@ -43,7 +81,7 @@ const NetworkSuccess: React.FC = () => {
                 </div>
                 <div className="text-left">
                   <h3 className="font-semibold text-slate-900 mb-1">Check Your Email</h3>
-                  <p className="text-slate-600">We've sent you a welcome email with next steps and tips to maximize your visibility.</p>
+                  <p className="text-slate-600">We've sent you a welcome email with login credentials and next steps to maximize your visibility.</p>
                 </div>
               </div>
               
@@ -119,7 +157,7 @@ const NetworkSuccess: React.FC = () => {
             <h3 className="font-semibold text-blue-900 mb-2">Need Help?</h3>
             <p className="text-blue-800 text-sm">
               Our team is here to support you. If you have questions about your profile, 
-              matches, or how to optimize your visibility, don't hesitate to reach out at{' '}
+              matches, login credentials, or how to optimize your visibility, don't hesitate to reach out at{' '}
               <a href="mailto:support@matchwise.tech" className="underline font-medium">
                 support@matchwise.tech
               </a>

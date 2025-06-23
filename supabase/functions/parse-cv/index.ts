@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting CV parsing...');
+    console.log('🚀 Starting enhanced CV parsing...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -29,71 +29,63 @@ serve(async (req) => {
       throw new Error('GROQ API key not configured');
     }
 
-    // Förbättrad text-extraktion
+    // Enhanced text extraction with better regex patterns
     let extractedText = '';
     let detectedInfo = {
       emails: [] as string[],
       phones: [] as string[],
-      names: [] as string[]
+      names: [] as string[],
+      locations: [] as string[]
     };
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF with improved extraction...');
+        console.log('📄 Processing PDF with enhanced extraction...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // Förbättrad PDF text-extraktion
+        // Better PDF text extraction
         let rawText = '';
-        let currentChar = '';
         
-        // Läs igenom PDF och extrahera läsbar text
         for (let i = 0; i < uint8Array.length - 1; i++) {
           const byte = uint8Array[i];
-          const nextByte = uint8Array[i + 1];
           
-          // Fokusera på ASCII-tecken som bildar ord
           if (byte >= 32 && byte <= 126) {
-            currentChar = String.fromCharCode(byte);
+            const char = String.fromCharCode(byte);
             
-            // Bygg upp text med spaces mellan ord
-            if (currentChar.match(/[a-zA-Z0-9@.\-+]/)) {
-              rawText += currentChar;
-            } else if (currentChar === ' ' && rawText.slice(-1) !== ' ') {
-              rawText += ' ';
+            if (char.match(/[a-zA-Z0-9@.\-+()åäöÅÄÖ\s]/)) {
+              rawText += char;
             }
           } else if (byte === 10 || byte === 13) {
-            // Ny rad
             if (rawText.slice(-1) !== ' ') {
               rawText += ' ';
             }
           }
         }
         
-        // Rensa och strukturera text
         extractedText = rawText
           .replace(/\s+/g, ' ')
-          .replace(/[^\w\s@.\-+()åäöÅÄÖ]/g, ' ')
           .trim()
-          .substring(0, 2000);
+          .substring(0, 3000); // Increased text limit
         
-        console.log('📝 Extracted text sample:', extractedText.substring(0, 200));
+        console.log('📝 Enhanced text sample:', extractedText.substring(0, 300));
         
-        // Direkt regex-detektion för personlig info
+        // Enhanced regex patterns for better detection
         const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-        const phoneRegex = /(\+46|0)[0-9\s\-\(\)]{8,15}/g;
-        const nameRegex = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+/g;
+        const phoneRegex = /(\+46|0)[0-9\s\-\(\)]{8,15}|[0-9]{3}[\s\-]?[0-9]{3}[\s\-]?[0-9]{2,4}/g;
+        const nameRegex = /\b[A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+(?:\s+[A-ZÅÄÖ][a-zåäö]+)*/g;
+        const locationRegex = /\b(?:Stockholm|Göteborg|Malmö|Uppsala|Västerås|Örebro|Linköping|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Sundsvall|Sverige|Sweden)\b/gi;
         
         detectedInfo.emails = [...extractedText.matchAll(emailRegex)].map(m => m[0]);
         detectedInfo.phones = [...extractedText.matchAll(phoneRegex)].map(m => m[0].replace(/\s/g, ''));
         detectedInfo.names = [...extractedText.matchAll(nameRegex)].map(m => m[0]);
+        detectedInfo.locations = [...extractedText.matchAll(locationRegex)].map(m => m[0]);
         
-        console.log('🔍 Detected info:', detectedInfo);
+        console.log('🔍 Enhanced detected info:', detectedInfo);
         
       } else {
-        // Text-filer
         extractedText = await file.text();
-        extractedText = extractedText.substring(0, 2000);
+        extractedText = extractedText.substring(0, 3000);
       }
       
     } catch (error) {
@@ -101,48 +93,64 @@ serve(async (req) => {
       extractedText = `Unable to extract text from ${file.name}`;
     }
 
-    console.log('🤖 Sending to AI for analysis...');
+    console.log('🤖 Sending to enhanced AI analysis...');
 
-    // Förenklad AI-prompt för bättre resultat
-    const prompt = `Analysera detta CV och extrahera information. Använd detekterad data när tillgänglig.
+    // Enhanced AI prompt for better personal info extraction
+    const prompt = `Analysera detta CV MYCKET NOGGRANT och extrahera ALL personlig information. Fokusera särskilt på att hitta namn, email och telefonnummer.
 
-DETEKTERAD INFO:
-Email: ${detectedInfo.emails[0] || 'Ej funnen'}
-Telefon: ${detectedInfo.phones[0] || 'Ej funnen'}
-Namn: ${detectedInfo.names[0] || 'Ej funnet'}
+DETEKTERAD INFORMATION ATT PRIORITERA:
+Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'Ej funnen - SÖK I TEXTEN'}
+Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'Ej funnen - SÖK I TEXTEN'}
+Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'Ej funnet - SÖK I TEXTEN'}
+Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'Ej funnen - SÖK I TEXTEN'}
 
-CV TEXT:
+CV FULLTEXT:
 ${extractedText}
 
-Svara ENDAST med denna JSON-struktur:
+INSTRUKTIONER:
+1. ANVÄND DETEKTERAD INFO om den finns och är korrekt
+2. Om detekterad info saknas, SÖK AKTIVT i texten efter namn, email, telefon
+3. Leta efter mönster som "Tel:", "Email:", "Telefon:", "E-post:", etc.
+4. Kontrollera början och slutet av CV:t för kontaktuppgifter
+5. Sök efter fullständiga namn (för- och efternamn)
+
+Svara ENDAST med denna exakta JSON-struktur:
 
 {
   "personalInfo": {
-    "name": "ANVÄND DETEKTERAT NAMN ELLER HITTA I TEXT",
-    "email": "ANVÄND DETEKTERAD EMAIL ELLER HITTA I TEXT", 
-    "phone": "ANVÄND DETEKTERAD TELEFON ELLER HITTA I TEXT",
-    "location": "HITTA STAD/PLATS"
+    "name": "ANVÄND DETEKTERAT NAMN ELLER HITTA FULLSTÄNDIGT NAMN I TEXTEN (för- och efternamn)",
+    "email": "ANVÄND DETEKTERAD EMAIL ELLER HITTA GILTIG EMAIL I TEXTEN", 
+    "phone": "ANVÄND DETEKTERAD TELEFON ELLER HITTA TELEFONNUMMER I TEXTEN",
+    "location": "ANVÄND DETEKTERAD PLATS ELLER HITTA STAD/REGION I TEXTEN"
   },
   "experience": {
-    "years": "BERÄKNA ELLER UPPSKATTA ÅR",
-    "currentRole": "NUVARANDE JOBBTITEL",
-    "level": "Junior/Mid/Senior"
+    "years": "BERÄKNA TOTALA ÅR BASERAT PÅ ARBETSLIVSERFARENHET",
+    "currentRole": "NUVARANDE ELLER SENASTE JOBBTITEL",
+    "level": "Junior/Mid/Senior baserat på erfarenhet"
   },
   "skills": {
-    "technical": ["LISTA TEKNISKA FÄRDIGHETER"],
-    "languages": ["PROGRAMMERINGSSPRÅK"],
-    "tools": ["VERKTYG OCH SYSTEM"]
+    "technical": ["LISTA ALLA TEKNISKA FÄRDIGHETER OCH PROGRAMMERINGSSPRÅK"],
+    "languages": ["SPRÅKKUNSKAPER (svenska, engelska, etc)"],
+    "tools": ["VERKTYG, SYSTEM, CERTIFIERINGAR"]
   },
   "workHistory": [
     {
-      "company": "FÖRETAG",
-      "role": "ROLL",
-      "duration": "PERIOD"
+      "company": "FÖRETAGSNAMN",
+      "role": "JOBBTITEL",
+      "duration": "TIDSPERIOD",
+      "description": "BESKRIVNING AV ARBETSUPPGIFTER"
+    }
+  ],
+  "education": [
+    {
+      "institution": "SKOLA/UNIVERSITET",
+      "degree": "EXAMEN/UTBILDNING",
+      "year": "ÅRTAL"
     }
   ]
 }
 
-Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
+VIKTIGT: Om information inte kan hittas, skriv "Ej specificerat" - men GÖR ETT SERIÖST FÖRSÖK att hitta personlig information först!`;
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -155,7 +163,7 @@ Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
         messages: [
           {
             role: 'system',
-            content: 'Du är expert på CV-analys. Extrahera verklig information och returnera giltig JSON. Prioritera detekterad personlig information.'
+            content: 'Du är expert på CV-analys och informationsextraktion. Din uppgift är att NOGGRANT extrahera ALL personlig information från CV:n. Prioritera att hitta namn, email och telefonnummer. Returnera alltid giltig JSON.'
           },
           {
             role: 'user',
@@ -163,7 +171,7 @@ Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
           }
         ],
         temperature: 0.1,
-        max_tokens: 800,
+        max_tokens: 1200,
       }),
     });
 
@@ -174,20 +182,19 @@ Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ AI response received');
+    console.log('✅ Enhanced AI response received');
 
     let analysis;
     try {
       const content = groqData.choices[0]?.message?.content;
-      console.log('🔍 AI response:', content);
+      console.log('🔍 AI response content:', content);
 
-      // Extrahera JSON från svar
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
         
-        // Säkerställ att detekterad data används
-        if (detectedInfo.emails.length > 0) {
+        // Force use detected data if available and valid
+        if (detectedInfo.emails.length > 0 && detectedInfo.emails[0].includes('@')) {
           analysis.personalInfo.email = detectedInfo.emails[0];
         }
         if (detectedInfo.phones.length > 0) {
@@ -196,21 +203,23 @@ Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
         if (detectedInfo.names.length > 0) {
           analysis.personalInfo.name = detectedInfo.names[0];
         }
+        if (detectedInfo.locations.length > 0) {
+          analysis.personalInfo.location = detectedInfo.locations[0];
+        }
         
-        console.log('📊 Final analysis:', analysis);
+        console.log('📊 Final enhanced analysis:', analysis.personalInfo);
       } else {
         throw new Error('No JSON found in AI response');
       }
     } catch (parseError) {
-      console.error('❌ Parse error, using fallback:', parseError);
+      console.error('❌ Parse error, using enhanced fallback:', parseError);
       
-      // Fallback med detekterad data
       analysis = {
         personalInfo: {
           name: detectedInfo.names[0] || 'Ej specificerat',
           email: detectedInfo.emails[0] || 'Ej specificerat',
           phone: detectedInfo.phones[0] || 'Ej specificerat',
-          location: 'Ej specificerat'
+          location: detectedInfo.locations[0] || 'Ej specificerat'
         },
         experience: {
           years: 'Ej specificerat',
@@ -222,11 +231,12 @@ Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
           languages: [],
           tools: []
         },
-        workHistory: []
+        workHistory: [],
+        education: []
       };
     }
 
-    console.log('✅ CV analysis completed successfully');
+    console.log('✅ Enhanced CV analysis completed successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -237,7 +247,8 @@ Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
           textLength: extractedText.length,
           emailsFound: detectedInfo.emails.length,
           phonesFound: detectedInfo.phones.length,
-          namesFound: detectedInfo.names.length
+          namesFound: detectedInfo.names.length,
+          locationsFound: detectedInfo.locations.length
         }
       }),
       {
@@ -246,7 +257,7 @@ Använd verklig data från CV. Om info saknas, skriv "Ej specificerat".`;
     );
 
   } catch (error) {
-    console.error('❌ CV parsing error:', error);
+    console.error('❌ Enhanced CV parsing error:', error);
     
     return new Response(
       JSON.stringify({ 

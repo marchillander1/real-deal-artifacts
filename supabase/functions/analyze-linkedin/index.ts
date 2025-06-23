@@ -149,125 +149,164 @@ async function extractWithPhantomBuster(linkedinUrl: string, apiKey: string) {
 
 async function analyzeWithGroq(linkedinUrl: string, realData: any, groqApiKey: string, dataSource: string) {
   const prompt = dataSource === 'phantombuster' 
-    ? `Analyze this REAL LinkedIn profile data comprehensively: ${JSON.stringify(realData)}
+    ? `Analysera denna VERKLIGA LinkedIn-profil DJUPGÅENDE med fokus på mjuka värden och personlig utveckling: ${JSON.stringify(realData)}
 
-REAL DATA ANALYSIS from PhantomBuster:
-- Profile URL: ${linkedinUrl}
-- Real profile information, posts, and engagement data provided above
+VERKLIG DATA från PhantomBuster:
+- Profil URL: ${linkedinUrl}
+- Verklig profilinformation, inlägg och engagemangsdata tillhandahållen ovan
 
-Provide comprehensive analysis based on this REAL data including recent posts, bio content, and professional activity.`
-    : `Analyze this LinkedIn profile URL comprehensively with DEEP focus on recent posts and bio: ${linkedinUrl}
+Gör en DJUPGÅENDE analys baserat på denna VERKLIGA data inklusive senaste inlägg, bio-innehåll och professionell aktivitet med fokus på mjuka värden och personlighetsdrag.`
+    : `Analysera denna LinkedIn-profil MYCKET DJUPGÅENDE med EXTRA fokus på mjuka värden, personlighetsdrag och utvecklingsområden: ${linkedinUrl}
 
-COMPREHENSIVE ANALYSIS REQUIREMENTS (Simulated 30 Posts + Bio Analysis):
+DJUPGÅENDE ANALYSEKRAV (Simulera analys av 30 senaste inlägg + Bio):
 
-1. Profile Bio/Summary Deep Analysis:
-   - Professional headline assessment and positioning strength
-   - Summary content quality, storytelling, and personal brand clarity
-   - Skills section completeness and strategic positioning
-   - Experience descriptions effectiveness and impact demonstration
-   - About section authenticity and value proposition clarity
-   - Educational background relevance and continuous learning evidence
+1. PERSONLIGHETSPROFIL & MJUKA VÄRDEN:
+   - Kommunikationsstil och tonalitet i professionella sammanhang
+   - Ledarskapsegenskaper och inflytande på andra
+   - Empati och känslomässig intelligens baserat på innehåll
+   - Stresshantering och resiliens-indikatorer
+   - Kreativitet och innovationsförmåga
+   - Samarbetsvilliget och teamwork-egenskaper
+   - Integritet och etiska värderingar
+   - Motivation och drivkraft
+   - Anpassningsförmåga och flexibilitet
+   - Konflikthantering och diplomatisk förmåga
 
-2. Recent 30 Posts Deep Content Analysis (simulate analyzing 30 most recent posts):
-   - Content themes and professional focus areas
-   - Technical expertise demonstration through posts
-   - Thought leadership quality and industry insights sharing
-   - Engagement patterns with comments and responses
-   - Post frequency and consistency over time
-   - Professional network interaction quality
-   - Innovation and forward-thinking mindset evidence
-   - Problem-solving approach examples from posts
-   - Client success stories or case study sharing
-   - Industry trends awareness and commentary
-   - Team collaboration examples and leadership moments
-   - Learning mindset and skill development sharing
+2. PROFESSIONELL MOGNAD & UTVECKLING:
+   - Självreflektion och medvetenhet om styrkor/svagheter
+   - Feedback-mottagning och lärande från misstag
+   - Mentorskapsfähigheter och utveckling av andra
+   - Initiativtagande och proaktivitet
+   - Professionalitet i kommunikation och interaktion
+   - Nätvärksbyggande och relationshantering
+   - Branschinsikt och marknadskännedom
+   - Kontinuerlig kompetensutveckling
+   - Work-life balance medvetenhet
 
-3. Professional Assessment Based on Content:
-   - Communication style analysis from posts and bio
-   - Leadership style demonstration through content
-   - Problem-solving approach examples from real scenarios
-   - Team collaboration indicators from shared experiences
-   - Innovation capacity evidence from posts and projects
-   - Business acumen display through industry commentary
-   - Client relationship management insights
-   - Project delivery approach and methodology preferences
+3. SPECIFIKA KONSULTEGENSKAPER:
+   - Kundfokus och klientrelationsbyggande
+   - Projektledningsförmåga och leveranskapacitet
+   - Problemlösningsmetodik och analytisk förmåga
+   - Presentationsförmåga och storytelling
+   - Förändringsledning och organisationsutveckling
+   - Rådgivningskapacitet och strategiskt tänkande
+   - Oberoende arbetssätt vs teamintegration
+   - Kvalitetsmedvetenhet och leveransprecision
 
-Provide a realistic professional assessment. Focus on creating a comprehensive consultant profile that captures both technical expertise and soft skills.`;
+4. UTVECKLINGSOMRÅDEN & TILLVÄXTPOTENTIAL:
+   - Identifierade förbättringsområden för personlig utveckling
+   - Mjuka färdigheter som behöver stärkas
+   - Potentiella blindfläckar i självuppfattning
+   - Rekommendationer för ledarskapsuteckling
+   - Förslag på mentorskap eller coaching-områden
+   - Strategier för ökad marknadspåverkan
+
+Baserat på denna djupanalys, ge MYCKET SPECIFIKA råd och insikter om personens mjuka värden och utvecklingspotential.`;
 
   const analysisPrompt = `${prompt}
 
-Return as JSON with these exact keys:
+Returnera som JSON med dessa EXAKTA nycklar och MER DJUPGÅENDE innehåll:
 
 {
-  "communicationStyle": "string describing detailed communication approach based on posts and bio content",
-  "leadershipStyle": "string describing leadership approach with specific examples from posts", 
-  "problemSolving": "string describing analytical approach from content and project examples",
-  "teamCollaboration": "string describing collaboration style from posts and shared experiences",
-  "innovation": number (1-5 scale),
-  "businessAcumen": "string describing business understanding from industry posts and commentary",
-  "culturalFit": number (1-5 scale),
-  "leadership": number (1-5 scale),
-  "adaptability": number (1-5 scale),
+  "communicationStyle": "DJUPGÅENDE beskrivning av kommunikationsstil med exempel från innehåll och personliga drag",
+  "leadershipStyle": "DETALJERAD beskrivning av ledarskap med specifika exempel och utvecklingsområden", 
+  "problemSolving": "UTFÖRLIG beskrivning av problemlösningsmetodik med konkreta exempel",
+  "teamCollaboration": "DJUP analys av samarbetsstil med exempel på teamdynamik och relationsskapande",
+  "emotionalIntelligence": "NOGGRANN bedömning av känslomässig intelligens och empatiförmåga",
+  "adaptability": "SPECIFIK analys av anpassningsförmåga med exempel på flexibilitet",
+  "innovation": number (1-10 scale),
+  "businessAcumen": "UTFÖRLIG beskrivning av affärsförståelse med marknadskännedom och strategiskt tänkande",
+  "culturalFit": number (1-10 scale),
+  "leadership": number (1-10 scale),
+  "resilience": number (1-10 scale),
+  "empathy": number (1-10 scale),
+  "integrity": number (1-10 scale),
+  "motivation": number (1-10 scale),
   "recentPostsAnalysis": {
     "postFrequency": "High/Medium/Low",
     "contentQuality": "Excellent/Good/Fair/Poor",
     "engagementLevel": "High/Medium/Low",
     "thoughtLeadership": "Strong/Moderate/Weak",
-    "technicalExpertise": "Clearly demonstrated/Somewhat visible/Not evident",
-    "professionalNetworking": "Active/Moderate/Limited",
-    "industryInsights": "Strong/Moderate/Weak",
-    "learningMindset": "Highly evident/Moderate/Limited",
-    "clientFocus": "Strong/Moderate/Weak"
+    "technicalExpertise": "Expert/Advanced/Intermediate/Beginner",
+    "professionalNetworking": "Highly active/Active/Moderate/Limited",
+    "industryInsights": "Deep/Moderate/Surface/Limited",
+    "learningMindset": "Continuous learner/Occasional/Reluctant",
+    "clientFocus": "Client-obsessed/Client-focused/Business-focused/Self-focused",
+    "personalityTraits": ["trait1", "trait2", "trait3", "trait4", "trait5"],
+    "communicationTone": "Professional/Inspirational/Technical/Casual/Thought-provoking",
+    "valuesDemonstrated": ["value1", "value2", "value3", "value4"]
   },
   "bioAnalysis": {
     "clarity": "Excellent/Good/Fair/Poor",
-    "consultantPositioning": "Strong/Moderate/Weak",
-    "personalBrand": "Strong/Developing/Weak",
-    "valueProposition": "Clear/Somewhat clear/Unclear",
+    "consultantPositioning": "Expert/Strong/Moderate/Weak/Unclear",
+    "personalBrand": "Very strong/Strong/Developing/Weak/Inconsistent",
+    "valueProposition": "Crystal clear/Clear/Somewhat clear/Unclear/Confusing",
     "needsImprovement": boolean,
-    "keyStrengths": ["strength1", "strength2", "strength3", "strength4", "strength5"],
-    "improvementAreas": ["area1", "area2", "area3"]
+    "keyStrengths": ["SPECIFIKA styrkor med exempel", "strength2", "strength3", "strength4", "strength5"],
+    "improvementAreas": ["KONKRETA förbättringsområden", "area2", "area3", "area4"],
+    "personalityInsights": ["DJUPA personlighetsinsikter", "insight2", "insight3"],
+    "professionalMaturity": "Very high/High/Moderate/Developing/Low",
+    "authenticityLevel": "Very authentic/Authentic/Somewhat authentic/Generic/Inauthentic"
   },
   "marketPositioning": {
-    "uniqueValueProposition": "string describing unique strengths from bio and posts",
-    "competitiveAdvantages": ["advantage1", "advantage2", "advantage3", "advantage4"],
-    "nicheSpecialization": "string describing potential niche areas from content analysis",
-    "marketDifferentiators": ["differentiator1", "differentiator2", "differentiator3"],
-    "brandConsistency": "Strong/Moderate/Weak"
+    "uniqueValueProposition": "UTFÖRLIG beskrivning av unika styrkor och marknadsdifferentiering",
+    "competitiveAdvantages": ["SPECIFIKA konkurrensfördelar", "advantage2", "advantage3", "advantage4", "advantage5"],
+    "nicheSpecialization": "DETALJERAD beskrivning av potentiella nischområden från innehållsanalys",
+    "marketDifferentiators": ["TYDLIGA marknadsdifferentiatorier", "differentiator2", "differentiator3", "differentiator4"],
+    "brandConsistency": "Very strong/Strong/Moderate/Weak/Inconsistent",
+    "marketReadiness": "Market ready/Nearly ready/Needs development/Significant gaps",
+    "targetClientProfile": "BESKRIVNING av idealiska klienttyper baserat på profil"
+  },
+  "personalDevelopment": {
+    "currentMaturityLevel": "Senior/Mid-senior/Mid/Junior-mid/Junior",
+    "strengthsToLeverage": ["SPECIFIKA styrkor att bygga på", "strength2", "strength3"],
+    "developmentPriorities": ["PRIORITERADE utvecklingsområden", "priority2", "priority3"],
+    "mentoringNeeds": ["KONKRETA mentorskapsområden", "need2", "need3"],
+    "learningRecommendations": ["SPECIFIKA lärrekommendationer", "rec2", "rec3"],
+    "careerGrowthPotential": "High/Moderate-high/Moderate/Limited",
+    "leadershipReadiness": "Ready now/6-12 months/1-2 years/2+ years/Not suitable"
   },
   "teamFitAssessment": {
-    "workStyle": "Collaborative/Independent/Hybrid",
-    "communicationPreference": "Direct/Diplomatic/Analytical/Storytelling",
-    "decisionMaking": "Data-driven/Intuitive/Consultative/Collaborative",
-    "conflictResolution": "Mediator/Direct/Diplomatic/Avoidant",
-    "projectApproach": "Methodical/Agile/Creative/Client-centric",
-    "mentorshipStyle": "Hands-on/Supportive/Technical/Strategic"
+    "workStyle": "Highly collaborative/Collaborative/Independent/Highly independent",
+    "communicationPreference": "Direct/Diplomatic/Analytical/Storytelling/Inspirational",
+    "decisionMaking": "Data-driven/Intuitive/Consultative/Collaborative/Directive",
+    "conflictResolution": "Mediator/Direct/Diplomatic/Avoidant/Confrontational",
+    "projectApproach": "Methodical/Agile/Creative/Client-centric/Results-driven",
+    "mentorshipStyle": "Natural mentor/Supportive/Technical/Strategic/Not mentoring-oriented",
+    "feedbackStyle": "Constructive/Direct/Supportive/Diplomatic/Coaching-oriented",
+    "stressResponse": "Calm under pressure/Manages well/Variable/Struggles/Unknown"
   },
-  "growthPotential": {
-    "learningMindset": number (1-5 scale),
-    "skillDevelopmentTrajectory": "Ascending/Stable/Declining",
-    "adaptabilityToChange": number (1-5 scale),
-    "leadershipGrowth": "High potential/Moderate/Limited",
-    "technicalGrowth": "Rapid learner/Steady/Slow adopter",
-    "industryAwareness": number (1-5 scale)
+  "consultingReadinessDetailed": {
+    "clientInteractionSkills": number (1-10 scale),
+    "projectDeliveryCapability": number (1-10 scale),
+    "businessDevelopmentPotential": number (1-10 scale),
+    "independentWorkingAbility": number (1-10 scale),
+    "stakeholderManagementSkills": number (1-10 scale),
+    "changeManagementCapability": number (1-10 scale),
+    "consultativeSellingAbility": number (1-10 scale),
+    "overallConsultingReadiness": number (1-10 scale),
+    "consultingStrengths": ["SPECIFIKA konsultstyrkor", "strength2", "strength3"],
+    "consultingDevelopmentAreas": ["KONKRETA utvecklingsområden för konsultarbete", "area2", "area3"]
   },
-  "clientFitIndicators": {
-    "startupCompatibility": number (1-5 scale),
-    "enterpriseCompatibility": number (1-5 scale),
-    "consultingReadiness": number (1-10 scale),
-    "clientCommunication": number (1-5 scale),
-    "projectDeliveryStyle": "Structured/Flexible/Collaborative/Results-driven",
-    "stakeholderManagement": number (1-5 scale)
+  "detailedPersonalityProfile": {
+    "corePersonalityTraits": ["DJUPGÅENDE personlighetsdrag", "trait2", "trait3", "trait4", "trait5"],
+    "motivationalDrivers": ["HUVUDSAKLIGA motivationsfaktorer", "driver2", "driver3"],
+    "communicationStrengths": ["KOMMUNIKATIONSSTYRKOR", "strength2", "strength3"],
+    "potentialBlindSpots": ["POTENTIELLA utvecklingsområden", "blindspot2", "blindspot3"],
+    "workEnvironmentPreferences": ["ARBETSMILJÖPREFERENSER", "pref2", "pref3"],
+    "stressManagementStyle": "BESKRIVNING av stresshantering och coping-strategier",
+    "relationshipBuildingStyle": "BESKRIVNING av hur personen bygger professionella relationer"
   },
-  "contentAnalysisInsights": {
-    "primaryExpertiseAreas": ["area1", "area2", "area3"],
-    "emergingInterests": ["interest1", "interest2"],
-    "professionalValues": ["value1", "value2", "value3"],
-    "communicationTone": "Professional/Casual/Technical/Inspirational",
-    "networkingApproach": "Strategic/Relationship-focused/Community-builder"
+  "actionableInsights": {
+    "immediateStrengthsToHighlight": ["STYRKOR att framhäva direkt", "strength2", "strength3"],
+    "quickWinsForImprovement": ["SNABBA förbättringar", "win2", "win3"],
+    "mediumTermDevelopmentGoals": ["MEDELLÅNGA utvecklingsmål", "goal2", "goal3"],
+    "longTermCareerStrategy": "LÅNGSIKTIG karriärstrategi baserad på profil och potential",
+    "specificCoachingRecommendations": ["SPECIFIKA coaching-rekommendationer", "rec2", "rec3"],
+    "networkingStrategy": "NÄTVERKSSTRATEGI för professionell tillväxt",
+    "personalBrandingAdvice": "PERSONLIG varumärkesrådgivning för ökad synlighet"
   },
-  "overallConsultantReadiness": number (1-10 scale),
-  "recommendedImprovements": ["improvement1", "improvement2", "improvement3"]
+  "overallAssessmentSummary": "OMFATTANDE sammanfattning av personens professionella profil, styrkor, utvecklingsområden och potential som konsult (200-300 ord)"
 }`;
 
   const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
