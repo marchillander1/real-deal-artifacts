@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
 import Logo from '@/components/Logo';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function CVUploadModern() {
   const [dragActive, setDragActive] = useState(false);
