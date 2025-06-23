@@ -25,22 +25,22 @@ serve(async (req) => {
 
     console.log('📄 Processing file:', file.name, 'Size:', file.size);
     
-    // Convert file to base64 for AI analysis
+    // Convert file to base64
     const fileBuffer = await file.arrayBuffer();
     const fileBytes = new Uint8Array(fileBuffer);
-    const fileBase64 = btoa(String.fromCharCode.apply(null, Array.from(fileBytes)));
+    const fileBase64 = btoa(String.fromCharCode(...fileBytes));
     
-    console.log('📝 File converted to base64, length:', fileBase64.length);
+    console.log('📝 File converted to base64');
 
-    // Get Groq API key
-    const groqApiKey = Deno.env.get('GROQ_API_KEY');
-    if (!groqApiKey) {
-      throw new Error('GROQ_API_KEY not configured');
+    // Get Google Gemini API key
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY not configured');
     }
 
     // Create analysis prompt
     const analysisPrompt = `
-Du är en expert på CV-analys. Analysera detta CV och extrahera information enligt följande struktur.
+Analysera detta CV och extrahera information enligt följande JSON-struktur.
 
 ${personalDescription ? `PERSONLIG BESKRIVNING: "${personalDescription}"` : ''}
 
@@ -101,47 +101,49 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
     "consultingReadiness": "Konsultberedskap"
   }
 }
-
-Analysera bifogad fil (base64): ${fileBase64.substring(0, 1000)}...
 `;
 
-    console.log('🤖 Calling Groq AI for analysis...');
+    console.log('🤖 Calling Google Gemini for analysis...');
 
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    // Call Google Gemini API
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
-        messages: [
-          {
-            role: 'system',
-            content: 'Du är en expert på CV-analys. Svara alltid med giltig JSON utan extra text.'
-          },
-          {
-            role: 'user',
-            content: analysisPrompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 4000
+        contents: [{
+          parts: [
+            {
+              text: analysisPrompt
+            },
+            {
+              inline_data: {
+                mime_type: file.type,
+                data: fileBase64
+              }
+            }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 4000
+        }
       }),
     });
 
-    if (!groqResponse.ok) {
-      const errorText = await groqResponse.text();
-      console.error('❌ Groq API error:', errorText);
-      throw new Error(`Groq API failed: ${groqResponse.status}`);
+    if (!geminiResponse.ok) {
+      const errorText = await geminiResponse.text();
+      console.error('❌ Gemini API error:', errorText);
+      throw new Error(`Gemini API failed: ${geminiResponse.status}`);
     }
 
-    const groqData = await groqResponse.json();
-    console.log('🎯 Groq response received');
+    const geminiData = await geminiResponse.json();
+    console.log('🎯 Gemini response received');
 
     let analysis;
     try {
-      const content = groqData.choices[0].message.content;
+      const content = geminiData.candidates[0].content.parts[0].text;
       console.log('📋 Raw AI response length:', content.length);
       
       // Find JSON in response
