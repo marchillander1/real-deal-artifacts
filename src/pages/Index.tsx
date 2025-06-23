@@ -1,392 +1,136 @@
 
-import React, { useState } from "react";
-import { Assignment } from "../types/consultant";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus, Brain } from "lucide-react";
-import CreateAssignmentForm from "../components/CreateAssignmentForm";
-import { ConsultantsTab } from "../components/ConsultantsTab";
-import { AIMatchingResults } from "../components/AIMatchingResults";
-import { useSupabaseConsultantsWithDemo } from "@/hooks/useSupabaseConsultantsWithDemo";
-import { useDemoAssignments } from "@/hooks/useDemoAssignments";
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Upload, BarChart3, Users, Target, Brain, Zap } from 'lucide-react';
+import Logo from '@/components/Logo';
+import Navbar from '@/components/Navbar';
 
-const Index: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedAssignmentForMatching, setSelectedAssignmentForMatching] = useState<Assignment | null>(null);
-  const [aiMatchingResults, setAiMatchingResults] = useState<any>(null);
-  const [isMatching, setIsMatching] = useState(false);
-  const { consultants } = useSupabaseConsultantsWithDemo();
-  const { assignments, addAssignment } = useDemoAssignments();
-
-  // Fetch matches data for stats
-  const { data: matchesData = [] } = useQuery({
-    queryKey: ['matches'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('matches')
-        .select('*');
-
-      if (error) {
-        console.error('Error fetching matches:', error);
-        return [];
-      }
-      return data || [];
-    },
-  });
-
-  // Real dashboard stats using actual data
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
-  const myConsultants = consultants.filter(consultant => consultant.type === 'existing');
-  const totalConsultants = consultants.length;
-  const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
-  const avgMatchTime = "12 seconds";
-
-  console.log('Dashboard stats:', {
-    totalConsultants,
-    networkConsultants: networkConsultants.length,
-    myConsultants: myConsultants.length,
-    successfulMatches
-  });
-
-  const handleAssignmentCreated = (assignment: Assignment) => {
-    addAssignment(assignment);
-    console.log('Assignment created:', assignment);
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Navigate to CV upload page with context that this should go to "My Consultants"
-      window.location.href = '/cv-upload?source=my-consultants';
-    }
-  };
-
-  const handleAIMatching = async (assignment: Assignment) => {
-    setSelectedAssignmentForMatching(assignment);
-    setIsMatching(true);
-    
-    // Simulate AI matching process
-    setTimeout(() => {
-      const mockMatches = consultants.slice(0, 3).map((consultant, index) => ({
-        consultant,
-        match_score: 95 - (index * 5),
-        matched_skills: assignment.requiredSkills || ['React', 'TypeScript', 'Node.js'],
-        technical_analysis: {
-          frontend_score: 8 + index,
-          backend_score: 7 + index,
-          architecture_score: 6 + index
-        },
-        cultural_match: 85 + (index * 3),
-        communication_match: 90 - (index * 2),
-        values_alignment: 88 + index,
-        personality_analysis: {
-          communication_style: 'Direct and collaborative',
-          work_approach: 'Methodical and detail-oriented'
-        },
-        industry_analysis: {
-          relevant_industries: [assignment.industry || 'Fintech', 'E-commerce', 'SaaS'],
-          domain_expertise: 8 + index
-        },
-        project_metrics: {
-          success_rate: 94 - index,
-          delivery_speed: 15 + index,
-          similar_projects: [
-            'E-commerce platform (React/Node.js)',
-            'Fintech dashboard (TypeScript/AWS)',
-            'SaaS migration (Docker/Kubernetes)'
-          ],
-          onboarding_time: '1-2 weeks',
-          first_delivery: '2-3 weeks',
-          full_productivity: '3-4 weeks'
-        },
-        estimated_savings: 150000 + (index * 20000),
-        confidence_score: 92 - (index * 2),
-        analysis_factors: 'technical skills, personality fit, industry experience, and project history'
-      }));
-      
-      setAiMatchingResults(mockMatches);
-      setIsMatching(false);
-    }, 3000);
-  };
-
-  const renderAssignmentsContent = () => (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Assignments</h2>
-          <p className="text-gray-600">Manage assignments and find the perfect consultant matches</p>
-        </div>
-        <Button 
-          onClick={() => setShowCreateForm(true)}
-          className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Create Assignment
-        </Button>
-      </div>
-
-      <div className="grid gap-6">
-        {assignments.map((assignment) => (
-          <Card key={assignment.id} className="border hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{assignment.title}</h3>
-                  <p className="text-gray-600 mb-3">{assignment.description}</p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                    <span>📍 {assignment.company}</span>
-                    <span>💼 {assignment.workload}</span>
-                    <span>⏱️ {assignment.duration}</span>
-                    <span>💰 {assignment.budget}</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-4xl">{assignment.clientLogo}</div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    assignment.urgency === 'High' ? 'bg-red-100 text-red-800' :
-                    assignment.urgency === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {assignment.urgency} Priority
-                  </span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Required Skills:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {assignment.requiredSkills.map((skill, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Team Culture:</span>
-                  <p className="text-sm text-gray-600 mt-1">{assignment.teamCulture}</p>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center pt-4 border-t">
-                <div className="text-sm text-gray-500">
-                  {assignment.remote} • {assignment.teamSize} • {assignment.industry}
-                </div>
-                <Button 
-                  onClick={() => handleAIMatching(assignment)}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  <Brain className="h-4 w-4 mr-2" />
-                  AI Match Consultants
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        
-        {assignments.length === 0 && (
-          <div className="text-center py-12">
-            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No assignments yet</h3>
-            <p className="text-gray-600 mb-4">Create your first assignment to start finding consultant matches</p>
-            <Button 
-              onClick={() => setShowCreateForm(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Create New Assignment
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderDashboardContent = () => (
-    <div>
-      {/* Platform Overview Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Platform Overview</h2>
-        <p className="text-gray-600 mb-6">Real-time insights and performance metrics</p>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Users className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">{totalConsultants}</div>
-              <div className="text-sm font-medium text-gray-900 mb-1">Total Consultants</div>
-              <div className="text-sm text-green-600">↗ {networkConsultants.length} network + {myConsultants.length} my consultants</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">{successfulMatches}</div>
-              <div className="text-sm font-medium text-gray-900 mb-1">Successful Matches</div>
-              <div className="text-sm text-green-600">↗ +{Math.max(1, Math.floor(successfulMatches * 0.1))} this month</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Clock className="h-6 w-6 text-orange-600" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">{avgMatchTime}</div>
-              <div className="text-sm font-medium text-gray-900 mb-1">Avg Match Time</div>
-              <div className="text-sm text-green-600">↗ 67% faster</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Bottom Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <Clock className="h-8 w-8 text-green-100" />
-              </div>
-              <div className="text-3xl font-bold mb-2">850 hours</div>
-              <div className="text-lg font-medium mb-1">Time Saved</div>
-              <div className="text-green-100">≈ 2.1M SEK in cost savings</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <TrendingUp className="h-8 w-8 text-blue-100" />
-              </div>
-              <div className="text-3xl font-bold mb-2">96%</div>
-              <div className="text-lg font-medium mb-1">Client Satisfaction</div>
-              <div className="text-blue-100">+8% vs manual matching</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <Briefcase className="h-8 w-8 text-purple-100" />
-              </div>
-              <div className="text-3xl font-bold mb-2">2.4M SEK</div>
-              <div className="text-lg font-medium mb-1">Platform Revenue</div>
-              <div className="text-purple-100">Monthly recurring</div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-
+export default function Index() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900">MatchWise AI Platform</h1>
-          <p className="text-gray-600 mt-1">Match consultants with assignments using advanced AI that analyzes both technical skills and soft factors</p>
-          
-          {/* Navigation */}
-          <div className="flex items-center justify-between mt-6">
-            <div className="flex space-x-8">
-              <button 
-                className={`font-medium pb-2 ${activeTab === 'dashboard' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                onClick={() => setActiveTab('dashboard')}
-              >
-                Dashboard
-              </button>
-              <button 
-                className={`font-medium pb-2 ${activeTab === 'consultants' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                onClick={() => setActiveTab('consultants')}
-              >
-                Consultants
-              </button>
-              <button 
-                className={`font-medium pb-2 ${activeTab === 'assignments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                onClick={() => setActiveTab('assignments')}
-              >
-                Assignments
-              </button>
-            </div>
-            <div className="flex space-x-3">
-              <div className="relative">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Upload className="h-4 w-4" />
-                  Upload CV
-                </Button>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-                onClick={() => setShowCreateForm(true)}
-              >
-                <Briefcase className="h-4 w-4" />
-                New Assignment
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      <Navbar />
+      
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <div className="flex justify-center mb-8">
+            <Logo size="xl" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6">
+            AI-Driven <span className="text-blue-600">Konsultanalys</span>
+          </h1>
+          <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
+            Få djupgående insikter om dina tekniska färdigheter, marknadsvärde och karriärmöjligheter 
+            genom vår avancerade AI-analys av ditt CV och LinkedIn-profil.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/cv-upload">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg">
+                <Upload className="mr-2 h-5 w-5" />
+                Börja din analys
               </Button>
-            </div>
+            </Link>
+            <Link to="/dashboard">
+              <Button size="lg" variant="outline" className="px-8 py-4 text-lg">
+                <BarChart3 className="mr-2 h-5 w-5" />
+                Se Dashboard
+              </Button>
+            </Link>
           </div>
         </div>
+
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <Brain className="h-6 w-6 text-blue-600" />
+              </div>
+              <CardTitle>AI-Driven Analys</CardTitle>
+              <CardDescription>
+                Avancerad Gemini AI analyserar ditt CV och LinkedIn för djupgående karriärinsikter
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <Target className="h-6 w-6 text-green-600" />
+              </div>
+              <CardTitle>Marknadsvärdering</CardTitle>
+              <CardDescription>
+                Få realtidsdata om ditt marknadsvärde och optimering av löneförhandlingar
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+              <CardTitle>Konsultnätverk</CardTitle>
+              <CardDescription>
+                Gå med i vårt exklusiva nätverk och få tillgång till högkvalitativa uppdrag
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                <Zap className="h-6 w-6 text-orange-600" />
+              </div>
+              <CardTitle>Snabb Analys</CardTitle>
+              <CardDescription>
+                Få din kompletta karriäranalys på under 2 minuter med AI-teknik
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                <BarChart3 className="h-6 w-6 text-red-600" />
+              </div>
+              <CardTitle>Utvecklingsroadmap</CardTitle>
+              <CardDescription>
+                Personliga rekommendationer för certifieringar och kompetensutveckling
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <Upload className="h-6 w-6 text-indigo-600" />
+              </div>
+              <CardTitle>GDPR-Säker</CardTitle>
+              <CardDescription>
+                All databehandling följer GDPR och din integritet är vår högsta prioritet
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center bg-white rounded-2xl p-12 shadow-lg">
+          <h2 className="text-3xl font-bold text-slate-900 mb-4">
+            Redo att ta nästa steg i din karriär?
+          </h2>
+          <p className="text-lg text-slate-600 mb-8">
+            Få din personliga AI-analys och upptäck nya möjligheter inom 2 minuter.
+          </p>
+          <Link to="/cv-upload">
+            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-lg">
+              <Upload className="mr-2 h-5 w-5" />
+              Starta din analys nu
+            </Button>
+          </Link>
+        </div>
       </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {activeTab === 'dashboard' && renderDashboardContent()}
-        {activeTab === 'consultants' && (
-          <ConsultantsTab 
-            showEditForNetwork={false}
-            showDeleteForMyConsultants={true}
-            showRemoveDuplicates={false}
-          />
-        )}
-        {activeTab === 'assignments' && renderAssignmentsContent()}
-      </div>
-
-      {/* Create Assignment Modal */}
-      {showCreateForm && (
-        <CreateAssignmentForm
-          onAssignmentCreated={(assignment) => {
-            handleAssignmentCreated(assignment);
-            setShowCreateForm(false);
-          }}
-          onClose={() => setShowCreateForm(false)}
-          onCancel={() => setShowCreateForm(false)}
-        />
-      )}
-
-      {/* AI Matching Results Modal */}
-      {selectedAssignmentForMatching && (
-        <AIMatchingResults
-          assignment={selectedAssignmentForMatching}
-          matches={aiMatchingResults || []}
-          isLoading={isMatching}
-          onClose={() => {
-            setSelectedAssignmentForMatching(null);
-            setAiMatchingResults(null);
-          }}
-        />
-      )}
     </div>
   );
-};
-
-export default Index;
+}

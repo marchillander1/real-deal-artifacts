@@ -1,175 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { User, Mail, Phone, MapPin, Briefcase, Eye, EyeOff, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { User, LogOut, Mail, Phone, MapPin, Briefcase, Star, Calendar, Globe, Edit2, Upload, Eye, Trash2 } from 'lucide-react';
-import Logo from '@/components/Logo';
-import { AnalysisResults } from '@/components/AnalysisResults';
 
-interface ConsultantProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  title: string;
-  tagline: string;
-  skills: string[];
-  certifications: string[];
-  availability: string;
-  hourly_rate: number;
-  experience_years: number;
-  is_published: boolean;
-  last_active: string;
-  created_at: string;
-  self_description?: string;
-}
-
-const MyProfile: React.FC = () => {
-  const [profile, setProfile] = useState<ConsultantProfile | null>(null);
+export default function MyProfile() {
+  const [profile, setProfile] = useState<any>(null);
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [showLogin, setShowLogin] = useState(true);
-  const [analysisResults, setAnalysisResults] = useState<any>(null);
-  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
-  const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
-  
   const { toast } = useToast();
-  const navigate = useNavigate();
-
-  // Check if consultant is authenticated via email/password
-  const checkAuthentication = async () => {
-    const storedAuth = localStorage.getItem('consultant_auth');
-    if (storedAuth) {
-      const { email, consultantId } = JSON.parse(storedAuth);
-      await loadProfile(consultantId);
-      setIsAuthenticated(true);
-      setShowLogin(false);
-    }
-    setLoading(false);
-  };
 
   useEffect(() => {
-    checkAuthentication();
+    fetchProfile();
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const fetchProfile = async () => {
     try {
-      // Clean and normalize the email input
-      const normalizedEmail = loginData.email.trim().toLowerCase();
-      
-      console.log('🔍 Looking for consultant with email:', normalizedEmail);
-
-      // Use ilike for case-insensitive search and take first match if multiple exist
-      const { data: consultants, error } = await supabase
-        .from('consultants')
-        .select('*')
-        .ilike('email', normalizedEmail)
-        .order('created_at', { ascending: false }); // Get most recent if multiple
-
-      console.log('📊 Database query result:', { consultants, error });
-
-      if (error || !consultants || consultants.length === 0) {
-        console.error('❌ No consultant found:', error);
-        
-        // Let's also try a broader search to debug
-        const { data: allConsultants } = await supabase
-          .from('consultants')
-          .select('id, name, email')
-          .limit(10);
-        
-        console.log('📋 Available consultants in database:', allConsultants);
-        
-        toast({
-          title: "Login failed",
-          description: "No consultant found with this email address.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Take the first consultant if multiple exist
-      const consultant = consultants[0];
-      
-      if (consultants.length > 1) {
-        console.log(`⚠️ Found ${consultants.length} consultants with email ${normalizedEmail}, using the most recent one`);
-      }
-
-      // Simple password check (in production, use proper hashing)
-      const expectedPassword = `${consultant.name.toLowerCase().replace(/\s+/g, '')}123`;
-      
-      console.log('🔑 Expected password format:', expectedPassword);
-      
-      if (loginData.password !== expectedPassword) {
-        toast({
-          title: "Login failed", 
-          description: `Incorrect password. Try: ${expectedPassword}`,
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Store authentication
-      localStorage.setItem('consultant_auth', JSON.stringify({
-        email: normalizedEmail,
-        consultantId: consultant.id
-      }));
-
-      setProfile(consultant);
-      setIsAuthenticated(true);
-      setShowLogin(false);
-      
-      toast({
-        title: "Login successful!",
-        description: `Welcome back, ${consultant.name}!`,
-      });
-
-    } catch (error) {
-      console.error('❌ Login error:', error);
-      toast({
-        title: "Login error",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
-      });
-    }
-    
-    setLoading(false);
-  };
-
-  const loadProfile = async (consultantId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('consultants')
-        .select('*')
-        .eq('id', consultantId)
+      // Fetch user profile with analysis
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select(`
+          *,
+          ai_analysis (
+            *,
+            published_profiles (*)
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
-    } catch (error) {
-      console.error('Error loading profile:', error);
+      if (profileError) throw profileError;
+
+      setProfile(profileData);
+      if (profileData.ai_analysis && profileData.ai_analysis.length > 0) {
+        setAnalysis(profileData.ai_analysis[0]);
+      }
+    } catch (error: any) {
+      console.error('Error fetching profile:', error);
       toast({
-        title: "Error loading profile",
-        description: "Could not load your profile data.",
+        title: "Kunde inte hämta profil",
+        description: "Kontrollera att du är inloggad och har en profil",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,571 +63,331 @@ const MyProfile: React.FC = () => {
     setSaving(true);
     try {
       const { error } = await supabase
-        .from('consultants')
+        .from('user_profiles')
         .update({
-          name: profile.name,
+          full_name: profile.full_name,
           email: profile.email,
           phone: profile.phone,
-          location: profile.location,
           title: profile.title,
-          tagline: profile.tagline,
-          skills: profile.skills,
-          certifications: profile.certifications,
+          personal_tagline: profile.personal_tagline,
           availability: profile.availability,
-          hourly_rate: profile.hourly_rate,
-          is_published: profile.is_published,
-          self_description: profile.self_description,
-          updated_at: new Date().toISOString()
+          visibility_toggle: profile.visibility_toggle
         })
         .eq('id', profile.id);
 
       if (error) throw error;
 
       toast({
-        title: "Profile updated!",
-        description: "Your changes have been saved successfully.",
+        title: "Profil uppdaterad",
+        description: "Dina ändringar har sparats",
+        variant: "default",
       });
-    } catch (error) {
-      console.error('Error saving profile:', error);
+      
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
       toast({
-        title: "Save failed",
-        description: "Could not save your changes.",
+        title: "Kunde inte spara",
+        description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
-  const handleDeleteProfile = async () => {
-    if (!profile) return;
-    
-    setDeleting(true);
+  const toggleVisibility = async () => {
+    if (!profile || !analysis?.published_profiles?.[0]) return;
+
     try {
-      const { error } = await supabase
-        .from('consultants')
-        .delete()
+      const newVisibility = !profile.visibility_toggle;
+      
+      // Update profile visibility
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({ visibility_toggle: newVisibility })
         .eq('id', profile.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
-      // Clear authentication and redirect
-      localStorage.removeItem('consultant_auth');
+      // Update published profile status
+      const { error: publishError } = await supabase
+        .from('published_profiles')
+        .update({ 
+          is_active: newVisibility,
+          visibility_status: newVisibility ? 'public' : 'private' 
+        })
+        .eq('user_profile_id', profile.id);
+
+      if (publishError) throw publishError;
+
+      setProfile({ ...profile, visibility_toggle: newVisibility });
+      
       toast({
-        title: "Profile deleted",
-        description: "Your profile has been permanently deleted.",
+        title: newVisibility ? "Profil synlig" : "Profil dold",
+        description: newVisibility ? "Din profil är nu synlig för kunder" : "Din profil är nu dold",
+        variant: "default",
       });
-      navigate('/');
-    } catch (error) {
-      console.error('Error deleting profile:', error);
+    } catch (error: any) {
+      console.error('Error toggling visibility:', error);
       toast({
-        title: "Delete failed",
-        description: "Could not delete your profile.",
+        title: "Kunde inte ändra synlighet",
+        description: error.message,
         variant: "destructive",
       });
     }
-    setDeleting(false);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('consultant_auth');
-    setIsAuthenticated(false);
-    setShowLogin(true);
-    setProfile(null);
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully.",
-    });
-  };
-
-  const addSkill = (skill: string) => {
-    if (profile && skill.trim() && !profile.skills.includes(skill.trim())) {
-      setProfile({
-        ...profile,
-        skills: [...profile.skills, skill.trim()]
-      });
-    }
-  };
-
-  const removeSkill = (skillToRemove: string) => {
-    if (profile) {
-      setProfile({
-        ...profile,
-        skills: profile.skills.filter(skill => skill !== skillToRemove)
-      });
-    }
-  };
-
-  const loadAnalysisResults = async () => {
-    if (!profile) return;
-    
-    setLoadingAnalysis(true);
-    try {
-      // Try to get analysis results from both new and old columns
-      const { data, error } = await supabase
-        .from('consultants')
-        .select('analysis_results, cv_analysis_data')
-        .eq('id', profile.id)
-        .single();
-
-      if (error) throw error;
-      
-      // Check both analysis_results (new) and cv_analysis_data (old) columns
-      let analysisData = null;
-      
-      if (data?.analysis_results) {
-        // New format
-        analysisData = data.analysis_results;
-      } else if (data?.cv_analysis_data && typeof data.cv_analysis_data === 'object' && data.cv_analysis_data !== null) {
-        // Old format - safely check if it's an object with analysis property
-        const cvData = data.cv_analysis_data as any;
-        if (cvData.analysis) {
-          analysisData = cvData.analysis;
-        }
-      }
-      
-      if (analysisData) {
-        setAnalysisResults({
-          cvAnalysis: { analysis: analysisData },
-          consultant: profile
-        });
-      } else {
-        toast({
-          title: "No analysis found",
-          description: "No analysis results available for this profile.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error loading analysis:', error);
-      toast({
-        title: "Error loading analysis",
-        description: "Could not load analysis results.",
-        variant: "destructive",
-      });
-    }
-    setLoadingAnalysis(false);
-  };
-
-  const handleViewAnalysis = () => {
-    setShowAnalysisDialog(true);
-    loadAnalysisResults();
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (showLogin || !isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <Logo />
-            </div>
-            <CardTitle className="text-2xl">Consultant Login</CardTitle>
-            <p className="text-slate-600">Access your MatchWise profile</p>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={loginData.email}
-                  onChange={(e) => setLoginData({...loginData, email: e.target.value})}
-                  placeholder="your@email.com"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={loginData.password}
-                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                  placeholder="Your password"
-                  required
-                />
-                <p className="text-xs text-slate-500 mt-1">
-                  Password format: [firstname][lastname]123 (lowercase, no spaces)
-                </p>
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-              </Button>
-            </form>
-            
-            <div className="mt-6 text-center">
-              <Button 
-                variant="link" 
-                onClick={() => navigate('/')}
-                className="text-slate-600"
-              >
-                ← Back to MatchWise
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <User className="h-16 w-16 text-blue-500 animate-pulse mx-auto mb-4" />
+          <p className="text-lg text-slate-600">Laddar din profil...</p>
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-slate-900 mb-4">Profile not found</h1>
-          <Button onClick={() => navigate('/')}>Back to Home</Button>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <Card className="max-w-md text-center p-8">
+          <User className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Ingen profil hittad</h2>
+          <p className="text-slate-600">Skapa en profil genom att ladda upp ditt CV.</p>
+        </Card>
       </div>
     );
   }
 
+  const isPublished = analysis?.published_profiles && analysis.published_profiles.length > 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Logo />
+            <div className="flex items-center gap-4">
+              <User className="h-8 w-8 text-blue-500" />
               <div>
-                <h1 className="text-xl font-bold text-slate-900">My Profile</h1>
-                <p className="text-sm text-slate-600">Manage your consultant profile</p>
+                <h1 className="text-2xl font-bold text-slate-900">Min Profil</h1>
+                <p className="text-slate-600">Hantera din konsultprofil och synlighet</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant={profile?.is_published ? "default" : "secondary"}>
-                {profile?.is_published ? "Published" : "Draft"}
-              </Badge>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
+            
+            {/* Visibility Toggle */}
+            {isPublished && (
+              <div className="flex items-center gap-3">
+                {profile.visibility_toggle ? (
+                  <Eye className="h-5 w-5 text-green-500" />
+                ) : (
+                  <EyeOff className="h-5 w-5 text-red-500" />
+                )}
+                <Label htmlFor="visibility" className="text-sm font-medium">
+                  {profile.visibility_toggle ? 'Synlig' : 'Dold'}
+                </Label>
+                <Switch
+                  id="visibility"
+                  checked={profile.visibility_toggle}
+                  onCheckedChange={toggleVisibility}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Profile Settings */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Basic Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      id="name"
-                      value={profile?.name || ''}
-                      onChange={(e) => setProfile(profile ? {...profile, name: e.target.value} : null)}
-                    />
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Profile Status */}
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <CardTitle>Profil Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-xl">
+                <div className="text-2xl font-bold text-blue-600">
+                  {isPublished ? 'Publicerad' : 'Ej Publicerad'}
+                </div>
+                <div className="text-sm text-slate-600">Status</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-xl">
+                <div className="text-2xl font-bold text-green-600">
+                  {profile.visibility_toggle ? 'Synlig' : 'Dold'}
+                </div>
+                <div className="text-sm text-slate-600">Synlighet</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-xl">
+                <div className="text-2xl font-bold text-purple-600">{profile.availability}</div>
+                <div className="text-sm text-slate-600">Tillgänglighet</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Profile Information */}
+        <Card className="mb-8 shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Personlig Information</CardTitle>
+            <Button
+              variant={isEditing ? "default" : "outline"}
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              {isEditing ? 'Avbryt' : 'Redigera'}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="name">Fullständigt namn</Label>
+                {isEditing ? (
+                  <Input
+                    id="name"
+                    value={profile.full_name || ''}
+                    onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                  />
+                ) : (
+                  <div className="p-3 bg-slate-50 rounded-lg border">{profile.full_name}</div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="title">Titel/Roll</Label>
+                {isEditing ? (
+                  <Input
+                    id="title"
+                    value={profile.title || ''}
+                    onChange={(e) => setProfile({ ...profile, title: e.target.value })}
+                  />
+                ) : (
+                  <div className="p-3 bg-slate-50 rounded-lg border">{profile.title}</div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">E-post</Label>
+                {isEditing ? (
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profile.email || ''}
+                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                  />
+                ) : (
+                  <div className="p-3 bg-slate-50 rounded-lg border flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-slate-500" />
+                    {profile.email}
                   </div>
-                  <div>
-                    <Label htmlFor="title">Professional Title</Label>
-                    <Input
-                      id="title"
-                      value={profile?.title || ''}
-                      onChange={(e) => setProfile(profile ? {...profile, title: e.target.value} : null)}
-                    />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefon</Label>
+                {isEditing ? (
+                  <Input
+                    id="phone"
+                    value={profile.phone || ''}
+                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                  />
+                ) : (
+                  <div className="p-3 bg-slate-50 rounded-lg border flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-slate-500" />
+                    {profile.phone || 'Ej angivet'}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tagline">Personlig tagline</Label>
+              {isEditing ? (
+                <Textarea
+                  id="tagline"
+                  value={profile.personal_tagline || ''}
+                  onChange={(e) => setProfile({ ...profile, personal_tagline: e.target.value })}
+                  maxLength={150}
+                />
+              ) : (
+                <div className="p-3 bg-slate-50 rounded-lg border">
+                  {profile.personal_tagline || 'Ingen tagline angiven'}
+                </div>
+              )}
+            </div>
+
+            {isEditing && (
+              <div className="flex gap-3">
+                <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  {saving ? 'Sparar...' : 'Spara ändringar'}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* AI Analysis Summary */}
+        {analysis && (
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>AI-analys Sammanfattning</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">Teknisk Expertis</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(analysis.tech_stack_primary || []).slice(0, 6).map((skill: string, index: number) => (
+                      <Badge key={index} variant="default" className="bg-blue-100 text-blue-800">
+                        {skill}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
                 
                 <div>
-                  <Label htmlFor="tagline">Professional Tagline</Label>
-                  <Textarea
-                    id="tagline"
-                    value={profile?.tagline || ''}
-                    onChange={(e) => setProfile(profile ? {...profile, tagline: e.target.value} : null)}
-                    placeholder="Brief description of your expertise and value proposition..."
-                    maxLength={150}
-                  />
-                  <p className="text-xs text-slate-500 mt-1">
-                    {(profile?.tagline || '').length}/150 characters
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="self_description">Personal Description (Optional)</Label>
-                  <Textarea
-                    id="self_description"
-                    value={profile?.self_description || ''}
-                    onChange={(e) => setProfile(profile ? {...profile, self_description: e.target.value} : null)}
-                    placeholder="Tell us about yourself in your own words..."
-                    maxLength={500}
-                    rows={4}
-                  />
-                  <p className="text-xs text-slate-500 mt-1">
-                    {(profile?.self_description || '').length}/500 characters
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        id="email"
-                        type="email"
-                        className="pl-10"
-                        value={profile?.email || ''}
-                        onChange={(e) => setProfile(profile ? {...profile, email: e.target.value} : null)}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        id="phone"
-                        className="pl-10"
-                        value={profile?.phone || ''}
-                        onChange={(e) => setProfile(profile ? {...profile, phone: e.target.value} : null)}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        id="location"
-                        className="pl-10"
-                        value={profile?.location || ''}
-                        onChange={(e) => setProfile(profile ? {...profile, location: e.target.value} : null)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Skills */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Briefcase className="h-5 w-5" />
-                  Skills & Expertise
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Current Skills</Label>
-                  <div className="flex flex-wrap gap-2 mt-2 mb-4">
-                    {profile?.skills.map((skill, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="cursor-pointer hover:bg-red-100"
-                        onClick={() => removeSkill(skill)}
-                      >
-                        {skill} ×
+                  <h4 className="font-semibold mb-3">Kärnvärden</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(analysis.top_values || []).slice(0, 4).map((value: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
+                        {value}
                       </Badge>
                     ))}
                   </div>
-                  <Input
-                    placeholder="Add a new skill and press Enter"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        addSkill(e.currentTarget.value);
-                        e.currentTarget.value = '';
-                      }
-                    }}
-                  />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="experience">Years of Experience</Label>
-                    <Input
-                      id="experience"
-                      type="number"
-                      value={profile?.experience_years || 0}
-                      onChange={(e) => setProfile(profile ? {...profile, experience_years: parseInt(e.target.value) || 0} : null)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="rate">Hourly Rate (SEK)</Label>
-                    <Input
-                      id="rate"
-                      type="number"
-                      value={profile?.hourly_rate || 0}
-                      onChange={(e) => setProfile(profile ? {...profile, hourly_rate: parseInt(e.target.value) || 0} : null)}
-                    />
+                
+                <div>
+                  <h4 className="font-semibold mb-3">Branschområden</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(analysis.industries || []).slice(0, 4).map((industry: string, index: number) => (
+                      <Badge key={index} variant="outline" className="text-orange-600">
+                        {industry}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="availability">Availability Status</Label>
-                  <select
-                    id="availability"
-                    className="w-full p-2 border border-slate-300 rounded-md"
-                    value={profile?.availability}
-                    onChange={(e) => setProfile(profile ? {...profile, availability: e.target.value} : null)}
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Busy">Busy</option>
-                    <option value="Not Available">Not Available</option>
-                  </select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              <Button onClick={handleSave} disabled={saving} className="flex-1">
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-              <Dialog open={showAnalysisDialog} onOpenChange={setShowAnalysisDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" onClick={handleViewAnalysis}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Analysis
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>CV Analysis Results</DialogTitle>
-                  </DialogHeader>
-                  <div className="mt-4">
-                    {loadingAnalysis ? (
-                      <div className="flex items-center justify-center p-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        <span className="ml-2">Loading analysis...</span>
-                      </div>
-                    ) : analysisResults ? (
-                      <AnalysisResults 
-                        analysisResults={analysisResults}
-                        isAnalyzing={false}
-                        analysisProgress={100}
-                      />
-                    ) : (
-                      <div className="text-center p-8">
-                        <p className="text-slate-600">No analysis results available.</p>
-                      </div>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Profile
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your profile
-                      and remove all your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteProfile} disabled={deleting}>
-                      {deleting ? 'Deleting...' : 'Delete Profile'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
-
-          {/* Profile Preview */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
-                  Public Profile Preview
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={profile?.is_published}
-                    onCheckedChange={(checked) => setProfile({...profile, is_published: checked})}
-                  />
-                  <Label>Publish Profile</Label>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-3">
-                      {profile?.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <h3 className="font-bold text-lg">{profile?.name}</h3>
-                    <p className="text-slate-600">{profile?.title}</p>
-                    {profile?.tagline && (
-                      <p className="text-sm text-slate-500 mt-2 italic">"{profile?.tagline}"</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-slate-400" />
-                      <span>{profile?.location || 'Location not set'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Briefcase className="h-4 w-4 text-slate-400" />
-                      <span>{profile?.experience_years} years experience</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Star className="h-4 w-4 text-slate-400" />
-                      <span>{profile?.hourly_rate} SEK/hour</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium">Top Skills</Label>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {profile?.skills.slice(0, 6).map((skill, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                      {profile?.skills.length > 6 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{profile?.skills.length - 6} more
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t">
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <Calendar className="h-3 w-3" />
-                      <span>Joined {new Date(profile?.created_at).toLocaleDateString()}</span>
-                    </div>
+                  <h4 className="font-semibold mb-3">Thought Leadership Score</h4>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {analysis.thought_leadership_score || 0}/100
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+              </div>
+
+              {analysis.communication_style && (
+                <div className="mt-6">
+                  <h4 className="font-semibold mb-2">Kommunikationsstil</h4>
+                  <p className="text-slate-600 bg-slate-50 p-3 rounded-lg">
+                    {analysis.communication_style}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
-};
-
-export default MyProfile;
+}
