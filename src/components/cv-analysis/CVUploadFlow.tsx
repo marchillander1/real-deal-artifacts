@@ -84,8 +84,10 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
       });
       onProgress?.(80);
 
-      // Step 5: Send welcome email
+      // Step 5: Send welcome email with better error handling
       try {
+        console.log('📧 Attempting to send welcome email...');
+        
         await EmailService.sendWelcomeEmail({
           consultantId: consultant.id,
           email: extractedPersonalInfo.email,
@@ -103,11 +105,15 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
           title: "Profile created successfully! 🎉",
           description: `Welcome email sent to ${extractedPersonalInfo.email}`,
         });
-      } catch (emailError) {
+        
+        console.log('✅ Email notifications sent successfully');
+        
+      } catch (emailError: any) {
         console.warn('⚠️ Email sending failed:', emailError);
         toast({
           title: "Profile created! ✅",
-          description: "Profile created successfully, but email notification failed",
+          description: "Profile created successfully, but email notification failed. Check logs for details.",
+          variant: "default",
         });
       }
 

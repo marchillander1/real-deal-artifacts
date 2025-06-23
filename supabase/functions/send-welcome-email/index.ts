@@ -15,15 +15,23 @@ serve(async (req) => {
   }
 
   try {
+    console.log('🚀 Starting welcome email function');
+    
+    if (!RESEND_API_KEY) {
+      console.error('❌ RESEND_API_KEY not found in environment');
+      throw new Error('RESEND_API_KEY not configured');
+    }
+
     const { consultantEmail, consultantName, isMyConsultant } = await req.json();
 
     if (!consultantEmail || !consultantName) {
+      console.error('❌ Missing required fields:', { consultantEmail, consultantName });
       throw new Error('Consultant email and name are required');
     }
 
-    console.log('Sending welcome email to:', consultantEmail);
-    console.log('Consultant name:', consultantName);
-    console.log('Is my consultant:', isMyConsultant);
+    console.log('📧 Sending welcome email to:', consultantEmail);
+    console.log('👤 Consultant name:', consultantName);
+    console.log('🏢 Is my consultant:', isMyConsultant);
 
     // Generate simple password for consultant profile access
     const profilePassword = `${consultantName.toLowerCase().replace(/\s+/g, '')}123`;
@@ -135,11 +143,17 @@ serve(async (req) => {
     `;
 
     const emailData = {
-      from: '🚀 MatchWise <noreply@matchwise.tech>',
+      from: 'MatchWise <noreply@matchwise.tech>',
       to: [consultantEmail],
       subject: `🚀 Welcome to MatchWise Network, ${consultantName}!`,
       html: welcomeEmailHtml
     };
+
+    console.log('📤 Sending email with data:', JSON.stringify({ 
+      from: emailData.from, 
+      to: emailData.to, 
+      subject: emailData.subject 
+    }));
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -150,26 +164,31 @@ serve(async (req) => {
       body: JSON.stringify(emailData),
     });
 
+    const responseText = await response.text();
+    console.log('📨 Resend API response status:', response.status);
+    console.log('📨 Resend API response:', responseText);
+
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Resend API error:', errorData);
-      throw new Error(`Failed to send email: ${response.status}`);
+      console.error('❌ Resend API error:', responseText);
+      throw new Error(`Failed to send email: ${response.status} - ${responseText}`);
     }
 
-    const result = await response.json();
-    console.log('Welcome email sent successfully:', result.id);
+    const result = JSON.parse(responseText);
+    console.log('✅ Welcome email sent successfully:', result.id);
 
     return new Response(JSON.stringify({ 
       success: true, 
-      messageId: result.id 
+      messageId: result.id,
+      message: 'Welcome email sent successfully'
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Welcome email error:', error);
+    console.error('❌ Welcome email error:', error);
     return new Response(JSON.stringify({ 
-      error: error.message || 'Failed to send welcome email' 
+      error: error.message || 'Failed to send welcome email',
+      success: false
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

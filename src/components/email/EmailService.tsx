@@ -21,12 +21,19 @@ export class EmailService {
         }
       });
 
+      console.log('📨 Supabase function response:', response);
+
       if (response.error) {
         console.error('❌ Welcome email failed:', response.error);
         throw new Error(`Welcome email failed: ${response.error.message}`);
       }
 
-      console.log('✅ Welcome email sent successfully');
+      if (!response.data?.success) {
+        console.error('❌ Email service returned failure:', response.data);
+        throw new Error(response.data?.error || 'Email sending failed');
+      }
+
+      console.log('✅ Welcome email sent successfully:', response.data.messageId);
       return { success: true, data: response.data };
 
     } catch (error: any) {
