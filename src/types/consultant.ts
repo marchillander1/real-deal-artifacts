@@ -56,6 +56,37 @@ export interface Consultant {
       degree: string;
       year: string;
     }>;
+    softSkills: {
+      communicationStyle: string;
+      leadershipStyle: string;
+      workStyle: string;
+      values: string[];
+      personalityTraits: string[];
+    };
+    scores: {
+      leadership: number;
+      innovation: number;
+      adaptability: number;
+      culturalFit: number;
+      communication: number;
+      teamwork: number;
+    };
+    marketAnalysis: {
+      hourlyRate: {
+        current: number;
+        optimized: number;
+        explanation: string;
+      };
+      competitiveAdvantages: string[];
+      marketDemand: string;
+      recommendedFocus: string;
+    };
+    analysisInsights: {
+      strengths: string[];
+      developmentAreas: string[];
+      careerTrajectory: string;
+      consultingReadiness: string;
+    };
   };
   linkedinAnalysis?: {
     communicationStyle: string;

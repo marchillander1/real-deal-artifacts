@@ -24,7 +24,6 @@ import Navbar from './components/Navbar';
 import { AuthGuard } from './components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import Logo from '@/components/Logo';
-import CVUpload from './pages/CVUpload';
 
 const queryClient = new QueryClient();
 
@@ -139,7 +138,7 @@ function App() {
               path="/cv-upload" 
               element={
                 <div className="min-h-screen bg-gray-50">
-                  <CVUpload />
+                  <CVUploadModern />
                 </div>
               } 
             />
