@@ -1,6 +1,8 @@
 
+import { supabase } from '@/integrations/supabase/client';
+
 export const parseCV = async (file: File, linkedinUrl: string) => {
-  console.log('🚀 Starting CV parsing with Groq integration...');
+  console.log('🚀 Starting CV parsing with Gemini integration...');
   
   try {
     const formData = new FormData();
@@ -9,16 +11,15 @@ export const parseCV = async (file: File, linkedinUrl: string) => {
 
     console.log('📤 Sending CV to parse-cv function...');
 
-    const response = await fetch('/supabase/functions/parse-cv', {
-      method: 'POST',
-      body: formData,
+    const response = await supabase.functions.invoke('parse-cv', {
+      body: formData
     });
 
-    if (!response.ok) {
-      throw new Error(`CV parsing failed: ${response.status}`);
+    if (response.error) {
+      throw new Error(`CV parsing failed: ${response.error.message}`);
     }
 
-    const result = await response.json();
+    const result = response.data;
     
     if (!result.success) {
       throw new Error(result.error || 'CV parsing failed');
@@ -46,19 +47,15 @@ export const saveConsultantToDatabase = async (consultantData: any) => {
   console.log('💾 Saving consultant to database...');
   
   try {
-    const response = await fetch('/supabase/functions/save-consultant', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(consultantData),
+    const response = await supabase.functions.invoke('save-consultant', {
+      body: consultantData
     });
 
-    if (!response.ok) {
-      throw new Error(`Save failed: ${response.status}`);
+    if (response.error) {
+      throw new Error(`Save failed: ${response.error.message}`);
     }
 
-    const result = await response.json();
+    const result = response.data;
     
     if (!result.success) {
       throw new Error(result.error || 'Save failed');
