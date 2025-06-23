@@ -1,14 +1,14 @@
+
 import React, { useState } from 'react';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useRealTimeTeamNotifications } from '@/hooks/useRealTimeTeamNotifications';
-import ConsultantCard from '@/components/ConsultantCard';
-import { ConsultantEditDialog } from '@/components/ConsultantEditDialog';
+import { ConsultantAnalysisModal } from '@/components/ConsultantAnalysisModal';
+import { ConsultantStats } from '@/components/consultant/ConsultantStats';
+import { ConsultantFilters } from '@/components/consultant/ConsultantFilters';
+import { ConsultantGrid } from '@/components/consultant/ConsultantGrid';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Upload, Search, Filter, Plus, Bell, UserCheck } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -27,9 +27,10 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const { consultants, isLoading, updateConsultant } = useSupabaseConsultantsWithDemo();
   const [searchTerm, setSearchTerm] = useState('');
   const [skillFilter, setSkillFilter] = useState('');
+  const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const { toast } = useToast();
 
-  // Use real-time notifications
   useRealTimeTeamNotifications();
 
   const existingConsultants = consultants.filter(c => c.type === 'existing');
@@ -51,15 +52,13 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Navigate to CV upload page with context that this should go to "My Consultants"
       window.location.href = '/cv-upload?source=my-consultants';
     }
   };
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
-    // Convert to string for comparison and handle demo consultants
     const idString = String(consultantId);
-    if (idString.startsWith('my-')) {
+    if (idString.startsWith('my-') || idString.startsWith('demo-')) {
       toast({
         title: "Cannot delete demo consultant",
         description: "Demo consultants cannot be deleted",
@@ -74,16 +73,13 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         .delete()
         .eq('id', idString);
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Consultant deleted",
         description: "The consultant has been successfully removed",
       });
 
-      // Refresh the page to update the list
       window.location.reload();
     } catch (error: any) {
       console.error('Error deleting consultant:', error);
@@ -93,6 +89,19 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         variant: "destructive",
       });
     }
+  };
+
+  const handleViewAnalysis = (consultant: Consultant) => {
+    console.log('🔍 Opening analysis for consultant:', consultant.name);
+    console.log('🔍 Analysis data available:', {
+      hasCvAnalysis: !!consultant.cvAnalysis,
+      hasLinkedinAnalysis: !!consultant.linkedinAnalysis,
+      cvAnalysisKeys: consultant.cvAnalysis ? Object.keys(consultant.cvAnalysis) : [],
+      linkedinAnalysisKeys: consultant.linkedinAnalysis ? Object.keys(consultant.linkedinAnalysis) : []
+    });
+    
+    setSelectedConsultant(consultant);
+    setShowAnalysisModal(true);
   };
 
   if (isLoading) {
@@ -105,105 +114,20 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header with Enhanced Stats */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-blue-600" />
-              <div>
-                <p className="text-sm text-gray-600">Total Consultants</p>
-                <p className="text-2xl font-bold">{consultants.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <UserCheck className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-sm text-gray-600">Team Consultants</p>
-                <p className="text-2xl font-bold">{existingConsultants.length}</p>
-                <p className="text-xs text-green-600">Shared with team</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Upload className="h-5 w-5 text-purple-600" />
-              <div>
-                <p className="text-sm text-gray-600">Network Consultants</p>
-                <p className="text-2xl font-bold">{newConsultants.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <ConsultantStats
+        totalConsultants={consultants.length}
+        teamConsultants={existingConsultants.length}
+        networkConsultants={newConsultants.length}
+      />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Bell className="h-5 w-5 text-orange-600" />
-              <div>
-                <p className="text-sm text-gray-600">Live Updates</p>
-                <p className="text-2xl font-bold">ON</p>
-                <p className="text-xs text-orange-600">Real-time notifications</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <ConsultantFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        skillFilter={skillFilter}
+        onSkillFilterChange={setSkillFilter}
+        availableSkills={allSkills}
+      />
 
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            Search and Filter
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Search by name or skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="w-48">
-              <Input
-                placeholder="Filter by skill..."
-                value={skillFilter}
-                onChange={(e) => setSkillFilter(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          {/* Popular Skills */}
-          <div className="space-y-2">
-            <p className="text-sm text-gray-600">Popular Skills:</p>
-            <div className="flex flex-wrap gap-1">
-              {allSkills.slice(0, 10).map((skill, index) => (
-                <Badge 
-                  key={index} 
-                  variant="outline" 
-                  className="cursor-pointer hover:bg-blue-50"
-                  onClick={() => setSkillFilter(skill)}
-                >
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Consultants List */}
       <Tabs defaultValue="my-consultants" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="my-consultants">
@@ -220,9 +144,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <p className="text-sm text-gray-600">Shared with your team members</p>
             </div>
             <div className="relative">
-              <Button 
-                className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-              >
+              <Button className="bg-green-600 hover:bg-green-700 flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Add Consultant
               </Button>
@@ -235,48 +157,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             </div>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(existingConsultants).map((consultant) => (
-              <div key={consultant.id} className="relative">
-                <ConsultantCard consultant={consultant} />
-                <div className="absolute top-2 right-2 flex gap-1">
-                  <ConsultantEditDialog
-                    consultant={consultant}
-                    onSave={(updated) => updateConsultant(updated)}
-                  />
-                  {showDeleteForMyConsultants && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteConsultant(consultant.id)}
-                      className="h-8 w-8 p-0"
-                    >
-                      ×
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-          {filterConsultants(existingConsultants).length === 0 && (
-            <div className="text-center py-12">
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No team consultants yet</h3>
-              <p className="text-gray-600 mb-4">Add consultants to share with your team by uploading their CVs</p>
-              <div className="relative inline-block">
-                <Button className="bg-green-600 hover:bg-green-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add First Team Member
-                </Button>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          )}
+          <ConsultantGrid
+            consultants={filterConsultants(existingConsultants)}
+            onViewAnalysis={handleViewAnalysis}
+            showEditActions={true}
+            showDeleteActions={showDeleteForMyConsultants}
+          />
         </TabsContent>
         
         <TabsContent value="network" className="space-y-4">
@@ -285,36 +171,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             <p className="text-sm text-gray-600">Consultants from the MatchWise network</p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(newConsultants).map((consultant) => (
-              <div key={consultant.id} className="relative">
-                <ConsultantCard consultant={consultant} />
-                {showEditForNetwork && (
-                  <div className="absolute top-2 right-2">
-                    <ConsultantEditDialog
-                      consultant={consultant}
-                      onSave={(updated) => updateConsultant(updated)}
-                    />
-                  </div>
-                )}
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDeleteConsultant(consultant.id)}
-                  className="h-8 w-8 p-0"
-                >
-                  ×
-                </Button>
-              </div>
-            ))}
-          </div>
-          {newConsultants.length === 0 && (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No network consultants found</p>
-              <p className="text-sm text-gray-500">Consultants who upload CVs will appear here</p>
-            </div>
-          )}
+          <ConsultantGrid
+            consultants={filterConsultants(newConsultants)}
+            onViewAnalysis={handleViewAnalysis}
+            showEditActions={showEditForNetwork}
+            showDeleteActions={true}
+          />
         </TabsContent>
         
         <TabsContent value="all" className="space-y-4">
@@ -323,32 +185,22 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             <p className="text-sm text-gray-600">All consultants in the platform</p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filterConsultants(consultants).map((consultant) => (
-              <div key={consultant.id} className="relative">
-                <ConsultantCard consultant={consultant} />
-                <div className="absolute top-2 right-2 flex gap-1">
-                  {((consultant.type === 'existing' && showEditForNetwork) || 
-                    (consultant.type === 'new' && showEditForNetwork)) && (
-                    <ConsultantEditDialog
-                      consultant={consultant}
-                      onSave={(updated) => updateConsultant(updated)}
-                    />
-                  )}
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteConsultant(consultant.id)}
-                    className="h-8 w-8 p-0"
-                  >
-                    ×
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ConsultantGrid
+            consultants={filterConsultants(consultants)}
+            onViewAnalysis={handleViewAnalysis}
+            showEditActions={true}
+            showDeleteActions={true}
+          />
         </TabsContent>
       </Tabs>
+
+      {selectedConsultant && (
+        <ConsultantAnalysisModal
+          consultant={selectedConsultant}
+          open={showAnalysisModal}
+          onOpenChange={setShowAnalysisModal}
+        />
+      )}
     </div>
   );
 };

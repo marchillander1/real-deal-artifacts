@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Brain, FileText, Linkedin, Star, MapPin, Clock, User, Briefcase, Award, Target, TrendingUp, DollarSign, Lightbulb } from 'lucide-react';
+import { Brain, FileText, Linkedin, User, Briefcase, MapPin, Clock } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 
 interface ConsultantAnalysisDisplayProps {
@@ -10,32 +11,29 @@ interface ConsultantAnalysisDisplayProps {
 }
 
 export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps> = ({ consultant }) => {
-  // 🔥 FIX: Correct way to access analysis data
-  const cvAnalysisData = consultant.cvAnalysis;
-  const cvAnalysis = cvAnalysisData?.analysis || cvAnalysisData; // Handle both structures
+  // Get analysis data with proper fallbacks
+  const cvAnalysisData = consultant.cvAnalysis || consultant.cv_analysis_data;
+  const cvAnalysis = cvAnalysisData?.analysis || cvAnalysisData;
   
-  const linkedinAnalysisData = consultant.linkedinAnalysis;
-  const linkedinAnalysis = linkedinAnalysisData?.analysis || linkedinAnalysisData; // Handle both structures
-  
-  const enhancedAnalysisResults = consultant.cvAnalysis?.enhancedAnalysisResults;
+  const linkedinAnalysisData = consultant.linkedinAnalysis || consultant.linkedin_analysis_data;
+  const linkedinAnalysis = linkedinAnalysisData?.analysis || linkedinAnalysisData;
 
-  console.log('🔍 ConsultantAnalysisDisplay - Analysis data check:', {
+  console.log('🔍 Analysis Display - Data check:', {
     consultantName: consultant.name,
     hasCvAnalysis: !!cvAnalysis,
     hasLinkedinAnalysis: !!linkedinAnalysis,
-    hasEnhancedAnalysis: !!enhancedAnalysisResults,
-    cvAnalysisKeys: cvAnalysis ? Object.keys(cvAnalysis) : [],
-    linkedinAnalysisKeys: linkedinAnalysis ? Object.keys(linkedinAnalysis) : [],
-    enhancedAnalysisKeys: enhancedAnalysisResults ? Object.keys(enhancedAnalysisResults) : []
+    cvDataStructure: cvAnalysis ? Object.keys(cvAnalysis) : [],
+    linkedinDataStructure: linkedinAnalysis ? Object.keys(linkedinAnalysis) : []
   });
 
-  // If no analysis data, don't show anything
+  // If no analysis data, show message
   if (!cvAnalysis && !linkedinAnalysis) {
     return (
       <Card className="mt-4 border-gray-200 bg-gray-50">
         <CardContent className="p-4 text-center">
           <Brain className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-          <p className="text-gray-600">No analysis data available</p>
+          <p className="text-gray-600">No analysis data available for this consultant</p>
+          <p className="text-sm text-gray-500 mt-1">Analysis data may not have been generated yet</p>
         </CardContent>
       </Card>
     );
@@ -46,7 +44,7 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-purple-900">
           <Brain className="h-5 w-5" />
-          AI Analysis Results
+          AI Analysis Results for {consultant.name}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -94,7 +92,7 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
               </div>
             )}
 
-            {/* Experience Summary */}
+            {/* Experience from CV */}
             {cvAnalysis.experience && (
               <div className="bg-white rounded-lg p-3 mb-3">
                 <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
@@ -125,10 +123,10 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
               </div>
             )}
 
-            {/* Technical Skills from CV */}
+            {/* Skills from CV */}
             {cvAnalysis.skills && (
               <div className="bg-white rounded-lg p-3 mb-3">
-                <h5 className="font-medium text-gray-900 mb-2">Technical Skills from CV</h5>
+                <h5 className="font-medium text-gray-900 mb-2">Skills from CV</h5>
                 <div className="space-y-3">
                   {cvAnalysis.skills.technical?.length > 0 && (
                     <div>
@@ -189,6 +187,9 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
                           <span className="text-gray-500">{work.duration || ''}</span>
                         </div>
                         <p className="text-gray-600">{work.company || 'Company not specified'}</p>
+                        {work.description && (
+                          <p className="text-gray-500 mt-1">{work.description.substring(0, 100)}...</p>
+                        )}
                       </div>
                     )
                   ))}
@@ -282,249 +283,30 @@ export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps>
                   </div>
                 </div>
               )}
-
-              {/* Content Analysis from LinkedIn */}
-              {linkedinAnalysis.recentPostsAnalysis && (
-                <div className="bg-white rounded-lg p-3">
-                  <h5 className="font-medium text-gray-900 mb-2">Content & Engagement Analysis</h5>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                    {linkedinAnalysis.recentPostsAnalysis.contentQuality && (
-                      <div>
-                        <span className="font-medium text-gray-700">Content Quality:</span>
-                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.contentQuality}</span>
-                      </div>
-                    )}
-                    {linkedinAnalysis.recentPostsAnalysis.engagementLevel && (
-                      <div>
-                        <span className="font-medium text-gray-700">Engagement:</span>
-                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.engagementLevel}</span>
-                      </div>
-                    )}
-                    {linkedinAnalysis.recentPostsAnalysis.thoughtLeadership && (
-                      <div>
-                        <span className="font-medium text-gray-700">Thought Leadership:</span>
-                        <span className="ml-1">{linkedinAnalysis.recentPostsAnalysis.thoughtLeadership}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </>
         )}
 
-        {/* Enhanced Analysis Results - Certification Recommendations */}
-        {enhancedAnalysisResults?.certificationRecommendations && (
-          <>
-            <Separator className="my-4" />
-            
-            {/* Certification Recommendations */}
-            {(enhancedAnalysisResults.certificationRecommendations.technical?.length > 0 || 
-              enhancedAnalysisResults.certificationRecommendations.business?.length > 0) && (
+        {/* Raw Data Debug Section */}
+        <div className="mt-4 p-3 bg-gray-100 rounded text-xs">
+          <details>
+            <summary className="cursor-pointer font-medium text-gray-700">Debug: Raw Analysis Data</summary>
+            <div className="mt-2 space-y-2">
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Award className="h-4 w-4 text-purple-600" />
-                  <h4 className="font-semibold text-purple-900">Recommended Certifications</h4>
-                </div>
-                
-                {enhancedAnalysisResults.certificationRecommendations.technical?.length > 0 && (
-                  <div className="bg-white rounded-lg p-3 mb-3">
-                    <h5 className="font-medium text-blue-700 mb-2">Technical Certifications</h5>
-                    <div className="space-y-2">
-                      {enhancedAnalysisResults.certificationRecommendations.technical.map((cert: any, index: number) => (
-                        <div key={index} className="border border-blue-200 rounded p-2 bg-blue-50">
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="font-medium text-blue-900 text-sm">{cert.certification}</span>
-                            <Badge variant={cert.priority === 'High' ? 'default' : 'secondary'} className="text-xs">
-                              {cert.priority}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-blue-800 mb-1">{cert.reason}</p>
-                          <div className="text-xs text-blue-600">
-                            <span className="font-medium">Time:</span> {cert.timeToComplete} | 
-                            <span className="font-medium"> Value:</span> {cert.marketValue}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {enhancedAnalysisResults.certificationRecommendations.business?.length > 0 && (
-                  <div className="bg-white rounded-lg p-3 mb-3">
-                    <h5 className="font-medium text-green-700 mb-2">Business Certifications</h5>
-                    <div className="space-y-2">
-                      {enhancedAnalysisResults.certificationRecommendations.business.map((cert: any, index: number) => (
-                        <div key={index} className="border border-green-200 rounded p-2 bg-green-50">
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="font-medium text-green-900 text-sm">{cert.certification}</span>
-                            <Badge variant={cert.priority === 'High' ? 'default' : 'secondary'} className="text-xs">
-                              {cert.priority}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-green-800 mb-1">{cert.reason}</p>
-                          <div className="text-xs text-green-600">
-                            <span className="font-medium">Time:</span> {cert.timeToComplete} | 
-                            <span className="font-medium"> Value:</span> {cert.marketValue}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <strong>CV Analysis Structure:</strong>
+                <pre className="text-xs bg-white p-2 rounded mt-1 overflow-auto">
+                  {JSON.stringify(cvAnalysis ? Object.keys(cvAnalysis) : 'No data', null, 2)}
+                </pre>
               </div>
-            )}
-          </>
-        )}
-
-        {/* Technical Assessment */}
-        {enhancedAnalysisResults?.technicalAssessment && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Target className="h-4 w-4 text-orange-600" />
-              <h4 className="font-semibold text-orange-900">Technical Assessment</h4>
-            </div>
-            
-            <div className="bg-white rounded-lg p-3 mb-3">
-              <h5 className="font-medium text-gray-900 mb-2">Technical Maturity Levels</h5>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <div className="text-center p-2 bg-blue-50 rounded">
-                  <div className="text-lg font-bold text-blue-600">{enhancedAnalysisResults.technicalAssessment.technicalMaturity.frontendScore}/10</div>
-                  <div className="text-xs text-gray-600">Frontend</div>
-                </div>
-                <div className="text-center p-2 bg-green-50 rounded">
-                  <div className="text-lg font-bold text-green-600">{enhancedAnalysisResults.technicalAssessment.technicalMaturity.backendScore}/10</div>
-                  <div className="text-xs text-gray-600">Backend</div>
-                </div>
-                <div className="text-center p-2 bg-purple-50 rounded">
-                  <div className="text-lg font-bold text-purple-600">{enhancedAnalysisResults.technicalAssessment.technicalMaturity.devopsScore}/10</div>
-                  <div className="text-xs text-gray-600">DevOps</div>
-                </div>
-                <div className="text-center p-2 bg-orange-50 rounded">
-                  <div className="text-lg font-bold text-orange-600">{enhancedAnalysisResults.technicalAssessment.technicalMaturity.dataScore}/10</div>
-                  <div className="text-xs text-gray-600">Data</div>
-                </div>
-              </div>
-              <div className="mt-2 text-center">
-                <Badge variant="default" className="text-sm">
-                  Overall Level: {enhancedAnalysisResults.technicalAssessment.technicalMaturity.overallLevel}
-                </Badge>
+              <div>
+                <strong>LinkedIn Analysis Structure:</strong>
+                <pre className="text-xs bg-white p-2 rounded mt-1 overflow-auto">
+                  {JSON.stringify(linkedinAnalysis ? Object.keys(linkedinAnalysis) : 'No data', null, 2)}
+                </pre>
               </div>
             </div>
-
-            {enhancedAnalysisResults.technicalAssessment.improvementPriority?.length > 0 && (
-              <div className="bg-white rounded-lg p-3">
-                <h5 className="font-medium text-gray-900 mb-2">Improvement Priorities</h5>
-                <div className="space-y-2">
-                  {enhancedAnalysisResults.technicalAssessment.improvementPriority.slice(0, 3).map((item: any, index: number) => (
-                    <div key={index} className="border border-gray-200 rounded p-2">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-medium text-sm">{item.category}</span>
-                        <Badge variant={item.priority === 'High' ? 'default' : 'secondary'} className="text-xs">
-                          {item.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-gray-600 mb-1">{item.reason}</p>
-                      <p className="text-xs text-gray-500">Timeline: {item.timeline}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ROI Predictions */}
-        {enhancedAnalysisResults?.roiPredictions && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="h-4 w-4 text-green-600" />
-              <h4 className="font-semibold text-green-900">Growth Potential & ROI</h4>
-            </div>
-            
-            <div className="bg-white rounded-lg p-3 mb-3">
-              <h5 className="font-medium text-gray-900 mb-2">Current Market Value</h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div className="text-center p-2 bg-blue-50 rounded">
-                  <div className="text-lg font-bold text-blue-600">
-                    {enhancedAnalysisResults.roiPredictions.currentMarketValue.hourlyRate} SEK/h
-                  </div>
-                  <div className="text-xs text-gray-600">Current Rate</div>
-                </div>
-                <div className="text-center p-2 bg-green-50 rounded">
-                  <div className="text-lg font-bold text-green-600">
-                    {enhancedAnalysisResults.roiPredictions.currentMarketValue.monthlyPotential?.toLocaleString()} SEK
-                  </div>
-                  <div className="text-xs text-gray-600">Monthly Potential</div>
-                </div>
-              </div>
-            </div>
-
-            {enhancedAnalysisResults.roiPredictions.improvementPotential && (
-              <div className="bg-white rounded-lg p-3">
-                <h5 className="font-medium text-gray-900 mb-2">Growth Potential</h5>
-                <div className="space-y-2">
-                  <div className="border border-green-200 rounded p-2 bg-green-50">
-                    <div className="text-sm font-medium text-green-900">6 Months: {enhancedAnalysisResults.roiPredictions.improvementPotential.with6MonthsImprovement.hourlyRate} SEK/h</div>
-                    <div className="text-xs text-green-700">Monthly: {enhancedAnalysisResults.roiPredictions.improvementPotential.with6MonthsImprovement.monthlyPotential?.toLocaleString()} SEK</div>
-                  </div>
-                  <div className="border border-blue-200 rounded p-2 bg-blue-50">
-                    <div className="text-sm font-medium text-blue-900">1 Year: {enhancedAnalysisResults.roiPredictions.improvementPotential.with1YearImprovement.hourlyRate} SEK/h</div>
-                    <div className="text-xs text-blue-700">Monthly: {enhancedAnalysisResults.roiPredictions.improvementPotential.with1YearImprovement.monthlyPotential?.toLocaleString()} SEK</div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Profile Optimization Tips */}
-        {enhancedAnalysisResults?.preUploadGuidance && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className="h-4 w-4 text-yellow-600" />
-              <h4 className="font-semibold text-yellow-900">Profile Optimization Tips</h4>
-            </div>
-            
-            {enhancedAnalysisResults.preUploadGuidance.cvOptimization?.immediate?.length > 0 && (
-              <div className="bg-white rounded-lg p-3 mb-3">
-                <h5 className="font-medium text-blue-700 mb-2">CV Optimization</h5>
-                <div className="space-y-2">
-                  {enhancedAnalysisResults.preUploadGuidance.cvOptimization.immediate.slice(0, 3).map((tip: any, index: number) => (
-                    <div key={index} className="border border-blue-200 rounded p-2 bg-blue-50">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-medium text-blue-900 text-sm">{tip.area}</span>
-                        <Badge variant={tip.impact === 'High' ? 'default' : 'secondary'} className="text-xs">
-                          {tip.impact}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-blue-800">{tip.action}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {enhancedAnalysisResults.preUploadGuidance.linkedinOptimization?.profile?.length > 0 && (
-              <div className="bg-white rounded-lg p-3">
-                <h5 className="font-medium text-green-700 mb-2">LinkedIn Optimization</h5>
-                <div className="space-y-2">
-                  {enhancedAnalysisResults.preUploadGuidance.linkedinOptimization.profile.slice(0, 3).map((tip: any, index: number) => (
-                    <div key={index} className="border border-green-200 rounded p-2 bg-green-50">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-medium text-green-900 text-sm">{tip.area}</span>
-                        <Badge variant={tip.impact === 'High' ? 'default' : 'secondary'} className="text-xs">
-                          {tip.impact}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-green-800">{tip.action}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+          </details>
+        </div>
       </CardContent>
     </Card>
   );

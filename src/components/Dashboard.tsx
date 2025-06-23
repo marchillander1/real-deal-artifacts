@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
-import { ConsultantsSection } from '@/components/dashboard/ConsultantsSection';
 import { AssignmentsSection } from '@/components/dashboard/AssignmentsSection';
 import { useRealTimeTeamNotifications } from '@/hooks/useRealTimeTeamNotifications';
 import { ConsultantsTab } from '@/components/ConsultantsTab';
@@ -17,18 +16,15 @@ export const Dashboard: React.FC = () => {
   const activeTab = searchParams.get('tab') || 'overview';
   const success = searchParams.get('success');
 
-  // Enable real-time notifications
   useRealTimeTeamNotifications();
 
   useEffect(() => {
-    // Show success message if redirected from CV upload
     if (success === 'team-member-added') {
       toast({
         title: "🎉 Team member added successfully!",
         description: "The consultant has been added to your team's database",
       });
       
-      // Remove success param from URL
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('success');
       setSearchParams(newParams);
@@ -42,7 +38,6 @@ export const Dashboard: React.FC = () => {
   };
 
   const handleCreateAssignment = () => {
-    // Navigate to assignments tab when creating a new assignment
     const newParams = new URLSearchParams(searchParams);
     newParams.set('tab', 'assignments');
     setSearchParams(newParams);
