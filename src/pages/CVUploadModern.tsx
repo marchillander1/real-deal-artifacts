@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, Check, ArrowLeft, Brain, Linkedin } from 'lucide-react';
+import { Upload, FileText, Check, ArrowLeft, Brain, Linkedin, Star, Shield, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
+import { MatchWiseChat } from '@/components/MatchWiseChat';
 import Logo from '@/components/Logo';
 
 export default function CVUploadModern() {
@@ -19,6 +19,7 @@ export default function CVUploadModern() {
   const [progress, setProgress] = useState(0);
   const [step, setStep] = useState<'upload' | 'processing' | 'complete'>('upload');
   const [consultant, setConsultant] = useState<any>(null);
+  const [chatMinimized, setChatMinimized] = useState(true);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -192,7 +193,7 @@ export default function CVUploadModern() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Logo size="md" variant="full" />
@@ -202,150 +203,211 @@ export default function CVUploadModern() {
           </Button>
         </div>
 
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center space-x-8">
-            <div className={`flex items-center ${step === 'upload' ? 'text-blue-600' : step === 'processing' || step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'upload' ? 'bg-blue-100' : step === 'processing' || step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                {step === 'processing' || step === 'complete' ? <Check className="h-4 w-4" /> : '1'}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content - CV Upload */}
+          <div className="lg:col-span-2">
+            {/* Value Proposition Section */}
+            <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+              <CardHeader>
+                <CardTitle className="flex items-center text-2xl">
+                  <Brain className="h-6 w-6 mr-3 text-purple-600" />
+                  AI-Driven CV Analysis & Market Positioning
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-6 mb-6">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Zap className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <h3 className="font-semibold mb-2">Instant Analysis</h3>
+                    <p className="text-sm text-gray-600">AI extracts skills, experience, and market value from your CV in seconds</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Star className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <h3 className="font-semibold mb-2">Market Rates</h3>
+                    <p className="text-sm text-gray-600">Get precise hourly rate recommendations based on your skills and location</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Shield className="h-6 w-6 text-green-600" />
+                    </div>
+                    <h3 className="font-semibold mb-2">GDPR Safe</h3>
+                    <p className="text-sm text-gray-600">Your data is processed securely and deleted after analysis completion</p>
+                  </div>
+                </div>
+                <div className="bg-white/70 rounded-lg p-4 border border-purple-200">
+                  <h4 className="font-semibold text-purple-800 mb-2">What you'll get:</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• <strong>Skills Assessment:</strong> Technical and soft skills analysis with market demand scoring</li>
+                    <li>• <strong>Experience Evaluation:</strong> Career trajectory analysis and leadership potential</li>
+                    <li>• <strong>Market Positioning:</strong> Optimal hourly rates and competitive advantages</li>
+                    <li>• <strong>Personal Branding:</strong> Professional perception insights and LinkedIn optimization tips</li>
+                    <li>• <strong>Growth Recommendations:</strong> Certification paths and skill development priorities</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Progress Steps */}
+            <div className="mb-8">
+              <div className="flex items-center justify-center space-x-8">
+                <div className={`flex items-center ${step === 'upload' ? 'text-blue-600' : step === 'processing' || step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'upload' ? 'bg-blue-100' : step === 'processing' || step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {step === 'processing' || step === 'complete' ? <Check className="h-4 w-4" /> : '1'}
+                  </div>
+                  Upload CV
+                </div>
+                <div className={`flex items-center ${step === 'processing' ? 'text-blue-600' : step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'processing' ? 'bg-blue-100' : step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {step === 'complete' ? <Check className="h-4 w-4" /> : '2'}
+                  </div>
+                  AI Analysis
+                </div>
+                <div className={`flex items-center ${step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {step === 'complete' ? <Check className="h-4 w-4" /> : '3'}
+                  </div>
+                  Complete
+                </div>
               </div>
-              Upload CV
             </div>
-            <div className={`flex items-center ${step === 'processing' ? 'text-blue-600' : step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'processing' ? 'bg-blue-100' : step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                {step === 'complete' ? <Check className="h-4 w-4" /> : '2'}
-              </div>
-              AI Analysis
-            </div>
-            <div className={`flex items-center ${step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                {step === 'complete' ? <Check className="h-4 w-4" /> : '3'}
-              </div>
-              Complete
+
+            {step === 'upload' && (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle className="text-center">Upload Your CV</CardTitle>
+                  <p className="text-center text-gray-600">
+                    {isMyConsultant ? 'Add a consultant to your team' : 'Join our consultant network'}
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* File Upload */}
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                      dragActive ? 'border-blue-500 bg-blue-50' : file ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('cv-upload')?.click()}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,image/*"
+                      onChange={handleFileInputChange}
+                      className="hidden"
+                      id="cv-upload"
+                    />
+                    
+                    {file ? (
+                      <div className="flex items-center justify-center space-x-3">
+                        <FileText className="h-8 w-8 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-green-700">{file.name}</p>
+                          <p className="text-sm text-green-600">Ready for analysis ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-lg font-medium text-gray-900 mb-2">
+                          Drop your CV here or click to browse
+                        </p>
+                        <p className="text-sm text-gray-600 mb-4">
+                          PDF, DOC, DOCX, or image files • Max 10MB
+                        </p>
+                        <Button variant="outline" className="pointer-events-none">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Select File
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* LinkedIn URL */}
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedin">LinkedIn Profile (Optional)</Label>
+                    <div className="relative">
+                      <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="linkedin"
+                        type="url"
+                        placeholder="https://linkedin.com/in/yourprofile"
+                        value={linkedinUrl}
+                        onChange={(e) => setLinkedinUrl(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Add your LinkedIn for enhanced personality and market analysis
+                    </p>
+                  </div>
+
+                  {/* Start Button */}
+                  <Button
+                    onClick={handleStartProcessing}
+                    disabled={!file || isProcessing}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    size="lg"
+                  >
+                    <Brain className="h-4 w-4 mr-2" />
+                    Start AI Analysis
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {step === 'processing' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-center">Analyzing Your CV</CardTitle>
+                  <p className="text-center text-gray-600">
+                    Our AI is processing your information...
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <Progress value={progress} className="w-full" />
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      {progress < 20 && "Extracting text from CV..."}
+                      {progress >= 20 && progress < 40 && "Analyzing technical skills..."}
+                      {progress >= 40 && progress < 60 && "Processing LinkedIn profile..."}
+                      {progress >= 60 && progress < 80 && "Creating consultant profile..."}
+                      {progress >= 80 && progress < 100 && "Finalizing analysis..."}
+                      {progress === 100 && "Complete!"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Background Processing */}
+            {isProcessing && file && (
+              <CVUploadFlow
+                file={file}
+                linkedinUrl={linkedinUrl}
+                onProgress={setProgress}
+                onComplete={handleProcessingComplete}
+                onError={handleProcessingError}
+              />
+            )}
+          </div>
+
+          {/* AI Chat Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <MatchWiseChat
+                showWelcome={true}
+                isMinimized={chatMinimized}
+                onToggleMinimize={() => setChatMinimized(!chatMinimized)}
+              />
             </div>
           </div>
         </div>
-
-        {step === 'upload' && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="text-center">Upload Your CV</CardTitle>
-              <p className="text-center text-gray-600">
-                {isMyConsultant ? 'Add a consultant to your team' : 'Join our consultant network'}
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* File Upload */}
-              <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                  dragActive ? 'border-blue-500 bg-blue-50' : file ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'
-                }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-                onClick={() => document.getElementById('cv-upload')?.click()}
-              >
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx,image/*"
-                  onChange={handleFileInputChange}
-                  className="hidden"
-                  id="cv-upload"
-                />
-                
-                {file ? (
-                  <div className="flex items-center justify-center space-x-3">
-                    <FileText className="h-8 w-8 text-green-600" />
-                    <div>
-                      <p className="font-semibold text-green-700">{file.name}</p>
-                      <p className="text-sm text-green-600">Ready for analysis ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-lg font-medium text-gray-900 mb-2">
-                      Drop your CV here or click to browse
-                    </p>
-                    <p className="text-sm text-gray-600 mb-4">
-                      PDF, DOC, DOCX, or image files • Max 10MB
-                    </p>
-                    <Button variant="outline" className="pointer-events-none">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Select File
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* LinkedIn URL */}
-              <div className="space-y-2">
-                <Label htmlFor="linkedin">LinkedIn Profile (Optional)</Label>
-                <div className="relative">
-                  <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="linkedin"
-                    type="url"
-                    placeholder="https://linkedin.com/in/yourprofile"
-                    value={linkedinUrl}
-                    onChange={(e) => setLinkedinUrl(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <p className="text-sm text-gray-600">
-                  Add your LinkedIn for enhanced personality and market analysis
-                </p>
-              </div>
-
-              {/* Start Button */}
-              <Button
-                onClick={handleStartProcessing}
-                disabled={!file || isProcessing}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-                size="lg"
-              >
-                <Brain className="h-4 w-4 mr-2" />
-                Start AI Analysis
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 'processing' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-center">Analyzing Your CV</CardTitle>
-              <p className="text-center text-gray-600">
-                Our AI is processing your information...
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Progress value={progress} className="w-full" />
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  {progress < 20 && "Extracting text from CV..."}
-                  {progress >= 20 && progress < 40 && "Analyzing technical skills..."}
-                  {progress >= 40 && progress < 60 && "Processing LinkedIn profile..."}
-                  {progress >= 60 && progress < 80 && "Creating consultant profile..."}
-                  {progress >= 80 && progress < 100 && "Finalizing analysis..."}
-                  {progress === 100 && "Complete!"}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Background Processing */}
-        {isProcessing && file && (
-          <CVUploadFlow
-            file={file}
-            linkedinUrl={linkedinUrl}
-            onProgress={setProgress}
-            onComplete={handleProcessingComplete}
-            onError={handleProcessingError}
-          />
-        )}
       </div>
     </div>
   );
