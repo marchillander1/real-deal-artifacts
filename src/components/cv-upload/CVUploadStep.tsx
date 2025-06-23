@@ -67,10 +67,10 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
       <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Låt AI låsa upp din potential
+            Let AI unlock your potential
           </h1>
           <p className="text-lg text-slate-600">
-            Börja med att ladda upp ditt senaste CV (PDF eller Word). Du kan även lägga till din LinkedIn-profil för förbättrad analys.
+            Start by uploading your latest CV (PDF or Word). You can also add your LinkedIn profile for improved analysis.
           </p>
         </div>
 
@@ -78,7 +78,7 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
           {/* File Upload */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Ladda upp CV (PDF, DOC, DOCX) *
+              Upload CV (PDF, DOC, DOCX) *
             </label>
             
             <div
@@ -107,17 +107,17 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
                     <FileText className="h-8 w-8 text-green-600" />
                     <div>
                       <p className="font-semibold text-green-700">{file.name}</p>
-                      <p className="text-sm text-green-600">Redo för analys</p>
+                      <p className="text-sm text-green-600">Ready for analysis</p>
                     </div>
                   </div>
                 ) : (
                   <div>
                     <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
                     <p className="text-lg font-medium text-slate-700 mb-2">
-                      Dra och släpp ditt CV här
+                      Drag and drop your CV here
                     </p>
                     <p className="text-slate-500">
-                      eller klicka för att bläddra bland filer
+                      or click to browse files
                     </p>
                   </div>
                 )}
@@ -128,7 +128,7 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
           {/* LinkedIn URL */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              LinkedIn URL (valfritt)
+              LinkedIn URL (optional)
             </label>
             <div className="relative">
               <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -136,31 +136,31 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
                 type="url"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
-                placeholder="https://linkedin.com/in/din-profil"
+                placeholder="https://linkedin.com/in/your-profile"
                 className="w-full pl-12 pr-4 py-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
             <p className="text-sm text-slate-500">
-              Att lägga till din LinkedIn-profil förbättrar analyskvaliteten och ger bättre karriärinsikter.
+              Adding your LinkedIn profile improves analysis quality and provides better career insights.
             </p>
           </div>
 
           {/* Personal Description */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Personlig beskrivning (valfritt)
+              Personal description (optional)
             </label>
             <div className="relative">
               <MessageSquare className="absolute left-4 top-4 h-5 w-5 text-slate-400" />
               <Textarea
                 value={personalDescription}
                 onChange={(e) => setPersonalDescription(e.target.value)}
-                placeholder="Berätta lite om dig själv, dina mål och ambitioner..."
+                placeholder="Tell us a bit about yourself, your goals and ambitions..."
                 className="w-full pl-12 pr-4 py-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 min-h-[120px]"
               />
             </div>
             <p className="text-sm text-slate-500">
-              En personlig beskrivning hjälper AI:n att ge mer skräddarsydda insights och rekommendationer.
+              A personal description helps the AI provide more tailored insights and recommendations.
             </p>
           </div>
 
@@ -175,11 +175,11 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
               />
               <div className="text-sm text-slate-700">
                 <label htmlFor="gdpr-consent" className="cursor-pointer font-medium">
-                  Jag godkänner att MatchWise analyserar mitt CV och LinkedIn-profil
+                  I agree to let MatchWise analyze my CV and LinkedIn profile
                 </label>
                 <p className="mt-1 text-slate-600">
-                  Genom att kryssa i denna ruta samtycker jag till att MatchWise AI analyserar mitt CV och LinkedIn-profil för att skapa en personaliserad karriärrapport. 
-                  Din data behandlas enligt vår integritetspolicy och kommer inte delas med tredje part utan ditt samtycke.
+                  By checking this box, I consent to MatchWise AI analyzing my CV and LinkedIn profile to create a personalized career report. 
+                  Your data is processed according to our privacy policy and will not be shared with third parties without your consent.
                 </p>
               </div>
             </div>
@@ -197,10 +197,10 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
               }`}
             >
               {!file 
-                ? 'Vänligen ladda upp ditt CV först' 
+                ? 'Please upload your CV first' 
                 : !agreeToGDPR 
-                ? 'Vänligen acceptera databehandlingssamtycke'
-                : 'Starta Analys'
+                ? 'Please accept data processing consent'
+                : 'Start Analysis'
               }
             </button>
           </div>

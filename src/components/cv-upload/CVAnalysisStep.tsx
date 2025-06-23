@@ -24,16 +24,16 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
   onError
 }) => {
   const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState('Förbereder analys...');
+  const [currentStep, setCurrentStep] = useState('Preparing analysis...');
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const { toast } = useToast();
 
   const steps = [
-    { icon: FileText, label: 'Analyserar CV med Gemini AI', key: 'cv' },
-    { icon: Linkedin, label: 'Analyserar LinkedIn-profil', key: 'linkedin' },
-    { icon: Brain, label: 'Bearbetar mjuka och hårda värden', key: 'processing' },
-    { icon: Database, label: 'Skapar konsultprofil', key: 'database' },
-    { icon: Mail, label: 'Förbereder välkomstmail', key: 'email' }
+    { icon: FileText, label: 'Analyzing CV with Gemini AI', key: 'cv' },
+    { icon: Linkedin, label: 'Analyzing LinkedIn profile', key: 'linkedin' },
+    { icon: Brain, label: 'Processing soft and hard skills', key: 'processing' },
+    { icon: Database, label: 'Creating consultant profile', key: 'database' },
+    { icon: Mail, label: 'Preparing welcome email', key: 'email' }
   ];
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
   const performAnalysis = async () => {
     try {
       setProgress(10);
-      setCurrentStep('Analyserar CV med Gemini AI...');
+      setCurrentStep('Analyzing CV with Gemini AI...');
 
       // Step 1: Parse CV with personal description
       const { analysis: cvAnalysis, detectedInfo } = await CVParser.parseCV(
@@ -54,7 +54,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
       setProgress(30);
 
       // Step 2: LinkedIn analysis (if provided)
-      setCurrentStep('Analyserar LinkedIn-profil...');
+      setCurrentStep('Analyzing LinkedIn profile...');
       let linkedinData = null;
       if (linkedinUrl && linkedinUrl.includes('linkedin.com')) {
         linkedinData = await LinkedInAnalyzer.analyzeLinkedIn(linkedinUrl);
@@ -63,13 +63,13 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
       setProgress(50);
 
       // Step 3: Process and extract personal info
-      setCurrentStep('Bearbetar mjuka och hårda värden...');
+      setCurrentStep('Processing soft and hard skills...');
       const extractedPersonalInfo = extractPersonalInfo(cvAnalysis, detectedInfo);
       setCompletedSteps(prev => [...prev, 'processing']);
       setProgress(70);
 
       // Step 4: Create consultant profile
-      setCurrentStep('Skapar konsultprofil...');
+      setCurrentStep('Creating consultant profile...');
       const consultant = await ConsultantService.createConsultant({
         cvAnalysis,
         linkedinData,
@@ -83,7 +83,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
       setProgress(90);
 
       // Step 5: Prepare email data
-      setCurrentStep('Förbereder välkomstmail...');
+      setCurrentStep('Preparing welcome email...');
       setCompletedSteps(prev => [...prev, 'email']);
       setProgress(100);
 
@@ -99,10 +99,10 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
 
     } catch (error: any) {
       console.error('❌ Analysis failed:', error);
-      onError(error.message || 'Analys misslyckades');
+      onError(error.message || 'Analysis failed');
       toast({
-        title: "Analys misslyckades",
-        description: error.message || "Ett oväntat fel inträffade",
+        title: "Analysis failed",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     }
@@ -125,17 +125,17 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
         <div className="text-center mb-8">
           <Brain className="h-16 w-16 text-blue-600 mx-auto mb-4 animate-pulse" />
           <h2 className="text-3xl font-bold text-slate-900 mb-4">
-            AI Analyserar Din Profil
+            AI is Analyzing Your Profile
           </h2>
           <p className="text-lg text-slate-600">
-            Vårt avancerade AI-system analyserar både mjuka och hårda värden för att ge dig djupgående karriärinsikter.
+            Our advanced AI system analyzes both soft and hard skills to provide you with deep career insights.
           </p>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-slate-700">Analysförlopp</span>
+            <span className="text-sm font-medium text-slate-700">Analysis Progress</span>
             <span className="text-sm font-medium text-slate-700">{progress}%</span>
           </div>
           <Progress value={progress} className="w-full h-3" />
@@ -180,7 +180,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
                     {step.label}
                   </h3>
                   <p className="text-sm text-slate-600">
-                    {isCompleted ? 'Slutförd' : isActive ? 'Pågår...' : 'Väntar'}
+                    {isCompleted ? 'Completed' : isActive ? 'In progress...' : 'Waiting'}
                   </p>
                 </div>
               </div>
@@ -190,8 +190,8 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
 
         <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <p className="text-sm text-blue-700 text-center">
-            💡 Analysen inkluderar tekniska färdigheter, ledarskapsförmåga, kommunikationsstil, 
-            marknadsvärdering och karriärutvecklingsrekommendationer.
+            💡 The analysis includes technical skills, leadership abilities, communication style, 
+            market valuation and career development recommendations.
           </p>
         </div>
       </div>
