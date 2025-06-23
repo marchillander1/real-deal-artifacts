@@ -25,6 +25,17 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
+  const extractPersonalInfo = (cvAnalysis: any, detectedInfo: any) => {
+    const personalInfo = cvAnalysis?.personalInfo || {};
+    
+    return {
+      name: detectedInfo?.names?.[0] || personalInfo.name || 'Professional Consultant',
+      email: detectedInfo?.emails?.[0] || personalInfo.email || 'temp@example.com',
+      phone: detectedInfo?.phones?.[0] || personalInfo.phone || '',
+      location: personalInfo.location || 'Sweden'
+    };
+  };
+
   const processUpload = async () => {
     if (isProcessing) return;
     
@@ -46,7 +57,7 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
       onProgress?.(60);
 
       // Step 3: Extract personal info
-      const extractedPersonalInfo = this.extractPersonalInfo(cvAnalysis, detectedInfo);
+      const extractedPersonalInfo = extractPersonalInfo(cvAnalysis, detectedInfo);
 
       // Step 4: Create consultant profile
       const isMyConsultant = new URLSearchParams(window.location.search).get('source') === 'my-consultants';
@@ -109,17 +120,6 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  private extractPersonalInfo = (cvAnalysis: any, detectedInfo: any) => {
-    const personalInfo = cvAnalysis?.personalInfo || {};
-    
-    return {
-      name: detectedInfo?.names?.[0] || personalInfo.name || 'Professional Consultant',
-      email: detectedInfo?.emails?.[0] || personalInfo.email || 'temp@example.com',
-      phone: detectedInfo?.phones?.[0] || personalInfo.phone || '',
-      location: personalInfo.location || 'Sweden'
-    };
   };
 
   // Auto-start processing when component mounts
