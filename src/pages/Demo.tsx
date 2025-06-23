@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,9 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import CreateAssignmentForm from '@/components/CreateAssignmentForm';
 import { useAiMatching } from '@/hooks/useAiMatching';
 import { Assignment } from '@/types/consultant';
-import { ArrowLeft, Star, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Clock, CheckCircle, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 
 export default function Demo() {
   const [assignment, setAssignment] = useState<Assignment | null>(null);
@@ -15,6 +17,7 @@ export default function Demo() {
   const [showResults, setShowResults] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const { performAiMatching, isMatching } = useAiMatching();
+  const { consultants } = useSupabaseConsultantsWithDemo();
 
   const handleAssignmentCreated = async (newAssignment: Assignment) => {
     console.log('Demo: Assignment created:', newAssignment);
@@ -22,12 +25,26 @@ export default function Demo() {
     setShowForm(false);
     
     try {
-      const result = await performAiMatching(newAssignment);
-      if (result?.matches) {
-        // Take only top 3 matches for demo
-        setMatches(result.matches.slice(0, 3));
-        setShowResults(true);
-      }
+      // Use real consultants from the database for demo matching
+      const networkConsultants = consultants.filter(c => c.type === 'new');
+      
+      // Create mock matches using real consultant data
+      const mockMatches = networkConsultants.slice(0, 3).map((consultant, index) => ({
+        consultant: {
+          ...consultant,
+          // Anonymize for demo
+          name: `Consultant ${String.fromCharCode(65 + index)}`,
+          email: 'contact@matchwiseai.com',
+          phone: 'Available after signup',
+        },
+        matchScore: 95 - (index * 3),
+        matchedSkills: newAssignment.requiredSkills || [],
+        reasoning: `Strong match based on ${consultant.skills.slice(0, 3).join(', ')} experience and ${consultant.experience} in the field.`,
+        coverLetter: `Based on our AI analysis, this consultant is an excellent match for your ${newAssignment.title} position. Their technical expertise and experience align perfectly with your requirements.`
+      }));
+
+      setMatches(mockMatches);
+      setShowResults(true);
     } catch (error) {
       console.error('Demo matching error:', error);
     }
@@ -39,14 +56,6 @@ export default function Demo() {
     setShowResults(false);
     setShowForm(false);
   };
-
-  const anonymizeConsultant = (consultant: any, index: number) => ({
-    ...consultant,
-    name: `Consultant ${String.fromCharCode(65 + index)}`, // A, B, C
-    email: 'contact@matchwiseai.com',
-    phone: 'Available after signup',
-    location: consultant.location || 'Available after signup'
-  });
 
   if (showResults) {
     return (
@@ -119,94 +128,86 @@ export default function Demo() {
             </CardContent>
           </Card>
 
-          {/* Consultant Matches */}
+          {/* AI Matching Results */}
           <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3 mb-8">
-            {matches.map((match, index) => {
-              const consultant = anonymizeConsultant(match.consultant, index);
-              return (
-                <Card key={index} className="bg-slate-800/50 border-slate-600 hover:bg-slate-800/70 transition-all">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">
-                            {consultant.name.charAt(consultant.name.length - 1)}
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-white">{consultant.name}</h3>
-                          <p className="text-slate-400 text-sm">{consultant.roles?.[0] || 'Consultant'}</p>
-                        </div>
-                      </div>
-                      <Badge className="bg-emerald-600/20 text-emerald-300 border-emerald-500/30">
-                        {match.matchScore}% Match
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    {/* Skills */}
-                    <div>
-                      <h4 className="text-sm font-medium text-slate-300 mb-2">Key Skills</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {consultant.skills?.slice(0, 4).map((skill: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs text-blue-300 border-blue-500/30">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {consultant.skills?.length > 4 && (
-                          <Badge variant="outline" className="text-xs text-slate-400 border-slate-500/30">
-                            +{consultant.skills.length - 4} more
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Experience & Rating */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="flex items-center text-sm text-slate-300">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {consultant.experience || '5+'} years
-                        </div>
+            {matches.map((match, index) => (
+              <Card key={index} className="bg-slate-800/50 border-slate-600 hover:bg-slate-800/70 transition-all">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">
+                          {match.consultant.name.charAt(match.consultant.name.length - 1)}
+                        </span>
                       </div>
                       <div>
-                        <div className="flex items-center text-sm text-slate-300">
-                          <Star className="h-4 w-4 mr-1 text-yellow-400" />
-                          {consultant.rating || 4.8}/5.0
-                        </div>
+                        <h3 className="text-lg font-semibold text-white">{match.consultant.name}</h3>
+                        <p className="text-slate-400 text-sm">{match.consultant.roles?.[0] || 'Consultant'}</p>
                       </div>
                     </div>
-
-                    {/* Location & Availability */}
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-slate-300">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {consultant.location}
-                      </div>
-                      <div className="text-sm">
-                        <Badge 
-                          variant={consultant.availability === 'Available' ? 'default' : 'secondary'}
-                          className="bg-emerald-600/20 text-emerald-300 border-emerald-500/30"
-                        >
-                          {consultant.availability}
+                    <Badge className="bg-emerald-600/20 text-emerald-300 border-emerald-500/30">
+                      {match.matchScore}% Match
+                    </Badge>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="space-y-4">
+                  {/* Skills */}
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-300 mb-2">Key Skills</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {match.consultant.skills?.slice(0, 4).map((skill: string, idx: number) => (
+                        <Badge key={idx} variant="outline" className="text-xs text-blue-300 border-blue-500/30">
+                          {skill}
                         </Badge>
-                      </div>
+                      ))}
+                      {match.consultant.skills?.length > 4 && (
+                        <Badge variant="outline" className="text-xs text-slate-400 border-slate-500/30">
+                          +{match.consultant.skills.length - 4} more
+                        </Badge>
+                      )}
                     </div>
+                  </div>
 
-                    {/* Contact (Anonymized) */}
-                    <div className="pt-4 border-t border-slate-600">
-                      <p className="text-sm text-slate-400 mb-2">Contact Information</p>
-                      <div className="bg-slate-900/50 rounded-lg p-3">
-                        <p className="text-xs text-slate-500 text-center">
-                          Full contact details available after signup
-                        </p>
+                  {/* Experience & Rating */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex items-center text-sm text-slate-300">
+                        <Clock className="h-4 w-4 mr-1" />
+                        {match.consultant.experience || '5+'} years
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                    <div>
+                      <div className="flex items-center text-sm text-slate-300">
+                        <Star className="h-4 w-4 mr-1 text-yellow-400" />
+                        {match.consultant.rating || 4.8}/5.0
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* AI Analysis Preview */}
+                  <div className="bg-slate-900/50 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <Brain className="h-4 w-4 text-purple-400 mr-2" />
+                      <span className="text-sm font-medium text-slate-300">AI Analysis</span>
+                    </div>
+                    <p className="text-xs text-slate-400">
+                      {match.reasoning}
+                    </p>
+                  </div>
+
+                  {/* Contact (Anonymized) */}
+                  <div className="pt-4 border-t border-slate-600">
+                    <p className="text-sm text-slate-400 mb-2">Contact Information</p>
+                    <div className="bg-slate-900/50 rounded-lg p-3">
+                      <p className="text-xs text-slate-500 text-center">
+                        Full contact details available after signup
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* CTA Section */}

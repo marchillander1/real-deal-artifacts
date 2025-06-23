@@ -22,7 +22,7 @@ interface DashboardProps {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-// Demo assignments data
+// Demo assignments for the platform
 const demoAssignments: Assignment[] = [
   {
     id: 1,
