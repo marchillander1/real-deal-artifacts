@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Plus, Trash2, Building, Mail, UserCheck, Activity } from 'lucide-react';
+import { Users, Plus, Trash2, Building, Mail, UserCheck, Activity, Network } from 'lucide-react';
 import Logo from '@/components/Logo';
 
 interface CompanyStats {
@@ -28,9 +29,20 @@ interface UserData {
   role: string;
 }
 
+interface NetworkConsultant {
+  id: string;
+  name: string;
+  email: string;
+  skills: string[];
+  location: string;
+  created_at: string;
+  type: string;
+}
+
 const AdminPortal: React.FC = () => {
   const [companies, setCompanies] = useState<CompanyStats[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
+  const [networkConsultants, setNetworkConsultants] = useState<NetworkConsultant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -56,6 +68,17 @@ const AdminPortal: React.FC = () => {
       if (usersError) throw usersError;
 
       setUsers(usersData || []);
+
+      // Load network consultants
+      const { data: consultantsData, error: consultantsError } = await supabase
+        .from('consultants')
+        .select('id, name, email, skills, location, created_at, type')
+        .eq('type', 'new')
+        .order('created_at', { ascending: false });
+
+      if (consultantsError) throw consultantsError;
+
+      setNetworkConsultants(consultantsData || []);
 
       // Calculate company stats
       const companyMap = new Map<string, CompanyStats>();
@@ -158,6 +181,33 @@ const AdminPortal: React.FC = () => {
     }
   };
 
+  const handleDeleteNetworkConsultant = async (consultantId: string) => {
+    if (!confirm('Are you sure you want to delete this network consultant?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('consultants')
+        .delete()
+        .eq('id', consultantId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Network consultant deleted",
+        description: "The consultant has been removed from the network",
+      });
+
+      loadAdminData();
+    } catch (error) {
+      console.error('Error deleting consultant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete network consultant",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
@@ -245,7 +295,7 @@ const AdminPortal: React.FC = () => {
 
       <div className="container mx-auto px-4 py-8">
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -274,10 +324,22 @@ const AdminPortal: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
+                  <p className="text-sm font-medium text-slate-600">Network Consultants</p>
+                  <p className="text-2xl font-bold">{networkConsultants.length}</p>
+                </div>
+                <Network className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
                   <p className="text-sm font-medium text-slate-600">Active Users</p>
                   <p className="text-2xl font-bold">{companies.reduce((sum, c) => sum + c.activeUsers, 0)}</p>
                 </div>
-                <Activity className="h-8 w-8 text-purple-500" />
+                <Activity className="h-8 w-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
@@ -289,13 +351,13 @@ const AdminPortal: React.FC = () => {
                   <p className="text-sm font-medium text-slate-600">Platform Usage</p>
                   <p className="text-2xl font-bold">94%</p>
                 </div>
-                <UserCheck className="h-8 w-8 text-orange-500" />
+                <UserCheck className="h-8 w-8 text-teal-500" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Companies Overview */}
           <Card>
             <CardHeader>
@@ -364,6 +426,73 @@ const AdminPortal: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Network Consultants Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Network className="h-5 w-5" />
+              Network Consultants Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {networkConsultants.length === 0 ? (
+              <div className="text-center py-8">
+                <Network className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No network consultants found</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Skills</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="w-[100px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {networkConsultants.map((consultant) => (
+                    <TableRow key={consultant.id}>
+                      <TableCell className="font-medium">{consultant.name}</TableCell>
+                      <TableCell>{consultant.email}</TableCell>
+                      <TableCell>{consultant.location}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {consultant.skills.slice(0, 3).map((skill, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {consultant.skills.length > 3 && (
+                            <Badge variant="outline" className="text-xs text-gray-500">
+                              +{consultant.skills.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(consultant.created_at).toLocaleDateString('sv-SE')}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteNetworkConsultant(consultant.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
