@@ -25,66 +25,26 @@ serve(async (req) => {
 
     console.log('📄 Processing file:', file.name, 'Size:', file.size);
     
-    // Convert file to base64
+    // Convert file to base64 for AI analysis
     const fileBuffer = await file.arrayBuffer();
-    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+    const fileBytes = new Uint8Array(fileBuffer);
+    const fileBase64 = btoa(String.fromCharCode.apply(null, Array.from(fileBytes)));
     
-    // Simple text extraction for PDF
-    let extractedText = '';
-    
-    if (file.type === 'application/pdf') {
-      try {
-        const textBytes = new Uint8Array(fileBuffer);
-        const text = new TextDecoder('utf-8').decode(textBytes);
-        
-        // Extract readable text patterns - NO REGEX LOOPS
-        const cleanText = text.replace(/[^\w\s@.\-+()]/g, ' ');
-        extractedText = cleanText.substring(0, 5000);
-      } catch (error) {
-        console.log('PDF text extraction failed, will rely on AI analysis');
-      }
-    }
+    console.log('📝 File converted to base64, length:', fileBase64.length);
 
-    console.log('📝 Extracted text length:', extractedText.length);
-
-    // Simple pattern matching - NO LOOPS
-    const emailMatches = extractedText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
-    const phoneMatches = extractedText.match(/\+?[\d\s\-()]{8,15}/g) || [];
-    
-    // Technical skills - simple array check
-    const technicalTerms = [
-      'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue', 'Node.js', 'Python', 'Java', 'C#', 'PHP', 'SQL',
-      'HTML', 'CSS', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'Git', 'Agile', 'Scrum', 'REST', 'API',
-      'MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'Elasticsearch', 'Jenkins', 'CI/CD', 'DevOps'
-    ];
-
-    const detectedSkills = [];
-    const lowerText = extractedText.toLowerCase();
-    
-    for (const term of technicalTerms) {
-      if (lowerText.includes(term.toLowerCase())) {
-        detectedSkills.push(term);
-      }
-    }
-
-    console.log('🔍 Detected information:', {
-      emails: emailMatches.slice(0, 2),
-      phones: phoneMatches.slice(0, 2),
-      skills: detectedSkills.slice(0, 10)
-    });
-
-    // AI analysis with Groq
+    // Get Groq API key
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
     if (!groqApiKey) {
       throw new Error('GROQ_API_KEY not configured');
     }
 
+    // Create analysis prompt
     const analysisPrompt = `
 Du är en expert på CV-analys. Analysera detta CV och extrahera information enligt följande struktur.
 
 ${personalDescription ? `PERSONLIG BESKRIVNING: "${personalDescription}"` : ''}
 
-Ge svar i exakt denna JSON-struktur:
+Ge svar i exakt denna JSON-struktur (utan extra text):
 
 {
   "personalInfo": {
@@ -142,7 +102,7 @@ Ge svar i exakt denna JSON-struktur:
   }
 }
 
-CV-text: ${extractedText ? extractedText.substring(0, 4000) : 'No text extracted'}
+Analysera bifogad fil (base64): ${fileBase64.substring(0, 1000)}...
 `;
 
     console.log('🤖 Calling Groq AI for analysis...');
@@ -158,7 +118,7 @@ CV-text: ${extractedText ? extractedText.substring(0, 4000) : 'No text extracted
         messages: [
           {
             role: 'system',
-            content: 'Du är en expert på CV-analys och personalbedömning. Svara alltid med giltig JSON.'
+            content: 'Du är en expert på CV-analys. Svara alltid med giltig JSON utan extra text.'
           },
           {
             role: 'user',
@@ -184,7 +144,7 @@ CV-text: ${extractedText ? extractedText.substring(0, 4000) : 'No text extracted
       const content = groqData.choices[0].message.content;
       console.log('📋 Raw AI response length:', content.length);
       
-      // Clean and parse JSON
+      // Find JSON in response
       const jsonStart = content.indexOf('{');
       const jsonEnd = content.lastIndexOf('}') + 1;
       
@@ -197,12 +157,12 @@ CV-text: ${extractedText ? extractedText.substring(0, 4000) : 'No text extracted
     } catch (parseError) {
       console.error('❌ JSON parsing failed:', parseError);
       
-      // Fallback analysis
+      // Create fallback analysis
       analysis = {
         personalInfo: {
           name: "Professional Consultant",
-          email: emailMatches[0] || "temp@example.com",
-          phone: phoneMatches[0] || "",
+          email: "temp@example.com",
+          phone: "",
           location: "Sweden"
         },
         experience: {
@@ -211,7 +171,7 @@ CV-text: ${extractedText ? extractedText.substring(0, 4000) : 'No text extracted
           level: "Senior"
         },
         skills: {
-          technical: detectedSkills.slice(0, 10),
+          technical: ["JavaScript", "Python"],
           languages: ["JavaScript", "Python"],
           tools: ["Git", "Docker"]
         },
@@ -251,10 +211,11 @@ CV-text: ${extractedText ? extractedText.substring(0, 4000) : 'No text extracted
       };
     }
 
-    const finalDetectedInfo = {
+    // Extract basic info for response
+    const detectedInfo = {
       names: [analysis.personalInfo?.name || ''].filter(Boolean),
-      emails: emailMatches.length > 0 ? emailMatches : [analysis.personalInfo?.email || ''].filter(Boolean),
-      phones: phoneMatches.length > 0 ? phoneMatches : [analysis.personalInfo?.phone || ''].filter(Boolean),
+      emails: [analysis.personalInfo?.email || ''].filter(Boolean),
+      phones: [analysis.personalInfo?.phone || ''].filter(Boolean),
       locations: analysis.personalInfo?.location ? [analysis.personalInfo.location] : []
     };
 
@@ -263,11 +224,11 @@ CV-text: ${extractedText ? extractedText.substring(0, 4000) : 'No text extracted
     return new Response(JSON.stringify({
       success: true,
       analysis: analysis,
-      detectedInformation: finalDetectedInfo,
+      detectedInformation: detectedInfo,
       extractionStats: {
-        textLength: extractedText.length,
-        detectedNames: finalDetectedInfo.names.length,
-        detectedEmails: finalDetectedInfo.emails.length,
+        textLength: 0,
+        detectedNames: detectedInfo.names.length,
+        detectedEmails: detectedInfo.emails.length,
         detectedSkills: analysis.skills?.technical?.length || 0
       }
     }), {
