@@ -1,14 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { CVUploadStep } from '@/components/modern/CVUploadStep';
 import { AnalysisStep } from '@/components/modern/AnalysisStep';
 import { ConfirmStep } from '@/components/modern/ConfirmStep';
-import { BackgroundAnalysis } from '@/components/modern/BackgroundAnalysis';
+import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
 import { ModernNavbar } from '@/components/modern/ModernNavbar';
 import { TrustSection } from '@/components/modern/TrustSection';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface ExtractedData {
@@ -21,132 +19,36 @@ export interface ExtractedData {
 }
 
 const CVUploadModern: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<'upload' | 'analyzing' | 'confirm'>('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'analyzing' | 'complete'>('upload');
   const [file, setFile] = useState<File | null>(null);
   const [linkedinUrl, setLinkedinUrl] = useState('');
-  const [extractedData, setExtractedData] = useState<ExtractedData>({
-    name: '',
-    email: '',
-    phone: '',
-    skills: [],
-    experience_years: 0,
-    location: ''
-  });
-  const [analysisResults, setAnalysisResults] = useState<any>(null);
-  const [isAnalysisComplete, setIsAnalysisComplete] = useState(false);
-  const [consultantId, setConsultantId] = useState<string>('');
-  const [showChat, setShowChat] = useState(false);
-  
+  const [progress, setProgress] = useState(0);
+  const [consultant, setConsultant] = useState<any>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleFileUpload = (uploadedFile: File, linkedin: string) => {
-    console.log('📁 File uploaded:', uploadedFile.name, 'LinkedIn:', linkedin);
+    console.log('📁 Starting CV upload process for:', uploadedFile.name);
     setFile(uploadedFile);
     setLinkedinUrl(linkedin);
     setCurrentStep('analyzing');
+    setProgress(0);
   };
 
-  const handleAnalysisComplete = (results: any) => {
-    console.log('🎉 Analysis complete with enhanced results:', results);
-    setAnalysisResults(results);
-    setIsAnalysisComplete(true);
+  const handleUploadComplete = (createdConsultant: any) => {
+    console.log('✅ Upload completed for consultant:', createdConsultant.id);
+    setConsultant(createdConsultant);
+    setCurrentStep('complete');
     
-    // Get the consultant data and extracted personal info
-    const consultant = results.consultant;
-    const extractedPersonalInfo = results.extractedPersonalInfo;
-    const cvAnalysis = results.cvAnalysis;
-    
-    console.log('📊 Consultant data:', consultant);
-    console.log('📊 Extracted personal info:', extractedPersonalInfo);
-    console.log('📊 CV Analysis:', cvAnalysis);
-    
-    if (extractedPersonalInfo) {
-      // Use the already extracted and processed personal info
-      const enhancedData = {
-        name: extractedPersonalInfo.name || consultant?.name || '',
-        email: extractedPersonalInfo.email || consultant?.email || '',
-        phone: extractedPersonalInfo.phone || consultant?.phone || '',
-        skills: consultant?.skills || cvAnalysis?.primary_tech_stack || [],
-        experience_years: consultant?.experience_years || cvAnalysis?.years_of_experience || 0,
-        location: extractedPersonalInfo.location || consultant?.location || 'Sweden'
-      };
-      
-      console.log('✅ Setting enhanced extracted data:', enhancedData);
-      setExtractedData(enhancedData);
-      
-      // Show success toast with name if available
-      if (enhancedData.name) {
-        toast({
-          title: "Personal information extracted! ✅",
-          description: `Name: ${enhancedData.name}${enhancedData.email ? `, Email: ${enhancedData.email}` : ''}`,
-        });
-      }
-    } else {
-      console.warn('⚠️ No extracted personal info found in results');
-    }
-    
-    setConsultantId(results.consultant?.id || '');
-    setCurrentStep('confirm');
+    toast({
+      title: "Success! 🎉",
+      description: `Profile created for ${createdConsultant.name}. Redirecting to analysis...`,
+    });
   };
 
-  const handleConfirm = () => {
-    // Navigate to analysis page with consultant ID
-    navigate(`/analysis?id=${consultantId}`);
-  };
-
-  const updateExtractedData = async (field: keyof ExtractedData, value: any) => {
-    console.log('🔄 Updating extracted data:', field, value);
-    
-    // Update local state
-    setExtractedData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    // Also update in database if consultant exists
-    if (consultantId) {
-      try {
-        console.log('💾 Updating consultant in database:', consultantId, field, value);
-        
-        const updateData: any = {};
-        
-        // Map the field to the correct database column
-        switch (field) {
-          case 'name':
-            updateData.name = value;
-            break;
-          case 'email':
-            updateData.email = value;
-            break;
-          case 'phone':
-            updateData.phone = value;
-            break;
-          case 'location':
-            updateData.location = value;
-            break;
-          case 'skills':
-            updateData.skills = value;
-            break;
-          case 'experience_years':
-            updateData.experience_years = value;
-            break;
-        }
-
-        const { error } = await supabase
-          .from('consultants')
-          .update(updateData)
-          .eq('id', consultantId);
-
-        if (error) {
-          console.error('❌ Error updating consultant:', error);
-        } else {
-          console.log('✅ Consultant updated successfully in database');
-        }
-      } catch (error) {
-        console.error('❌ Failed to update consultant in database:', error);
-      }
-    }
+  const handleUploadError = (error: string) => {
+    console.error('❌ Upload failed:', error);
+    setCurrentStep('upload');
+    setProgress(0);
   };
 
   return (
@@ -172,6 +74,7 @@ const CVUploadModern: React.FC = () => {
             {/* Main Content */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+                
                 {currentStep === 'upload' && (
                   <CVUploadStep onFileUpload={handleFileUpload} />
                 )}
@@ -180,29 +83,49 @@ const CVUploadModern: React.FC = () => {
                   <AnalysisStep 
                     file={file!}
                     linkedinUrl={linkedinUrl}
-                    onAnalysisComplete={handleAnalysisComplete}
+                    progress={progress}
                   />
                 )}
                 
-                {currentStep === 'confirm' && (
-                  <ConfirmStep
-                    extractedData={extractedData}
-                    onUpdateData={updateExtractedData}
-                    onConfirm={handleConfirm}
-                    consultantId={consultantId}
-                  />
+                {currentStep === 'complete' && consultant && (
+                  <div className="p-8 text-center">
+                    <div className="mb-6">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-2xl">🎉</span>
+                      </div>
+                      <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                        Profile Created Successfully!
+                      </h2>
+                      <p className="text-slate-600">
+                        Welcome to MatchWise Network, {consultant.name}!
+                      </p>
+                    </div>
+                    
+                    <div className="bg-slate-50 rounded-xl p-6 mb-6">
+                      <h3 className="font-semibold text-slate-900 mb-3">What's Next?</h3>
+                      <ul className="text-sm text-slate-600 space-y-2">
+                        <li>✅ Check your email for welcome instructions</li>
+                        <li>✅ Your profile is now live in our network</li>
+                        <li>✅ You'll be matched with relevant opportunities</li>
+                        <li>✅ Access your profile anytime at my-profile</li>
+                      </ul>
+                    </div>
+                    
+                    <p className="text-sm text-slate-500">
+                      Redirecting to your analysis page...
+                    </p>
+                  </div>
                 )}
               </div>
 
-              {/* Trust Section */}
               <TrustSection />
             </div>
 
-            {/* AI Chat Sidebar - Always visible */}
+            {/* AI Chat Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-8">
                 <MatchWiseChat 
-                  analysisResults={analysisResults}
+                  analysisResults={consultant}
                   isMinimized={false}
                   showWelcome={currentStep === 'upload'}
                 />
@@ -212,12 +135,14 @@ const CVUploadModern: React.FC = () => {
         </div>
       </div>
       
-      {/* Background Analysis Component */}
+      {/* Background Processing */}
       {currentStep === 'analyzing' && file && (
-        <BackgroundAnalysis
+        <CVUploadFlow
           file={file}
           linkedinUrl={linkedinUrl}
-          onComplete={handleAnalysisComplete}
+          onProgress={setProgress}
+          onComplete={handleUploadComplete}
+          onError={handleUploadError}
         />
       )}
     </div>

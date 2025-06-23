@@ -1,0 +1,131 @@
+
+import React, { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { CVParser } from './CVParser';
+import { LinkedInAnalyzer } from './LinkedInAnalyzer';
+import { ConsultantService } from '../database/ConsultantService';
+import { EmailService } from '../email/EmailService';
+import { NavigationService } from '../routing/NavigationService';
+
+interface CVUploadFlowProps {
+  file: File;
+  linkedinUrl: string;
+  onProgress?: (progress: number) => void;
+  onComplete?: (consultant: any) => void;
+  onError?: (error: string) => void;
+}
+
+export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
+  file,
+  linkedinUrl,
+  onProgress,
+  onComplete,
+  onError
+}) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
+
+  const processUpload = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    onProgress?.(10);
+
+    try {
+      console.log('🚀 Starting CV upload flow for:', file.name);
+
+      // Step 1: Parse CV
+      const { analysis: cvAnalysis, detectedInfo } = await CVParser.parseCV(file);
+      onProgress?.(40);
+
+      // Step 2: Analyze LinkedIn (optional)
+      let linkedinData = null;
+      if (linkedinUrl && linkedinUrl.includes('linkedin.com')) {
+        linkedinData = await LinkedInAnalyzer.analyzeLinkedIn(linkedinUrl);
+      }
+      onProgress?.(60);
+
+      // Step 3: Extract personal info
+      const extractedPersonalInfo = this.extractPersonalInfo(cvAnalysis, detectedInfo);
+
+      // Step 4: Create consultant profile
+      const isMyConsultant = new URLSearchParams(window.location.search).get('source') === 'my-consultants';
+      
+      const consultant = await ConsultantService.createConsultant({
+        cvAnalysis,
+        linkedinData,
+        extractedPersonalInfo,
+        file,
+        linkedinUrl,
+        isMyConsultant
+      });
+      onProgress?.(80);
+
+      // Step 5: Send welcome email
+      try {
+        await EmailService.sendWelcomeEmail({
+          consultantId: consultant.id,
+          email: extractedPersonalInfo.email,
+          name: extractedPersonalInfo.name,
+          isMyConsultant
+        });
+
+        await EmailService.sendAdminNotification({
+          name: extractedPersonalInfo.name,
+          email: extractedPersonalInfo.email,
+          isMyConsultant
+        });
+
+        toast({
+          title: "Profile created successfully! 🎉",
+          description: `Welcome email sent to ${extractedPersonalInfo.email}`,
+        });
+      } catch (emailError) {
+        console.warn('⚠️ Email sending failed:', emailError);
+        toast({
+          title: "Profile created! ✅",
+          description: "Profile created successfully, but email notification failed",
+        });
+      }
+
+      onProgress?.(100);
+      onComplete?.(consultant);
+
+      // Navigate to analysis page after short delay
+      setTimeout(() => {
+        NavigationService.redirectToAnalysis(consultant.id);
+      }, 2000);
+
+    } catch (error: any) {
+      console.error('❌ CV upload flow failed:', error);
+      const errorMessage = error.message || 'Upload failed. Please try again.';
+      onError?.(errorMessage);
+      
+      toast({
+        title: "Upload failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  private extractPersonalInfo = (cvAnalysis: any, detectedInfo: any) => {
+    const personalInfo = cvAnalysis?.personalInfo || {};
+    
+    return {
+      name: detectedInfo?.names?.[0] || personalInfo.name || 'Professional Consultant',
+      email: detectedInfo?.emails?.[0] || personalInfo.email || 'temp@example.com',
+      phone: detectedInfo?.phones?.[0] || personalInfo.phone || '',
+      location: personalInfo.location || 'Sweden'
+    };
+  };
+
+  // Auto-start processing when component mounts
+  React.useEffect(() => {
+    processUpload();
+  }, [file, linkedinUrl]);
+
+  return null; // This component only handles background processing
+};
