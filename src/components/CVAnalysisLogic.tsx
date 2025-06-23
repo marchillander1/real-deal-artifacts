@@ -154,7 +154,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         
       const extractedLocation = personalInfo.location !== 'Ej specificerat' ? personalInfo.location : '';
       
-      console.log('🎯 Extracted values:', {
+      console.log('🎯 Extracted values for consultant creation:', {
         extractedName,
         extractedEmail,
         extractedPhone,
@@ -254,21 +254,39 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('✅ Consultant created successfully:', insertedConsultant.id);
       onAnalysisProgress(90);
 
-      // Skicka e-post
-      console.log('📧 Sending welcome emails');
+      // 🔥 VIKTIGT: Skicka välkomstmail INNAN vi slutför analysen
+      console.log('📧 🚨 SENDING WELCOME EMAILS NOW - BEFORE COMPLETING ANALYSIS');
+      console.log('📧 🎯 Email will be sent to:', extractedEmail);
+      console.log('📧 📝 Consultant name for email:', extractedName);
+      
       try {
-        await EmailNotificationHandler.sendWelcomeEmails({
+        const emailResult = await EmailNotificationHandler.sendWelcomeEmails({
           consultantId: insertedConsultant.id,
-          finalEmail: extractedEmail,
-          finalName: extractedName,
+          finalEmail: extractedEmail, // 🔥 Använd extracted email 
+          finalName: extractedName,   // 🔥 Använd extracted name
           isMyConsultant: isMyConsultant,
           toast: toast
         });
-        console.log('✅ Welcome emails sent');
+        
+        if (emailResult.success) {
+          console.log('✅ 📧 Welcome emails sent successfully!');
+          toast({
+            title: "Välkomstmail skickat! ✅",
+            description: `Mail skickat till ${extractedEmail}`,
+            variant: "default",
+          });
+        } else {
+          console.error('❌ 📧 Welcome email failed:', emailResult.error);
+          toast({
+            title: "Registrering lyckades",
+            description: "Profil skapad men välkomstmail misslyckades",
+            variant: "default",
+          });
+        }
       } catch (emailError) {
-        console.error('❌ Email sending failed:', emailError);
+        console.error('❌ Email sending failed with exception:', emailError);
         toast({
-          title: "Registrering lyckades",
+          title: "Registrering lyckades", 
           description: "Profil skapad men e-postnotifiering misslyckades",
           variant: "default",
         });
