@@ -53,7 +53,6 @@ export default function Footer() {
                   About Us
                 </button>
               </li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Careers</a></li>
               <li>
                 <button 
                   onClick={() => scrollToSection('contact')}
@@ -67,9 +66,9 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Privacy</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Terms</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">GDPR</a></li>
+              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Terms of Service</a></li>
+              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">GDPR Compliance</a></li>
             </ul>
           </div>
         </div>

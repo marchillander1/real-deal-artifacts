@@ -6,6 +6,7 @@ import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import ComparisonSection from '@/components/landing/ComparisonSection';
 import PricingSection from '@/components/landing/PricingSection';
 import CTASection from '@/components/landing/CTASection';
+import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
 
@@ -20,6 +21,7 @@ const Landing = () => {
       <ComparisonSection />
       <PricingSection />
       <CTASection />
+      <ContactSection />
       <Footer />
     </div>
   );
