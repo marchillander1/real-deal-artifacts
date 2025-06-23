@@ -6,7 +6,6 @@ import { useToast } from '@/hooks/use-toast';
 import { CVParser } from '../cv-analysis/CVParser';
 import { LinkedInAnalyzer } from '../cv-analysis/LinkedInAnalyzer';
 import { ConsultantService } from '../database/ConsultantService';
-import { EmailService } from '../email/EmailService';
 
 interface CVAnalysisStepProps {
   file: File;
@@ -29,11 +28,11 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
   const { toast } = useToast();
 
   const steps = [
-    { icon: FileText, label: 'Analyzing CV with Gemini AI', key: 'cv' },
-    { icon: Linkedin, label: 'Analyzing LinkedIn profile', key: 'linkedin' },
-    { icon: Brain, label: 'Processing soft and hard skills', key: 'processing' },
+    { icon: FileText, label: 'Analyzing CV with AI', key: 'cv' },
+    { icon: Linkedin, label: 'Processing LinkedIn profile', key: 'linkedin' },
+    { icon: Brain, label: 'Extracting skills and experience', key: 'processing' },
     { icon: Database, label: 'Creating consultant profile', key: 'database' },
-    { icon: Mail, label: 'Preparing welcome email', key: 'email' }
+    { icon: Mail, label: 'Finalizing analysis', key: 'email' }
   ];
 
   useEffect(() => {
@@ -43,9 +42,9 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
   const performAnalysis = async () => {
     try {
       setProgress(10);
-      setCurrentStep('Analyzing CV with Gemini AI...');
+      setCurrentStep('Analyzing CV with AI...');
 
-      // Step 1: Parse CV with personal description
+      // Step 1: Enhanced CV parsing with personal description
       const { analysis: cvAnalysis, detectedInfo } = await CVParser.parseCV(
         file, 
         personalDescription
@@ -54,7 +53,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
       setProgress(30);
 
       // Step 2: LinkedIn analysis (if provided)
-      setCurrentStep('Analyzing LinkedIn profile...');
+      setCurrentStep('Processing LinkedIn profile...');
       let linkedinData = null;
       if (linkedinUrl && linkedinUrl.includes('linkedin.com')) {
         linkedinData = await LinkedInAnalyzer.analyzeLinkedIn(linkedinUrl);
@@ -62,13 +61,13 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
       setCompletedSteps(prev => [...prev, 'linkedin']);
       setProgress(50);
 
-      // Step 3: Process and extract personal info
-      setCurrentStep('Processing soft and hard skills...');
-      const extractedPersonalInfo = extractPersonalInfo(cvAnalysis, detectedInfo);
+      // Step 3: Process and extract enhanced personal info
+      setCurrentStep('Extracting skills and experience...');
+      const extractedPersonalInfo = extractEnhancedPersonalInfo(cvAnalysis, detectedInfo, personalDescription);
       setCompletedSteps(prev => [...prev, 'processing']);
       setProgress(70);
 
-      // Step 4: Create consultant profile
+      // Step 4: Create comprehensive consultant profile
       setCurrentStep('Creating consultant profile...');
       const consultant = await ConsultantService.createConsultant({
         cvAnalysis,
@@ -77,17 +76,17 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
         personalDescription,
         file,
         linkedinUrl,
-        isMyConsultant: false // This will be a network consultant
+        isMyConsultant: false
       });
       setCompletedSteps(prev => [...prev, 'database']);
       setProgress(90);
 
-      // Step 5: Prepare email data
-      setCurrentStep('Preparing welcome email...');
+      // Step 5: Finalize
+      setCurrentStep('Finalizing analysis...');
       setCompletedSteps(prev => [...prev, 'email']);
       setProgress(100);
 
-      // Complete analysis
+      // Complete analysis with enhanced results
       setTimeout(() => {
         onComplete({
           consultant,
@@ -98,7 +97,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
       }, 1000);
 
     } catch (error: any) {
-      console.error('❌ Analysis failed:', error);
+      console.error('❌ Enhanced analysis failed:', error);
       onError(error.message || 'Analysis failed');
       toast({
         title: "Analysis failed",
@@ -108,14 +107,21 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
     }
   };
 
-  const extractPersonalInfo = (cvAnalysis: any, detectedInfo: any) => {
+  const extractEnhancedPersonalInfo = (cvAnalysis: any, detectedInfo: any, personalDescription: string) => {
     const personalInfo = cvAnalysis?.personalInfo || {};
     
+    // Enhanced extraction with personal description context
+    const extractedName = detectedInfo?.names?.[0] || personalInfo.name || 'Professional Consultant';
+    const extractedEmail = detectedInfo?.emails?.[0] || personalInfo.email || 'temp@example.com';
+    const extractedPhone = detectedInfo?.phones?.[0] || personalInfo.phone || '';
+    const extractedLocation = personalInfo.location || 'Sweden';
+    
     return {
-      name: detectedInfo?.names?.[0] || personalInfo.name || 'Professional Consultant',
-      email: detectedInfo?.emails?.[0] || personalInfo.email || 'temp@example.com',
-      phone: detectedInfo?.phones?.[0] || personalInfo.phone || '',
-      location: personalInfo.location || 'Sweden'
+      name: extractedName,
+      email: extractedEmail,
+      phone: extractedPhone,
+      location: extractedLocation,
+      personalDescription: personalDescription
     };
   };
 
@@ -128,7 +134,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
             AI is Analyzing Your Profile
           </h2>
           <p className="text-lg text-slate-600">
-            Our advanced AI system analyzes both soft and hard skills to provide you with deep career insights.
+            Our advanced AI system analyzes your CV, LinkedIn profile, and personal description to provide comprehensive career insights.
           </p>
         </div>
 
@@ -190,8 +196,7 @@ export const CVAnalysisStep: React.FC<CVAnalysisStepProps> = ({
 
         <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <p className="text-sm text-blue-700 text-center">
-            💡 The analysis includes technical skills, leadership abilities, communication style, 
-            market valuation and career development recommendations.
+            💡 The analysis includes technical skills, soft skills, experience level, market positioning, and personalized career recommendations based on your profile.
           </p>
         </div>
       </div>
