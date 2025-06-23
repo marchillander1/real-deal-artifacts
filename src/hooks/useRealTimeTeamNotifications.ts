@@ -7,9 +7,12 @@ export const useRealTimeTeamNotifications = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Create a unique channel name to avoid conflicts
+    const channelName = `team-notifications-${Date.now()}`;
+    
     // Subscribe to consultant changes for team notifications
     const consultantsChannel = supabase
-      .channel('team-consultant-notifications')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -63,9 +66,10 @@ export const useRealTimeTeamNotifications = () => {
       )
       .subscribe();
 
-    // Subscribe to assignment changes
+    // Subscribe to assignment changes with different channel
+    const assignmentChannelName = `assignments-notifications-${Date.now()}`;
     const assignmentsChannel = supabase
-      .channel('team-assignment-notifications')
+      .channel(assignmentChannelName)
       .on(
         'postgres_changes',
         {

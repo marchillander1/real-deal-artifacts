@@ -20,9 +20,14 @@ export const useRealTimeNotifications = () => {
   useEffect(() => {
     console.log('🔔 Setting up real-time notifications...');
 
+    // Create unique channel names to avoid conflicts
+    const assignmentChannelName = `notifications-assignments-${Date.now()}`;
+    const consultantChannelName = `notifications-consultants-${Date.now()}`;
+    const skillAlertChannelName = `notifications-skill-alerts-${Date.now()}`;
+
     // Listen to new assignments
     const assignmentsChannel = supabase
-      .channel('assignments-changes')
+      .channel(assignmentChannelName)
       .on(
         'postgres_changes',
         {
@@ -56,7 +61,7 @@ export const useRealTimeNotifications = () => {
 
     // Listen to new consultants
     const consultantsChannel = supabase
-      .channel('consultants-changes')
+      .channel(consultantChannelName)
       .on(
         'postgres_changes',
         {
@@ -90,7 +95,7 @@ export const useRealTimeNotifications = () => {
 
     // Listen to skill alerts matches
     const skillAlertsChannel = supabase
-      .channel('skill-alert-matches')
+      .channel(skillAlertChannelName)
       .on(
         'postgres_changes',
         {

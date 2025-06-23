@@ -83,6 +83,39 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     };
   };
 
+  const sendWelcomeEmail = async (consultant: any, personalInfo: any, isMyConsultant: boolean) => {
+    try {
+      const emailResult = await EmailNotificationHandler.sendWelcomeEmails({
+        consultantId: consultant.id,
+        finalEmail: personalInfo.email,
+        finalName: personalInfo.name,
+        isMyConsultant: isMyConsultant,
+        toast: toast
+      });
+      
+      if (emailResult.success) {
+        toast({
+          title: "Välkomstmail skickat! ✅",
+          description: `Mail skickat till ${personalInfo.email}`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Registrering lyckades",
+          description: "Profil skapad men välkomstmail misslyckades",
+          variant: "default",
+        });
+      }
+    } catch (emailError) {
+      console.error('❌ Email sending failed:', emailError);
+      toast({
+        title: "Registrering lyckades", 
+        description: "Profil skapad men e-postnotifiering misslyckades",
+        variant: "default",
+      });
+    }
+  };
+
   const handleAnalysis = async () => {
     if (!file) {
       onError('Ingen fil vald');
@@ -126,7 +159,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisProgress(90);
 
       // Skicka välkomstmail
-      await this.sendWelcomeEmail(insertedConsultant, extractedPersonalInfo, isMyConsultant);
+      await sendWelcomeEmail(insertedConsultant, extractedPersonalInfo, isMyConsultant);
 
       onAnalysisProgress(100);
 
@@ -158,39 +191,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       setIsAnalyzing(false);
     }
   };
-
-  private async sendWelcomeEmail(consultant: any, personalInfo: any, isMyConsultant: boolean) {
-    try {
-      const emailResult = await EmailNotificationHandler.sendWelcomeEmails({
-        consultantId: consultant.id,
-        finalEmail: personalInfo.email,
-        finalName: personalInfo.name,
-        isMyConsultant: isMyConsultant,
-        toast: toast
-      });
-      
-      if (emailResult.success) {
-        toast({
-          title: "Välkomstmail skickat! ✅",
-          description: `Mail skickat till ${personalInfo.email}`,
-          variant: "default",
-        });
-      } else {
-        toast({
-          title: "Registrering lyckades",
-          description: "Profil skapad men välkomstmail misslyckades",
-          variant: "default",
-        });
-      }
-    } catch (emailError) {
-      console.error('❌ Email sending failed:', emailError);
-      toast({
-        title: "Registrering lyckades", 
-        description: "Profil skapad men e-postnotifiering misslyckades",
-        variant: "default",
-      });
-    }
-  }
 
   return null;
 };
