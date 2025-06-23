@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Check, ArrowRight, Users, Zap, Shield, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
-import { PricingAuth } from '@/components/PricingAuth';
 
 interface PricingPlan {
   name: string;
@@ -106,11 +106,9 @@ const Pricing = () => {
                     Current Plan <Check className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
-                  <PricingAuth>
-                    <Button onClick={() => setActivePlan(plan.name)}>
-                      Choose Plan <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </PricingAuth>
+                  <Button onClick={() => setActivePlan(plan.name)}>
+                    Choose Plan <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 )}
               </CardContent>
             </Card>

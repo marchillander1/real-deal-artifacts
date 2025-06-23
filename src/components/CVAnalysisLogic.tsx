@@ -142,7 +142,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       console.log('🚀 Starting enhanced CV analysis workflow with personal description');
 
       // Steg 1: Enhanced CV-analys med personal description
-      const { analysis: cvAnalysisData, detectedInfo } = await CVParser.parseCV(file, personalDescription);
+      const { analysis: cvAnalysisData, detectedInfo } = await CVParser.parseCV(file);
       onAnalysisProgress(50);
 
       console.log('📊 CV analysis completed with personal description:', {
@@ -169,7 +169,6 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         extractedPersonalInfo,
         file,
         linkedinUrl,
-        personalDescription,
         isMyConsultant
       });
 

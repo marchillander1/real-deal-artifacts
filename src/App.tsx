@@ -71,7 +71,11 @@ function App() {
       hourlyRate: 800,
       status: "Open",
       matchedConsultants: 0,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      remote: true,
+      teamSize: "5-10",
+      teamCulture: "Collaborative",
+      industry: "Technology"
     },
     { 
       id: 2, 
@@ -88,7 +92,11 @@ function App() {
       hourlyRate: 750,
       status: "Open",
       matchedConsultants: 0,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      remote: false,
+      teamSize: "3-5",
+      teamCulture: "Agile",
+      industry: "Software"
     }
   ];
 
