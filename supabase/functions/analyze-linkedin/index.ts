@@ -14,22 +14,151 @@ serve(async (req) => {
 
   try {
     const { linkedinUrl, includeRecentPosts = true, includeBioSummary = true, postLimit = 30 } = await req.json();
-    console.log('🔗 Analyzing LinkedIn profile comprehensively with 30 posts + bio:', linkedinUrl);
+    console.log('🔗 Analyzing LinkedIn profile with PhantomBuster + GROQ:', linkedinUrl);
 
     if (!linkedinUrl || !linkedinUrl.includes('linkedin.com')) {
       throw new Error('Invalid LinkedIn URL provided');
     }
 
-    const profileId = linkedinUrl.split('/in/').pop()?.split('/')[0] || 'unknown';
-    
+    const phantomBusterApiKey = Deno.env.get('PHANTOMBUSTER_API_KEY');
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
+    
     if (!groqApiKey) {
       throw new Error('GROQ API key not configured');
     }
 
-    const prompt = `Analyze this LinkedIn profile URL comprehensively with DEEP focus on recent posts and bio: ${linkedinUrl}
+    let linkedinData = null;
+    let dataSource = 'fallback';
 
-ENHANCED COMPREHENSIVE ANALYSIS REQUIREMENTS (30 Posts + Bio Analysis):
+    // Try PhantomBuster first if API key is available
+    if (phantomBusterApiKey) {
+      try {
+        console.log('🤖 Attempting PhantomBuster extraction...');
+        linkedinData = await extractWithPhantomBuster(linkedinUrl, phantomBusterApiKey);
+        dataSource = 'phantombuster';
+        console.log('✅ PhantomBuster extraction successful');
+      } catch (phantomError) {
+        console.warn('⚠️ PhantomBuster failed, falling back to GROQ simulation:', phantomError.message);
+      }
+    } else {
+      console.log('🔄 No PhantomBuster API key, using GROQ simulation');
+    }
+
+    // Analyze with GROQ using real or simulated data
+    const analysis = await analyzeWithGroq(linkedinUrl, linkedinData, groqApiKey, dataSource);
+
+    console.log('✅ LinkedIn analysis completed with source:', dataSource);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        analysis: analysis,
+        profileUrl: linkedinUrl,
+        analysisType: 'enhanced-comprehensive-30posts-bio',
+        dataSource: dataSource,
+        includesRecentPosts: includeRecentPosts,
+        includesBioAnalysis: includeBioSummary,
+        postAnalysisCount: 30
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+
+  } catch (error) {
+    console.error('❌ LinkedIn analysis error:', error);
+    
+    const fallbackAnalysis = createEnhancedFallbackAnalysis();
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        analysis: fallbackAnalysis,
+        fallback: true,
+        error: error.message,
+        analysisType: 'enhanced-comprehensive-fallback',
+        dataSource: 'fallback'
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+});
+
+async function extractWithPhantomBuster(linkedinUrl: string, apiKey: string) {
+  console.log('🚀 Starting PhantomBuster LinkedIn extraction');
+  
+  // Launch LinkedIn Profile Scraper phantom
+  const launchResponse = await fetch('https://api.phantombuster.com/api/v2/agents/launch', {
+    method: 'POST',
+    headers: {
+      'X-Phantombuster-Key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      id: 'linkedin-profile-scraper', // This is a common PhantomBuster phantom
+      argument: {
+        profileUrls: [linkedinUrl],
+        numberOfPostsToRetrieve: 30,
+        extractBio: true,
+        extractPosts: true,
+        extractConnections: false
+      }
+    })
+  });
+
+  if (!launchResponse.ok) {
+    throw new Error(`PhantomBuster launch failed: ${launchResponse.status}`);
+  }
+
+  const launchData = await launchResponse.json();
+  const containerId = launchData.data.containerId;
+  
+  console.log('🔄 PhantomBuster job launched, waiting for completion:', containerId);
+
+  // Poll for completion
+  let attempts = 0;
+  const maxAttempts = 30; // 5 minutes max
+  
+  while (attempts < maxAttempts) {
+    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+    
+    const statusResponse = await fetch(`https://api.phantombuster.com/api/v2/agents/output?id=${containerId}`, {
+      headers: {
+        'X-Phantombuster-Key': apiKey,
+      }
+    });
+    
+    if (statusResponse.ok) {
+      const statusData = await statusResponse.json();
+      
+      if (statusData.data.status === 'finished') {
+        console.log('✅ PhantomBuster extraction completed');
+        return statusData.data.resultObject;
+      } else if (statusData.data.status === 'error') {
+        throw new Error('PhantomBuster extraction failed');
+      }
+    }
+    
+    attempts++;
+  }
+  
+  throw new Error('PhantomBuster extraction timeout');
+}
+
+async function analyzeWithGroq(linkedinUrl: string, realData: any, groqApiKey: string, dataSource: string) {
+  const prompt = dataSource === 'phantombuster' 
+    ? `Analyze this REAL LinkedIn profile data comprehensively: ${JSON.stringify(realData)}
+
+REAL DATA ANALYSIS from PhantomBuster:
+- Profile URL: ${linkedinUrl}
+- Real profile information, posts, and engagement data provided above
+
+Provide comprehensive analysis based on this REAL data including recent posts, bio content, and professional activity.`
+    : `Analyze this LinkedIn profile URL comprehensively with DEEP focus on recent posts and bio: ${linkedinUrl}
+
+COMPREHENSIVE ANALYSIS REQUIREMENTS (Simulated 30 Posts + Bio Analysis):
 
 1. Profile Bio/Summary Deep Analysis:
    - Professional headline assessment and positioning strength
@@ -63,41 +192,11 @@ ENHANCED COMPREHENSIVE ANALYSIS REQUIREMENTS (30 Posts + Bio Analysis):
    - Client relationship management insights
    - Project delivery approach and methodology preferences
 
-4. Consultant Readiness & Market Positioning Analysis:
-   - Professional brand consistency across bio and posts
-   - Market positioning effectiveness and differentiation
-   - Client-facing readiness based on communication style
-   - Expertise demonstration through content quality
-   - Competitive advantages highlighted in bio and posts
-   - Niche specialization potential and focus areas
-   - Thought leadership establishment progress
-   - Professional network quality and industry connections
+Provide a realistic professional assessment. Focus on creating a comprehensive consultant profile that captures both technical expertise and soft skills.`;
 
-5. Team Fit & Cultural Assessment from Content:
-   - Work style preferences shown through posts
-   - Cultural adaptability indicators from diverse content
-   - Collaboration approach examples from shared projects
-   - Communication preferences demonstrated in posts
-   - Leadership compatibility and team dynamics awareness
-   - Conflict resolution approach from professional examples
-   - Mentorship capabilities shown through content
+  const analysisPrompt = `${prompt}
 
-6. Growth & Development Trajectory Analysis:
-   - Learning mindset evidence from educational posts
-   - Skill development trajectory over time
-   - Career progression patterns shown in bio
-   - Adaptability to new technologies from posts
-   - Industry trend awareness and future planning
-   - Continuous improvement examples and self-reflection
-
-7. Client & Project Compatibility Assessment:
-   - Startup vs enterprise culture fit indicators
-   - Project delivery style preferences from examples
-   - Client communication approach from posts
-   - Technical complexity handling from shared projects
-   - Business impact focus from case studies or examples
-
-Provide a realistic professional assessment as if you analyzed actual 30 recent posts, bio content, and professional activity. Focus on creating a comprehensive consultant profile that captures both technical expertise and soft skills. Return as JSON with these exact keys:
+Return as JSON with these exact keys:
 
 {
   "communicationStyle": "string describing detailed communication approach based on posts and bio content",
@@ -171,94 +270,60 @@ Provide a realistic professional assessment as if you analyzed actual 30 recent 
   "recommendedImprovements": ["improvement1", "improvement2", "improvement3"]
 }`;
 
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${groqApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama3-8b-8192',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a senior LinkedIn profile analyzer and consultant assessment specialist. You have deep expertise in analyzing professional content, social media presence, and consultant market positioning. Analyze profiles as if you have comprehensive access to the last 30 posts, complete bio/summary content, professional activity, and network interactions. Provide detailed, realistic assessments that would be valuable for both consultant development and client matching. Focus on creating actionable insights from content analysis. Always respond in English with detailed, professional assessments.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 4000,
-      }),
-    });
+  const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${groqApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama3-8b-8192',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a senior LinkedIn profile analyzer and consultant assessment specialist. You have deep expertise in analyzing professional content, social media presence, and consultant market positioning. ${dataSource === 'phantombuster' ? 'You are analyzing REAL LinkedIn data from PhantomBuster extraction.' : 'Analyze profiles as if you have comprehensive access to the last 30 posts, complete bio/summary content, professional activity, and network interactions.'} Provide detailed, realistic assessments that would be valuable for both consultant development and client matching. Focus on creating actionable insights from content analysis. Always respond in English with detailed, professional assessments.`
+        },
+        {
+          role: 'user',
+          content: analysisPrompt
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 4000,
+    }),
+  });
 
-    if (!groqResponse.ok) {
-      const errorText = await groqResponse.text();
-      console.error('❌ GROQ API error:', errorText);
-      throw new Error(`GROQ API request failed: ${groqResponse.status}`);
-    }
-
-    const groqData = await groqResponse.json();
-    console.log('✅ GROQ enhanced 30-post analysis response received:', groqData);
-
-    let analysis;
-    try {
-      const content = groqData.choices[0]?.message?.content;
-      if (!content) {
-        throw new Error('No content in GROQ response');
-      }
-
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('No JSON found in response');
-      }
-    } catch (parseError) {
-      console.warn('⚠️ Failed to parse GROQ response, using enhanced 30-post fallback:', parseError);
-      analysis = createEnhanced30PostFallbackAnalysis();
-    }
-
-    console.log('✅ Enhanced 30-post LinkedIn analysis completed:', analysis);
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        analysis: analysis,
-        profileUrl: linkedinUrl,
-        analysisType: 'enhanced-comprehensive-30posts-bio',
-        includesRecentPosts: includeRecentPosts,
-        includesBioAnalysis: includeBioSummary,
-        postAnalysisCount: 30
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
-
-  } catch (error) {
-    console.error('❌ LinkedIn enhanced 30-post analysis error:', error);
-    
-    const fallbackAnalysis = createEnhanced30PostFallbackAnalysis();
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        analysis: fallbackAnalysis,
-        fallback: true,
-        error: error.message,
-        analysisType: 'enhanced-comprehensive-30posts-bio-fallback'
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+  if (!groqResponse.ok) {
+    const errorText = await groqResponse.text();
+    console.error('❌ GROQ API error:', errorText);
+    throw new Error(`GROQ API request failed: ${groqResponse.status}`);
   }
-});
 
-function createEnhanced30PostFallbackAnalysis() {
+  const groqData = await groqResponse.json();
+  console.log(`✅ GROQ analysis response received (${dataSource}):`, groqData);
+
+  let analysis;
+  try {
+    const content = groqData.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No content in GROQ response');
+    }
+
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      analysis = JSON.parse(jsonMatch[0]);
+    } else {
+      throw new Error('No JSON found in response');
+    }
+  } catch (parseError) {
+    console.warn(`⚠️ Failed to parse GROQ response, using fallback:`, parseError);
+    analysis = createEnhancedFallbackAnalysis();
+  }
+
+  return analysis;
+}
+
+function createEnhancedFallbackAnalysis() {
   return {
     communicationStyle: 'Professional and structured communication with clear technical explanations, storytelling elements, and collaborative approach. Shows consistency across bio and posts with engaging, solution-focused messaging.',
     leadershipStyle: 'Collaborative leadership with focus on team development, technical mentorship, and inclusive decision-making. Demonstrates servant leadership through shared experiences and team success stories.',
