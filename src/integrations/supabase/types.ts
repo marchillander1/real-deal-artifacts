@@ -9,6 +9,93 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_analysis: {
+        Row: {
+          analysis_data: Json
+          analysis_timestamp: string
+          brand_themes: string[] | null
+          certification_recommendations: string[] | null
+          certifications: string[] | null
+          communication_style: string | null
+          created_at: string
+          cv_tips: string[] | null
+          id: string
+          industries: string[] | null
+          linkedin_engagement_level: string | null
+          linkedin_tips: string[] | null
+          personality_traits: string[] | null
+          suggested_learning_paths: string[] | null
+          tech_stack_primary: string[] | null
+          tech_stack_secondary: string[] | null
+          thought_leadership_score: number | null
+          tone_of_voice: string | null
+          top_values: string[] | null
+          upload_session_id: string | null
+          user_profile_id: string | null
+        }
+        Insert: {
+          analysis_data: Json
+          analysis_timestamp?: string
+          brand_themes?: string[] | null
+          certification_recommendations?: string[] | null
+          certifications?: string[] | null
+          communication_style?: string | null
+          created_at?: string
+          cv_tips?: string[] | null
+          id?: string
+          industries?: string[] | null
+          linkedin_engagement_level?: string | null
+          linkedin_tips?: string[] | null
+          personality_traits?: string[] | null
+          suggested_learning_paths?: string[] | null
+          tech_stack_primary?: string[] | null
+          tech_stack_secondary?: string[] | null
+          thought_leadership_score?: number | null
+          tone_of_voice?: string | null
+          top_values?: string[] | null
+          upload_session_id?: string | null
+          user_profile_id?: string | null
+        }
+        Update: {
+          analysis_data?: Json
+          analysis_timestamp?: string
+          brand_themes?: string[] | null
+          certification_recommendations?: string[] | null
+          certifications?: string[] | null
+          communication_style?: string | null
+          created_at?: string
+          cv_tips?: string[] | null
+          id?: string
+          industries?: string[] | null
+          linkedin_engagement_level?: string | null
+          linkedin_tips?: string[] | null
+          personality_traits?: string[] | null
+          suggested_learning_paths?: string[] | null
+          tech_stack_primary?: string[] | null
+          tech_stack_secondary?: string[] | null
+          thought_leadership_score?: number | null
+          tone_of_voice?: string | null
+          top_values?: string[] | null
+          upload_session_id?: string | null
+          user_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_analysis_upload_session_id_fkey"
+            columns: ["upload_session_id"]
+            isOneToOne: false
+            referencedRelation: "upload_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_analysis_user_profile_id_fkey"
+            columns: ["user_profile_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_sessions: {
         Row: {
           completed_at: string | null
@@ -343,6 +430,33 @@ export type Database = {
         }
         Relationships: []
       }
+      event_log: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          session_token: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          session_token?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          session_token?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           assignment_id: string | null
@@ -439,6 +553,48 @@ export type Database = {
         }
         Relationships: []
       }
+      published_profiles: {
+        Row: {
+          ai_analysis_id: string | null
+          id: string
+          is_active: boolean | null
+          published_at: string
+          user_profile_id: string | null
+          visibility_status: string | null
+        }
+        Insert: {
+          ai_analysis_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          published_at?: string
+          user_profile_id?: string | null
+          visibility_status?: string | null
+        }
+        Update: {
+          ai_analysis_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          published_at?: string
+          user_profile_id?: string | null
+          visibility_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "published_profiles_ai_analysis_id_fkey"
+            columns: ["ai_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "ai_analysis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "published_profiles_user_profile_id_fkey"
+            columns: ["user_profile_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skill_alerts: {
         Row: {
           active: boolean
@@ -466,6 +622,90 @@ export type Database = {
           skills?: string[]
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      upload_sessions: {
+        Row: {
+          created_at: string
+          cv_file_path: string | null
+          gdpr_consent: boolean
+          id: string
+          linkedin_url: string | null
+          personal_tagline: string | null
+          session_token: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cv_file_path?: string | null
+          gdpr_consent?: boolean
+          id?: string
+          linkedin_url?: string | null
+          personal_tagline?: string | null
+          session_token: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cv_file_path?: string | null
+          gdpr_consent?: boolean
+          id?: string
+          linkedin_url?: string | null
+          personal_tagline?: string | null
+          session_token?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          availability: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          personal_tagline: string | null
+          phone: string | null
+          rate_preference: number | null
+          title: string | null
+          updated_at: string
+          user_id: string | null
+          visibility_toggle: boolean | null
+          years_of_experience: number | null
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          personal_tagline?: string | null
+          phone?: string | null
+          rate_preference?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visibility_toggle?: boolean | null
+          years_of_experience?: number | null
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          personal_tagline?: string | null
+          phone?: string | null
+          rate_preference?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visibility_toggle?: boolean | null
+          years_of_experience?: number | null
         }
         Relationships: []
       }
