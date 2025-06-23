@@ -52,11 +52,11 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
                 <span>{cvAnalysis?.personalInfo?.location || consultant.location}</span>
               </div>
             )}
-            {(cvAnalysis?.personalInfo?.linkedinProfile || consultant.linkedinUrl) && (
+            {consultant.linkedinUrl && (
               <div className="flex items-center gap-2">
                 <Globe className="h-3 w-3 text-gray-500" />
                 <a 
-                  href={cvAnalysis?.personalInfo?.linkedinProfile || consultant.linkedinUrl} 
+                  href={consultant.linkedinUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
@@ -69,123 +69,54 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
         </div>
       )}
 
-      {/* Professional Summary */}
-      {cvAnalysis?.professionalSummary && (
+      {/* Experience Summary */}
+      {cvAnalysis?.experience && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
             <Users className="h-4 w-4 text-blue-500" />
-            Professionell sammanfattning
+            Erfarenhetssammanfattning
           </h5>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600">Senioritetsnivå:</span>
-              <p className="font-semibold text-blue-600">{cvAnalysis.professionalSummary.seniorityLevel}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Erfarenhet:</span>
-              <p className="font-semibold text-green-600">{cvAnalysis.professionalSummary.yearsOfExperience}</p>
-            </div>
-            {cvAnalysis.professionalSummary.currentRole && (
+            {cvAnalysis.experience.years && cvAnalysis.experience.years !== 'Ej specificerat' && (
               <div>
-                <span className="text-gray-600">Nuvarande roll:</span>
-                <p className="font-semibold">{cvAnalysis.professionalSummary.currentRole}</p>
+                <span className="text-gray-600">Erfarenhet:</span>
+                <p className="font-semibold text-green-600">{cvAnalysis.experience.years}</p>
               </div>
             )}
-            {cvAnalysis.professionalSummary.careerTrajectory && (
+            {cvAnalysis.experience.level && cvAnalysis.experience.level !== 'Ej specificerat' && (
               <div>
-                <span className="text-gray-600">Karriärutveckling:</span>
-                <p className="font-semibold text-green-600">{cvAnalysis.professionalSummary.careerTrajectory}</p>
+                <span className="text-gray-600">Senioritetsnivå:</span>
+                <p className="font-semibold text-blue-600">{cvAnalysis.experience.level}</p>
+              </div>
+            )}
+            {cvAnalysis.experience.currentRole && cvAnalysis.experience.currentRole !== 'Ej specificerat' && (
+              <div className="md:col-span-2">
+                <span className="text-gray-600">Nuvarande roll:</span>
+                <p className="font-semibold">{cvAnalysis.experience.currentRole}</p>
               </div>
             )}
           </div>
-          {cvAnalysis.professionalSummary.uniqueValueProposition && (
-            <div className="mt-3 p-3 bg-blue-50 rounded">
-              <p className="text-sm italic text-blue-800">{cvAnalysis.professionalSummary.uniqueValueProposition}</p>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Market Position & Hourly Rate */}
-      {cvAnalysis?.marketPositioning && (
+      {/* Market Rate Information */}
+      {(consultant.market_rate_current || consultant.market_rate_optimized) && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-green-500" />
             Marknadsposition & Timpris
           </h5>
-          <div className="space-y-3">
-            {cvAnalysis.marketPositioning.hourlyRateEstimate && (
-              <div className="bg-green-50 p-3 rounded border border-green-200">
-                <h6 className="font-semibold text-green-800 mb-2">Rekommenderat timpris</h6>
-                <div className="grid grid-cols-3 gap-3 text-sm">
-                  <div className="text-center">
-                    <p className="text-gray-600">Minimum</p>
-                    <p className="text-lg font-bold text-green-600">{cvAnalysis.marketPositioning.hourlyRateEstimate.min} SEK</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-gray-600">Rekommenderat</p>
-                    <p className="text-xl font-bold text-green-700">{cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} SEK</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-gray-600">Maximum</p>
-                    <p className="text-lg font-bold text-green-600">{cvAnalysis.marketPositioning.hourlyRateEstimate.max} SEK</p>
-                  </div>
-                </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            {consultant.market_rate_current && (
+              <div className="text-center p-3 bg-green-50 rounded border border-green-200">
+                <p className="text-gray-600">Nuvarande marknadspris</p>
+                <p className="text-lg font-bold text-green-600">{consultant.market_rate_current} SEK/h</p>
               </div>
             )}
-            
-            {cvAnalysis.marketPositioning.uniqueValueProposition && (
-              <div>
-                <span className="text-sm text-gray-600">Unik värdeproposition:</span>
-                <p className="text-sm font-medium">{cvAnalysis.marketPositioning.uniqueValueProposition}</p>
-              </div>
-            )}
-            
-            {cvAnalysis.marketPositioning.competitiveness && (
-              <div>
-                <span className="text-sm text-gray-600">Konkurrenskraft:</span>
-                <p className="text-sm font-semibold text-green-600">{cvAnalysis.marketPositioning.competitiveness}</p>
-              </div>
-            )}
-
-            {cvAnalysis.careerPotential?.currentLevel && (
-              <div>
-                <span className="text-sm text-gray-600">Nuvarande nivå:</span>
-                <p className="text-sm font-semibold text-blue-600">{cvAnalysis.careerPotential.currentLevel}</p>
-              </div>
-            )}
-
-            {cvAnalysis.careerPotential?.nextCareerSteps?.length > 0 && (
-              <div>
-                <span className="text-sm text-gray-600">Nästa karriärsteg:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {cvAnalysis.careerPotential.nextCareerSteps.slice(0, 3).map((step: string, idx: number) => (
-                    <Badge key={idx} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">{step}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {cvAnalysis.marketPositioning.salaryBenchmarks && (
-              <div className="grid grid-cols-3 gap-2 mt-3">
-                {cvAnalysis.marketPositioning.salaryBenchmarks.stockholm && (
-                  <div className="text-center p-2 bg-blue-50 rounded">
-                    <p className="text-xs text-gray-600">Stockholm</p>
-                    <p className="text-xs font-bold text-blue-600">{cvAnalysis.marketPositioning.salaryBenchmarks.stockholm}</p>
-                  </div>
-                )}
-                {cvAnalysis.marketPositioning.salaryBenchmarks.gothenburg && (
-                  <div className="text-center p-2 bg-green-50 rounded">
-                    <p className="text-xs text-gray-600">Göteborg</p>
-                    <p className="text-xs font-bold text-green-600">{cvAnalysis.marketPositioning.salaryBenchmarks.gothenburg}</p>
-                  </div>
-                )}
-                {cvAnalysis.marketPositioning.salaryBenchmarks.remote && (
-                  <div className="text-center p-2 bg-purple-50 rounded">
-                    <p className="text-xs text-gray-600">Remote</p>
-                    <p className="text-xs font-bold text-purple-600">{cvAnalysis.marketPositioning.salaryBenchmarks.remote}</p>
-                  </div>
-                )}
+            {consultant.market_rate_optimized && (
+              <div className="text-center p-3 bg-blue-50 rounded border border-blue-200">
+                <p className="text-gray-600">Optimerat pris</p>
+                <p className="text-lg font-bold text-blue-600">{consultant.market_rate_optimized} SEK/h</p>
               </div>
             )}
           </div>
@@ -193,79 +124,45 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
       )}
 
       {/* Technical Skills */}
-      {cvAnalysis?.technicalSkillsAnalysis && (
+      {cvAnalysis?.skills && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
             <Code className="h-4 w-4 text-purple-500" />
             Teknisk expertis
           </h5>
           <div className="space-y-4">
-            {cvAnalysis.technicalSkillsAnalysis.programmingLanguages && (
+            {cvAnalysis.skills.technical?.length > 0 && (
               <div>
-                <h6 className="font-medium text-gray-800 mb-2">Programmeringsspråk</h6>
-                <div className="space-y-2">
-                  {cvAnalysis.technicalSkillsAnalysis.programmingLanguages.expert?.length > 0 && (
-                    <div>
-                      <span className="text-xs font-medium text-green-700">Expert:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {cvAnalysis.technicalSkillsAnalysis.programmingLanguages.expert.map((skill: string, idx: number) => (
-                          <Badge key={idx} className="bg-green-100 text-green-800 text-xs border-green-200">{skill}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {cvAnalysis.technicalSkillsAnalysis.programmingLanguages.proficient?.length > 0 && (
-                    <div>
-                      <span className="text-xs font-medium text-blue-700">Skicklig:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {cvAnalysis.technicalSkillsAnalysis.programmingLanguages.proficient.map((skill: string, idx: number) => (
-                          <Badge key={idx} className="bg-blue-100 text-blue-800 text-xs border-blue-200">{skill}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {cvAnalysis.technicalSkillsAnalysis.programmingLanguages.familiar?.length > 0 && (
-                    <div>
-                      <span className="text-xs font-medium text-gray-700">Bekant:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {cvAnalysis.technicalSkillsAnalysis.programmingLanguages.familiar.map((skill: string, idx: number) => (
-                          <Badge key={idx} className="bg-gray-100 text-gray-800 text-xs border-gray-200">{skill}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {cvAnalysis.technicalSkillsAnalysis.frontendTechnologies?.frameworks?.length > 0 && (
-              <div>
-                <span className="text-xs font-medium text-purple-700">Frontend:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {cvAnalysis.technicalSkillsAnalysis.frontendTechnologies.frameworks.map((tech: string, idx: number) => (
-                    <Badge key={idx} className="bg-purple-100 text-purple-800 text-xs border-purple-200">{tech}</Badge>
+                <span className="text-xs font-medium text-blue-700 block mb-2">Tekniska färdigheter ({cvAnalysis.skills.technical.length}):</span>
+                <div className="flex flex-wrap gap-1">
+                  {cvAnalysis.skills.technical.map((skill: string, index: number) => (
+                    skill !== 'Ej specificerat' && (
+                      <Badge key={index} className="bg-blue-100 text-blue-800 text-xs border-blue-200">{skill}</Badge>
+                    )
                   ))}
                 </div>
               </div>
             )}
-
-            {cvAnalysis.technicalSkillsAnalysis.backendTechnologies?.frameworks?.length > 0 && (
+            {cvAnalysis.skills.languages?.length > 0 && (
               <div>
-                <span className="text-xs font-medium text-orange-700">Backend:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {cvAnalysis.technicalSkillsAnalysis.backendTechnologies.frameworks.map((tech: string, idx: number) => (
-                    <Badge key={idx} className="bg-orange-100 text-orange-800 text-xs border-orange-200">{tech}</Badge>
+                <span className="text-xs font-medium text-green-700 block mb-2">Programmeringsspråk ({cvAnalysis.skills.languages.length}):</span>
+                <div className="flex flex-wrap gap-1">
+                  {cvAnalysis.skills.languages.map((lang: string, index: number) => (
+                    lang !== 'Ej specificerat' && (
+                      <Badge key={index} className="bg-green-100 text-green-800 text-xs border-green-200">{lang}</Badge>
+                    )
                   ))}
                 </div>
               </div>
             )}
-
-            {cvAnalysis.technicalSkillsAnalysis.cloudAndInfrastructure?.platforms?.length > 0 && (
+            {cvAnalysis.skills.tools?.length > 0 && (
               <div>
-                <span className="text-xs font-medium text-cyan-700">Cloud & Infrastructure:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {cvAnalysis.technicalSkillsAnalysis.cloudAndInfrastructure.platforms.map((platform: string, idx: number) => (
-                    <Badge key={idx} className="bg-cyan-100 text-cyan-800 text-xs border-cyan-200">{platform}</Badge>
+                <span className="text-xs font-medium text-purple-700 block mb-2">Verktyg & teknologier ({cvAnalysis.skills.tools.length}):</span>
+                <div className="flex flex-wrap gap-1">
+                  {cvAnalysis.skills.tools.map((tool: string, index: number) => (
+                    tool !== 'Ej specificerat' && (
+                      <Badge key={index} className="bg-purple-100 text-purple-800 text-xs border-purple-200">{tool}</Badge>
+                    )
                   ))}
                 </div>
               </div>
@@ -274,38 +171,57 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
         </div>
       )}
 
-      {/* Leadership & Soft Skills */}
-      {(linkedinAnalysis || cvAnalysis?.leadershipCapabilities) && (
+      {/* Work History */}
+      {cvAnalysis?.workHistory && cvAnalysis.workHistory.length > 0 && (
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <h5 className="font-semibold text-gray-900 mb-3">Arbetshistorik ({cvAnalysis.workHistory.length} positioner)</h5>
+          <div className="space-y-3">
+            {cvAnalysis.workHistory.slice(0, 3).map((work: any, index: number) => (
+              work.role !== 'Ej specificerat' && work.company !== 'Ej specificerat' && (
+                <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="font-medium text-gray-900">{work.role || 'Roll ej specificerad'}</span>
+                    <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded">{work.duration || ''}</span>
+                  </div>
+                  <p className="text-sm text-gray-700 font-medium">{work.company || 'Företag ej specificerat'}</p>
+                  {work.description && work.description !== 'Ej specificerat' && (
+                    <p className="text-xs text-gray-600 mt-2 line-clamp-2">{work.description.substring(0, 100)}...</p>
+                  )}
+                </div>
+              )
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* LinkedIn Analysis */}
+      {linkedinAnalysis && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
             <Brain className="h-4 w-4 text-blue-500" />
-            Ledarskap & Soft Skills
+            LinkedIn-analys
           </h5>
-          {linkedinAnalysis && (
-            <div className="space-y-3">
-              <div className="grid md:grid-cols-2 gap-4 text-sm">
+          <div className="space-y-3">
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              {linkedinAnalysis.communicationStyle && (
                 <div>
                   <span className="text-gray-600">Kommunikationsstil:</span>
                   <p className="font-medium">{linkedinAnalysis.communicationStyle}</p>
                 </div>
+              )}
+              {linkedinAnalysis.leadershipStyle && (
                 <div>
                   <span className="text-gray-600">Ledarskapsformat:</span>
                   <p className="font-medium">{linkedinAnalysis.leadershipStyle}</p>
                 </div>
-                <div>
-                  <span className="text-gray-600">Problemlösning:</span>
-                  <p className="font-medium">{linkedinAnalysis.problemSolving}</p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Affärsförståelse:</span>
-                  <p className="font-medium">{linkedinAnalysis.businessAcumen}</p>
-                </div>
-              </div>
-              
-              {/* Scoring */}
-              <div className="bg-gray-50 p-3 rounded space-y-2">
-                <h6 className="font-medium text-gray-800 mb-2">Bedömning</h6>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              )}
+            </div>
+            
+            {/* Scoring */}
+            <div className="bg-gray-50 p-3 rounded space-y-2">
+              <h6 className="font-medium text-gray-800 mb-2">Bedömning</h6>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {linkedinAnalysis.culturalFit && (
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-gray-600">Kulturell passform:</span>
                     <div className="flex items-center gap-2">
@@ -313,7 +229,9 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
                       <span className="text-xs font-semibold text-blue-600">{linkedinAnalysis.culturalFit}/5</span>
                     </div>
                   </div>
-                  
+                )}
+                
+                {linkedinAnalysis.leadership && (
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-gray-600">Ledarskap:</span>
                     <div className="flex items-center gap-2">
@@ -321,7 +239,9 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
                       <span className="text-xs font-semibold text-blue-600">{linkedinAnalysis.leadership}/5</span>
                     </div>
                   </div>
-                  
+                )}
+                
+                {linkedinAnalysis.innovation && (
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-gray-600">Innovation:</span>
                     <div className="flex items-center gap-2">
@@ -329,30 +249,10 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
                       <span className="text-xs font-semibold text-blue-600">{linkedinAnalysis.innovation || 4}/5</span>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {cvAnalysis?.leadershipCapabilities && (
-            <div className="mt-4 space-y-3">
-              <h6 className="font-medium text-gray-800">Ledarskapsförmågor från CV</h6>
-              <div className="grid md:grid-cols-2 gap-3 text-xs">
-                {cvAnalysis.leadershipCapabilities.technicalLeadership?.architecturalDecisions && (
-                  <div>
-                    <span className="text-gray-600">Teknisk ledning:</span>
-                    <p className="text-gray-800">{cvAnalysis.leadershipCapabilities.technicalLeadership.architecturalDecisions}</p>
-                  </div>
-                )}
-                {cvAnalysis.leadershipCapabilities.teamLeadership?.teamSize && (
-                  <div>
-                    <span className="text-gray-600">Teamledning:</span>
-                    <p className="text-gray-800">Team på {cvAnalysis.leadershipCapabilities.teamLeadership.teamSize}</p>
-                  </div>
                 )}
               </div>
             </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -364,7 +264,7 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
             Certifieringar
           </h5>
           <div className="space-y-1">
-            {(consultant.certifications || cvAnalysis?.education?.certifications || []).slice(0, 4).map((cert: string, idx: number) => (
+            {(consultant.certifications || []).slice(0, 4).map((cert: string, idx: number) => (
               <div key={idx} className="flex items-center gap-2 text-sm">
                 <CheckCircle className="h-3 w-3 text-green-500" />
                 <span>{cert}</span>
@@ -379,7 +279,7 @@ export const ConsultantAnalysisCard: React.FC<ConsultantAnalysisCardProps> = ({ 
             Språk
           </h5>
           <div className="flex flex-wrap gap-2">
-            {(consultant.languages || cvAnalysis?.personalInfo?.languages || ['Swedish', 'English']).map((lang: string, idx: number) => (
+            {(consultant.languages || ['Swedish', 'English']).map((lang: string, idx: number) => (
               <Badge key={idx} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
                 {lang}
               </Badge>
