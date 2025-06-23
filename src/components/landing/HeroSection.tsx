@@ -122,61 +122,8 @@ export const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Column - Live Dashboard Preview */}
+          {/* Right Column - Live Network Count Only */}
           <div className="space-y-6">
-            {/* Main Dashboard Card */}
-            <div className="bg-gradient-to-br from-slate-800/50 to-blue-900/30 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">MatchWise AI</h3>
-                    <p className="text-sm text-slate-400">Platform v2.0</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 text-sm font-medium">Live</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-blue-600/20 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Users className="h-5 w-5 text-blue-400" />
-                    <span className="text-xs text-green-400">+15%</span>
-                  </div>
-                  <div className="text-2xl font-bold text-white">{networkConsultants.length}</div>
-                  <div className="text-sm text-slate-400">Network Consultants</div>
-                </div>
-
-                <div className="bg-green-600/20 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <TrendingUp className="h-5 w-5 text-green-400" />
-                    <span className="text-xs text-green-400">96%</span>
-                  </div>
-                  <div className="text-2xl font-bold text-white">12s</div>
-                  <div className="text-sm text-slate-400">Match Time</div>
-                </div>
-              </div>
-
-              {/* AI Matching Engine Status */}
-              <div className="bg-slate-700/30 rounded-lg p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-white">AI Matching Engine</h4>
-                    <p className="text-sm text-slate-400">95% precision • Real-time analysis</p>
-                  </div>
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-
             {/* Live Network Count */}
             <div className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
               <div className="flex items-center justify-center mb-3">
