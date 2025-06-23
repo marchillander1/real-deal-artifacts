@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,38 +13,7 @@ import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWi
 import CreateAssignmentForm from './CreateAssignmentForm';
 import { DashboardOverview } from './dashboard/DashboardOverview';
 import { AssignmentsSection } from './dashboard/AssignmentsSection';
-
-interface Assignment {
-  id: number;
-  title: string;
-  description: string;
-  company: string;
-  clientLogo: string;
-  requiredSkills: string[];
-  workload: string;
-  duration: string;
-  location: string;
-  urgency: string;
-  budget: number;
-  hourlyRate: number;
-  status: string;
-  matchedConsultants: number;
-  createdAt: string;
-}
-
-interface Consultant {
-  id: string;
-  name: string;
-  email: string;
-  title: string;
-  skills: string[];
-  location: string;
-  hourlyRate: number;
-  availability: string;
-  profilePicture: string;
-  experienceYears: number;
-  description: string;
-}
+import { Assignment } from '@/types/assignment';
 
 interface DashboardProps {
   assignments: Assignment[];

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Upload, Sparkles, Clock, Users, TrendingUp } from 'lucide-react';
+import { ArrowRight, Upload, Sparkles, Clock, Users, TrendingUp, Shield, Play, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TrialSignupModal from './TrialSignupModal';
 import { useQuery } from '@tanstack/react-query';
@@ -59,25 +59,45 @@ export const HeroSection = () => {
             <div className="space-y-6">
               <div className="inline-flex items-center px-3 py-1.5 bg-blue-600/20 border border-blue-400/20 rounded-full text-blue-300 text-sm font-medium">
                 <Sparkles className="w-3 h-3 mr-2" />
-                Human-first AI matching
+                Human-First AI Matching
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Find the perfect
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400"> IT consultant</span>
-                <br />in 12 seconds
+                Match the whole
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400"> person</span>
+                <br />not just the CV
               </h1>
               
               <p className="text-xl text-slate-300 leading-relaxed max-w-2xl">
-                MatchWise AI combines advanced technology with human insight to deliver 96% accurate consultant matches. Stop spending weeks on recruitment - get results in seconds.
+                MatchWise AI revolutionizes consultant matching by analyzing both technical skills AND soft factors like values, communication style, and personal fit.
               </p>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                to="/demo"
+                className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-lg transition-all duration-300 hover:shadow-xl"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Try Free Demo
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+              
+              <Link
+                to="/matchwiseai"
+                className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition-all duration-300"
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Go to Dashboard
+              </Link>
+            </div>
+
+            {/* CTA Buttons Row 2 */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <TrialSignupModal 
                 trigger={
-                  <button className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+                  <button className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-300 hover:shadow-xl">
                     Start Free Trial
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </button>
@@ -91,88 +111,102 @@ export const HeroSection = () => {
                 <Upload className="w-4 h-4 mr-2" />
                 Join Consultants
               </Link>
-
-              <Link
-                to="/demo"
-                className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white border border-white hover:bg-white hover:text-slate-800 rounded-lg transition-all duration-300"
-              >
-                Test Our Platform
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex items-center space-x-6 text-sm text-slate-400">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>Free analysis</span>
+            <div className="grid grid-cols-3 gap-6 pt-8">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Sparkles className="h-6 w-6 text-blue-400" />
+                </div>
+                <h3 className="font-semibold text-white mb-1">Human-First</h3>
+                <p className="text-sm text-slate-400">AI Matching</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>No commitment</span>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Clock className="h-6 w-6 text-green-400" />
+                </div>
+                <h3 className="font-semibold text-white mb-1">12 seconds</h3>
+                <p className="text-sm text-slate-400">Analysis</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>Results in minutes</span>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Shield className="h-6 w-6 text-purple-400" />
+                </div>
+                <h3 className="font-semibold text-white mb-1">GDPR</h3>
+                <p className="text-sm text-slate-400">Secure</p>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Live Stats */}
+          {/* Right Column - Live Dashboard Preview */}
           <div className="space-y-6">
+            {/* Main Dashboard Card */}
+            <div className="bg-gradient-to-br from-slate-800/50 to-blue-900/30 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">MatchWise AI</h3>
+                    <p className="text-sm text-slate-400">Platform v2.0</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-green-400 text-sm font-medium">Live</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-blue-600/20 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Users className="h-5 w-5 text-blue-400" />
+                    <span className="text-xs text-green-400">+15%</span>
+                  </div>
+                  <div className="text-2xl font-bold text-white">{Math.floor(liveUsers / 100)}</div>
+                  <div className="text-sm text-slate-400">Network Consultants</div>
+                </div>
+
+                <div className="bg-green-600/20 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <TrendingUp className="h-5 w-5 text-green-400" />
+                    <span className="text-xs text-green-400">96%</span>
+                  </div>
+                  <div className="text-2xl font-bold text-white">12s</div>
+                  <div className="text-sm text-slate-400">Match Time</div>
+                </div>
+              </div>
+
+              {/* AI Matching Engine Status */}
+              <div className="bg-slate-700/30 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-white">AI Matching Engine</h4>
+                    <p className="text-sm text-slate-400">95% precision • Real-time analysis</p>
+                  </div>
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
             {/* Live Network Count */}
-            <div className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border border-white/20 rounded-2xl p-8 text-center">
-              <div className="flex items-center justify-center mb-4">
+            <div className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
+              <div className="flex items-center justify-center mb-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-green-400 font-medium">LIVE</span>
                 </div>
               </div>
-              <div className="text-4xl font-bold mb-2">{liveUsers.toLocaleString()}</div>
-              <div className="text-slate-300">Network Consultants Available Now</div>
+              <div className="text-3xl font-bold mb-2">{liveUsers.toLocaleString()}</div>
+              <div className="text-slate-300">Active Network Consultants</div>
               <div className="text-sm text-green-400 mt-2">+{Math.floor(Math.random() * 5) + 1} joined this hour</div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* Match Accuracy */}
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <TrendingUp className="h-8 w-8 text-blue-400" />
-                </div>
-                <div className="text-3xl font-bold mb-1">96%</div>
-                <div className="text-slate-300 text-sm">Match Accuracy</div>
-              </div>
-
-              {/* Time Saved */}
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Clock className="h-8 w-8 text-green-400" />
-                </div>
-                <div className="text-3xl font-bold mb-1">12s</div>
-                <div className="text-slate-300 text-sm">Average Match Time</div>
-              </div>
-
-              {/* Consultants */}
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 col-span-2">
-                <div className="flex items-center justify-between mb-4">
-                  <Users className="h-8 w-8 text-purple-400" />
-                </div>
-                <div className="text-3xl font-bold mb-1">850 hours</div>
-                <div className="text-slate-300 text-sm">Time saved for our clients this month</div>
-              </div>
-            </div>
-
-            {/* Social Proof */}
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold mb-2">Join 200+ companies</div>
-                <div className="text-slate-300 text-sm">already using MatchWise AI to find top IT talent</div>
-                <div className="flex justify-center mt-4 space-x-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="w-8 h-8 bg-white/20 rounded-full"></div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>
