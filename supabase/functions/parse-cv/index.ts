@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting ENHANCED CV parsing with REAL DATA ONLY...');
+    console.log('🚀 Starting ENHANCED CV parsing with Groq API...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -23,10 +23,10 @@ serve(async (req) => {
 
     console.log('📄 Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openaiApiKey) {
-      console.error('❌ OPENAI_API_KEY not found');
-      throw new Error('OpenAI API key not configured');
+    const groqApiKey = Deno.env.get('GROQ_API_KEY');
+    if (!groqApiKey) {
+      console.error('❌ GROQ_API_KEY not found');
+      throw new Error('Groq API key not configured');
     }
 
     // ENHANCED text extraction with multiple algorithms
@@ -133,7 +133,7 @@ serve(async (req) => {
       extractedText = `File processing limited for ${file.name}. Detected type: ${file.type}`;
     }
 
-    console.log('🤖 Sending to OpenAI with STRICT REAL DATA ONLY analysis prompt...');
+    console.log('🤖 Sending to Groq with STRICT REAL DATA ONLY analysis prompt...');
 
     // STRICT AI prompt that ONLY uses real data from CV text
     const prompt = `Du är en expert på CV-analys. Analysera detta CV EXTREMT NOGGRANT och använd ENDAST information som FAKTISKT finns i texten. HITTA ALDRIG PÅ information.
@@ -249,14 +249,14 @@ Svara ENDAST med denna JSON-struktur (använd "Not available in CV" för saknad 
 
 VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
 
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'llama-3.1-70b-versatile',
         messages: [
           {
             role: 'system',
@@ -272,19 +272,19 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
       }),
     });
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      console.error('❌ OpenAI API error:', errorText);
-      throw new Error(`OpenAI API failed: ${openaiResponse.status}`);
+    if (!groqResponse.ok) {
+      const errorText = await groqResponse.text();
+      console.error('❌ Groq API error:', errorText);
+      throw new Error(`Groq API failed: ${groqResponse.status}`);
     }
 
-    const openaiData = await openaiResponse.json();
-    console.log('✅ STRICT OpenAI response received');
+    const groqData = await groqResponse.json();
+    console.log('✅ STRICT Groq response received');
 
     let analysis;
     try {
-      const content = openaiData.choices[0]?.message?.content;
-      console.log('🔍 OpenAI response content preview:', content.substring(0, 500));
+      const content = groqData.choices[0]?.message?.content;
+      console.log('🔍 Groq response content preview:', content.substring(0, 500));
 
       // Enhanced JSON extraction and validation
       const cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -326,7 +326,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
         });
         
       } else {
-        throw new Error('No valid JSON found in OpenAI response');
+        throw new Error('No valid JSON found in Groq response');
       }
     } catch (parseError) {
       console.error('❌ Parse error, using STRICT fallback strategy:', parseError);
@@ -388,7 +388,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
       };
     }
 
-    console.log('✅ STRICT CV analysis with real data only completed successfully');
+    console.log('✅ STRICT CV analysis with Groq completed successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -403,7 +403,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
           locationsFound: detectedInfo.locations.length,
           companiesFound: detectedInfo.companies.length,
           skillsFound: detectedInfo.skills.length,
-          aiModel: 'gpt-4o-strict-real-data-only',
+          aiModel: 'llama-3.1-70b-versatile',
           extractionQuality: 'strict-real-data'
         }
       }),
