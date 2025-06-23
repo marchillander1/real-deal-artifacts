@@ -24,7 +24,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   showDeleteForMyConsultants = true,
   showRemoveDuplicates = true
 }) => {
-  const { consultants, isLoading, updateConsultant } = useSupabaseConsultantsWithDemo();
+  const { consultants, isLoading, error, updateConsultant } = useSupabaseConsultantsWithDemo();
   const [searchTerm, setSearchTerm] = useState('');
   const [skillFilter, setSkillFilter] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
@@ -191,8 +191,8 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
       {selectedConsultant && (
         <ConsultantAnalysisModal
           consultant={selectedConsultant}
-          open={showAnalysisModal}
-          onOpenChange={setShowAnalysisModal}
+          isOpen={showAnalysisModal}
+          onClose={() => setShowAnalysisModal(false)}
         />
       )}
     </div>

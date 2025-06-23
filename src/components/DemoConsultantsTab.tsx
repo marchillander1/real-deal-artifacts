@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useDemoConsultants } from '@/hooks/useDemoConsultants';
-import ConsultantCard from '@/components/ConsultantCard';
+import { ConsultantCard } from '@/components/ConsultantCard';
 import { ConsultantEditDialog } from '@/components/ConsultantEditDialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';

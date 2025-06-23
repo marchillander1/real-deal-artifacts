@@ -26,7 +26,7 @@ export const ConsultantGrid: React.FC<ConsultantGridProps> = ({
         <div key={consultant.id} onClick={() => onViewAnalysis(consultant)} className="cursor-pointer">
           <EnhancedConsultantCard
             consultant={consultant}
-            showAnalysis={false}
+            onViewAnalysis={onViewAnalysis}
           />
         </div>
       ))}

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -247,8 +248,8 @@ export const ConsultantsSection: React.FC = () => {
       {selectedConsultant && (
         <ConsultantAnalysisModal
           consultant={selectedConsultant}
-          open={showAnalysisModal}
-          onOpenChange={setShowAnalysisModal}
+          isOpen={showAnalysisModal}
+          onClose={() => setShowAnalysisModal(false)}
         />
       )}
     </div>
@@ -274,23 +275,18 @@ const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({ consult
 
   // Check for analysis data from database
   const hasAnalysisData = consultant.cvAnalysis || consultant.linkedinAnalysis;
-  const cvAnalysis = consultant.cvAnalysis?.analysis;
-  const linkedinAnalysis = consultant.linkedinAnalysis?.analysis;
+  const cvAnalysis = consultant.cvAnalysis;
+  const linkedinAnalysis = consultant.linkedinAnalysis;
 
   // Get real data from CV analysis or fallback to existing data
   const displayName = cvAnalysis?.personalInfo?.name || consultant.name;
   const displayLocation = cvAnalysis?.personalInfo?.location || consultant.location;
-  const displayExperience = cvAnalysis?.professionalSummary?.yearsOfExperience ? 
-    `${cvAnalysis.professionalSummary.yearsOfExperience} years` : 
-    consultant.experience;
-  const displayRole = cvAnalysis?.professionalSummary?.currentRole || consultant.roles?.[0] || 'Consultant';
-  const displayRate = cvAnalysis?.marketPositioning?.hourlyRateEstimate?.recommended ?
-    `${cvAnalysis.marketPositioning.hourlyRateEstimate.recommended} SEK/hour` :
-    consultant.rate;
+  const displayExperience = cvAnalysis?.experience?.years || consultant.experience;
+  const displayRole = cvAnalysis?.experience?.currentRole || consultant.roles?.[0] || 'Consultant';
+  const displayRate = consultant.rate;
 
   // Get skills from CV analysis or fallback
-  const displaySkills = cvAnalysis?.technicalExpertise?.programmingLanguages?.expert || 
-                       consultant.skills;
+  const displaySkills = cvAnalysis?.skills?.technical || consultant.skills;
 
   return (
     <Card className="hover:shadow-lg transition-shadow bg-white">
@@ -389,20 +385,6 @@ const EnhancedConsultantCard: React.FC<EnhancedConsultantCardProps> = ({ consult
                   <span>LinkedIn Analyzed</span>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* AI Insights */}
-        {cvAnalysis?.marketPositioning?.competitiveAdvantages && (
-          <div className="mb-4 p-3 bg-purple-50 rounded-lg">
-            <p className="text-sm font-medium text-purple-900 mb-1">AI Insights:</p>
-            <div className="flex flex-wrap gap-1">
-              {cvAnalysis.marketPositioning.competitiveAdvantages.slice(0, 2).map((advantage, index) => (
-                <Badge key={index} variant="secondary" className="text-xs bg-purple-100 text-purple-800">
-                  {advantage}
-                </Badge>
-              ))}
             </div>
           </div>
         )}
