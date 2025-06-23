@@ -94,15 +94,15 @@ export const BackgroundAnalysis: React.FC<BackgroundAnalysisProps> = ({
 
         // Show success message with extracted name
         toast({
-          title: "Analys slutförd! 🎉",
-          description: `CV och LinkedIn-profil analyserad${extractedPersonalInfo.name ? ` för ${extractedPersonalInfo.name}` : ''}`,
+          title: "Analysis completed! 🎉",
+          description: `CV and LinkedIn profile analyzed${extractedPersonalInfo.name ? ` for ${extractedPersonalInfo.name}` : ''}`,
         });
 
       } catch (error: any) {
         console.error('❌ Background analysis failed:', error);
         toast({
-          title: "Analys misslyckades",
-          description: error.message || "Försök igen med en annan fil eller kontrollera din LinkedIn URL.",
+          title: "Analysis failed",
+          description: error.message || "Please try again with a different file or check your LinkedIn URL.",
           variant: "destructive",
         });
       }

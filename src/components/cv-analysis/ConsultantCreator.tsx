@@ -46,11 +46,11 @@ export class ConsultantCreator {
       ];
     }
     
-    allSkills = allSkills.filter(skill => skill && skill.length > 0 && skill !== 'Ej specificerat');
+    allSkills = allSkills.filter(skill => skill && skill.length > 0 && skill !== 'Not specified');
     
     // Extract experience years
     let experienceYears = 5;
-    if (cvAnalysis?.experience?.years && cvAnalysis.experience.years !== 'Ej specificerat') {
+    if (cvAnalysis?.experience?.years && cvAnalysis.experience.years !== 'Not specified') {
       experienceYears = parseInt(cvAnalysis.experience.years.toString().match(/\d+/)?.[0] || '5');
     } else if (cvAnalysis?.professionalSummary?.yearsOfExperience && cvAnalysis.professionalSummary.yearsOfExperience !== 'Not specified') {
       experienceYears = parseInt(cvAnalysis.professionalSummary.yearsOfExperience.toString().match(/\d+/)?.[0] || '5');
@@ -66,18 +66,18 @@ export class ConsultantCreator {
       hourly_rate: 1000,
       availability: 'Available',
       cv_file_path: file.name,
-      communication_style: linkedinData?.communicationStyle || 'Professionell kommunikation',
+      communication_style: linkedinData?.communicationStyle || 'Professional communication',
       rating: 4.8,
       projects_completed: 0,
-      roles: cvAnalysis?.workHistory?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Ej specificerat') || [cvAnalysis?.experience?.currentRole || cvAnalysis?.professionalSummary?.currentRole || 'Konsult'],
+      roles: cvAnalysis?.workHistory?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Not specified') || [cvAnalysis?.experience?.currentRole || cvAnalysis?.professionalSummary?.currentRole || 'Consultant'],
       certifications: [],
       type: isMyConsultant ? 'existing' : 'new',
       user_id: isMyConsultant ? 'temp-user-id' : null,
       languages: ['English', 'Swedish'],
-      work_style: linkedinData?.teamFitAssessment?.workStyle || 'Kollaborativ',
-      values: ['Professionell utveckling', 'Innovation'],
-      personality_traits: linkedinData?.contentAnalysisInsights?.professionalValues || ['Problemorienterad', 'Analytisk'],
-      team_fit: linkedinData?.teamFitAssessment?.workStyle || 'Teamspelare',
+      work_style: linkedinData?.teamFitAssessment?.workStyle || 'Collaborative',
+      values: ['Professional development', 'Innovation'],
+      personality_traits: linkedinData?.contentAnalysisInsights?.professionalValues || ['Problem-solving', 'Analytical'],
+      team_fit: linkedinData?.teamFitAssessment?.workStyle || 'Team player',
       cultural_fit: linkedinData?.culturalFit || 5,
       adaptability: linkedinData?.adaptability || 5,
       leadership: linkedinData?.leadership || Math.min(experienceYears >= 5 ? 4 : 3, 5),
@@ -93,7 +93,7 @@ export class ConsultantCreator {
       .single();
 
     if (insertError) {
-      throw new Error(`Misslyckades spara konsult: ${insertError.message}`);
+      throw new Error(`Failed to save consultant: ${insertError.message}`);
     }
 
     return insertedConsultant;

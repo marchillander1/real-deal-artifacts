@@ -13,7 +13,7 @@ export class CVParser {
     });
 
     if (cvResponse.error) {
-      throw new Error(`CV-analys misslyckades: ${cvResponse.error.message}`);
+      throw new Error(`CV analysis failed: ${cvResponse.error.message}`);
     }
 
     // Standardize the response structure
@@ -31,15 +31,15 @@ export class CVParser {
     // Ensure consistent structure for analysis
     const standardAnalysis = {
       personalInfo: {
-        name: data.analysis?.personalInfo?.name || 'Ej specificerat',
-        email: data.analysis?.personalInfo?.email || 'Ej specificerat',
-        phone: data.analysis?.personalInfo?.phone || 'Ej specificerat',
-        location: data.analysis?.personalInfo?.location || 'Ej specificerat'
+        name: data.analysis?.personalInfo?.name || 'Not specified',
+        email: data.analysis?.personalInfo?.email || 'Not specified',
+        phone: data.analysis?.personalInfo?.phone || 'Not specified',
+        location: data.analysis?.personalInfo?.location || 'Not specified'
       },
       experience: {
-        years: data.analysis?.experience?.years || 'Ej specificerat',
-        currentRole: data.analysis?.experience?.currentRole || 'Ej specificerat',
-        level: data.analysis?.experience?.level || 'Ej specificerat'
+        years: data.analysis?.experience?.years || 'Not specified',
+        currentRole: data.analysis?.experience?.currentRole || 'Not specified',
+        level: data.analysis?.experience?.level || 'Not specified'
       },
       skills: {
         technical: data.analysis?.skills?.technical || [],

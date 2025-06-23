@@ -78,8 +78,8 @@ const CVUploadModern: React.FC = () => {
       // Show success toast with name if available
       if (enhancedData.name) {
         toast({
-          title: "Personlig information extraherad! ✅",
-          description: `Namn: ${enhancedData.name}${enhancedData.email ? `, E-post: ${enhancedData.email}` : ''}`,
+          title: "Personal information extracted! ✅",
+          description: `Name: ${enhancedData.name}${enhancedData.email ? `, Email: ${enhancedData.email}` : ''}`,
         });
       }
     } else {
