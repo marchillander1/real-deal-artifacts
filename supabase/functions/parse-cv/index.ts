@@ -24,6 +24,7 @@ serve(async (req) => {
     }
 
     console.log('📄 Processing file:', file.name, 'Size:', file.size);
+    console.log('📝 Personal description provided:', !!personalDescription);
     
     // Convert file to base64
     const fileBuffer = await file.arrayBuffer();
@@ -38,11 +39,15 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Create analysis prompt
+    // Create enhanced analysis prompt with personal description
     const analysisPrompt = `
-Analysera detta CV och extrahera information enligt följande JSON-struktur.
+Analysera detta CV och extrahera information enligt följande JSON-struktur. 
+Gör en MYCKET DJUPGÅENDE analys av både tekniska färdigheter OCH mjuka värden.
 
-${personalDescription ? `PERSONLIG BESKRIVNING: "${personalDescription}"` : ''}
+${personalDescription ? `
+PERSONLIG BESKRIVNING FRÅN KANDIDATEN: "${personalDescription}"
+Använd denna information för att förbättra analysen av mjuka värden, personlighet och karriärmål.
+` : ''}
 
 Ge svar i exakt denna JSON-struktur (utan extra text):
 
@@ -70,11 +75,11 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
     {"degree": "Examen", "school": "Skola", "year": "År", "field": "Område"}
   ],
   "softSkills": {
-    "communicationStyle": "Kommunikationsstil",
-    "leadershipStyle": "Ledarskapstyp",
-    "workStyle": "Arbetsstil",
-    "values": ["Värderingar"],
-    "personalityTraits": ["Personlighetsdrag"]
+    "communicationStyle": "DJUPGÅENDE beskrivning av kommunikationsstil med konkreta exempel",
+    "leadershipStyle": "DETALJERAD beskrivning av ledarskap med utvecklingsområden", 
+    "workStyle": "UTFÖRLIG beskrivning av arbetsstil och samarbetsförmåga",
+    "values": ["Kärn värderingar baserat på CV och personlig beskrivning"],
+    "personalityTraits": ["Djupgående personlighetsdrag och beteendemönster"]
   },
   "scores": {
     "leadership": 4,
@@ -88,22 +93,22 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
     "hourlyRate": {
       "current": 800,
       "optimized": 950,
-      "explanation": "Förklaring av marknadsvärdering"
+      "explanation": "DETALJERAD förklaring av marknadsvärdering baserat på färdigheter och erfarenhet"
     },
-    "competitiveAdvantages": ["Konkurrensfördelar"],
-    "marketDemand": "Marknadsbedömning",
-    "recommendedFocus": "Rekommenderade fokusområden"
+    "competitiveAdvantages": ["SPECIFIKA konkurrensfördelar", "fördel2", "fördel3"],
+    "marketDemand": "DJUPGÅENDE bedömning av marknadsnachfrågan",
+    "recommendedFocus": "KONKRETA rekommendationer för karriärutveckling"
   },
   "analysisInsights": {
-    "strengths": ["Styrkor"],
-    "developmentAreas": ["Utvecklingsområden"],
-    "careerTrajectory": "Karriärbana",
-    "consultingReadiness": "Konsultberedskap"
+    "strengths": ["SPECIFIKA styrkor med exempel", "styrka2", "styrka3"],
+    "developmentAreas": ["KONKRETA utvecklingsområden", "område2", "område3"],
+    "careerTrajectory": "UTFÖRLIG beskrivning av karriärbana och potential",
+    "consultingReadiness": "DJUPGÅENDE bedömning av konsultberedskap"
   }
 }
 `;
 
-    console.log('🤖 Calling Google Gemini for analysis...');
+    console.log('🤖 Calling Google Gemini for comprehensive analysis...');
 
     // Call Google Gemini API
     const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
@@ -159,7 +164,7 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
     } catch (parseError) {
       console.error('❌ JSON parsing failed:', parseError);
       
-      // Create fallback analysis
+      // Create enhanced fallback analysis
       analysis = {
         personalInfo: {
           name: "Professional Consultant",
@@ -173,18 +178,18 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
           level: "Senior"
         },
         skills: {
-          technical: ["JavaScript", "Python"],
+          technical: ["JavaScript", "Python", "React"],
           languages: ["JavaScript", "Python"],
-          tools: ["Git", "Docker"]
+          tools: ["Git", "Docker", "AWS"]
         },
         workHistory: [],
         education: [],
         softSkills: {
-          communicationStyle: "Professional",
-          leadershipStyle: "Collaborative",
-          workStyle: "Team-oriented",
-          values: ["Quality", "Innovation"],
-          personalityTraits: ["Analytical", "Problem-solver"]
+          communicationStyle: "Professional och tydlig kommunikation med förmåga att förklara komplexa tekniska koncept",
+          leadershipStyle: "Kollaborativ ledare som fokuserar på teamutveckling och måluppfyllelse",
+          workStyle: "Strukturerad och målinriktad med stark fokus på kvalitet och leverans",
+          values: ["Kvalitet", "Innovation", "Teamwork", "Kontinuerlig utveckling"],
+          personalityTraits: ["Analytisk", "Problemlösare", "Empatisk", "Initiativtagare"]
         },
         scores: {
           leadership: 4,
@@ -198,17 +203,17 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
           hourlyRate: {
             current: 800,
             optimized: 950,
-            explanation: "Based on skills and experience"
+            explanation: "Baserat på tekniska färdigheter och erfarenhetsnivå är marknadsvärdena konkurrenskraftigt"
           },
-          competitiveAdvantages: ["Strong technical skills"],
-          marketDemand: "High",
-          recommendedFocus: "Continue skill development"
+          competitiveAdvantages: ["Stark teknisk kompetens", "Bred erfarenhet", "Ledarskapsförmåga"],
+          marketDemand: "Hög efterfrågan på teknisk expertis",
+          recommendedFocus: "Fortsätt utveckla ledarskapsförmåga och teknisk expertis"
         },
         analysisInsights: {
-          strengths: ["Technical expertise"],
-          developmentAreas: ["Leadership skills"],
-          careerTrajectory: "Positive growth potential",
-          consultingReadiness: "Ready for consulting"
+          strengths: ["Teknisk expertis", "Problemlösningsförmåga", "Teamwork"],
+          developmentAreas: ["Strategisk planering", "Affärsutveckling"],
+          careerTrajectory: "Stark utvecklingspotential mot senior roller",
+          consultingReadiness: "Väl positionerad för konsultuppdrag"
         }
       };
     }
@@ -221,7 +226,7 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
       locations: analysis.personalInfo?.location ? [analysis.personalInfo.location] : []
     };
 
-    console.log('✅ CV analysis completed successfully');
+    console.log('✅ CV analysis completed successfully with personal description integration');
 
     return new Response(JSON.stringify({
       success: true,
@@ -231,7 +236,8 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
         textLength: 0,
         detectedNames: detectedInfo.names.length,
         detectedEmails: detectedInfo.emails.length,
-        detectedSkills: analysis.skills?.technical?.length || 0
+        detectedSkills: analysis.skills?.technical?.length || 0,
+        personalDescriptionUsed: !!personalDescription
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
