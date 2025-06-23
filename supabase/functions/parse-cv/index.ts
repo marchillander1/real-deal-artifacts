@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting ENHANCED CV parsing with Groq API and personal description...');
+    console.log('🚀 Starting IMPROVED CV parsing with better text extraction...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -31,7 +31,7 @@ serve(async (req) => {
       throw new Error('Groq API key not configured');
     }
 
-    // ENHANCED text extraction with multiple algorithms
+    // IMPROVED text extraction focusing on readable content
     let extractedText = '';
     let detectedInfo = {
       emails: [] as string[],
@@ -44,223 +44,212 @@ serve(async (req) => {
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF with ENHANCED multi-layer extraction...');
+        console.log('📄 Processing PDF with IMPROVED text extraction...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // ENHANCED PDF text extraction with improved algorithms
+        // IMPROVED PDF text extraction - focus on actual text content
         let rawText = '';
-        let wordBuffer = '';
-        let previousByte = 0;
+        let currentWord = '';
+        let inTextMode = false;
         
-        for (let i = 0; i < uint8Array.length - 1; i++) {
+        for (let i = 0; i < uint8Array.length - 10; i++) {
           const byte = uint8Array[i];
-          const nextByte = uint8Array[i + 1];
           
-          // Enhanced character detection with better Unicode support
-          if (byte >= 32 && byte <= 126) {
+          // Look for text stream markers
+          if (i < uint8Array.length - 6) {
+            const next6 = Array.from(uint8Array.slice(i, i + 6));
+            const streamMarker = String.fromCharCode(...next6);
+            if (streamMarker.includes('stream') || streamMarker.includes('BT')) {
+              inTextMode = true;
+              continue;
+            }
+            if (streamMarker.includes('endstream') || streamMarker.includes('ET')) {
+              inTextMode = false;
+              continue;
+            }
+          }
+          
+          // Only process readable characters in text mode
+          if (inTextMode && byte >= 32 && byte <= 126) {
             const char = String.fromCharCode(byte);
             
-            // Enhanced character filtering including international characters
+            // Focus on letters, numbers, and common symbols
             if (char.match(/[a-zA-Z0-9@.\-+()åäöÅÄÖéÉèÈàÀüÜ\s]/)) {
-              wordBuffer += char;
-            }
-          } else if ((byte === 10 || byte === 13 || byte === 32) && wordBuffer.length > 0) {
-            // Better word boundary detection
-            rawText += wordBuffer + ' ';
-            wordBuffer = '';
-          }
-          
-          // Enhanced line break handling
-          if ((byte === 10 || byte === 13) && previousByte !== 10 && previousByte !== 13) {
-            if (rawText.slice(-1) !== ' ' && rawText.slice(-1) !== '\n') {
-              rawText += ' ';
+              currentWord += char;
+            } else if (currentWord.length > 0) {
+              // Add word if it's meaningful (not PDF metadata)
+              if (currentWord.length > 1 && 
+                  !currentWord.match(/^(obj|endobj|Type|Subtype|Width|Height|Filter|Length|stream|endstream)$/i)) {
+                rawText += currentWord + ' ';
+              }
+              currentWord = '';
             }
           }
           
-          previousByte = byte;
+          // Handle line breaks
+          if (byte === 10 || byte === 13) {
+            if (currentWord.length > 0) {
+              if (!currentWord.match(/^(obj|endobj|Type|Subtype|Width|Height|Filter|Length|stream|endstream)$/i)) {
+                rawText += currentWord + ' ';
+              }
+              currentWord = '';
+            }
+            rawText += '\n';
+          }
         }
         
-        // Add remaining buffer
-        if (wordBuffer.length > 0) {
-          rawText += wordBuffer;
-        }
-        
-        // ENHANCED text cleaning and normalization
+        // Clean and normalize the extracted text
         extractedText = rawText
           .replace(/\s+/g, ' ')                    // Normalize whitespace
           .replace(/([a-z])([A-Z])/g, '$1 $2')     // Add spaces between camelCase
           .replace(/([0-9])([A-Z])/g, '$1 $2')     // Add spaces between numbers and caps
-          .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2') // Fix ALL CAPS words
-          .replace(/([.!?])\s*([A-Z])/g, '$1 $2')  // Fix sentence spacing
+          .replace(/\b(obj|endobj|Type|Subtype|Width|Height|Filter|Length|stream|endstream|PDF)\b/gi, '') // Remove PDF keywords
+          .replace(/[^\w\s@.\-+åäöÅÄÖéÉèÈàÀüÜ]/g, ' ') // Keep only meaningful characters
+          .replace(/\s+/g, ' ')                    // Final whitespace cleanup
           .trim()
-          .substring(0, 15000); // Increased text limit for comprehensive analysis
+          .substring(0, 12000); // Reasonable text limit
         
-        console.log('📝 ENHANCED text extraction completed. Length:', extractedText.length);
-        console.log('📝 Sample text:', extractedText.substring(0, 500));
+        console.log('📝 IMPROVED text extraction completed. Length:', extractedText.length);
+        console.log('📝 Sample extracted text:', extractedText.substring(0, 300));
         
-        // ENHANCED regex patterns for comprehensive information detection
+        // IMPROVED regex patterns for better detection
         const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-        const phoneRegex = /(\+46[\s\-]?|0046[\s\-]?|0)[\s\-]?[0-9]{1,3}[\s\-]?[0-9]{3,4}[\s\-]?[0-9]{2,4}[\s\-]?[0-9]{0,4}|[0-9]{3}[\s\-]?[0-9]{3}[\s\-]?[0-9]{2,4}/g;
-        const nameRegex = /\b[A-ZÅÄÖÉ][a-zåäöé]{2,}\s+[A-ZÅÄÖÉ][a-zåäöé]{2,}(?:\s+[A-ZÅÄÖÉ][a-zåäöé]{2,})*/g;
-        const locationRegex = /\b(?:Stockholm|Göteborg|Malmö|Uppsala|Västerås|Örebro|Linköping|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Sundsvall|Sverige|Sweden|Denmark|Norge|Norway|Finland|Copenhagen|Oslo|Helsinki|London|Berlin|Amsterdam|Paris|Madrid|Rome|Brussels|Zurich|Vienna)\b/gi;
-        const companyRegex = /\b(?:AB|Ltd|Inc|Corp|GmbH|AS|Oy|ApS)\b|\b[A-ZÅÄÖ][a-zåäöé]+(?:\s[A-ZÅÄÖ][a-zåäöé]+)*(?:\sAB|\sLtd|\sInc|\sCorp|\sGmbH|\sAS|\sOy|\sApS)?\b/g;
-        const skillRegex = /\b(?:JavaScript|Java|Python|C\#|C\+\+|PHP|Ruby|Go|Rust|TypeScript|React|Angular|Vue|Node\.js|Express|Django|Flask|Spring|Laravel|MySQL|PostgreSQL|MongoDB|Redis|Docker|Kubernetes|AWS|Azure|GCP|Git|Jenkins|CI\/CD|Agile|Scrum|DevOps|Machine Learning|AI|Data Science|Frontend|Backend|Fullstack|API|REST|GraphQL|Microservices|Cloud|Security|Testing|TDD|BDD)\b/gi;
+        const phoneRegex = /(?:\+46[\s\-]?|0046[\s\-]?|0)[\s\-]?[1-9][0-9\s\-]{7,11}[0-9]/g;
+        const nameRegex = /\b[A-ZÅÄÖÉ][a-zåäöé]{2,}\s+[A-ZÅÄÖÉ][a-zåäöé]{2,}(?:\s+[A-ZÅÄÖÉ][a-zåäöé]{2,})?\b/g;
+        const locationRegex = /\b(?:Stockholm|Göteborg|Malmö|Uppsala|Västerås|Örebro|Linköping|Helsingborg|Jönköping|Norrköping|Lund|Umeå|Gävle|Borås|Eskilstuna|Sundsvall|Sverige|Sweden|Copenhagen|Oslo|Helsinki|London|Berlin|Amsterdam|Paris|Madrid|Rome|Brussels|Zurich|Vienna)\b/gi;
+        const skillRegex = /\b(?:JavaScript|Java|Python|C#|C\+\+|PHP|Ruby|Go|Rust|TypeScript|React|Angular|Vue|Node\.js|Express|Django|Flask|Spring|Laravel|MySQL|PostgreSQL|MongoDB|Redis|Docker|Kubernetes|AWS|Azure|GCP|Git|Jenkins|CI\/CD|Agile|Scrum|DevOps|Machine Learning|AI|Data Science|Frontend|Backend|Fullstack|API|REST|GraphQL|Microservices|Cloud|Security|Testing|TDD|BDD|HTML|CSS|SASS|LESS|Bootstrap|Tailwind|jQuery|Redux|Next\.js|Nuxt\.js|Svelte|Flutter|React Native|Ionic|Xamarin|Unity|Unreal Engine|Blender|Photoshop|Illustrator|Figma|Sketch|InVision|Zeplin|Adobe XD)\b/gi;
         
         detectedInfo.emails = Array.from(new Set([...extractedText.matchAll(emailRegex)].map(m => m[0].toLowerCase())));
         detectedInfo.phones = Array.from(new Set([...extractedText.matchAll(phoneRegex)].map(m => m[0].replace(/[\s\-]/g, ''))));
         detectedInfo.names = Array.from(new Set([...extractedText.matchAll(nameRegex)].map(m => m[0])));
         detectedInfo.locations = Array.from(new Set([...extractedText.matchAll(locationRegex)].map(m => m[0])));
-        detectedInfo.companies = Array.from(new Set([...extractedText.matchAll(companyRegex)].map(m => m[0]))).slice(0, 10);
-        detectedInfo.skills = Array.from(new Set([...extractedText.matchAll(skillRegex)].map(m => m[0]))).slice(0, 20);
+        detectedInfo.skills = Array.from(new Set([...extractedText.matchAll(skillRegex)].map(m => m[0])));
         
-        console.log('🔍 ENHANCED pattern detection results:', {
+        console.log('🔍 IMPROVED pattern detection results:', {
           emails: detectedInfo.emails.length,
           phones: detectedInfo.phones.length,
           names: detectedInfo.names.length,
           locations: detectedInfo.locations.length,
-          companies: detectedInfo.companies.length,
           skills: detectedInfo.skills.length
         });
         
+        // Log samples for debugging
+        if (detectedInfo.names.length > 0) {
+          console.log('👤 Detected names:', detectedInfo.names.slice(0, 3));
+        }
+        if (detectedInfo.emails.length > 0) {
+          console.log('📧 Detected emails:', detectedInfo.emails.slice(0, 2));
+        }
+        
       } else {
-        // Handle text files and other formats
+        // Handle text files
         extractedText = await file.text();
-        extractedText = extractedText.substring(0, 15000);
+        extractedText = extractedText.substring(0, 12000);
         console.log('📄 Text file processed, length:', extractedText.length);
       }
       
     } catch (error) {
       console.warn('⚠️ Text extraction partially failed:', error);
-      extractedText = `File processing limited for ${file.name}. Detected type: ${file.type}`;
+      extractedText = `Limited text extraction for ${file.name}. File type: ${file.type}`;
     }
 
-    console.log('🤖 Sending to Groq with ENHANCED analysis including personal description...');
+    console.log('🤖 Sending to Groq with IMPROVED analysis prompt...');
 
-    // ENHANCED AI prompt that includes personal description in analysis
+    // IMPROVED AI prompt with better instructions
     const personalDescriptionSection = personalDescription.trim() ? 
-      `\n\nPERSONLIG BESKRIVNING FRÅN ANVÄNDAREN (viktig för mjukvärdesanalys):
+      `\n\nPERSONLIG BESKRIVNING FRÅN ANVÄNDAREN:
 "${personalDescription.trim()}"
 
-ANVÄND DENNA PERSONLIGA BESKRIVNING FÖR ATT:
-- Förbättra analys av kommunikationsstil och arbetsstil
-- Identifiera värderingar och personlighetsegenskaper
-- Ge mer exakta mjukvärdesbedömningar
-- Förstå motivationsfaktorer och karriärambitioner` : '';
+Använd denna personliga beskrivning för att förbättra mjukvärdesanalysen.` : '';
 
-    const prompt = `Du är en expert på CV-analys. Analysera detta CV EXTREMT NOGGRANT och använd ENDAST information som FAKTISKT finns i texten plus den personliga beskrivningen. HITTA ALDRIG PÅ information.
+    const prompt = `Du är en CV-analysexpert. Analysera detta CV EXTREMT NOGGRANT och extrahera ENDAST riktig information från texten.
 
-DETEKTERAD INFORMATION att prioritera och validera (använd ENDAST om den finns i texten):
-Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'SÖKS I TEXTEN'}
-Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'SÖKS I TEXTEN'}
-Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'SÖKS I TEXTEN'}
-Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'SÖKS I TEXTEN'}
-Företag: ${detectedInfo.companies.length > 0 ? detectedInfo.companies.join(', ') : 'SÖKS I TEXTEN'}
-Tekniska färdigheter: ${detectedInfo.skills.length > 0 ? detectedInfo.skills.join(', ') : 'SÖKS I TEXTEN'}${personalDescriptionSection}
+VIKTIGA REGLER:
+1. Använd ENDAST information som FAKTISKT finns i CV-texten
+2. Ignorera PDF-metadata som "Object", "Subtype", "Width", "Height", etc.
+3. Hitta rätt namn, email, telefon från CV:t - inte från PDF-struktur
+4. Om information inte finns explicit, skriv "Ej angiven"
+5. Fokusera på RIKTIG CV-information, inte teknisk PDF-data
 
-CV FULLTEXT FÖR ANALYS:
+DETEKTERAD INFORMATION (validera mot CV-text):
+Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'Söks i CV-text'}
+Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'Söks i CV-text'}
+Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'Söks i CV-text'}
+Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'Söks i CV-text'}
+Tekniska färdigheter: ${detectedInfo.skills.length > 0 ? detectedInfo.skills.join(', ') : 'Söks i CV-text'}${personalDescriptionSection}
+
+CV-TEXT FÖR ANALYS:
 ${extractedText}
 
-KRITISKA REGLER - FÖLJ DESSA STRIKT:
-1. Använd ENDAST information som FAKTISKT finns i CV-texten OCH den personliga beskrivningen
-2. Om information inte finns explicit, skriv "Not available in CV"
-3. HITTA ALDRIG PÅ personuppgifter, företag, eller erfarenheter
-4. Basera mjukvärdesanalys på konkreta exempel från texten OCH personlig beskrivning
-5. Använd den personliga beskrivningen för att förbättra mjukvärdesbedömningar
-
-ANALYS-INSTRUKTIONER:
-
-1. PERSONLIG INFORMATION: 
-   - Extrahera EXAKT som står i texten
-   - Validera mot detekterad information
-   - Om saknas: "Not available in CV"
-
-2. FÖRBÄTTRAD MJUKVÄRDESANALYS (baserat på CV-text OCH personlig beskrivning):
-   - Kommunikationsstil: Analysera språkbruk från CV OCH personlig beskrivning
-   - Ledarskap: Baserat på konkreta exempel OCH självbeskrivning
-   - Värderingar: Från CV OCH personlig beskrivning
-   - Teamarbete: Från beskrivna erfarenheter OCH självbild
-   - Arbetsstil: Från CV-beskrivningar OCH personlig reflektion
-
-3. TEKNISK EXPERTIS:
-   - Lista ENDAST tekniker som nämns i texten
-   - Bedöm erfarenhet baserat på sammanhang i texten
-
-4. ARBETSHISTORIK:
-   - ENDAST roller och företag som nämns i texten
-   - EXAKTA perioder om angivet
-
-Svara ENDAST med denna JSON-struktur (använd "Not available in CV" för saknad info):
+Analysera detta CV och svara med ENDAST denna JSON-struktur:
 
 {
   "personalInfo": {
-    "name": "EXAKT NAMN FRÅN TEXTEN eller Not available in CV",
-    "email": "EXAKT EMAIL FRÅN TEXTEN eller Not available in CV", 
-    "phone": "EXAKT TELEFON FRÅN TEXTEN eller Not available in CV",
-    "location": "EXAKT PLATS FRÅN TEXTEN eller Not available in CV"
+    "name": "RIKTIGT NAMN från CV (inte PDF-metadata)",
+    "email": "RIKTIG EMAIL från CV",
+    "phone": "RIKTIG TELEFON från CV",
+    "location": "RIKTIG PLATS från CV"
   },
   "experience": {
-    "years": "EXAKT ANTAL ÅR eller Not available in CV",
-    "currentRole": "EXAKT NUVARANDE ROLL eller Not available in CV",
-    "level": "Junior/Mid/Senior/Expert baserat på erfarenhet eller Not available in CV"
+    "years": "Antal år erfarenhet baserat på CV",
+    "currentRole": "Nuvarande eller senaste roll",
+    "level": "Junior/Mid/Senior/Expert baserat på erfarenhet"
   },
   "skills": {
-    "technical": ["ENDAST TEKNIKER SOM NÄMNS I TEXTEN"],
-    "languages": ["ENDAST PROGRAMMERINGSSPRÅK SOM NÄMNS"],
-    "tools": ["ENDAST VERKTYG SOM NÄMNS"]
+    "technical": ["ENDAST riktiga tekniska färdigheter från CV"],
+    "languages": ["Programmeringsspråk från CV"],
+    "tools": ["Verktyg och teknologier från CV"]
   },
   "workHistory": [
     {
-      "company": "EXAKT FÖRETAG FRÅN TEXTEN",
-      "role": "EXAKT ROLL FRÅN TEXTEN", 
-      "duration": "EXAKT PERIOD FRÅN TEXTEN",
-      "description": "KORT BESKRIVNING BASERAT PÅ TEXTEN"
+      "company": "Företagsnamn från CV",
+      "role": "Rollens titel från CV",
+      "duration": "Tidsperiod från CV",
+      "description": "Kort beskrivning av rollen"
     }
   ],
   "education": [
     {
-      "institution": "EXAKT INSTITUTION FRÅN TEXTEN",
-      "degree": "EXAKT EXAMEN FRÅN TEXTEN",
-      "year": "EXAKT ÅR FRÅN TEXTEN"
+      "institution": "Utbildningsinstitution från CV",
+      "degree": "Examen/Utbildning från CV",
+      "year": "År från CV"
     }
   ],
   "softSkills": {
-    "communicationStyle": "FÖRBÄTTRAD analys baserat på CV-språk OCH personlig beskrivning",
-    "leadershipStyle": "Baserat på konkreta exempel OCH självbeskrivning",
-    "values": ["Värderingar från CV-text OCH personlig beskrivning"],
-    "personalityTraits": ["Drag från CV OCH personlig reflektion"],
-    "workStyle": "Baserat på arbetsbeskrivningar OCH personlig beskrivning",
-    "teamFit": "Baserat på team-erfarenheter OCH självbild"
+    "communicationStyle": "Analys baserat på CV-språk och personlig beskrivning",
+    "leadershipStyle": "Ledarskapsstil baserat på erfarenhet",
+    "values": ["Värderingar från CV och personlig beskrivning"],
+    "personalityTraits": ["Personlighetsdrag från CV och beskrivning"],
+    "workStyle": "Arbetsstil baserat på CV och personlig beskrivning"
   },
   "scores": {
-    "leadership": "1-5 baserat på konkreta exempel OCH personlig beskrivning",
-    "innovation": "1-5 baserat på innovativa projekt OCH självbild",
-    "adaptability": "1-5 baserat på olika roller/teknologier OCH personlig reflektion",
-    "culturalFit": "1-5 baserat på värderingar OCH personlig beskrivning",
-    "communication": "1-5 baserat på CV-kvalitet OCH kommunikationsstil",
-    "teamwork": "1-5 baserat på team-projekt OCH personlig beskrivning"
+    "leadership": 3,
+    "innovation": 3,
+    "adaptability": 4,
+    "culturalFit": 4,
+    "communication": 4,
+    "teamwork": 4
   },
   "analysisInsights": {
-    "strengths": ["Styrkor från CV OCH personlig beskrivning"],
-    "developmentAreas": ["Områden från CV-luckor OCH självreflektion"],
-    "careerTrajectory": "Analys från arbethistorik OCH personliga ambitioner",
-    "motivationFactors": ["Faktorer från CV OCH personlig beskrivning"],
-    "consultingReadiness": "Bedömning baserat på erfarenhet OCH självbild",
-    "marketPosition": "Positionering baserat på färdigheter OCH personlig profil"
+    "strengths": ["Styrkor från CV"],
+    "developmentAreas": ["Utvecklingsområden"],
+    "careerTrajectory": "Karriärutveckling",
+    "consultingReadiness": "Konsultberedskap"
   },
   "marketAnalysis": {
     "hourlyRate": {
-      "current": "Baserat på erfarenhet 800-1200",
-      "optimized": "Optimerat värde 1000-1500",
-      "explanation": "Motivering baserat på faktisk erfarenhet, färdigheter OCH personlig profil"
+      "current": 900,
+      "optimized": 1100,
+      "explanation": "Motivering baserat på färdigheter och erfarenhet"
     },
-    "competitiveAdvantages": ["Fördelar från CV OCH personlig styrka"],
-    "marketDemand": "Bedömning baserat på färdigheter OCH profil",
-    "recommendedFocus": "Rekommendation baserat på färdigheter OCH personliga mål"
+    "competitiveAdvantages": ["Konkurrensfördelar"],
+    "marketDemand": "Marknadsbedömning",
+    "recommendedFocus": "Utvecklingsrekommendationer"
   }
 }
 
-VIKTIGT: Använd CV-text OCH personlig beskrivning för FÖRBÄTTRAD analys. HITTA ALDRIG PÅ information!`;
+VIKTIGT: Använd ENDAST riktig CV-information. Ignorera PDF-metadata helt!`;
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -273,7 +262,7 @@ VIKTIGT: Använd CV-text OCH personlig beskrivning för FÖRBÄTTRAD analys. HIT
         messages: [
           {
             role: 'system',
-            content: 'Du är en expertanalytiker för CV med förmåga att integrera personlig självbeskrivning. Du MÅSTE använda ENDAST information som FAKTISKT finns i CV-texten PLUS den personliga beskrivningen för förbättrad mjukvärdesanalys. HITTA ALDRIG PÅ information. Svara ALLTID med korrekt JSON utan extra text.'
+            content: 'Du är en expertanalytiker för CV som IGNORERAR PDF-metadata och fokuserar på RIKTIG CV-information. Svara ALLTID med korrekt JSON utan extra text.'
           },
           {
             role: 'user',
@@ -292,71 +281,69 @@ VIKTIGT: Använd CV-text OCH personlig beskrivning för FÖRBÄTTRAD analys. HIT
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ ENHANCED Groq response with personal description received');
+    console.log('✅ IMPROVED Groq response received');
 
     let analysis;
     try {
       const content = groqData.choices[0]?.message?.content;
-      console.log('🔍 Groq response content preview:', content.substring(0, 500));
+      console.log('🔍 Groq response preview:', content.substring(0, 300));
 
-      // Enhanced JSON extraction and validation
       const cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
         
-        // STRICT data validation - only use detected data if it's valid
+        // Use detected information ONLY if it's valid and not PDF metadata
         if (detectedInfo.emails.length > 0 && detectedInfo.emails[0].includes('@')) {
           analysis.personalInfo.email = detectedInfo.emails[0];
-          console.log('✅ Email from detection:', detectedInfo.emails[0]);
+          console.log('✅ Valid email detected:', detectedInfo.emails[0]);
         }
         if (detectedInfo.phones.length > 0 && detectedInfo.phones[0].length >= 8) {
           analysis.personalInfo.phone = detectedInfo.phones[0];
-          console.log('✅ Phone from detection:', detectedInfo.phones[0]);
+          console.log('✅ Valid phone detected:', detectedInfo.phones[0]);
         }
-        if (detectedInfo.names.length > 0 && detectedInfo.names[0].split(' ').length >= 2) {
-          analysis.personalInfo.name = detectedInfo.names[0];
-          console.log('✅ Name from detection:', detectedInfo.names[0]);
+        // Only use names that look like real names (not PDF metadata)
+        if (detectedInfo.names.length > 0) {
+          const validNames = detectedInfo.names.filter(name => 
+            !name.match(/^(Object|Subtype|Image|Width|Height|Filter|Type|PDF)/i) &&
+            name.split(' ').length >= 2 &&
+            name.length < 50
+          );
+          if (validNames.length > 0) {
+            analysis.personalInfo.name = validNames[0];
+            console.log('✅ Valid name detected:', validNames[0]);
+          }
         }
         if (detectedInfo.locations.length > 0) {
           analysis.personalInfo.location = detectedInfo.locations[0];
-          console.log('✅ Location from detection:', detectedInfo.locations[0]);
+          console.log('✅ Valid location detected:', detectedInfo.locations[0]);
         }
-        
-        // Enhance skills with detected technical skills only if they exist
         if (detectedInfo.skills.length > 0) {
           analysis.skills.technical = [...new Set([...analysis.skills.technical, ...detectedInfo.skills])];
-          console.log('✅ Technical skills enhanced with detection');
+          console.log('✅ Technical skills enhanced');
         }
         
-        console.log('📊 ENHANCED analysis completed with personal description:', {
-          name: analysis.personalInfo.name,
-          email: analysis.personalInfo.email,
-          phone: analysis.personalInfo.phone,
-          location: analysis.personalInfo.location,
-          personalDescriptionEnhanced: !!personalDescription,
-          softSkillsEnhanced: true,
-          realDataOnly: true
-        });
-        
       } else {
-        throw new Error('No valid JSON found in Groq response');
+        throw new Error('No valid JSON found in response');
       }
     } catch (parseError) {
-      console.error('❌ Parse error, using ENHANCED fallback strategy:', parseError);
+      console.error('❌ Parse error, using fallback:', parseError);
       
-      // ENHANCED fallback with detected information and basic soft skills
+      // Improved fallback with detected valid information
       analysis = {
         personalInfo: {
-          name: detectedInfo.names[0] || 'Not available in CV',
-          email: detectedInfo.emails[0] || 'Not available in CV',
-          phone: detectedInfo.phones[0] || 'Not available in CV',
-          location: detectedInfo.locations[0] || 'Not available in CV'
+          name: detectedInfo.names.find(name => 
+            !name.match(/^(Object|Subtype|Image|Width|Height|Filter|Type|PDF)/i) &&
+            name.split(' ').length >= 2
+          ) || 'Ej angivet i CV',
+          email: detectedInfo.emails[0] || 'Ej angivet i CV',
+          phone: detectedInfo.phones[0] || 'Ej angivet i CV',
+          location: detectedInfo.locations[0] || 'Ej angivet i CV'
         },
         experience: {
-          years: 'Not available in CV',
-          currentRole: 'Not available in CV',
+          years: 'Ej angivet i CV',
+          currentRole: 'Ej angivet i CV',
           level: 'Mid'
         },
         skills: {
@@ -367,43 +354,40 @@ VIKTIGT: Använd CV-text OCH personlig beskrivning för FÖRBÄTTRAD analys. HIT
         workHistory: [],
         education: [],
         softSkills: {
-          communicationStyle: personalDescription ? 'Enhanced with personal insights' : 'Professional and collaborative',
-          leadershipStyle: personalDescription ? 'Informed by self-description' : 'Supportive and goal-oriented',
-          values: personalDescription ? ['Quality', 'Growth', 'Collaboration'] : ['Quality', 'Innovation'],
-          personalityTraits: personalDescription ? ['Self-aware', 'Motivated', 'Professional'] : ['Analytical', 'Detail-oriented'],
-          workStyle: personalDescription ? 'Adapted from personal description' : 'Team-oriented and adaptable',
-          teamFit: personalDescription ? 'Enhanced team compatibility' : 'Good team player'
+          communicationStyle: personalDescription ? 'Baserat på personlig beskrivning' : 'Professionell kommunikation',
+          leadershipStyle: 'Stödjande och målinriktad',
+          values: ['Kvalitet', 'Innovation', 'Samarbete'],
+          personalityTraits: ['Analytisk', 'Detaljorienterad', 'Problemlösare'],
+          workStyle: personalDescription ? 'Anpassad efter personlig beskrivning' : 'Teamorienterad och flexibel'
         },
         scores: {
-          leadership: personalDescription ? 4 : 3,
-          innovation: personalDescription ? 4 : 3,
-          adaptability: personalDescription ? 4 : 4,
-          culturalFit: personalDescription ? 5 : 4,
-          communication: personalDescription ? 5 : 4,
-          teamwork: personalDescription ? 5 : 4
+          leadership: 3,
+          innovation: 3,
+          adaptability: 4,
+          culturalFit: 4,
+          communication: 4,
+          teamwork: 4
         },
         analysisInsights: {
-          strengths: personalDescription ? ['Self-awareness', 'Communication', 'Technical skills'] : ['Technical expertise', 'Problem-solving'],
-          developmentAreas: ['Continued learning', 'Leadership development'],
-          careerTrajectory: personalDescription ? 'Enhanced with personal goals' : 'Positive trajectory',
-          motivationFactors: personalDescription ? ['Personal growth', 'Professional development'] : ['Innovation', 'Quality'],
-          consultingReadiness: personalDescription ? 'Well-prepared with clear self-understanding' : 'Good consulting potential',
-          marketPosition: personalDescription ? 'Strengthened by personal insights' : 'Competitive in market'
+          strengths: ['Teknisk kompetens', 'Problemlösning', 'Teamarbete'],
+          developmentAreas: ['Ledarskapsutvekling', 'Certifieringar'],
+          careerTrajectory: 'Positiv utveckling med potential för senior roller',
+          consultingReadiness: 'God potential för konsultarbete'
         },
         marketAnalysis: {
           hourlyRate: {
             current: 900,
             optimized: 1100,
-            explanation: personalDescription ? 'Enhanced by personal profile and self-awareness' : 'Based on available technical skills'
+            explanation: 'Baserat på tillgängliga tekniska färdigheter och erfarenhet'
           },
-          competitiveAdvantages: personalDescription ? ['Self-awareness', 'Clear communication', 'Technical foundation'] : ['Technical skills', 'Professional approach'],
-          marketDemand: 'Good market demand',
-          recommendedFocus: personalDescription ? 'Leverage self-awareness for client relationships' : 'Continue technical development'
+          competitiveAdvantages: ['Teknisk grund', 'Professionell approach'],
+          marketDemand: 'God efterfrågan på marknaden',
+          recommendedFocus: 'Fortsätt teknisk utveckling'
         }
       };
     }
 
-    console.log('✅ ENHANCED CV analysis with personal description completed successfully');
+    console.log('✅ IMPROVED CV analysis completed with better data extraction');
 
     return new Response(
       JSON.stringify({ 
@@ -416,11 +400,10 @@ VIKTIGT: Använd CV-text OCH personlig beskrivning för FÖRBÄTTRAD analys. HIT
           phonesFound: detectedInfo.phones.length,
           namesFound: detectedInfo.names.length,
           locationsFound: detectedInfo.locations.length,
-          companiesFound: detectedInfo.companies.length,
           skillsFound: detectedInfo.skills.length,
           personalDescriptionLength: personalDescription.length,
           aiModel: 'llama-3.1-8b-instant',
-          extractionQuality: 'enhanced-with-personal-description'
+          extractionQuality: 'improved-filtering'
         }
       }),
       {
@@ -429,13 +412,12 @@ VIKTIGT: Använd CV-text OCH personlig beskrivning för FÖRBÄTTRAD analys. HIT
     );
 
   } catch (error) {
-    console.error('❌ ENHANCED CV parsing error:', error);
+    console.error('❌ IMPROVED CV parsing error:', error);
     
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message,
-        extractionQuality: 'failed'
+        error: error.message
       }),
       {
         status: 500,
