@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting enhanced CV parsing with improved OpenAI integration...');
+    console.log('🚀 Starting enhanced CV parsing with comprehensive soft skills analysis...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -75,7 +75,7 @@ serve(async (req) => {
           .replace(/([a-z])([A-Z])/g, '$1 $2') // Add spaces between camelCase
           .replace(/([0-9])([A-Z])/g, '$1 $2') // Add spaces between numbers and caps
           .trim()
-          .substring(0, 5000); // Increased text limit for better analysis
+          .substring(0, 8000); // Increased text limit for better soft skills analysis
         
         console.log('📝 Enhanced text extraction completed. Sample:', extractedText.substring(0, 300));
         
@@ -100,7 +100,7 @@ serve(async (req) => {
       } else {
         // Handle text files and other formats
         extractedText = await file.text();
-        extractedText = extractedText.substring(0, 5000);
+        extractedText = extractedText.substring(0, 8000);
         console.log('📄 Text file processed, length:', extractedText.length);
       }
       
@@ -109,66 +109,95 @@ serve(async (req) => {
       extractedText = `File processing limited for ${file.name}. Detected type: ${file.type}`;
     }
 
-    console.log('🤖 Sending to OpenAI with enhanced prompt for better analysis...');
+    console.log('🤖 Sending to OpenAI with comprehensive soft skills analysis prompt...');
 
-    // Enhanced AI prompt with better instructions for Swedish context
-    const prompt = `Analysera detta CV MED HÖGSTA NOGGRANNHET. Du MÅSTE extrahera ALL personlig information som finns.
+    // Enhanced AI prompt with comprehensive soft skills analysis
+    const prompt = `Du är en expert på CV-analys och mjukvärdesanalys. Analysera detta CV MYCKET NOGGRANT för att extrahera BÅDE hård data OCH mjukvärden.
 
-PRIORITERAD DETEKTERAD INFORMATION:
-Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
-Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
-Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
-Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'SÖK I TEXTEN'}
+DETEKTERAD INFORMATION att prioritera:
+Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'MÅSTE HITTAS'}
+Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'MÅSTE HITTAS'}
+Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'MÅSTE HITTAS'}
+Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'Sverige'}
 
 CV FULLTEXT:
 ${extractedText}
 
-KRITISKA INSTRUKTIONER:
-1. Använd ALLTID detekterad info om den finns och är giltig
-2. Sök AKTIVT efter kontaktuppgifter i hela texten
-3. Leta efter mönster: "Tel:", "Email:", "E-post:", "@", telefonnummer
-4. Hitta FULLSTÄNDIGA namn (för- och efternamn)
-5. Var EXTREMT noggrann med dataextraktion
-6. För svenska/nordiska CV:n, leta efter svenska tecken (å, ä, ö)
-7. Identifiera års-erfarenhet från arbetserfarenhet
+ANALYS-INSTRUKTIONER:
+
+1. HÅRD DATA: Extrahera exakt personlig info, tekniska färdigheter, erfarenhet
+2. MJUKVÄRDEN: Analysera språkbruk, formuleringar och beskrivningar för att bedöma:
+   - Kommunikationsstil (formell/informell, tydlig/teknisk, etc.)
+   - Ledarskapsegenskaper (från projekt, ansvar, team-referenser)
+   - Värderingar (vad personen betonar som viktigt)
+   - Personlighetstyp (analytisk, kreativ, strukturerad, etc.)
+   - Teamanpassning (samarbetsförmåga från beskrivningar)
+   - Kulturell fit (värderingar, arbetssätt)
+   - Anpassningsförmåga (från jobbbyten, nya teknologier)
+   - Innovation (kreativa projekt, nya lösningar, initiativ)
+
+3. SCORING: Ge scores 1-5 för mjukvärden baserat på CV:ts innehåll
+4. SPRÅKANALYS: Analysera hur personen beskriver sig själv och sina prestationer
 
 Svara ENDAST med denna exakta JSON-struktur:
 
 {
   "personalInfo": {
     "name": "FULLSTÄNDIGT NAMN",
-    "email": "GILTIG EMAIL-ADRESS", 
+    "email": "GILTIG EMAIL", 
     "phone": "TELEFONNUMMER",
     "location": "STAD/REGION"
   },
   "experience": {
-    "years": "ANTAL ÅR ERFARENHET (endast siffra)",
-    "currentRole": "SENASTE JOBBTITEL",
+    "years": "ANTAL ÅR ERFARENHET",
+    "currentRole": "SENASTE ROLL",
     "level": "Junior/Mid/Senior/Expert"
   },
   "skills": {
     "technical": ["TEKNISKA FÄRDIGHETER"],
     "languages": ["PROGRAMMERINGSSPRÅK"],
-    "tools": ["VERKTYG", "SYSTEM", "CERTIFIERINGAR"]
+    "tools": ["VERKTYG", "SYSTEM"]
   },
   "workHistory": [
     {
       "company": "FÖRETAG",
-      "role": "ROLL",
+      "role": "ROLL", 
       "duration": "PERIOD",
-      "description": "KORT BESKRIVNING"
+      "description": "BESKRIVNING"
     }
   ],
   "education": [
     {
-      "institution": "SKOLA/UNIVERSITET",
+      "institution": "SKOLA",
       "degree": "UTBILDNING",
       "year": "ÅR"
     }
-  ]
+  ],
+  "softSkills": {
+    "communicationStyle": "BEDÖMNING AV KOMMUNIKATIONSSTIL",
+    "leadershipStyle": "LEDARSKAPSTYP BASERAT PÅ CV",
+    "values": ["VÄRDERING 1", "VÄRDERING 2", "VÄRDERING 3"],
+    "personalityTraits": ["PERSONLIGHETSDRAG 1", "PERSONLIGHETSDRAG 2"],
+    "workStyle": "ARBETSSTIL OCH PREFERENSER",
+    "teamFit": "TEAMANPASSNING OCH SAMARBETSFÖRMÅGA"
+  },
+  "scores": {
+    "leadership": 1-5,
+    "innovation": 1-5,
+    "adaptability": 1-5,
+    "culturalFit": 1-5,
+    "communication": 1-5,
+    "teamwork": 1-5
+  },
+  "analysisInsights": {
+    "strengths": ["STYRKA 1", "STYRKA 2"],
+    "developmentAreas": ["UTVECKLINGSOMRÅDE 1"],
+    "careerTrajectory": "KARRIÄRUTVECKLING OCH RIKTNING",
+    "motivationFactors": ["VAD SOM MOTIVERAR PERSONEN"]
+  }
 }
 
-VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för den specifika egenskapen.`;
+VIKTIGT: Basera mjukvärden på faktisk text från CV:t. Om information saknas, skriv "Ej tillräckligt underlag" för den egenskapen.`;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -181,15 +210,15 @@ VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för 
         messages: [
           {
             role: 'system',
-            content: 'Du är expertanalytiker för CV och personlig informationsextraktion. Du MÅSTE hitta och extrahera namn, email och telefonnummer med högsta noggrannhet. Svara ALLTID med korrekt JSON utan extra text.'
+            content: 'Du är en expertanalytiker för CV och mjukvärdesanalys. Du MÅSTE extrahera både hård data och mjukvärden med högsta noggrannhet. Svara ALLTID med korrekt JSON utan extra text. Fokusera särskilt på att analysera språkbruk och formuleringar för att bedöma mjukvärden.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.1,
-        max_tokens: 2000,
+        temperature: 0.2,
+        max_tokens: 3000,
       }),
     });
 
@@ -200,12 +229,12 @@ VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för 
     }
 
     const openaiData = await openaiResponse.json();
-    console.log('✅ Enhanced OpenAI response received');
+    console.log('✅ Enhanced OpenAI response with soft skills received');
 
     let analysis;
     try {
       const content = openaiData.choices[0]?.message?.content;
-      console.log('🔍 OpenAI response content preview:', content.substring(0, 200));
+      console.log('🔍 OpenAI response content preview:', content.substring(0, 300));
 
       // Enhanced JSON extraction and validation
       const cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -232,12 +261,12 @@ VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för 
           console.log('✅ Location overridden with detected value:', detectedInfo.locations[0]);
         }
         
-        console.log('📊 Final enhanced analysis result:', {
+        console.log('📊 Enhanced analysis with soft skills completed:', {
           name: analysis.personalInfo.name,
           email: analysis.personalInfo.email,
-          phone: analysis.personalInfo.phone,
-          location: analysis.personalInfo.location,
-          skillsCount: (analysis.skills.technical?.length || 0) + (analysis.skills.languages?.length || 0) + (analysis.skills.tools?.length || 0)
+          softSkillsAnalyzed: !!analysis.softSkills,
+          scoresProvided: !!analysis.scores,
+          insightsGenerated: !!analysis.analysisInsights
         });
         
       } else {
@@ -246,7 +275,7 @@ VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för 
     } catch (parseError) {
       console.error('❌ Parse error, using enhanced fallback strategy:', parseError);
       
-      // Enhanced fallback with better data structure
+      // Enhanced fallback with soft skills structure
       analysis = {
         personalInfo: {
           name: detectedInfo.names[0] || 'HITTAS EJ',
@@ -265,11 +294,33 @@ VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för 
           tools: []
         },
         workHistory: [],
-        education: []
+        education: [],
+        softSkills: {
+          communicationStyle: 'Ej tillräckligt underlag',
+          leadershipStyle: 'Ej tillräckligt underlag',
+          values: [],
+          personalityTraits: [],
+          workStyle: 'Ej tillräckligt underlag',
+          teamFit: 'Ej tillräckligt underlag'
+        },
+        scores: {
+          leadership: 3,
+          innovation: 3,
+          adaptability: 3,
+          culturalFit: 3,
+          communication: 3,
+          teamwork: 3
+        },
+        analysisInsights: {
+          strengths: [],
+          developmentAreas: [],
+          careerTrajectory: 'Ej tillräckligt underlag',
+          motivationFactors: []
+        }
       };
     }
 
-    console.log('✅ Enhanced CV analysis completed successfully');
+    console.log('✅ Comprehensive CV analysis with soft skills completed successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -282,8 +333,8 @@ VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för 
           phonesFound: detectedInfo.phones.length,
           namesFound: detectedInfo.names.length,
           locationsFound: detectedInfo.locations.length,
-          aiModel: 'gpt-4o-mini-enhanced',
-          extractionQuality: 'enhanced'
+          aiModel: 'gpt-4o-mini-enhanced-soft-skills',
+          extractionQuality: 'comprehensive'
         }
       }),
       {
@@ -292,7 +343,7 @@ VIKTIGT: Om information VERKLIGEN inte kan hittas, skriv "Ej specificerat" för 
     );
 
   } catch (error) {
-    console.error('❌ Enhanced CV parsing error:', error);
+    console.error('❌ Enhanced CV parsing with soft skills error:', error);
     
     return new Response(
       JSON.stringify({ 
