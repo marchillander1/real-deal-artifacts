@@ -12,7 +12,7 @@ export interface Assignment {
   urgency: "High" | "Medium" | "Low";
   budget: string;
   hourlyRate: number;
-  status: string;
+  status: "open" | "in_progress" | "completed" | "cancelled";
   matchedConsultants: number;
   createdAt: string;
   remote: string;

@@ -5,6 +5,9 @@ import { Link } from 'react-router-dom';
 import TrialSignupModal from './TrialSignupModal';
 
 export const HeroSection = () => {
+  // Simulate live consultant count
+  const networkConsultants = 1247 + Math.floor(Math.random() * 10);
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
       {/* Background Pattern */}
@@ -43,10 +46,18 @@ export const HeroSection = () => {
               
               <Link
                 to="/cv-upload"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-blue-600 bg-white hover:bg-gray-50 rounded-full transition-all duration-300 hover:shadow-xl"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-slate-800 bg-white hover:bg-gray-50 rounded-full transition-all duration-300 hover:shadow-xl"
               >
                 <Upload className="w-5 h-5 mr-2" />
-                Upload CV & Get Analysis
+                Join Consultants
+              </Link>
+
+              <Link
+                to="/demo"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white border-2 border-white hover:bg-white hover:text-slate-800 rounded-full transition-all duration-300"
+              >
+                Test Our Platform
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </div>
 
@@ -67,8 +78,21 @@ export const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Column - Stats Cards */}
+          {/* Right Column - Live Stats */}
           <div className="space-y-6">
+            {/* Live Network Count */}
+            <div className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border border-white/20 rounded-2xl p-8 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-green-400 font-medium">LIVE</span>
+                </div>
+              </div>
+              <div className="text-4xl font-bold mb-2">{networkConsultants.toLocaleString()}</div>
+              <div className="text-slate-300">Network Consultants Available Now</div>
+              <div className="text-sm text-green-400 mt-2">+{Math.floor(Math.random() * 5) + 1} joined this hour</div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               {/* Match Accuracy */}
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">

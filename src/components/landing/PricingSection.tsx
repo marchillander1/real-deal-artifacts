@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import TrialSignupModal from './TrialSignupModal';
 
 export default function PricingSection() {
   return (
@@ -59,9 +60,7 @@ export default function PricingSection() {
                 </li>
               </ul>
 
-              <Button variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-800">
-                Start Free Trial
-              </Button>
+              <TrialSignupModal />
             </CardContent>
           </Card>
 
@@ -113,9 +112,7 @@ export default function PricingSection() {
                 </li>
               </ul>
 
-              <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                Start Free Trial
-              </Button>
+              <TrialSignupModal />
             </CardContent>
           </Card>
 
