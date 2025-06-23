@@ -256,7 +256,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         messages: [
           {
             role: 'system',
@@ -403,7 +403,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
           locationsFound: detectedInfo.locations.length,
           companiesFound: detectedInfo.companies.length,
           skillsFound: detectedInfo.skills.length,
-          aiModel: 'llama-3.1-70b-versatile',
+          aiModel: 'llama-3.1-8b-instant',
           extractionQuality: 'strict-real-data'
         }
       }),
