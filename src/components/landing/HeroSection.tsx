@@ -5,41 +5,30 @@ import { Link } from 'react-router-dom';
 import TrialSignupModal from './TrialSignupModal';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 
 export const HeroSection = () => {
-  const [liveUsers, setLiveUsers] = useState(1247);
-
-  // Fetch real active users from the matchwiseai platform
-  const { data: activeUsers = 0 } = useQuery({
-    queryKey: ['active-users'],
+  const { consultants } = useSupabaseConsultantsWithDemo();
+  
+  // Fetch matches data for stats
+  const { data: matchesData = [] } = useQuery({
+    queryKey: ['matches'],
     queryFn: async () => {
-      // Get count of users who have logged in recently (last 24 hours)
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact' })
-        .gte('last_sign_in_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
-
+        .from('matches')
+        .select('*');
       if (error) {
-        console.error('Error fetching active users:', error);
-        return 1247; // Fallback number
+        console.error('Error fetching matches:', error);
+        return [];
       }
-      
-      return (data?.length || 0) + 1247; // Add base number for network consultants
+      return data || [];
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  // Update live counter with small random variations
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveUsers(prev => {
-        const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
-        return Math.max(activeUsers + variation, activeUsers);
-      });
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [activeUsers]);
+  // Real dashboard stats using actual data from matchwiseai
+  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
+  const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
+  const totalConsultants = consultants.length;
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
@@ -159,7 +148,7 @@ export const HeroSection = () => {
                     <Users className="h-5 w-5 text-blue-400" />
                     <span className="text-xs text-green-400">+15%</span>
                   </div>
-                  <div className="text-2xl font-bold text-white">{Math.floor(liveUsers / 100)}</div>
+                  <div className="text-2xl font-bold text-white">{networkConsultants.length}</div>
                   <div className="text-sm text-slate-400">Network Consultants</div>
                 </div>
 
@@ -196,7 +185,7 @@ export const HeroSection = () => {
                   <span className="text-green-400 font-medium">LIVE</span>
                 </div>
               </div>
-              <div className="text-3xl font-bold mb-2">{liveUsers.toLocaleString()}</div>
+              <div className="text-3xl font-bold mb-2">{totalConsultants}</div>
               <div className="text-slate-300">Active Network Consultants</div>
               <div className="text-sm text-green-400 mt-2">+{Math.floor(Math.random() * 5) + 1} joined this hour</div>
             </div>
