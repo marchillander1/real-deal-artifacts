@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -207,9 +208,10 @@ export default function CVUploadModern() {
   const handleJoinNetwork = async () => {
     try {
       console.log('🌐 Joining MatchWise Network...');
+      console.log('📧 Sending emails to:', personalInfo.email, 'and marc@matchwise.tech');
       
-      // Send welcome email with consultant info
-      const response = await supabase.functions.invoke('send-welcome-email', {
+      // Send welcome email to consultant
+      const welcomeResponse = await supabase.functions.invoke('send-welcome-email', {
         body: {
           consultantEmail: personalInfo.email,
           consultantName: personalInfo.name,
@@ -217,12 +219,25 @@ export default function CVUploadModern() {
         }
       });
 
-      if (response.error) {
-        console.error('❌ Welcome email failed:', response.error);
+      console.log('📨 Welcome email response:', welcomeResponse);
+
+      if (welcomeResponse.error) {
+        console.error('❌ Welcome email failed:', welcomeResponse.error);
+        toast({
+          title: "Registration successful",
+          description: "Profile created but welcome email failed to send",
+          variant: "default",
+        });
+      } else {
+        console.log('✅ Welcome email sent successfully');
+        toast({
+          title: "Welcome email sent! ✅",
+          description: `Welcome email sent to ${personalInfo.email}`,
+        });
       }
 
       // Send admin notification to Marc
-      await supabase.functions.invoke('send-registration-notification', {
+      const adminResponse = await supabase.functions.invoke('send-registration-notification', {
         body: {
           consultantName: personalInfo.name,
           consultantEmail: personalInfo.email,
@@ -230,9 +245,19 @@ export default function CVUploadModern() {
         }
       });
 
+      console.log('📨 Admin notification response:', adminResponse);
+
+      if (adminResponse.error) {
+        console.warn('⚠️ Admin notification failed:', adminResponse.error);
+        // Don't show error to user for admin notification failure
+      } else {
+        console.log('✅ Admin notification sent successfully');
+      }
+
+      // Always show success message regardless of email status
       toast({
         title: "Welcome to MatchWise Network! 🎉",
-        description: "Check your email for login credentials",
+        description: "Registration complete! Check your email for login credentials.",
       });
       
       // Navigate to NetworkSuccess page
@@ -241,10 +266,13 @@ export default function CVUploadModern() {
     } catch (error) {
       console.error('❌ Join network failed:', error);
       toast({
-        title: "Error joining network",
-        description: "Please try again",
-        variant: "destructive",
+        title: "Registration successful",
+        description: "Profile created but there was an issue with email notifications",
+        variant: "default",
       });
+      
+      // Still navigate to success page even if emails fail
+      navigate(`/network-success?consultant=${consultant?.id}`);
     }
   };
 
@@ -256,6 +284,115 @@ export default function CVUploadModern() {
     } else {
       navigate('/');
     }
+  };
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      handleFileSelect(files[0]);
+    }
+  }, []);
+
+  const handleFileSelect = (selectedFile: File) => {
+    const validTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png',
+      'image/jpg'
+    ];
+
+    if (!validTypes.includes(selectedFile.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF, DOC, DOCX, or image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload a file smaller than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFile(selectedFile);
+    toast({
+      title: "File selected",
+      description: `${selectedFile.name} is ready for analysis`,
+    });
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      handleFileSelect(selectedFile);
+    }
+  };
+
+  const handleContinueToPersonalInfo = () => {
+    if (!file || !cvAnalysisData) {
+      toast({
+        title: "CV analysis required",
+        description: "Please wait for CV analysis to complete",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setStep('personal-info');
+  };
+
+  const handleStartProcessing = () => {
+    if (!personalInfo.name.trim() || !personalInfo.email.trim()) {
+      toast({
+        title: "Required fields missing",
+        description: "Please fill in name and email",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsProcessing(true);
+    setStep('processing');
+    setProgress(0);
+  };
+
+  const handleProcessingComplete = (result: any) => {
+    setConsultant(result);
+    setStep('analysis');
+    setIsProcessing(false);
+    setProgress(100);
+  };
+
+  const handleProcessingError = (error: string) => {
+    setIsProcessing(false);
+    setStep('personal-info');
+    setProgress(0);
+    toast({
+      title: "Processing failed",
+      description: error,
+      variant: "destructive",
+    });
   };
 
   return (
