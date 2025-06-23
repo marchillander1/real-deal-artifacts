@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,14 +109,6 @@ const ContactSection = () => {
                 <div className="flex items-center space-x-3 text-slate-300">
                   <Mail className="h-5 w-5 text-blue-400" />
                   <span>marc@matchwise.tech</span>
-                </div>
-                <div className="flex items-center space-x-3 text-slate-300">
-                  <Phone className="h-5 w-5 text-blue-400" />
-                  <span>+46 70 123 45 67</span>
-                </div>
-                <div className="flex items-center space-x-3 text-slate-300">
-                  <MapPin className="h-5 w-5 text-blue-400" />
-                  <span>Stockholm, Sweden</span>
                 </div>
               </div>
             </div>

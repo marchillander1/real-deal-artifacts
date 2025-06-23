@@ -72,7 +72,7 @@ function App() {
       status: "Open",
       matchedConsultants: 0,
       createdAt: new Date().toISOString(),
-      remote: true,
+      remote: "Yes",
       teamSize: "5-10",
       teamCulture: "Collaborative",
       industry: "Technology"
@@ -93,7 +93,7 @@ function App() {
       status: "Open",
       matchedConsultants: 0,
       createdAt: new Date().toISOString(),
-      remote: false,
+      remote: "No",
       teamSize: "3-5",
       teamCulture: "Agile",
       industry: "Software"

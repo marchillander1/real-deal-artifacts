@@ -15,7 +15,7 @@ export interface Assignment {
   status: string;
   matchedConsultants: number;
   createdAt: string;
-  remote: boolean;
+  remote: string;
   teamSize: string;
   teamCulture: string;
   industry: string;
