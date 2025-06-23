@@ -6,14 +6,20 @@ import { Users, TrendingUp, Clock, Plus, Bell } from 'lucide-react';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Consultant } from '@/types/consultant';
+import { Assignment } from '@/types/assignment';
 
 interface DashboardOverviewProps {
   onCreateAssignment: () => void;
+  consultants: Consultant[];
+  assignments: Assignment[];
 }
 
-export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onCreateAssignment }) => {
-  const { consultants } = useSupabaseConsultantsWithDemo();
-
+export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ 
+  onCreateAssignment, 
+  consultants, 
+  assignments 
+}) => {
   // Fetch matches data
   const { data: matchesData = [] } = useQuery({
     queryKey: ['matches'],

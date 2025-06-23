@@ -16,16 +16,26 @@ import {
   Brain,
   Zap
 } from 'lucide-react';
-import { demoAssignments } from '@/data/demoAssignments';
-import { Assignment } from '@/types/consultant';
+import { Assignment } from '@/types/assignment';
+import { Consultant } from '@/types/consultant';
 import { AIMatchingResults } from './AIMatchingResults';
 
-export const AssignmentsSection: React.FC = () => {
+interface AssignmentsSectionProps {
+  assignments: Assignment[];
+  onMatch: (assignment: Assignment) => void;
+  consultants: Consultant[];
+}
+
+export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({ 
+  assignments, 
+  onMatch, 
+  consultants 
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [showMatchResults, setShowMatchResults] = useState(false);
 
-  const filteredAssignments = demoAssignments.filter(assignment =>
+  const filteredAssignments = assignments.filter(assignment =>
     assignment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     assignment.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
     assignment.requiredSkills.some(skill => 
@@ -45,6 +55,7 @@ export const AssignmentsSection: React.FC = () => {
   const handleAIMatch = (assignment: Assignment) => {
     setSelectedAssignment(assignment);
     setShowMatchResults(true);
+    onMatch(assignment);
   };
 
   return (
@@ -84,7 +95,7 @@ export const AssignmentsSection: React.FC = () => {
               <Briefcase className="h-5 w-5 text-blue-600" />
               <div>
                 <p className="text-sm text-gray-600">Open Assignments</p>
-                <p className="text-xl font-bold">{demoAssignments.length}</p>
+                <p className="text-xl font-bold">{assignments.length}</p>
               </div>
             </div>
           </CardContent>
@@ -96,7 +107,7 @@ export const AssignmentsSection: React.FC = () => {
               <Clock className="h-5 w-5 text-red-600" />
               <div>
                 <p className="text-sm text-gray-600">High Priority</p>
-                <p className="text-xl font-bold">{demoAssignments.filter(a => a.urgency === 'High').length}</p>
+                <p className="text-xl font-bold">{assignments.filter(a => a.urgency === 'High').length}</p>
               </div>
             </div>
           </CardContent>
@@ -190,7 +201,7 @@ export const AssignmentsSection: React.FC = () => {
               <div className="flex justify-between items-center pt-4 border-t border-gray-100">
                 <div className="flex items-center space-x-2 text-sm text-gray-500">
                   <Users className="h-4 w-4" />
-                  <span>Leadership Level: {assignment.leadershipLevel}/5</span>
+                  <span>Team Size: {assignment.teamSize}</span>
                 </div>
                 <Button 
                   onClick={() => handleAIMatch(assignment)}

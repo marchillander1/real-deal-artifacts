@@ -82,7 +82,11 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmen
         </div>
 
         {/* Overview Stats */}
-        <DashboardOverview consultants={allConsultants} assignments={assignments} />
+        <DashboardOverview 
+          onCreateAssignment={() => setIsCreateAssignmentOpen(true)}
+          consultants={allConsultants}
+          assignments={assignments}
+        />
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -108,7 +112,7 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmen
                         <h4 className="font-medium">{assignment.title}</h4>
                         <p className="text-sm text-gray-600">{assignment.company}</p>
                       </div>
-                      <Badge variant={assignment.status === 'Open' ? 'default' : 'secondary'}>
+                      <Badge variant={assignment.status === 'open' ? 'default' : 'secondary'}>
                         {assignment.status}
                       </Badge>
                     </div>

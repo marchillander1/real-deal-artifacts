@@ -15,7 +15,11 @@ interface TrialFormData {
   jobTitle: string;
 }
 
-const TrialSignupModal = () => {
+interface TrialSignupModalProps {
+  trigger?: React.ReactNode;
+}
+
+const TrialSignupModal: React.FC<TrialSignupModalProps> = ({ trigger }) => {
   const [formData, setFormData] = useState<TrialFormData>({
     name: '',
     email: '',
@@ -78,13 +82,17 @@ const TrialSignupModal = () => {
     }
   };
 
+  const defaultTrigger = (
+    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg">
+      Start Free Trial
+      <ArrowRight className="ml-2 h-5 w-5" />
+    </Button>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg">
-          Start Free Trial
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
+        {trigger || defaultTrigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
