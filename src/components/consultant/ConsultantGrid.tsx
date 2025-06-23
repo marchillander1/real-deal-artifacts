@@ -6,15 +6,11 @@ import { EnhancedConsultantCard } from '@/components/EnhancedConsultantCard';
 interface ConsultantGridProps {
   consultants: Consultant[];
   onViewAnalysis: (consultant: Consultant) => void;
-  showEditActions?: boolean;
-  showDeleteActions?: boolean;
 }
 
 export const ConsultantGrid: React.FC<ConsultantGridProps> = ({
   consultants,
-  onViewAnalysis,
-  showEditActions = true,
-  showDeleteActions = true
+  onViewAnalysis
 }) => {
   if (consultants.length === 0) {
     return (
@@ -27,13 +23,12 @@ export const ConsultantGrid: React.FC<ConsultantGridProps> = ({
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {consultants.map((consultant) => (
-        <EnhancedConsultantCard
-          key={consultant.id}
-          consultant={consultant}
-          showEditActions={showEditActions}
-          showDeleteActions={showDeleteActions}
-          onClick={() => onViewAnalysis(consultant)}
-        />
+        <div key={consultant.id} onClick={() => onViewAnalysis(consultant)} className="cursor-pointer">
+          <EnhancedConsultantCard
+            consultant={consultant}
+            showAnalysis={false}
+          />
+        </div>
       ))}
     </div>
   );

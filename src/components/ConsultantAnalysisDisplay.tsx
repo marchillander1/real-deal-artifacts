@@ -11,12 +11,9 @@ interface ConsultantAnalysisDisplayProps {
 }
 
 export const ConsultantAnalysisDisplay: React.FC<ConsultantAnalysisDisplayProps> = ({ consultant }) => {
-  // Get analysis data with proper fallbacks - using correct property names
-  const cvAnalysisData = consultant.cvAnalysis || consultant.cv_analysis_data;
-  const cvAnalysis = cvAnalysisData?.analysis || cvAnalysisData;
-  
-  const linkedinAnalysisData = consultant.linkedinAnalysis || consultant.linkedin_analysis_data;
-  const linkedinAnalysis = linkedinAnalysisData?.analysis || linkedinAnalysisData;
+  // Get analysis data with proper fallbacks - using correct property names from Consultant interface
+  const cvAnalysis = consultant.cvAnalysis;
+  const linkedinAnalysis = consultant.linkedinAnalysis;
 
   console.log('🔍 Analysis Display - Data check:', {
     consultantName: consultant.name,
