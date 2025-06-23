@@ -1,11 +1,13 @@
+
 import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, Check, ArrowLeft, Brain, Linkedin, Star, Shield, Zap } from 'lucide-react';
+import { Upload, FileText, Check, ArrowLeft, Brain, Linkedin, Star, Shield, Zap, User, Mail, Phone, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
@@ -17,10 +19,19 @@ export default function CVUploadModern() {
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [step, setStep] = useState<'upload' | 'processing' | 'complete'>('upload');
+  const [step, setStep] = useState<'upload' | 'processing' | 'personal-info' | 'analysis' | 'complete'>('upload');
   const [consultant, setConsultant] = useState<any>(null);
   const [chatMinimized, setChatMinimized] = useState(true);
   
+  // Personal info state
+  const [personalInfo, setPersonalInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    selfDescription: ''
+  });
+
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -107,7 +118,19 @@ export default function CVUploadModern() {
 
   const handleProcessingComplete = (result: any) => {
     setConsultant(result);
-    setStep('complete');
+    
+    // Pre-fill personal info with extracted data
+    if (result.analysis?.personalInfo) {
+      setPersonalInfo({
+        name: result.analysis.personalInfo.name || '',
+        email: result.analysis.personalInfo.email || '',
+        phone: result.analysis.personalInfo.phone || '',
+        location: result.analysis.personalInfo.location || '',
+        selfDescription: ''
+      });
+    }
+    
+    setStep('personal-info');
     setIsProcessing(false);
     setProgress(100);
   };
@@ -123,6 +146,39 @@ export default function CVUploadModern() {
     });
   };
 
+  const handlePersonalInfoSubmit = () => {
+    if (!personalInfo.name.trim() || !personalInfo.email.trim()) {
+      toast({
+        title: "Required fields missing",
+        description: "Please fill in name and email",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setStep('analysis');
+  };
+
+  const handleJoinNetwork = async () => {
+    try {
+      // Send welcome email and admin notification
+      // This would typically call an edge function
+      toast({
+        title: "Welcome to the network! 🎉",
+        description: "Check your email for login details",
+      });
+      
+      // Navigate to network consultants
+      navigate('/matchwiseai?tab=network');
+    } catch (error) {
+      toast({
+        title: "Error joining network",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
   const goBack = () => {
     if (isMyConsultant) {
       navigate('/matchwiseai');
@@ -130,66 +186,6 @@ export default function CVUploadModern() {
       navigate('/');
     }
   };
-
-  if (step === 'complete' && consultant) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="h-8 w-8 text-green-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Analysis Complete!</h1>
-            <p className="text-gray-600">
-              Your consultant profile has been created and analyzed successfully.
-            </p>
-          </div>
-
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Brain className="h-5 w-5 mr-2 text-purple-600" />
-                AI Analysis Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Personal Information</h3>
-                  <p className="text-sm text-gray-600 mb-1">Name: {consultant.name}</p>
-                  <p className="text-sm text-gray-600 mb-1">Email: {consultant.email}</p>
-                  <p className="text-sm text-gray-600">Location: {consultant.location}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Analysis Status</h3>
-                  <p className="text-sm text-green-600 mb-1">✅ CV Analysis Complete</p>
-                  {linkedinUrl && <p className="text-sm text-green-600 mb-1">✅ LinkedIn Analysis Complete</p>}
-                  <p className="text-sm text-green-600">✅ Market Analysis Complete</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex gap-4 justify-center">
-            <Button 
-              onClick={() => navigate(`/analysis?consultant=${consultant.id}`)}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Brain className="h-4 w-4 mr-2" />
-              View Full Analysis
-            </Button>
-            <Button 
-              onClick={goBack}
-              variant="outline"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -204,7 +200,7 @@ export default function CVUploadModern() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content - CV Upload */}
+          {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Value Proposition Section */}
             <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
@@ -253,28 +249,35 @@ export default function CVUploadModern() {
 
             {/* Progress Steps */}
             <div className="mb-8">
-              <div className="flex items-center justify-center space-x-8">
-                <div className={`flex items-center ${step === 'upload' ? 'text-blue-600' : step === 'processing' || step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'upload' ? 'bg-blue-100' : step === 'processing' || step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    {step === 'processing' || step === 'complete' ? <Check className="h-4 w-4" /> : '1'}
+              <div className="flex items-center justify-center space-x-4">
+                <div className={`flex items-center ${step === 'upload' ? 'text-blue-600' : ['processing', 'personal-info', 'analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'upload' ? 'bg-blue-100' : ['processing', 'personal-info', 'analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {['processing', 'personal-info', 'analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '1'}
                   </div>
                   Upload CV
                 </div>
-                <div className={`flex items-center ${step === 'processing' ? 'text-blue-600' : step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'processing' ? 'bg-blue-100' : step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    {step === 'complete' ? <Check className="h-4 w-4" /> : '2'}
+                <div className={`flex items-center ${step === 'processing' ? 'text-blue-600' : ['personal-info', 'analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'processing' ? 'bg-blue-100' : ['personal-info', 'analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {['personal-info', 'analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '2'}
                   </div>
                   AI Analysis
                 </div>
-                <div className={`flex items-center ${step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    {step === 'complete' ? <Check className="h-4 w-4" /> : '3'}
+                <div className={`flex items-center ${step === 'personal-info' ? 'text-blue-600' : ['analysis', 'complete'].includes(step) ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'personal-info' ? 'bg-blue-100' : ['analysis', 'complete'].includes(step) ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {['analysis', 'complete'].includes(step) ? <Check className="h-4 w-4" /> : '3'}
                   </div>
-                  Complete
+                  Personal Info
+                </div>
+                <div className={`flex items-center ${step === 'analysis' ? 'text-blue-600' : step === 'complete' ? 'text-green-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'analysis' ? 'bg-blue-100' : step === 'complete' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    {step === 'complete' ? <Check className="h-4 w-4" /> : '4'}
+                  </div>
+                  View Analysis
                 </div>
               </div>
             </div>
 
+            {/* Step Content */}
             {step === 'upload' && (
               <Card className="mb-8">
                 <CardHeader>
@@ -383,6 +386,222 @@ export default function CVUploadModern() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {step === 'personal-info' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-center">Confirm Your Information</CardTitle>
+                  <p className="text-center text-gray-600">
+                    Please review and edit your personal information
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name *</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="name"
+                          value={personalInfo.name}
+                          onChange={(e) => setPersonalInfo({...personalInfo, name: e.target.value})}
+                          className="pl-10"
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address *</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="email"
+                          type="email"
+                          value={personalInfo.email}
+                          onChange={(e) => setPersonalInfo({...personalInfo, email: e.target.value})}
+                          className="pl-10"
+                          placeholder="Enter your email"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="phone"
+                          value={personalInfo.phone}
+                          onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
+                          className="pl-10"
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="location"
+                          value={personalInfo.location}
+                          onChange={(e) => setPersonalInfo({...personalInfo, location: e.target.value})}
+                          className="pl-10"
+                          placeholder="Enter your location"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="selfDescription">Tell us about yourself (Optional)</Label>
+                    <Textarea
+                      id="selfDescription"
+                      value={personalInfo.selfDescription}
+                      onChange={(e) => setPersonalInfo({...personalInfo, selfDescription: e.target.value})}
+                      placeholder="Share your work style, values, passions, or anything else you'd like us to know..."
+                      rows={4}
+                      maxLength={500}
+                    />
+                    <p className="text-xs text-gray-500">
+                      {personalInfo.selfDescription.length}/500 characters
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handlePersonalInfoSubmit}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    size="lg"
+                  >
+                    Continue to Analysis
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {step === 'analysis' && consultant && (
+              <div className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-center">Your AI Analysis Results</CardTitle>
+                    <p className="text-center text-gray-600">
+                      Complete analysis of your skills, experience, and market position
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Skills Analysis */}
+                    {consultant.analysis?.skills && (
+                      <div>
+                        <h3 className="font-semibold mb-3">Technical Skills</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {consultant.analysis.skills.technical?.map((skill: string, index: number) => (
+                            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Experience Level */}
+                    {consultant.analysis?.experience && (
+                      <div>
+                        <h3 className="font-semibold mb-3">Experience Analysis</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="text-center p-4 bg-gray-50 rounded-lg">
+                            <p className="text-2xl font-bold text-blue-600">{consultant.analysis.experience.years || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">Years Experience</p>
+                          </div>
+                          <div className="text-center p-4 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-semibold">{consultant.analysis.experience.level || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">Experience Level</p>
+                          </div>
+                          <div className="text-center p-4 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-semibold">{consultant.analysis.experience.currentRole || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">Current Role</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Market Analysis */}
+                    {consultant.analysis?.marketAnalysis && (
+                      <div>
+                        <h3 className="font-semibold mb-3">Market Position</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-4 bg-green-50 rounded-lg">
+                            <p className="text-xl font-bold text-green-600">
+                              {consultant.analysis.marketAnalysis.hourlyRate?.current || 0} SEK/h
+                            </p>
+                            <p className="text-sm text-gray-600">Current Market Rate</p>
+                          </div>
+                          <div className="p-4 bg-purple-50 rounded-lg">
+                            <p className="text-xl font-bold text-purple-600">
+                              {consultant.analysis.marketAnalysis.hourlyRate?.optimized || 0} SEK/h
+                            </p>
+                            <p className="text-sm text-gray-600">Optimized Rate</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Soft Skills Scores */}
+                    {consultant.analysis?.scores && (
+                      <div>
+                        <h3 className="font-semibold mb-3">Professional Scores</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <div className="text-center p-3 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-bold">{consultant.analysis.scores.leadership || 0}/5</p>
+                            <p className="text-xs text-gray-600">Leadership</p>
+                          </div>
+                          <div className="text-center p-3 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-bold">{consultant.analysis.scores.communication || 0}/5</p>
+                            <p className="text-xs text-gray-600">Communication</p>
+                          </div>
+                          <div className="text-center p-3 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-bold">{consultant.analysis.scores.adaptability || 0}/5</p>
+                            <p className="text-xs text-gray-600">Adaptability</p>
+                          </div>
+                          <div className="text-center p-3 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-bold">{consultant.analysis.scores.innovation || 0}/5</p>
+                            <p className="text-xs text-gray-600">Innovation</p>
+                          </div>
+                          <div className="text-center p-3 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-bold">{consultant.analysis.scores.teamwork || 0}/5</p>
+                            <p className="text-xs text-gray-600">Teamwork</p>
+                          </div>
+                          <div className="text-center p-3 bg-gray-50 rounded-lg">
+                            <p className="text-lg font-bold">{consultant.analysis.scores.culturalFit || 0}/5</p>
+                            <p className="text-xs text-gray-600">Cultural Fit</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-4 pt-6">
+                      <Button 
+                        onClick={handleJoinNetwork}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                        size="lg"
+                      >
+                        Join Network
+                      </Button>
+                      <Button 
+                        onClick={goBack}
+                        variant="outline"
+                        className="flex-1"
+                        size="lg"
+                      >
+                        Back to Dashboard
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
 
             {/* Background Processing */}
