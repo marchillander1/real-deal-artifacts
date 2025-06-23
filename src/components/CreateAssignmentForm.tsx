@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +9,11 @@ import { Assignment } from '@/types/assignment';
 
 interface CreateAssignmentFormProps {
   onClose: () => void;
+  onCancel?: () => void;
   onAssignmentCreated: (assignment: Assignment) => void;
 }
 
-const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({ onClose, onAssignmentCreated }) => {
+const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({ onClose, onCancel, onAssignmentCreated }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -57,6 +57,12 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({ onClose, on
     };
 
     onAssignmentCreated(newAssignment);
+    if (onCancel) onCancel();
+    onClose();
+  };
+
+  const handleCloseClick = () => {
+    if (onCancel) onCancel();
     onClose();
   };
 
@@ -65,7 +71,7 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({ onClose, on
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Create New Assignment</CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button variant="ghost" size="sm" onClick={handleCloseClick}>
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
@@ -154,7 +160,7 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({ onClose, on
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={handleCloseClick}>
                 Cancel
               </Button>
               <Button type="submit">
