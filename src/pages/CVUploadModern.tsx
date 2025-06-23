@@ -1,5 +1,4 @@
-
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
 import { MatchWiseChat } from '@/components/MatchWiseChat';
 import Logo from '@/components/Logo';
 import { supabase } from '@/integrations/supabase/client';
+import { CVParser } from '@/components/cv-analysis/CVParser';
 
 export default function CVUploadModern() {
   const [dragActive, setDragActive] = useState(false);
@@ -23,6 +23,7 @@ export default function CVUploadModern() {
   const [step, setStep] = useState<'upload' | 'personal-info' | 'processing' | 'analysis' | 'complete'>('upload');
   const [consultant, setConsultant] = useState<any>(null);
   const [chatMinimized, setChatMinimized] = useState(true);
+  const [cvAnalysisData, setCvAnalysisData] = useState<any>(null);
   
   // Personal info state
   const [personalInfo, setPersonalInfo] = useState({
@@ -38,6 +39,61 @@ export default function CVUploadModern() {
   const [searchParams] = useSearchParams();
   const source = searchParams.get('source');
   const isMyConsultant = source === 'my-consultants';
+
+  // Auto-analyze CV when file is uploaded
+  useEffect(() => {
+    const analyzeCV = async () => {
+      if (!file) return;
+      
+      console.log('🔍 Starting automatic CV analysis for:', file.name);
+      
+      try {
+        setIsProcessing(true);
+        setProgress(20);
+        
+        const { analysis, detectedInfo } = await CVParser.parseCV(file, '');
+        setProgress(60);
+        
+        console.log('📊 CV analysis completed:', { analysis, detectedInfo });
+        
+        // Auto-fill personal information from CV analysis
+        const extractedInfo = {
+          name: detectedInfo?.names?.[0] || analysis?.personalInfo?.name || '',
+          email: detectedInfo?.emails?.[0] || analysis?.personalInfo?.email || '',
+          phone: detectedInfo?.phones?.[0] || analysis?.personalInfo?.phone || '',
+          location: detectedInfo?.locations?.[0] || analysis?.personalInfo?.location || '',
+          selfDescription: ''
+        };
+        
+        console.log('✅ Auto-filling personal info:', extractedInfo);
+        
+        setPersonalInfo(prev => ({
+          ...prev,
+          ...extractedInfo
+        }));
+        
+        setCvAnalysisData({ analysis, detectedInfo });
+        setProgress(100);
+        
+        toast({
+          title: "CV analyzed successfully! 🎉",
+          description: "Personal information has been auto-filled from your CV",
+        });
+        
+      } catch (error: any) {
+        console.error('❌ CV analysis failed:', error);
+        toast({
+          title: "CV analysis failed",
+          description: error.message || "Could not analyze CV. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    analyzeCV();
+  }, [file, toast]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -91,7 +147,7 @@ export default function CVUploadModern() {
     setFile(selectedFile);
     toast({
       title: "File selected",
-      description: `${selectedFile.name} is ready for upload`,
+      description: `${selectedFile.name} is ready for analysis`,
     });
   };
 
@@ -103,10 +159,10 @@ export default function CVUploadModern() {
   };
 
   const handleContinueToPersonalInfo = () => {
-    if (!file) {
+    if (!file || !cvAnalysisData) {
       toast({
-        title: "No file selected",
-        description: "Please select a CV file first",
+        title: "CV analysis required",
+        description: "Please wait for CV analysis to complete",
         variant: "destructive",
       });
       return;
@@ -322,12 +378,40 @@ export default function CVUploadModern() {
                     />
                     
                     {file ? (
-                      <div className="flex items-center justify-center space-x-3">
-                        <FileText className="h-8 w-8 text-green-600" />
-                        <div>
-                          <p className="font-semibold text-green-700">{file.name}</p>
-                          <p className="text-sm text-green-600">Ready for analysis ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-center space-x-3">
+                          <FileText className="h-8 w-8 text-green-600" />
+                          <div>
+                            <p className="font-semibold text-green-700">{file.name}</p>
+                            <p className="text-sm text-green-600">Ready for analysis ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                          </div>
                         </div>
+                        
+                        {/* Analysis Status */}
+                        {isProcessing && (
+                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Brain className="h-5 w-5 text-blue-600 animate-pulse" />
+                              <span className="text-blue-800 font-medium">Analyzing CV...</span>
+                            </div>
+                            <Progress value={progress} className="mb-2" />
+                            <p className="text-sm text-blue-600">
+                              Extracting personal information and skills from your CV
+                            </p>
+                          </div>
+                        )}
+                        
+                        {cvAnalysisData && !isProcessing && (
+                          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Check className="h-5 w-5 text-green-600" />
+                              <span className="font-medium text-green-800">CV Analysis Complete!</span>
+                            </div>
+                            <p className="text-sm text-green-600">
+                              Personal information has been extracted and will be auto-filled in the next step
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div>
@@ -368,11 +452,22 @@ export default function CVUploadModern() {
                   {/* Continue Button */}
                   <Button
                     onClick={handleContinueToPersonalInfo}
-                    disabled={!file}
+                    disabled={!file || !cvAnalysisData || isProcessing}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                     size="lg"
                   >
-                    Continue to Personal Information
+                    {isProcessing ? (
+                      <>
+                        <Brain className="h-4 w-4 mr-2 animate-pulse" />
+                        Analyzing CV...
+                      </>
+                    ) : !file ? (
+                      "Please upload CV first"
+                    ) : !cvAnalysisData ? (
+                      "Waiting for CV analysis..."
+                    ) : (
+                      "Continue to Personal Information"
+                    )}
                   </Button>
                 </CardContent>
               </Card>
@@ -383,10 +478,23 @@ export default function CVUploadModern() {
                 <CardHeader>
                   <CardTitle className="text-center">Personal Information</CardTitle>
                   <p className="text-center text-gray-600">
-                    Please provide your information and tell us about yourself
+                    Information extracted from your CV - please review and edit if needed
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Auto-filled notification */}
+                  {cvAnalysisData && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Check className="h-5 w-5 text-green-600" />
+                        <span className="font-medium text-green-800">Information auto-filled from CV</span>
+                      </div>
+                      <p className="text-sm text-green-700">
+                        We've extracted your personal information from the CV. Please review and edit if needed.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Full Name *</Label>
@@ -558,7 +666,7 @@ export default function CVUploadModern() {
                           </div>
                           <div className="p-4 bg-purple-50 rounded-lg">
                             <p className="text-xl font-bold text-purple-600">
-                              {consultant.analysis.marketAnalysis.hourlyRate?.optimized || 0} SEK/h
+                              {consultant.analysis.marketAnalysis.hourlyRate?.optimized ||0} SEK/h
                             </p>
                             <p className="text-sm text-gray-600">Optimized Rate</p>
                           </div>
