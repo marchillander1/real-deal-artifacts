@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import { Upload, FileText, Check, ArrowLeft, Brain, Linkedin } from 'lucide-reac
 import { useToast } from '@/hooks/use-toast';
 import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
 import Logo from '@/components/Logo';
-import { ExtractedData } from '@/types/extractedData';
 
 export default function CVUploadModern() {
   const [dragActive, setDragActive] = useState(false);
@@ -48,10 +48,19 @@ export default function CVUploadModern() {
   }, []);
 
   const handleFileSelect = (selectedFile: File) => {
-    if (!selectedFile.type.includes('pdf') && !selectedFile.name.endsWith('.pdf')) {
+    const validTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png',
+      'image/jpg'
+    ];
+
+    if (!validTypes.includes(selectedFile.type)) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a PDF file",
+        description: "Please upload a PDF, DOC, DOCX, or image file",
         variant: "destructive",
       });
       return;
@@ -228,39 +237,44 @@ export default function CVUploadModern() {
             <CardContent className="space-y-6">
               {/* File Upload */}
               <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                  dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                  dragActive ? 'border-blue-500 bg-blue-50' : file ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
+                onClick={() => document.getElementById('cv-upload')?.click()}
               >
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-lg font-medium text-gray-900 mb-2">
-                  Drop your CV here or click to browse
-                </p>
-                <p className="text-sm text-gray-600 mb-4">
-                  PDF files only, max 10MB
-                </p>
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,.doc,.docx,image/*"
                   onChange={handleFileInputChange}
                   className="hidden"
                   id="cv-upload"
                 />
-                <label htmlFor="cv-upload">
-                  <Button variant="outline" className="cursor-pointer">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Select File
-                  </Button>
-                </label>
-                {file && (
-                  <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                    <p className="text-sm text-green-800">
-                      ✅ {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                
+                {file ? (
+                  <div className="flex items-center justify-center space-x-3">
+                    <FileText className="h-8 w-8 text-green-600" />
+                    <div>
+                      <p className="font-semibold text-green-700">{file.name}</p>
+                      <p className="text-sm text-green-600">Ready for analysis ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-lg font-medium text-gray-900 mb-2">
+                      Drop your CV here or click to browse
                     </p>
+                    <p className="text-sm text-gray-600 mb-4">
+                      PDF, DOC, DOCX, or image files • Max 10MB
+                    </p>
+                    <Button variant="outline" className="pointer-events-none">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Select File
+                    </Button>
                   </div>
                 )}
               </div>
