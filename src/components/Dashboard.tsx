@@ -22,11 +22,81 @@ interface DashboardProps {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+// Demo assignments data
+const demoAssignments: Assignment[] = [
+  {
+    id: 1,
+    title: "Senior React Developer",
+    description: "We are looking for a senior React developer to build an e-commerce platform with modern technologies and best practices.",
+    company: "TechStart AB",
+    clientLogo: "🏢",
+    requiredSkills: ["React", "TypeScript", "Node.js", "GraphQL", "PostgreSQL"],
+    workload: "Full-time",
+    duration: "6 months",
+    location: "Stockholm",
+    urgency: "High",
+    budget: "800-1200 SEK/hour",
+    hourlyRate: 1000,
+    status: "open",
+    matchedConsultants: 0,
+    createdAt: new Date().toISOString(),
+    remote: "Hybrid",
+    teamSize: "5-10 people",
+    teamCulture: "Collaborative and fast-paced startup environment",
+    industry: "E-commerce"
+  },
+  {
+    id: 2,
+    title: "Full-Stack Developer",
+    description: "Join our fintech team to develop secure banking solutions using modern web technologies.",
+    company: "FinanceFlow",
+    clientLogo: "💰",
+    requiredSkills: ["React", "TypeScript", "Python", "AWS", "Docker"],
+    workload: "Full-time",
+    duration: "12 months",
+    location: "Gothenburg",
+    urgency: "Medium",
+    budget: "700-900 SEK/hour",
+    hourlyRate: 800,
+    status: "open",
+    matchedConsultants: 0,
+    createdAt: new Date().toISOString(),
+    remote: "Remote",
+    teamSize: "8-12 people",
+    teamCulture: "Security-focused with emphasis on code quality",
+    industry: "FinTech"
+  },
+  {
+    id: 3,
+    title: "Frontend Specialist",
+    description: "We need a frontend specialist to modernize our healthcare platform with excellent UX/UI.",
+    company: "HealthTech Solutions",
+    clientLogo: "🏥",
+    requiredSkills: ["Vue.js", "JavaScript", "CSS", "Figma", "REST API"],
+    workload: "Part-time",
+    duration: "4 months",
+    location: "Malmö",
+    urgency: "Low",
+    budget: "600-800 SEK/hour",
+    hourlyRate: 700,
+    status: "open",
+    matchedConsultants: 0,
+    createdAt: new Date().toISOString(),
+    remote: "On-site",
+    teamSize: "3-5 people",
+    teamCulture: "Patient-focused with attention to accessibility",
+    industry: "HealthTech"
+  }
+];
+
 const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmentCreated, onFileUpload }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateAssignmentOpen, setIsCreateAssignmentOpen] = useState(false);
   const { consultants: allConsultants, isLoading, error } = useSupabaseConsultantsWithDemo();
+
+  // Combine passed assignments with demo assignments
+  const allAssignments = [...assignments, ...demoAssignments];
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -55,14 +125,14 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmen
         <DashboardOverview 
           onCreateAssignment={() => setIsCreateAssignmentOpen(true)}
           consultants={allConsultants}
-          assignments={assignments}
+          assignments={allAssignments}
         />
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="assignments">Assignments ({assignments.length})</TabsTrigger>
+            <TabsTrigger value="assignments">Assignments ({allAssignments.length})</TabsTrigger>
             <TabsTrigger value="consultants">Network Consultants ({allConsultants.length})</TabsTrigger>
           </TabsList>
 
@@ -76,7 +146,7 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmen
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {assignments.slice(0, 3).map((assignment) => (
+                  {allAssignments.slice(0, 3).map((assignment) => (
                     <div key={assignment.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <h4 className="font-medium">{assignment.title}</h4>
@@ -117,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmen
 
           <TabsContent value="assignments">
             <AssignmentsSection 
-              assignments={assignments}
+              assignments={allAssignments}
               onMatch={onMatch}
               consultants={allConsultants}
             />

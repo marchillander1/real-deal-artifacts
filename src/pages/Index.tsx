@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -367,6 +368,7 @@ const Index: React.FC = () => {
             handleAssignmentCreated(assignment);
             setShowCreateForm(false);
           }}
+          onClose={() => setShowCreateForm(false)}
           onCancel={() => setShowCreateForm(false)}
         />
       )}

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -286,6 +285,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             onAssignmentCreated(assignment);
             setShowCreateForm(false);
           }}
+          onClose={() => setShowCreateForm(false)}
           onCancel={() => setShowCreateForm(false)}
         />
       )}
