@@ -160,8 +160,6 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           <ConsultantGrid
             consultants={filterConsultants(existingConsultants)}
             onViewAnalysis={handleViewAnalysis}
-            showEditActions={true}
-            showDeleteActions={showDeleteForMyConsultants}
           />
         </TabsContent>
         
@@ -174,8 +172,6 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           <ConsultantGrid
             consultants={filterConsultants(newConsultants)}
             onViewAnalysis={handleViewAnalysis}
-            showEditActions={showEditForNetwork}
-            showDeleteActions={true}
           />
         </TabsContent>
         
@@ -188,8 +184,6 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           <ConsultantGrid
             consultants={filterConsultants(consultants)}
             onViewAnalysis={handleViewAnalysis}
-            showEditActions={true}
-            showDeleteActions={true}
           />
         </TabsContent>
       </Tabs>
