@@ -245,6 +245,7 @@ export default function Demo() {
         <CreateAssignmentForm 
           onAssignmentCreated={handleAssignmentCreated}
           onCancel={() => setShowForm(false)}
+          onClose={() => setShowForm(false)}
         />
       </div>
     );

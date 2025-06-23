@@ -31,7 +31,7 @@ const CreateAssignmentForm: React.FC<CreateAssignmentFormProps> = ({ onClose, on
     industry: '',
     teamSize: '',
     remoteWork: '',
-    urgency: 'Medium' as const
+    urgency: 'Medium' as 'Low' | 'Medium' | 'High'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
