@@ -48,8 +48,8 @@ export default function MyProfile() {
     } catch (error: any) {
       console.error('Error fetching profile:', error);
       toast({
-        title: "Kunde inte hämta profil",
-        description: "Kontrollera att du är inloggad och har en profil",
+        title: "Could not fetch profile",
+        description: "Please check that you are logged in and have a profile",
         variant: "destructive",
       });
     } finally {
@@ -78,8 +78,8 @@ export default function MyProfile() {
       if (error) throw error;
 
       toast({
-        title: "Profil uppdaterad",
-        description: "Dina ändringar har sparats",
+        title: "Profile updated",
+        description: "Your changes have been saved",
         variant: "default",
       });
       
@@ -87,7 +87,7 @@ export default function MyProfile() {
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Kunde inte spara",
+        title: "Could not save",
         description: error.message,
         variant: "destructive",
       });
@@ -124,14 +124,14 @@ export default function MyProfile() {
       setProfile({ ...profile, visibility_toggle: newVisibility });
       
       toast({
-        title: newVisibility ? "Profil synlig" : "Profil dold",
-        description: newVisibility ? "Din profil är nu synlig för kunder" : "Din profil är nu dold",
+        title: newVisibility ? "Profile visible" : "Profile hidden",
+        description: newVisibility ? "Your profile is now visible to clients" : "Your profile is now hidden",
         variant: "default",
       });
     } catch (error: any) {
       console.error('Error toggling visibility:', error);
       toast({
-        title: "Kunde inte ändra synlighet",
+        title: "Could not change visibility",
         description: error.message,
         variant: "destructive",
       });
@@ -143,7 +143,7 @@ export default function MyProfile() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <User className="h-16 w-16 text-blue-500 animate-pulse mx-auto mb-4" />
-          <p className="text-lg text-slate-600">Laddar din profil...</p>
+          <p className="text-lg text-slate-600">Loading your profile...</p>
         </div>
       </div>
     );
@@ -154,8 +154,8 @@ export default function MyProfile() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <Card className="max-w-md text-center p-8">
           <User className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Ingen profil hittad</h2>
-          <p className="text-slate-600">Skapa en profil genom att ladda upp ditt CV.</p>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">No profile found</h2>
+          <p className="text-slate-600">Create a profile by uploading your CV.</p>
         </Card>
       </div>
     );
@@ -172,8 +172,8 @@ export default function MyProfile() {
             <div className="flex items-center gap-4">
               <User className="h-8 w-8 text-blue-500" />
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Min Profil</h1>
-                <p className="text-slate-600">Hantera din konsultprofil och synlighet</p>
+                <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
+                <p className="text-slate-600">Manage your consultant profile and visibility</p>
               </div>
             </div>
             
@@ -186,7 +186,7 @@ export default function MyProfile() {
                   <EyeOff className="h-5 w-5 text-red-500" />
                 )}
                 <Label htmlFor="visibility" className="text-sm font-medium">
-                  {profile.visibility_toggle ? 'Synlig' : 'Dold'}
+                  {profile.visibility_toggle ? 'Visible' : 'Hidden'}
                 </Label>
                 <Switch
                   id="visibility"
@@ -203,25 +203,25 @@ export default function MyProfile() {
         {/* Profile Status */}
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle>Profil Status</CardTitle>
+            <CardTitle>Profile Status</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-xl">
                 <div className="text-2xl font-bold text-blue-600">
-                  {isPublished ? 'Publicerad' : 'Ej Publicerad'}
+                  {isPublished ? 'Published' : 'Not Published'}
                 </div>
                 <div className="text-sm text-slate-600">Status</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-xl">
                 <div className="text-2xl font-bold text-green-600">
-                  {profile.visibility_toggle ? 'Synlig' : 'Dold'}
+                  {profile.visibility_toggle ? 'Visible' : 'Hidden'}
                 </div>
-                <div className="text-sm text-slate-600">Synlighet</div>
+                <div className="text-sm text-slate-600">Visibility</div>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-xl">
                 <div className="text-2xl font-bold text-purple-600">{profile.availability}</div>
-                <div className="text-sm text-slate-600">Tillgänglighet</div>
+                <div className="text-sm text-slate-600">Availability</div>
               </div>
             </div>
           </CardContent>
@@ -230,18 +230,18 @@ export default function MyProfile() {
         {/* Profile Information */}
         <Card className="mb-8 shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Personlig Information</CardTitle>
+            <CardTitle>Personal Information</CardTitle>
             <Button
               variant={isEditing ? "default" : "outline"}
               onClick={() => setIsEditing(!isEditing)}
             >
-              {isEditing ? 'Avbryt' : 'Redigera'}
+              {isEditing ? 'Cancel' : 'Edit'}
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Fullständigt namn</Label>
+                <Label htmlFor="name">Full name</Label>
                 {isEditing ? (
                   <Input
                     id="name"
@@ -254,7 +254,7 @@ export default function MyProfile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="title">Titel/Roll</Label>
+                <Label htmlFor="title">Title/Role</Label>
                 {isEditing ? (
                   <Input
                     id="title"
@@ -267,7 +267,7 @@ export default function MyProfile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-post</Label>
+                <Label htmlFor="email">Email</Label>
                 {isEditing ? (
                   <Input
                     id="email"
@@ -284,7 +284,7 @@ export default function MyProfile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefon</Label>
+                <Label htmlFor="phone">Phone</Label>
                 {isEditing ? (
                   <Input
                     id="phone"
@@ -294,14 +294,14 @@ export default function MyProfile() {
                 ) : (
                   <div className="p-3 bg-slate-50 rounded-lg border flex items-center gap-2">
                     <Phone className="h-4 w-4 text-slate-500" />
-                    {profile.phone || 'Ej angivet'}
+                    {profile.phone || 'Not specified'}
                   </div>
                 )}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tagline">Personlig tagline</Label>
+              <Label htmlFor="tagline">Personal tagline</Label>
               {isEditing ? (
                 <Textarea
                   id="tagline"
@@ -311,7 +311,7 @@ export default function MyProfile() {
                 />
               ) : (
                 <div className="p-3 bg-slate-50 rounded-lg border">
-                  {profile.personal_tagline || 'Ingen tagline angiven'}
+                  {profile.personal_tagline || 'No tagline specified'}
                 </div>
               )}
             </div>
@@ -320,7 +320,7 @@ export default function MyProfile() {
               <div className="flex gap-3">
                 <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
                   <Save className="h-4 w-4" />
-                  {saving ? 'Sparar...' : 'Spara ändringar'}
+                  {saving ? 'Saving...' : 'Save changes'}
                 </Button>
               </div>
             )}
@@ -331,12 +331,12 @@ export default function MyProfile() {
         {analysis && (
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>AI-analys Sammanfattning</CardTitle>
+              <CardTitle>AI Analysis Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold mb-3">Teknisk Expertis</h4>
+                  <h4 className="font-semibold mb-3">Technical Expertise</h4>
                   <div className="flex flex-wrap gap-2">
                     {(analysis.tech_stack_primary || []).slice(0, 6).map((skill: string, index: number) => (
                       <Badge key={index} variant="default" className="bg-blue-100 text-blue-800">
@@ -347,7 +347,7 @@ export default function MyProfile() {
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold mb-3">Kärnvärden</h4>
+                  <h4 className="font-semibold mb-3">Core Values</h4>
                   <div className="flex flex-wrap gap-2">
                     {(analysis.top_values || []).slice(0, 4).map((value: string, index: number) => (
                       <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
@@ -358,7 +358,7 @@ export default function MyProfile() {
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold mb-3">Branschområden</h4>
+                  <h4 className="font-semibold mb-3">Industry Areas</h4>
                   <div className="flex flex-wrap gap-2">
                     {(analysis.industries || []).slice(0, 4).map((industry: string, index: number) => (
                       <Badge key={index} variant="outline" className="text-orange-600">
@@ -378,7 +378,7 @@ export default function MyProfile() {
 
               {analysis.communication_style && (
                 <div className="mt-6">
-                  <h4 className="font-semibold mb-2">Kommunikationsstil</h4>
+                  <h4 className="font-semibold mb-2">Communication Style</h4>
                   <p className="text-slate-600 bg-slate-50 p-3 rounded-lg">
                     {analysis.communication_style}
                   </p>

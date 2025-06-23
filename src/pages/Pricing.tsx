@@ -6,55 +6,60 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star, Zap, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
+import TrialSignupModal from '@/components/landing/TrialSignupModal';
 
 export default function Pricing() {
   const plans = [
     {
-      name: "Starter",
-      price: "€297",
+      name: "Basic Plan",
+      price: "€99",
       period: "per month",
-      description: "Perfect for small consulting firms",
+      description: "For 1-3 users",
       features: [
-        "Up to 50 consultant profiles",
-        "Basic AI matching",
-        "Standard analytics",
-        "Email support",
-        "5 active assignments"
+        "Analyze your own consultants",
+        "AI-driven CV and profile analysis",
+        "Detailed consultant profiles",
+        "Save favorites & download CVs",
+        "1 admin + 2 standard users",
+        "Basic matching algorithms",
+        "Standard report generation",
+        "Email support"
       ],
       popular: false,
       cta: "Start Free Trial"
     },
     {
-      name: "Professional",
-      price: "€597",
+      name: "Team Plan",
+      price: "€199",
       period: "per month", 
-      description: "For growing consulting businesses",
+      description: "For 3-10 users",
       features: [
-        "Up to 200 consultant profiles",
-        "Advanced AI matching",
-        "Advanced analytics & insights",
-        "Priority support",
-        "20 active assignments",
-        "Custom branding",
-        "API access"
+        "Everything in Basic, plus:",
+        "Access to network consultants",
+        "Extended user access (3-10 users)",
+        "Role-based access control",
+        "Advanced AI matching algorithms",
+        "Priority email support",
+        "Export consultant lists",
+        "Advanced analytics & insights"
       ],
       popular: true,
       cta: "Start Free Trial"
     },
     {
       name: "Enterprise",
-      price: "Custom",
-      period: "contact us",
-      description: "For large consulting organizations",
+      price: "€599",
+      period: "per month",
+      description: "Unlimited users",
       features: [
-        "Unlimited consultant profiles",
-        "Enterprise AI matching",
-        "Custom analytics dashboard",
-        "Dedicated success manager",
-        "Unlimited assignments",
-        "White-label solution",
-        "Custom integrations",
-        "SLA guarantee"
+        "Everything in Team, plus:",
+        "Unlimited searches in consultant database",
+        "Direct access to incoming freelance CVs",
+        "Premium visibility for your assignments",
+        "Full API access & integration capabilities",
+        "Dedicated onboarding & training",
+        "SLA-guaranteed support",
+        "Custom branding options"
       ],
       popular: false,
       cta: "Contact Sales"
@@ -62,15 +67,17 @@ export default function Pricing() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Logo size="md" />
             <div className="flex items-center space-x-4">
               <Link to="/">
-                <Button variant="ghost">Back to Home</Button>
+                <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800">
+                  Back to Home
+                </Button>
               </Link>
             </div>
           </div>
@@ -80,14 +87,14 @@ export default function Pricing() {
       <div className="container mx-auto px-4 py-16">
         {/* Header Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
-            Choose Your <span className="text-blue-600">Perfect Plan</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            💰 Simple, Transparent <span className="text-blue-400">Pricing</span>
           </h1>
-          <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-            Transform your consulting business with AI-powered matching. 
-            Start with a 14-day free trial, no credit card required.
+          <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
+            Choose the plan that fits your company's needs. 
+            Start with a free trial, no credit card required.
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-slate-500">
+          <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
             <Shield className="h-4 w-4" />
             <span>14-day free trial • No setup fees • Cancel anytime</span>
           </div>
@@ -96,12 +103,12 @@ export default function Pricing() {
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
-            <Card key={index} className={`relative shadow-lg hover:shadow-xl transition-all duration-300 ${
-              plan.popular ? 'border-blue-500 scale-105' : 'hover:scale-105'
+            <Card key={index} className={`bg-slate-800/50 border-slate-600 hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm relative ${
+              plan.popular ? 'border-emerald-500' : ''
             }`}>
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-blue-600 text-white px-4 py-1">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-emerald-600 text-white">
                     <Star className="h-3 w-3 mr-1" />
                     Most Popular
                   </Badge>
@@ -109,33 +116,34 @@ export default function Pricing() {
               )}
               
               <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl font-bold text-slate-900">{plan.name}</CardTitle>
-                <CardDescription className="text-slate-600 mt-2">{plan.description}</CardDescription>
+                <div className="flex items-center space-x-2 mb-4 justify-center">
+                  <div className={`w-6 h-6 rounded ${plan.popular ? 'bg-emerald-600' : index === 0 ? 'bg-blue-600' : 'bg-red-600'}`}></div>
+                  <CardTitle className="text-2xl font-bold text-white">{plan.name}</CardTitle>
+                </div>
+                <CardDescription className="text-slate-400 mt-2">{plan.description}</CardDescription>
                 <div className="mt-6">
-                  <span className="text-4xl font-bold text-slate-900">{plan.price}</span>
-                  <span className="text-slate-600 ml-2">/{plan.period}</span>
+                  <span className="text-4xl font-bold text-white">{plan.price}</span>
+                  <span className="text-slate-400 ml-2">/{plan.period}</span>
                 </div>
               </CardHeader>
               
               <CardContent>
-                <ul className="space-y-4 mb-8">
+                <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-slate-700">{feature}</span>
+                      <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                      <span className="text-slate-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
-                <Button 
-                  className={`w-full py-3 text-lg font-semibold ${
-                    plan.popular 
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                      : 'bg-slate-900 hover:bg-slate-800 text-white'
-                  }`}
-                >
-                  {plan.cta}
-                </Button>
+                {plan.cta === "Contact Sales" ? (
+                  <Button variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-800">
+                    Contact Sales
+                  </Button>
+                ) : (
+                  <TrialSignupModal />
+                )}
               </CardContent>
             </Card>
           ))}
@@ -143,36 +151,36 @@ export default function Pricing() {
 
         {/* FAQ Section */}
         <div className="mt-24 max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
             Frequently Asked Questions
           </h2>
           
           <div className="space-y-8">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <h3 className="text-lg font-semibold text-white mb-2">
                 How does the free trial work?
               </h3>
-              <p className="text-slate-600">
-                Start with our 14-day free trial with full access to all Professional plan features. 
+              <p className="text-slate-300">
+                Start with our 14-day free trial with full access to all features. 
                 No credit card required. Upgrade or downgrade anytime.
               </p>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <h3 className="text-lg font-semibold text-white mb-2">
                 Can I change plans later?
               </h3>
-              <p className="text-slate-600">
+              <p className="text-slate-300">
                 Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately 
                 and we'll prorate the billing accordingly.
               </p>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <h3 className="text-lg font-semibold text-white mb-2">
                 What's included in the Enterprise plan?
               </h3>
-              <p className="text-slate-600">
+              <p className="text-slate-300">
                 Enterprise plans include dedicated support, custom integrations, white-label options, 
                 and SLA guarantees. Contact our sales team for a custom quote.
               </p>
@@ -181,12 +189,12 @@ export default function Pricing() {
         </div>
 
         {/* CTA Section */}
-        <div className="mt-24 text-center bg-white rounded-2xl p-12 shadow-lg">
-          <Zap className="h-16 w-16 text-blue-500 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">
+        <div className="mt-24 text-center bg-slate-800/50 backdrop-blur-sm rounded-2xl p-12 shadow-lg border border-slate-700">
+          <Zap className="h-16 w-16 text-blue-400 mx-auto mb-6" />
+          <h2 className="text-3xl font-bold text-white mb-4">
             Ready to Transform Your Consulting Business?
           </h2>
-          <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
             Join hundreds of consulting firms who've already revolutionized their matching process with AI.
           </p>
           <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-lg">
