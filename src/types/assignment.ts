@@ -9,7 +9,7 @@ export interface Assignment {
   workload: string;
   duration: string;
   location: string;
-  urgency: string;
+  urgency: "High" | "Medium" | "Low";
   budget: string;
   hourlyRate: number;
   status: string;

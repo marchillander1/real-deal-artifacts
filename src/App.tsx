@@ -19,6 +19,7 @@ import AnalysisPage from './pages/AnalysisPage';
 import MyProfile from './pages/MyProfile';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
+import AdminPortal from './pages/AdminPortal';
 import Navbar from './components/Navbar';
 import { AuthGuard } from './components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
@@ -66,7 +67,7 @@ function App() {
       workload: "Full-time",
       duration: "6 months",
       location: "Stockholm",
-      urgency: "High",
+      urgency: "High" as const,
       budget: "100000",
       hourlyRate: 800,
       status: "Open",
@@ -87,7 +88,7 @@ function App() {
       workload: "Part-time",
       duration: "3 months",
       location: "Gothenburg",
-      urgency: "Medium",
+      urgency: "Medium" as const,
       budget: "75000",
       hourlyRate: 750,
       status: "Open",
@@ -110,6 +111,14 @@ function App() {
             <Route path="/demo" element={<Demo />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route 
+              path="/adminportal" 
+              element={
+                <AuthGuard>
+                  <AdminPortal />
+                </AuthGuard>
+              } 
+            />
             <Route 
               path="/matchwiseai" 
               element={
