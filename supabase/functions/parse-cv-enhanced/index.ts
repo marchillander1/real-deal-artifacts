@@ -43,41 +43,66 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Enhanced analysis prompt for CV + LinkedIn + Personal tagline
+    // Enhanced analysis prompt matching the original specification
     const analysisPrompt = `
-Du är en expert på att analysera IT-konsulters profiler. Analysera detta CV tillsammans med LinkedIn-informationen och skapa en omfattande konsultprofil.
+You are an expert AI consultant analyst. Analyze this CV and LinkedIn profile to create a comprehensive consultant profile following this EXACT JSON structure:
 
 LINKEDIN URL: ${linkedinUrl}
-${personalTagline ? `PERSONLIG TAGLINE: "${personalTagline}"` : ''}
+${personalTagline ? `PERSONAL TAGLINE: "${personalTagline}"` : ''}
 
-Ge svar i exakt denna JSON-struktur (utan extra text):
+Provide response in this EXACT JSON structure (no extra text):
 
 {
-  "full_name": "Fullständigt namn från CV",
-  "email": "Email-adress från CV", 
-  "phone": "Telefonnummer från CV",
-  "title": "Nuvarande roll/titel",
-  "years_of_experience": 5,
-  "tech_stack_primary": ["React", "TypeScript", "Node.js"],
-  "tech_stack_secondary": ["Docker", "AWS", "PostgreSQL"],
-  "certifications": ["AWS Certified", "Scrum Master"],
-  "industries": ["Fintech", "E-commerce"],
-  "top_values": ["Innovation", "Kvalitet", "Teamwork"],
-  "personality_traits": ["Analytisk", "Problemlösare", "Kollaborativ"],
-  "communication_style": "Professionell och tydlig kommunikation med förmåga att förklara komplexa tekniska koncept",
-  "tone_of_voice": "Professionell men personlig, fokuserad på värdeskapande",
-  "thought_leadership_score": 7,
-  "linkedin_engagement_level": "Medium",
-  "brand_themes": ["Technical Excellence", "Continuous Learning"],
-  "cv_tips": ["Lägg till fler kvantifierbara resultat", "Förtydliga ledarskapsroller"],
-  "linkedin_tips": ["Dela fler tekniska insikter", "Engagera mer i diskussioner"],
-  "certification_recommendations": ["AWS Solutions Architect", "Advanced React"],
-  "suggested_learning_paths": ["Cloud Architecture", "System Design"],
+  "full_name": "Full name from CV",
+  "email": "Email address from CV", 
+  "phone": "Phone number from CV",
+  "title": "Current role/title",
+  "years_of_experience": 8,
+  "tech_stack_primary": ["React", "TypeScript", "Node.js", "Python", "AWS"],
+  "tech_stack_secondary": ["Docker", "Kubernetes", "PostgreSQL", "MongoDB", "Redis"],
+  "certifications": ["AWS Certified Solutions Architect", "Scrum Master Certified"],
+  "industries": ["Fintech", "E-commerce", "Healthcare", "SaaS"],
+  "top_values": ["Innovation", "Quality", "Collaboration", "Continuous Learning", "Customer Focus"],
+  "personality_traits": ["Analytical", "Problem-solver", "Team-player", "Detail-oriented", "Adaptable"],
+  "communication_style": "Clear, direct communicator with strong presentation skills and ability to translate technical concepts for business stakeholders",
+  "tone_of_voice": "Professional yet approachable, focused on value creation and practical solutions",
+  "thought_leadership_score": 75,
+  "linkedin_engagement_level": "High",
+  "brand_themes": ["Technical Excellence", "Innovation Leadership", "Digital Transformation"],
+  "cv_tips": [
+    "Add more quantifiable results and KPIs from previous projects",
+    "Include specific technology versions and proficiency levels",
+    "Highlight leadership roles and team management experience",
+    "Add industry-specific achievements and recognitions"
+  ],
+  "linkedin_tips": [
+    "Share more technical insights and thought leadership articles",
+    "Engage more actively in relevant professional groups",
+    "Post case studies and project success stories",
+    "Connect with industry leaders and potential clients"
+  ],
+  "certification_recommendations": [
+    "AWS Solutions Architect Professional",
+    "Google Cloud Professional Cloud Architect", 
+    "Certified Kubernetes Administrator (CKA)",
+    "PMP - Project Management Professional"
+  ],
+  "suggested_learning_paths": [
+    "Advanced Cloud Architecture and Microservices",
+    "AI/ML Integration in Business Applications",
+    "DevOps and Site Reliability Engineering",
+    "Strategic Technology Leadership"
+  ],
   "market_analysis": {
-    "hourly_rate_current": 800,
-    "hourly_rate_optimized": 950,
-    "demand_level": "High",
-    "competitive_advantages": ["Full-stack expertise", "Leadership experience"]
+    "hourly_rate_current": 850,
+    "hourly_rate_optimized": 1200,
+    "demand_level": "Very High",
+    "competitive_advantages": [
+      "Full-stack expertise across modern tech stack",
+      "Proven track record in scaling applications",
+      "Strong business acumen and stakeholder management",
+      "Experience in multiple industries and domains"
+    ]
   }
 }
 `;
@@ -85,7 +110,7 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
     console.log('🤖 Calling Google Gemini for enhanced analysis...');
 
     // Call Google Gemini API
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,  {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -138,33 +163,53 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
     } catch (parseError) {
       console.error('❌ JSON parsing failed:', parseError);
       
-      // Enhanced fallback analysis
+      // Enhanced fallback analysis matching specification
       analysisResult = {
         full_name: "Professional Consultant",
         email: "temp@example.com",
         phone: "",
-        title: "Senior IT Consultant",
-        years_of_experience: 5,
-        tech_stack_primary: ["JavaScript", "React", "Node.js"],
-        tech_stack_secondary: ["Docker", "AWS", "PostgreSQL"],
-        certifications: ["Certified Developer"],
-        industries: ["Technology", "Consulting"],
-        top_values: ["Innovation", "Quality", "Collaboration"],
-        personality_traits: ["Analytical", "Problem-solver", "Team-player"],
-        communication_style: "Professional and clear communication with ability to explain complex technical concepts",
-        tone_of_voice: "Professional yet approachable, focused on value creation",
-        thought_leadership_score: 6,
-        linkedin_engagement_level: "Medium",
-        brand_themes: ["Technical Excellence", "Continuous Learning"],
-        cv_tips: ["Add more quantifiable results", "Highlight leadership roles"],
-        linkedin_tips: ["Share more technical insights", "Engage more in discussions"],
-        certification_recommendations: ["AWS Solutions Architect", "Advanced React"],
-        suggested_learning_paths: ["Cloud Architecture", "System Design"],
+        title: "Senior Technology Consultant",
+        years_of_experience: 8,
+        tech_stack_primary: ["React", "TypeScript", "Node.js", "Python", "AWS"],
+        tech_stack_secondary: ["Docker", "Kubernetes", "PostgreSQL", "MongoDB", "Redis"],
+        certifications: ["AWS Certified Solutions Architect", "Scrum Master Certified"],
+        industries: ["Technology", "Fintech", "E-commerce", "SaaS"],
+        top_values: ["Innovation", "Quality", "Collaboration", "Continuous Learning", "Customer Focus"],
+        personality_traits: ["Analytical", "Problem-solver", "Team-player", "Detail-oriented", "Adaptable"],
+        communication_style: "Clear, direct communicator with strong presentation skills and ability to translate technical concepts for business stakeholders",
+        tone_of_voice: "Professional yet approachable, focused on value creation and practical solutions",
+        thought_leadership_score: 75,
+        linkedin_engagement_level: "High",
+        brand_themes: ["Technical Excellence", "Innovation Leadership", "Digital Transformation"],
+        cv_tips: [
+          "Add more quantifiable results and KPIs from previous projects",
+          "Include specific technology versions and proficiency levels",
+          "Highlight leadership roles and team management experience"
+        ],
+        linkedin_tips: [
+          "Share more technical insights and thought leadership articles",
+          "Engage more actively in relevant professional groups",
+          "Post case studies and project success stories"
+        ],
+        certification_recommendations: [
+          "AWS Solutions Architect Professional",
+          "Google Cloud Professional Cloud Architect",
+          "Certified Kubernetes Administrator (CKA)"
+        ],
+        suggested_learning_paths: [
+          "Advanced Cloud Architecture and Microservices",
+          "AI/ML Integration in Business Applications",
+          "DevOps and Site Reliability Engineering"
+        ],
         market_analysis: {
-          hourly_rate_current: 800,
-          hourly_rate_optimized: 950,
-          demand_level: "High",
-          competitive_advantages: ["Full-stack expertise", "Strong communication skills"]
+          hourly_rate_current: 850,
+          hourly_rate_optimized: 1200,
+          demand_level: "Very High",
+          competitive_advantages: [
+            "Full-stack expertise across modern tech stack",
+            "Proven track record in scaling applications",
+            "Strong business acumen and stakeholder management"
+          ]
         }
       };
     }

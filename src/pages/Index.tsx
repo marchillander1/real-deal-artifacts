@@ -15,26 +15,26 @@ export default function Index() {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <div className="flex justify-center mb-8">
-            <Logo size="xl" />
+            <Logo size="lg" />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6">
-            AI-Driven <span className="text-blue-600">Konsultanalys</span>
+            AI-Driven <span className="text-blue-600">Consultant Analysis</span>
           </h1>
           <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-            Få djupgående insikter om dina tekniska färdigheter, marknadsvärde och karriärmöjligheter 
-            genom vår avancerade AI-analys av ditt CV och LinkedIn-profil.
+            Get deep insights into your technical skills, market value, and career opportunities 
+            through our advanced AI analysis of your CV and LinkedIn profile.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/cv-upload">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg">
                 <Upload className="mr-2 h-5 w-5" />
-                Börja din analys
+                Start your analysis
               </Button>
             </Link>
             <Link to="/dashboard">
               <Button size="lg" variant="outline" className="px-8 py-4 text-lg">
                 <BarChart3 className="mr-2 h-5 w-5" />
-                Se Dashboard
+                View Dashboard
               </Button>
             </Link>
           </div>
@@ -47,9 +47,9 @@ export default function Index() {
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                 <Brain className="h-6 w-6 text-blue-600" />
               </div>
-              <CardTitle>AI-Driven Analys</CardTitle>
+              <CardTitle>AI-Driven Analysis</CardTitle>
               <CardDescription>
-                Avancerad Gemini AI analyserar ditt CV och LinkedIn för djupgående karriärinsikter
+                Advanced Gemini AI analyzes your CV and LinkedIn for deep career insights
               </CardDescription>
             </CardHeader>
           </Card>
@@ -59,9 +59,9 @@ export default function Index() {
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                 <Target className="h-6 w-6 text-green-600" />
               </div>
-              <CardTitle>Marknadsvärdering</CardTitle>
+              <CardTitle>Market Valuation</CardTitle>
               <CardDescription>
-                Få realtidsdata om ditt marknadsvärde och optimering av löneförhandlingar
+                Get real-time data on your market value and salary negotiation optimization
               </CardDescription>
             </CardHeader>
           </Card>
@@ -71,9 +71,9 @@ export default function Index() {
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                 <Users className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle>Konsultnätverk</CardTitle>
+              <CardTitle>Consultant Network</CardTitle>
               <CardDescription>
-                Gå med i vårt exklusiva nätverk och få tillgång till högkvalitativa uppdrag
+                Join our exclusive network and get access to high-quality assignments
               </CardDescription>
             </CardHeader>
           </Card>
@@ -83,9 +83,9 @@ export default function Index() {
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
                 <Zap className="h-6 w-6 text-orange-600" />
               </div>
-              <CardTitle>Snabb Analys</CardTitle>
+              <CardTitle>Fast Analysis</CardTitle>
               <CardDescription>
-                Få din kompletta karriäranalys på under 2 minuter med AI-teknik
+                Get your complete career analysis in under 2 minutes with AI technology
               </CardDescription>
             </CardHeader>
           </Card>
@@ -95,9 +95,9 @@ export default function Index() {
               <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
                 <BarChart3 className="h-6 w-6 text-red-600" />
               </div>
-              <CardTitle>Utvecklingsroadmap</CardTitle>
+              <CardTitle>Development Roadmap</CardTitle>
               <CardDescription>
-                Personliga rekommendationer för certifieringar och kompetensutveckling
+                Personal recommendations for certifications and skill development
               </CardDescription>
             </CardHeader>
           </Card>
@@ -107,9 +107,9 @@ export default function Index() {
               <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                 <Upload className="h-6 w-6 text-indigo-600" />
               </div>
-              <CardTitle>GDPR-Säker</CardTitle>
+              <CardTitle>GDPR-Secure</CardTitle>
               <CardDescription>
-                All databehandling följer GDPR och din integritet är vår högsta prioritet
+                All data processing follows GDPR and your privacy is our highest priority
               </CardDescription>
             </CardHeader>
           </Card>
@@ -118,15 +118,15 @@ export default function Index() {
         {/* CTA Section */}
         <div className="text-center bg-white rounded-2xl p-12 shadow-lg">
           <h2 className="text-3xl font-bold text-slate-900 mb-4">
-            Redo att ta nästa steg i din karriär?
+            Ready to take the next step in your career?
           </h2>
           <p className="text-lg text-slate-600 mb-8">
-            Få din personliga AI-analys och upptäck nya möjligheter inom 2 minuter.
+            Get your personal AI analysis and discover new opportunities within 2 minutes.
           </p>
           <Link to="/cv-upload">
             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-lg">
               <Upload className="mr-2 h-5 w-5" />
-              Starta din analys nu
+              Start your analysis now
             </Button>
           </Link>
         </div>

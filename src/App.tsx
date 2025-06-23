@@ -31,7 +31,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard assignments={[]} onMatch={() => {}} onAssignmentCreated={() => {}} onFileUpload={() => {}} />} />
           <Route path="/cv-upload" element={<CVUpload />} />
           <Route path="/analysis" element={<Analysis />} />
           <Route path="/my-profile" element={<MyProfile />} />
