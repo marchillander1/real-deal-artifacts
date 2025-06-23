@@ -25,6 +25,17 @@ export class ConsultantService {
     console.log('📝 Personal description included:', !!personalDescription);
 
     try {
+      // Helper function to extract integer from rate string/number
+      const extractRate = (rate: any): number => {
+        if (typeof rate === 'number') return rate;
+        if (typeof rate === 'string') {
+          // Extract first number from strings like "800-1200" or "800"
+          const match = rate.match(/\d+/);
+          return match ? parseInt(match[0]) : 800;
+        }
+        return 800; // Default fallback
+      };
+
       // Prepare consultant data with all analysis results
       const consultantData = {
         name: extractedPersonalInfo.name,
@@ -58,10 +69,10 @@ export class ConsultantService {
         adaptability: cvAnalysis?.scores?.adaptability || 4,
         cultural_fit: cvAnalysis?.scores?.culturalFit || 4,
         
-        // Market analysis
-        hourly_rate: cvAnalysis?.marketAnalysis?.hourlyRate?.current || 800,
-        market_rate_current: cvAnalysis?.marketAnalysis?.hourlyRate?.current || 800,
-        market_rate_optimized: cvAnalysis?.marketAnalysis?.hourlyRate?.optimized || 950,
+        // Market analysis with proper integer extraction
+        hourly_rate: extractRate(cvAnalysis?.marketAnalysis?.hourlyRate?.current) || 800,
+        market_rate_current: extractRate(cvAnalysis?.marketAnalysis?.hourlyRate?.current) || 800,
+        market_rate_optimized: extractRate(cvAnalysis?.marketAnalysis?.hourlyRate?.optimized) || 950,
         
         // Soft skills from enhanced analysis including personal description
         communication_style: cvAnalysis?.softSkills?.communicationStyle || 'Professional and collaborative',
