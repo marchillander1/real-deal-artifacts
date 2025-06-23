@@ -7,7 +7,7 @@ import { Check, Star, Zap, Shield, Brain, Target, Users, BarChart3, Upload, Buil
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import Navbar from '@/components/landing/Navbar';
-import HeroSection from '@/components/landing/HeroSection';
+import { HeroSection } from '@/components/landing/HeroSection';
 import ProblemSection from '@/components/landing/ProblemSection';
 import SolutionSection from '@/components/landing/SolutionSection';
 import ComparisonSection from '@/components/landing/ComparisonSection';
