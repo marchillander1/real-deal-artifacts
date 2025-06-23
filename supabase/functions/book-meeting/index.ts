@@ -116,10 +116,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("📝 Email HTML prepared");
 
-    // Send demo request email to Marc
+    // Send demo request email to marc@matchwise.tech
     const emailResponse = await resend.emails.send({
-      from: "MatchWise Demo Requests <marc@matchwise.ai>",
-      to: ["marc@matchwise.ai"],
+      from: "MatchWise Demo Requests <marc@matchwise.tech>",
+      to: ["marc@matchwise.tech"],
       replyTo: [email],
       subject: `New Demo Request from ${name} (${company})`,
       html: emailHtml,

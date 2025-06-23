@@ -1,84 +1,169 @@
-
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
-import { AssignmentsSection } from '@/components/dashboard/AssignmentsSection';
-import { useRealTimeTeamNotifications } from '@/hooks/useRealTimeTeamNotifications';
-import { ConsultantsTab } from '@/components/ConsultantsTab';
-import { SystemCheck } from '@/components/SystemCheck';
-import { useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import { Navbar } from '@/components/Navbar';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CalendarDays, MapPin, Clock, Users, TrendingUp, Building2, Search, Filter, Upload, Plus, Eye, MessageSquare, Star, Briefcase } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import Navbar from './Navbar';
+import { EnhancedConsultantsTab } from './EnhancedConsultantsTab';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import CreateAssignmentForm from './CreateAssignmentForm';
+import { DashboardOverview } from './dashboard/DashboardOverview';
+import { AssignmentsSection } from './dashboard/AssignmentsSection';
 
-export const Dashboard: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { toast } = useToast();
-  const activeTab = searchParams.get('tab') || 'overview';
-  const success = searchParams.get('success');
+interface Assignment {
+  id: number;
+  title: string;
+  description: string;
+  company: string;
+  clientLogo: string;
+  requiredSkills: string[];
+  workload: string;
+  duration: string;
+  location: string;
+  urgency: string;
+  budget: number;
+  hourlyRate: number;
+  status: string;
+  matchedConsultants: number;
+  createdAt: string;
+}
 
-  useRealTimeTeamNotifications();
+interface Consultant {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
+  skills: string[];
+  location: string;
+  hourlyRate: number;
+  availability: string;
+  profilePicture: string;
+  experienceYears: number;
+  description: string;
+}
 
-  useEffect(() => {
-    if (success === 'team-member-added') {
-      toast({
-        title: "🎉 Team member added successfully!",
-        description: "The consultant has been added to your team's database",
-      });
-      
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete('success');
-      setSearchParams(newParams);
-    }
-  }, [success, searchParams, setSearchParams, toast]);
+interface DashboardProps {
+  assignments: Assignment[];
+  onMatch: (assignment: Assignment) => void;
+  onAssignmentCreated: (newAssignment: Assignment) => void;
+  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-  const handleTabChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', value);
-    setSearchParams(newParams);
-  };
+const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmentCreated, onFileUpload }) => {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreateAssignmentOpen, setIsCreateAssignmentOpen] = useState(false);
+  const { consultants: allConsultants, isLoading, error } = useSupabaseConsultantsWithDemo();
 
-  const handleCreateAssignment = () => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', 'assignments');
-    setSearchParams(newParams);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="container mx-auto px-4 py-6">
-        <div className="space-y-6">
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="consultants">Consultants</TabsTrigger>
-              <TabsTrigger value="assignments">Assignments</TabsTrigger>
-              <TabsTrigger value="system-check">System Check</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-6">
-              <DashboardOverview onCreateAssignment={handleCreateAssignment} />
-            </TabsContent>
-            
-            <TabsContent value="consultants" className="space-y-6">
-              <ConsultantsTab 
-                showEditForNetwork={true}
-                showDeleteForMyConsultants={true}
-                showRemoveDuplicates={true}
-              />
-            </TabsContent>
-            
-            <TabsContent value="assignments" className="space-y-6">
-              <AssignmentsSection />
-            </TabsContent>
-
-            <TabsContent value="system-check" className="space-y-6">
-              <SystemCheck />
-            </TabsContent>
-          </Tabs>
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-gray-600">Manage your assignments and consultant network</p>
+            </div>
+            <div className="flex space-x-3">
+              <Button onClick={() => setIsCreateAssignmentOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Assignment
+              </Button>
+            </div>
+          </div>
         </div>
+
+        {/* Overview Stats */}
+        <DashboardOverview consultants={allConsultants} assignments={assignments} />
+
+        {/* Main Content Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="assignments">Assignments ({assignments.length})</TabsTrigger>
+            <TabsTrigger value="consultants">Network Consultants ({allConsultants.length})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Briefcase className="h-5 w-5 mr-2" />
+                    Recent Assignments
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {assignments.slice(0, 3).map((assignment) => (
+                    <div key={assignment.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">{assignment.title}</h4>
+                        <p className="text-sm text-gray-600">{assignment.company}</p>
+                      </div>
+                      <Badge variant={assignment.status === 'Open' ? 'default' : 'secondary'}>
+                        {assignment.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    Network Activity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">New consultants this week</span>
+                    <span className="font-semibold">+{Math.floor(Math.random() * 10) + 1}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Profile views</span>
+                    <span className="font-semibold">{Math.floor(Math.random() * 100) + 50}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Successful matches</span>
+                    <span className="font-semibold">{Math.floor(Math.random() * 5) + 1}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="assignments">
+            <AssignmentsSection 
+              assignments={assignments}
+              onMatch={onMatch}
+              consultants={allConsultants}
+            />
+          </TabsContent>
+
+          <TabsContent value="consultants">
+            <EnhancedConsultantsTab />
+          </TabsContent>
+        </Tabs>
+
+        {/* Create Assignment Modal */}
+        {isCreateAssignmentOpen && (
+          <CreateAssignmentForm
+            onClose={() => setIsCreateAssignmentOpen(false)}
+            onAssignmentCreated={onAssignmentCreated}
+          />
+        )}
       </div>
     </div>
   );
 };
+
+export default Dashboard;

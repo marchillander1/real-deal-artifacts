@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Upload, FileText, CheckCircle2, Loader2, AlertCircle, Clock, Brain } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Upload, FileText, CheckCircle2, Loader2, AlertCircle, Clock, Brain, User } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CVUploadFormProps {
@@ -14,6 +15,7 @@ interface CVUploadFormProps {
   fullName: string;
   phoneNumber: string;
   linkedinUrl: string;
+  personalDescription: string;
   agreeToTerms: boolean;
   isUploading: boolean;
   analysisResults: any;
@@ -23,6 +25,7 @@ interface CVUploadFormProps {
   onFullNameChange: (value: string) => void;
   onPhoneNumberChange: (value: string) => void;
   onLinkedinUrlChange: (value: string) => void;
+  onPersonalDescriptionChange: (value: string) => void;
   onAgreeToTermsChange: (checked: boolean) => void;
   onSubmit: (event: React.FormEvent) => void;
 }
@@ -33,6 +36,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
   fullName,
   phoneNumber,
   linkedinUrl,
+  personalDescription,
   agreeToTerms,
   isUploading,
   analysisResults,
@@ -42,6 +46,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
   onFullNameChange,
   onPhoneNumberChange,
   onLinkedinUrlChange,
+  onPersonalDescriptionChange,
   onAgreeToTermsChange,
   onSubmit
 }) => {
@@ -224,6 +229,26 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
             )}
           </div>
 
+          {/* Personal Description Section - NEW */}
+          <div className="space-y-3">
+            <Label htmlFor="personal-description" className="text-base font-medium flex items-center">
+              <User className="h-4 w-4 mr-2" />
+              Personal Description
+            </Label>
+            <Textarea
+              id="personal-description"
+              value={personalDescription}
+              onChange={(e) => onPersonalDescriptionChange(e.target.value)}
+              placeholder="Tell us about yourself, your strengths, interests, and what makes you unique as a consultant. This information will be used to enhance your analysis and profile."
+              className="h-24 resize-none"
+              maxLength={500}
+            />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Optional field to improve analysis quality</span>
+              <span>{personalDescription.length}/500</span>
+            </div>
+          </div>
+
           {/* Analysis Status Info */}
           {!canStartAnalysis && !isAnalyzing && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -244,7 +269,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                 <Brain className="h-6 w-6 text-blue-600 animate-pulse" />
                 <div>
                   <h4 className="font-semibold text-blue-900">🤖 AI Analysis in Progress</h4>
-                  <p className="text-sm text-blue-700">Analyzing CV and LinkedIn profile together...</p>
+                  <p className="text-sm text-blue-700">Analyzing CV, LinkedIn profile, and personal description together...</p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -301,7 +326,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
                 </span>
               </Label>
               <p className="mt-1">
-                I consent to MatchWise analyzing my CV and LinkedIn profile to auto-fill contact information and create my consultant profile.
+                I consent to MatchWise analyzing my CV, LinkedIn profile, and personal description to auto-fill contact information and create my consultant profile.
               </p>
             </div>
           </div>
@@ -338,7 +363,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({
           
           {isAnalyzing && (
             <p className="text-center text-sm text-blue-600 animate-pulse">
-              🔄 Analyzing CV and LinkedIn - auto-filling contact information...
+              🔄 Analyzing CV, LinkedIn, and personal description - auto-filling contact information...
             </p>
           )}
         </form>

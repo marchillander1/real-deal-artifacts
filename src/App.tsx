@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,28 +12,24 @@ import Demo from './pages/Demo';
 import Pricing from './pages/Pricing';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
-import CVUploadForm from './pages/CVUploadForm';
-import CVUploadModern from './pages/CVUploadModern';
 import CVUploadComplete from './pages/CVUploadComplete';
+import CVUploadModern from './pages/CVUploadModern';
 import NetworkSuccess from './pages/NetworkSuccess';
 import AnalysisPage from './pages/AnalysisPage';
 import MyProfile from './pages/MyProfile';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
-import AuthGuard from './components/AuthGuard';
+import { AuthGuard } from './components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import Logo from '@/components/Logo';
+import CVUpload from './pages/CVUpload';
 
 const queryClient = new QueryClient();
 
 function App() {
   const { toast } = useToast();
   const { user } = useAuth();
-  const [assignments, setAssignments] = useState([
-    { id: 1, title: "Frontend Developer", description: "React experience required" },
-    { id: 2, title: "Backend Engineer", description: "Node.js and Express expertise" }
-  ]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -52,7 +49,6 @@ function App() {
   };
 
   const handleAssignmentCreated = (newAssignment: any) => {
-    setAssignments([...assignments, newAssignment]);
     toast({
       title: "Assignment Created!",
       description: `New assignment ${newAssignment.title} added`,
@@ -60,8 +56,40 @@ function App() {
   };
 
   const demoAssignments = [
-    { id: 1, title: "Frontend Developer", description: "React experience required" },
-    { id: 2, title: "Backend Engineer", description: "Node.js and Express expertise" }
+    { 
+      id: 1, 
+      title: "Frontend Developer", 
+      description: "React experience required",
+      company: "Tech Corp",
+      clientLogo: "",
+      requiredSkills: ["React", "TypeScript"],
+      workload: "Full-time",
+      duration: "6 months",
+      location: "Stockholm",
+      urgency: "High",
+      budget: 100000,
+      hourlyRate: 800,
+      status: "Open",
+      matchedConsultants: 0,
+      createdAt: new Date().toISOString()
+    },
+    { 
+      id: 2, 
+      title: "Backend Engineer", 
+      description: "Node.js and Express expertise",
+      company: "Dev Studio",
+      clientLogo: "",
+      requiredSkills: ["Node.js", "Express"],
+      workload: "Part-time",
+      duration: "3 months",
+      location: "Gothenburg",
+      urgency: "Medium",
+      budget: 75000,
+      hourlyRate: 750,
+      status: "Open",
+      matchedConsultants: 0,
+      createdAt: new Date().toISOString()
+    }
   ];
 
   return (
@@ -94,7 +122,7 @@ function App() {
               path="/cv-upload" 
               element={
                 <div className="min-h-screen bg-gray-50">
-                  <CVUploadForm />
+                  <CVUpload />
                 </div>
               } 
             />

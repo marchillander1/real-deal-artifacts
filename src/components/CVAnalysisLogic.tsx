@@ -11,6 +11,7 @@ export interface CVAnalysisLogicProps {
   linkedinUrl: string;
   formEmail: string;
   formName: string;
+  personalDescription: string;
   onAnalysisComplete: (analysis: { cvAnalysis: any; linkedinAnalysis: any; consultant: any; extractedPersonalInfo?: any }) => void;
   onError: (message: string) => void;
   onAnalysisStart: () => void;
@@ -22,6 +23,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
   linkedinUrl,
   formEmail,
   formName,
+  personalDescription,
   onAnalysisComplete,
   onError,
   onAnalysisStart,
@@ -42,7 +44,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
     const shouldStartAnalysis = file && hasValidLinkedIn && !isAnalyzing && !analysisCompleted;
     
     if (shouldStartAnalysis) {
-      console.log('🚀 Auto-triggering enhanced analysis');
+      console.log('🚀 Auto-triggering enhanced analysis with personal description');
       handleAnalysis();
     }
   }, [file, linkedinUrl, isAnalyzing, analysisCompleted]);
@@ -137,16 +139,17 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
       onAnalysisStart();
       onAnalysisProgress(10);
 
-      console.log('🚀 Starting enhanced CV analysis workflow');
+      console.log('🚀 Starting enhanced CV analysis workflow with personal description');
 
-      // Steg 1: Enhanced CV-analys
-      const { analysis: cvAnalysisData, detectedInfo } = await CVParser.parseCV(file);
+      // Steg 1: Enhanced CV-analys med personal description
+      const { analysis: cvAnalysisData, detectedInfo } = await CVParser.parseCV(file, personalDescription);
       onAnalysisProgress(50);
 
-      console.log('📊 CV analysis completed:', {
+      console.log('📊 CV analysis completed with personal description:', {
         hasPersonalInfo: !!cvAnalysisData.personalInfo,
         hasExperience: !!cvAnalysisData.experience,
-        skillsCount: Object.values(cvAnalysisData.skills || {}).reduce((sum: number, arr: any) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+        skillsCount: Object.values(cvAnalysisData.skills || {}).reduce((sum: number, arr: any) => sum + (Array.isArray(arr) ? arr.length : 0), 0),
+        hasPersonalDescription: !!personalDescription
       });
 
       // Steg 2: LinkedIn-analys
@@ -166,6 +169,7 @@ export const CVAnalysisLogic: React.FC<CVAnalysisLogicProps> = ({
         extractedPersonalInfo,
         file,
         linkedinUrl,
+        personalDescription,
         isMyConsultant
       });
 

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Upload, Sparkles } from 'lucide-react';
+import BookMeetingButton from '../BookMeetingButton';
 
 const CTASection = () => {
   return (
@@ -33,12 +34,7 @@ const CTASection = () => {
               <ArrowRight className="h-5 w-5" />
             </Link>
             
-            <Link
-              to="/demo"
-              className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300"
-            >
-              View Demo First
-            </Link>
+            <BookMeetingButton />
           </div>
           
           <div className="mt-8 text-blue-100">
