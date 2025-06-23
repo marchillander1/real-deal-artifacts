@@ -130,7 +130,7 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmen
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="assignments">Assignments ({allAssignments.length})</TabsTrigger>
             <TabsTrigger value="consultants">Network Consultants ({allConsultants.length})</TabsTrigger>
