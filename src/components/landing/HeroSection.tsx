@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Upload, Sparkles, Clock, Users, TrendingUp, Shield, Play, Zap } from 'lucide-react';
+import { ArrowRight, Upload, Sparkles, Clock, Users, TrendingUp, Shield, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TrialSignupModal from './TrialSignupModal';
 import { useQuery } from '@tanstack/react-query';
@@ -82,14 +82,6 @@ export const HeroSection = () => {
                 <Play className="w-4 h-4 mr-2" />
                 Try Free Demo
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-              
-              <Link
-                to="/matchwiseai"
-                className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition-all duration-300"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Go to Dashboard
               </Link>
             </div>
 

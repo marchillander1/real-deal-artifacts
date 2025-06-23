@@ -132,6 +132,7 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, onMatch, onAssignmen
         {isCreateAssignmentOpen && (
           <CreateAssignmentForm
             onClose={() => setIsCreateAssignmentOpen(false)}
+            onCancel={() => setIsCreateAssignmentOpen(false)}
             onAssignmentCreated={onAssignmentCreated}
           />
         )}
