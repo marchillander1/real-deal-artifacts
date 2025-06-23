@@ -142,21 +142,24 @@ export const JoinNetworkStep: React.FC<JoinNetworkStepProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.entries(cvAnalysis?.scores || {}).map(([key, value]) => (
-                    <div key={key} className="flex justify-between items-center">
-                      <span className="capitalize font-medium">
-                        {key === 'leadership' ? 'Ledarskap' :
-                         key === 'innovation' ? 'Innovation' :
-                         key === 'adaptability' ? 'Anpassningsförmåga' :
-                         key === 'culturalFit' ? 'Kulturell Passform' :
-                         key === 'communication' ? 'Kommunikation' :
-                         key === 'teamwork' ? 'Teamwork' : key}
-                      </span>
-                      <span className={`font-bold ${getScoreColor(value as number)}`}>
-                        {value}/5
-                      </span>
-                    </div>
-                  ))}
+                  {Object.entries(cvAnalysis?.scores || {}).map(([key, value]) => {
+                    const score = typeof value === 'number' ? value : 0;
+                    return (
+                      <div key={key} className="flex justify-between items-center">
+                        <span className="capitalize font-medium">
+                          {key === 'leadership' ? 'Ledarskap' :
+                           key === 'innovation' ? 'Innovation' :
+                           key === 'adaptability' ? 'Anpassningsförmåga' :
+                           key === 'culturalFit' ? 'Kulturell Passform' :
+                           key === 'communication' ? 'Kommunikation' :
+                           key === 'teamwork' ? 'Teamwork' : key}
+                        </span>
+                        <span className={`font-bold ${getScoreColor(score)}`}>
+                          {score}/5
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
