@@ -9,6 +9,7 @@ import { ConsultantsTab } from '@/components/ConsultantsTab';
 import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { Navbar } from '@/components/Navbar';
 
 export const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,30 +49,35 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="consultants">Consultants</TabsTrigger>
-          <TabsTrigger value="assignments">Assignments</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview" className="space-y-6">
-          <DashboardOverview onCreateAssignment={handleCreateAssignment} />
-        </TabsContent>
-        
-        <TabsContent value="consultants" className="space-y-6">
-          <ConsultantsTab 
-            showEditForNetwork={true}
-            showDeleteForMyConsultants={true}
-            showRemoveDuplicates={true}
-          />
-        </TabsContent>
-        
-        <TabsContent value="assignments" className="space-y-6">
-          <AssignmentsSection />
-        </TabsContent>
-      </Tabs>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="container mx-auto px-4 py-6">
+        <div className="space-y-6">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="consultants">Consultants</TabsTrigger>
+              <TabsTrigger value="assignments">Assignments</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="overview" className="space-y-6">
+              <DashboardOverview onCreateAssignment={handleCreateAssignment} />
+            </TabsContent>
+            
+            <TabsContent value="consultants" className="space-y-6">
+              <ConsultantsTab 
+                showEditForNetwork={true}
+                showDeleteForMyConsultants={true}
+                showRemoveDuplicates={true}
+              />
+            </TabsContent>
+            
+            <TabsContent value="assignments" className="space-y-6">
+              <AssignmentsSection />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 };
