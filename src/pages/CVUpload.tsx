@@ -78,8 +78,8 @@ const CVUpload: React.FC = () => {
       // Show success toast with name if available
       if (enhancedData.name) {
         toast({
-          title: "Personlig information extraherad! ✅",
-          description: `Namn: ${enhancedData.name}${enhancedData.email ? `, E-post: ${enhancedData.email}` : ''}`,
+          title: "Personal information extracted! ✅",
+          description: `Name: ${enhancedData.name}${enhancedData.email ? `, Email: ${enhancedData.email}` : ''}`,
         });
       }
     } else {
@@ -159,11 +159,11 @@ const CVUpload: React.FC = () => {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-              Låt AI låsa upp din 
+              Let AI unlock your 
               <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent"> potential</span>
             </h1>
             <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Ladda upp ditt CV och LinkedIn-profil – få en personlig AI-driven karriärrapport med förbättringstips, marknadsvärdering och en färdplan för tillväxt.
+              Upload your CV and LinkedIn profile – get a personalized AI-driven career report with improvement tips, market valuation and a roadmap for growth.
             </p>
           </div>
 
