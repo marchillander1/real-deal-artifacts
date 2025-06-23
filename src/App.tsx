@@ -1,66 +1,156 @@
-
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Landing from '@/pages/Landing';
-import Demo from '@/pages/Demo';
-import CVUploadModern from '@/pages/CVUploadModern';
-import CVUploadComplete from '@/pages/CVUploadComplete';
-import AnalysisPage from '@/pages/AnalysisPage';
-import NetworkSuccess from '@/pages/NetworkSuccess';
-import Pricing from '@/pages/Pricing';
-import { PricingAuth } from '@/components/PricingAuth';
-import Auth from '@/pages/Auth';
-import { Dashboard } from '@/components/Dashboard';
-import NotFound from '@/pages/NotFound';
-import { AuthGuard } from '@/components/AuthGuard';
-import { AuthProvider } from '@/hooks/useAuth';
-import { Toaster } from '@/components/ui/toaster';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import MyProfile from '@/pages/MyProfile';
-import UserProfile from '@/pages/UserProfile';
+import { Toaster } from '@/components/ui/toaster';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Upload } from 'lucide-react';
+
+import Landing from './pages/Landing';
+import Demo from './pages/Demo';
+import Pricing from './pages/Pricing';
+import Auth from './pages/Auth';
+import Dashboard from './pages/Dashboard';
+import CVUploadForm from './pages/CVUploadForm';
+import CVUploadModern from './pages/CVUploadModern';
+import CVUploadComplete from './pages/CVUploadComplete';
+import NetworkSuccess from './pages/NetworkSuccess';
+import AnalysisPage from './pages/AnalysisPage';
+import MyProfile from './pages/MyProfile';
+import UserProfile from './pages/UserProfile';
+import NotFound from './pages/NotFound';
+import Navbar from './components/Navbar';
+import AuthGuard from './components/AuthGuard';
+import { useAuth } from '@/hooks/useAuth';
+import Logo from '@/components/Logo';
 
 const queryClient = new QueryClient();
 
 function App() {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [assignments, setAssignments] = useState([
+    { id: 1, title: "Frontend Developer", description: "React experience required" },
+    { id: 2, title: "Backend Engineer", description: "Node.js and Express expertise" }
+  ]);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      toast({
+        title: "File Uploaded!",
+        description: `You uploaded ${file.name}`,
+      });
+    }
+  };
+
+  const handleMatch = (assignment: any) => {
+    toast({
+      title: "Matching Started",
+      description: `Finding consultants for ${assignment.title}`,
+    });
+  };
+
+  const handleAssignmentCreated = (newAssignment: any) => {
+    setAssignments([...assignments, newAssignment]);
+    toast({
+      title: "Assignment Created!",
+      description: `New assignment ${newAssignment.title} added`,
+    });
+  };
+
+  const demoAssignments = [
+    { id: 1, title: "Frontend Developer", description: "React experience required" },
+    { id: 2, title: "Backend Engineer", description: "Node.js and Express expertise" }
+  ];
+
   return (
-    <Router>
+    <QueryClientProvider client={queryClient}>
       <div className="App">
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/demo" element={<Demo />} />
-              <Route path="/cv-upload" element={<CVUploadModern />} />
-              <Route path="/cv-upload-complete" element={<CVUploadComplete />} />
-              <Route path="/analysis" element={<AnalysisPage />} />
-              <Route path="/network-success" element={<NetworkSuccess />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/pricing-auth" element={<PricingAuth />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/my-profile" element={<MyProfile />} />
-              <Route
-                path="/user-profile"
-                element={
-                  <AuthGuard>
-                    <UserProfile />
-                  </AuthGuard>
-                }
-              />
-              <Route
-                path="/matchwiseai"
-                element={
-                  <AuthGuard>
-                    <Dashboard />
-                  </AuthGuard>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </AuthProvider>
-        </QueryClientProvider>
+        <Toaster />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/demo" element={<Demo />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route 
+              path="/matchwiseai" 
+              element={
+                <AuthGuard>
+                  <div className="min-h-screen bg-gray-50">
+                    <Navbar onFileUpload={handleFileUpload} />
+                    <Dashboard 
+                      assignments={demoAssignments}
+                      onMatch={handleMatch}
+                      onAssignmentCreated={handleAssignmentCreated}
+                      onFileUpload={handleFileUpload}
+                    />
+                  </div>
+                </AuthGuard>
+              } 
+            />
+            <Route 
+              path="/cv-upload" 
+              element={
+                <div className="min-h-screen bg-gray-50">
+                  <CVUploadForm />
+                </div>
+              } 
+            />
+            <Route 
+              path="/cv-upload-modern" 
+              element={
+                <div className="min-h-screen bg-gray-50">
+                  <CVUploadModern />
+                </div>
+              } 
+            />
+            <Route 
+              path="/cv-upload-complete" 
+              element={
+                <div className="min-h-screen bg-gray-50">
+                  <CVUploadComplete />
+                </div>
+              } 
+            />
+            <Route 
+              path="/network-success" 
+              element={
+                <div className="min-h-screen bg-gray-50">
+                  <NetworkSuccess />
+                </div>
+              } 
+            />
+            <Route 
+              path="/analysis" 
+              element={
+                <AuthGuard>
+                  <AnalysisPage />
+                </AuthGuard>
+              } 
+            />
+            <Route 
+              path="/my-profile" 
+              element={
+                <AuthGuard>
+                  <MyProfile />
+                </AuthGuard>
+              } 
+            />
+            <Route 
+              path="/account" 
+              element={
+                <AuthGuard>
+                  <UserProfile />
+                </AuthGuard>
+              } 
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
       </div>
-    </Router>
+    </QueryClientProvider>
   );
 }
 

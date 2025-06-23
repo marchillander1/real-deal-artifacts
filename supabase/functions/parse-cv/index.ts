@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting ADVANCED CV parsing with comprehensive professional analysis...');
+    console.log('🚀 Starting ENHANCED CV parsing with REAL DATA ONLY...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -29,7 +29,7 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    // ADVANCED text extraction with multiple algorithms
+    // ENHANCED text extraction with multiple algorithms
     let extractedText = '';
     let detectedInfo = {
       emails: [] as string[],
@@ -42,11 +42,11 @@ serve(async (req) => {
     
     try {
       if (file.type === 'application/pdf') {
-        console.log('📄 Processing PDF with ADVANCED multi-layer extraction...');
+        console.log('📄 Processing PDF with ENHANCED multi-layer extraction...');
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        // ADVANCED PDF text extraction with improved algorithms
+        // ENHANCED PDF text extraction with improved algorithms
         let rawText = '';
         let wordBuffer = '';
         let previousByte = 0;
@@ -84,7 +84,7 @@ serve(async (req) => {
           rawText += wordBuffer;
         }
         
-        // ADVANCED text cleaning and normalization
+        // ENHANCED text cleaning and normalization
         extractedText = rawText
           .replace(/\s+/g, ' ')                    // Normalize whitespace
           .replace(/([a-z])([A-Z])/g, '$1 $2')     // Add spaces between camelCase
@@ -92,9 +92,9 @@ serve(async (req) => {
           .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2') // Fix ALL CAPS words
           .replace(/([.!?])\s*([A-Z])/g, '$1 $2')  // Fix sentence spacing
           .trim()
-          .substring(0, 12000); // Increased text limit for comprehensive analysis
+          .substring(0, 15000); // Increased text limit for comprehensive analysis
         
-        console.log('📝 ADVANCED text extraction completed. Length:', extractedText.length);
+        console.log('📝 ENHANCED text extraction completed. Length:', extractedText.length);
         console.log('📝 Sample text:', extractedText.substring(0, 500));
         
         // ENHANCED regex patterns for comprehensive information detection
@@ -112,7 +112,7 @@ serve(async (req) => {
         detectedInfo.companies = Array.from(new Set([...extractedText.matchAll(companyRegex)].map(m => m[0]))).slice(0, 10);
         detectedInfo.skills = Array.from(new Set([...extractedText.matchAll(skillRegex)].map(m => m[0]))).slice(0, 20);
         
-        console.log('🔍 ADVANCED pattern detection results:', {
+        console.log('🔍 ENHANCED pattern detection results:', {
           emails: detectedInfo.emails.length,
           phones: detectedInfo.phones.length,
           names: detectedInfo.names.length,
@@ -124,7 +124,7 @@ serve(async (req) => {
       } else {
         // Handle text files and other formats
         extractedText = await file.text();
-        extractedText = extractedText.substring(0, 12000);
+        extractedText = extractedText.substring(0, 15000);
         console.log('📄 Text file processed, length:', extractedText.length);
       }
       
@@ -133,129 +133,121 @@ serve(async (req) => {
       extractedText = `File processing limited for ${file.name}. Detected type: ${file.type}`;
     }
 
-    console.log('🤖 Sending to OpenAI with COMPREHENSIVE PROFESSIONAL analysis prompt...');
+    console.log('🤖 Sending to OpenAI with STRICT REAL DATA ONLY analysis prompt...');
 
-    // ADVANCED AI prompt for comprehensive professional analysis
-    const prompt = `Du är en expert på CV-analys, rekrytering och professionell utvärdering. Analysera detta CV MYCKET NOGGRANT för att skapa en komplett professionell bedömning.
+    // STRICT AI prompt that ONLY uses real data from CV text
+    const prompt = `Du är en expert på CV-analys. Analysera detta CV EXTREMT NOGGRANT och använd ENDAST information som FAKTISKT finns i texten. HITTA ALDRIG PÅ information.
 
-DETEKTERAD INFORMATION att prioritera och validera:
-Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
-Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
-Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'MÅSTE HITTAS I TEXTEN'}
-Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'LETA I TEXTEN'}
-Företag: ${detectedInfo.companies.length > 0 ? detectedInfo.companies.join(', ') : 'IDENTIFIERA FRÅN TEXTEN'}
-Tekniska färdigheter: ${detectedInfo.skills.length > 0 ? detectedInfo.skills.join(', ') : 'EXTRAHERA FRÅN TEXTEN'}
+DETEKTERAD INFORMATION att prioritera och validera (använd ENDAST om den finns i texten):
+Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'SÖKS I TEXTEN'}
+Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'SÖKS I TEXTEN'}
+Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'SÖKS I TEXTEN'}
+Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'SÖKS I TEXTEN'}
+Företag: ${detectedInfo.companies.length > 0 ? detectedInfo.companies.join(', ') : 'SÖKS I TEXTEN'}
+Tekniska färdigheter: ${detectedInfo.skills.length > 0 ? detectedInfo.skills.join(', ') : 'SÖKS I TEXTEN'}
 
-CV FULLTEXT FÖR DJUPANALYS:
+CV FULLTEXT FÖR ANALYS:
 ${extractedText}
 
-OMFATTANDE ANALYS-INSTRUKTIONER:
+KRITISKA REGLER - FÖLJ DESSA STRIKT:
+1. Använd ENDAST information som FAKTISKT finns i CV-texten
+2. Om information inte finns explicit, skriv "Not available in CV"
+3. HITTA ALDRIG PÅ personuppgifter, företag, eller erfarenheter
+4. Basera mjukvärdesanalys ENDAST på konkreta exempel från texten
+5. Om mjukvärden inte kan härledas från texten, skriv "Insufficient evidence in CV"
+
+ANALYS-INSTRUKTIONER:
 
 1. PERSONLIG INFORMATION: 
-   - Hitta EXAKT namn, email, telefon från texten
-   - Validera mot detekterad information ovan
-   - Om information saknas, sök NOGGRANT i hela texten
+   - Extrahera EXAKT som står i texten
+   - Validera mot detekterad information
+   - Om saknas: "Not available in CV"
 
-2. DJUP MJUKVÄRDESANALYS:
-   - Kommunikationsstil: Analysera språkbruk, struktur, tydlighet
-   - Ledarskapsegenskaper: Hitta bevis på ansvar, team-ledning, initiativ
-   - Värderingar: Vad betonar personen som viktigt (kvalitet, innovation, teamwork)
-   - Personlighetstyp: Analytisk, kreativ, systematisk, entreprenöriell
-   - Teamanpassning: Samarbetsförmåga från beskrivningar och projekt
-   - Kulturell passform: Arbetssätt, värderingar, kommunikationsstil
-   - Anpassningsförmåga: Flexibilitet från olika roller/teknologier
-   - Innovation: Kreativa lösningar, nya teknologier, förbättringsinitiativ
+2. MJUKVÄRDESANALYS (endast baserat på konkreta bevis i texten):
+   - Kommunikationsstil: Analysera språkbruk från CV-text
+   - Ledarskap: ENDAST om det finns konkreta exempel på ledarskap
+   - Värderingar: ENDAST vad som uttrycks explicit
+   - Teamarbete: ENDAST baserat på beskrivna team-erfarenheter
 
 3. TEKNISK EXPERTIS:
-   - Identifiera ALLA tekniska färdigheter från texten
-   - Bedöm erfarenhetsnivå baserat på sammanhang
-   - Analysera teknisk progression över tid
+   - Lista ENDAST tekniker som nämns i texten
+   - Bedöm erfarenhet baserat på sammanhang i texten
 
-4. PROFESSIONELL UTVECKLING:
-   - Karriärens progression och riktning
-   - Utbildningsbakgrund och certifieringar
-   - Kompetensområden och specialiseringar
+4. ARBETSHISTORIK:
+   - ENDAST roller och företag som nämns i texten
+   - EXAKTA perioder om angivet
 
-5. MARKNADSPOSITIONERING:
-   - Beräkna realistisk timpris baserat på erfarenhet och färdigheter
-   - Identifiera konkurrensfördelar
-   - Bedöm konsultberedskap
-
-Svara ENDAST med denna exakta JSON-struktur:
+Svara ENDAST med denna JSON-struktur (använd "Not available in CV" för saknad info):
 
 {
   "personalInfo": {
-    "name": "FULLSTÄNDIGT RIKTIGT NAMN FRÅN TEXTEN",
-    "email": "RIKTIG EMAIL FRÅN TEXTEN", 
-    "phone": "TELEFONNUMMER FRÅN TEXTEN",
-    "location": "PLATS FRÅN TEXTEN ELLER DETEKTERAD"
+    "name": "EXAKT NAMN FRÅN TEXTEN eller Not available in CV",
+    "email": "EXAKT EMAIL FRÅN TEXTEN eller Not available in CV", 
+    "phone": "EXAKT TELEFON FRÅN TEXTEN eller Not available in CV",
+    "location": "EXAKT PLATS FRÅN TEXTEN eller Not available in CV"
   },
   "experience": {
-    "years": "ANTAL ÅR TOTAL ERFARENHET",
-    "currentRole": "SENASTE/NUVARANDE ROLL",
-    "level": "Junior/Mid/Senior/Expert"
+    "years": "EXAKT ANTAL ÅR eller Not available in CV",
+    "currentRole": "EXAKT NUVARANDE ROLL eller Not available in CV",
+    "level": "Junior/Mid/Senior/Expert baserat på erfarenhet eller Not available in CV"
   },
   "skills": {
-    "technical": ["ALLA TEKNISKA FÄRDIGHETER FRÅN TEXTEN"],
-    "languages": ["PROGRAMMERINGSSPRÅK"],
-    "tools": ["VERKTYG", "RAMVERK", "PLATTFORMAR"]
+    "technical": ["ENDAST TEKNIKER SOM NÄMNS I TEXTEN"],
+    "languages": ["ENDAST PROGRAMMERINGSSPRÅK SOM NÄMNS"],
+    "tools": ["ENDAST VERKTYG SOM NÄMNS"]
   },
   "workHistory": [
     {
-      "company": "FÖRETAG",
-      "role": "ROLL", 
-      "duration": "PERIOD",
-      "description": "KORT BESKRIVNING AV ANSVAR"
+      "company": "EXAKT FÖRETAG FRÅN TEXTEN",
+      "role": "EXAKT ROLL FRÅN TEXTEN", 
+      "duration": "EXAKT PERIOD FRÅN TEXTEN",
+      "description": "KORT BESKRIVNING BASERAT PÅ TEXTEN"
     }
   ],
   "education": [
     {
-      "institution": "UTBILDNINGSINSTITUTION",
-      "degree": "EXAMEN/UTBILDNING",
-      "year": "ÅR ELLER PERIOD"
+      "institution": "EXAKT INSTITUTION FRÅN TEXTEN",
+      "degree": "EXAKT EXAMEN FRÅN TEXTEN",
+      "year": "EXAKT ÅR FRÅN TEXTEN"
     }
   ],
   "softSkills": {
-    "communicationStyle": "DETALJERAD BEDÖMNING AV KOMMUNIKATIONSSTIL BASERAT PÅ CV-TEXT",
-    "leadershipStyle": "LEDARSKAPSTYP OCH APPROACH BASERAT PÅ BEVIS I CV",
-    "values": ["VÄRDERING 1", "VÄRDERING 2", "VÄRDERING 3"],
-    "personalityTraits": ["PERSONLIGHETSDRAG 1", "PERSONLIGHETSDRAG 2", "PERSONLIGHETSDRAG 3"],
-    "workStyle": "ARBETSSTIL OCH PREFERENSER BASERAT PÅ CV-INNEHÅLL",
-    "teamFit": "TEAMANPASSNING OCH SAMARBETSFÖRMÅGA FRÅN CV-BESKRIVNINGAR"
+    "communicationStyle": "Analys baserat på CV-språk eller Insufficient evidence in CV",
+    "leadershipStyle": "Baserat på konkreta ledarskapsexempel eller Insufficient evidence in CV",
+    "values": ["Värderingar som uttrycks i texten"],
+    "personalityTraits": ["Drag som kan härledas från text"],
+    "workStyle": "Baserat på arbetsbeskrivningar eller Insufficient evidence in CV",
+    "teamFit": "Baserat på team-erfarenheter eller Insufficient evidence in CV"
   },
   "scores": {
-    "leadership": 1-5,
-    "innovation": 1-5,
-    "adaptability": 1-5,
-    "culturalFit": 1-5,
-    "communication": 1-5,
-    "teamwork": 1-5
+    "leadership": "1-5 baserat på konkreta exempel eller 0 om ingen info",
+    "innovation": "1-5 baserat på innovativa projekt eller 0 om ingen info",
+    "adaptability": "1-5 baserat på olika roller/teknologier eller 0 om ingen info",
+    "culturalFit": "1-5 baserat på värderingar i text eller 3 som standard",
+    "communication": "1-5 baserat på CV-kvalitet och språk eller 3 som standard",
+    "teamwork": "1-5 baserat på team-projekt eller 0 om ingen info"
   },
   "analysisInsights": {
-    "strengths": ["SPECIFIK STYRKA 1", "SPECIFIK STYRKA 2", "SPECIFIK STYRKA 3"],
-    "developmentAreas": ["UTVECKLINGSOMRÅDE 1", "UTVECKLINGSOMRÅDE 2"],
-    "careerTrajectory": "DETALJERAD ANALYS AV KARRIÄRUTVECKLING OCH FRAMTIDA RIKTNING",
-    "motivationFactors": ["VAD SOM DRIVER PERSONEN BASERAT PÅ CV", "MOTIVATION 2"],
-    "consultingReadiness": "BEDÖMNING AV BEREDSKAP FÖR KONSULTARBETE",
-    "marketPosition": "MARKNADSPOSITIONERING OCH KONKURRENSFÖRDELAR"
+    "strengths": ["Styrkor baserade på konkreta exempel från CV"],
+    "developmentAreas": ["Områden som kan identifieras från luckor i CV eller Not applicable"],
+    "careerTrajectory": "Analys av karriärutveckling från arbethistorik eller Not available in CV",
+    "motivationFactors": ["Faktorer som kan härledas från CV-text"],
+    "consultingReadiness": "Bedömning baserat på erfarenhet eller Not available in CV",
+    "marketPosition": "Positionering baserat på färdigheter och erfarenhet eller Not available in CV"
   },
   "marketAnalysis": {
     "hourlyRate": {
-      "current": 800-1200,
-      "optimized": 1000-1500,
-      "explanation": "MOTIVERING BASERAT PÅ ERFARENHET OCH FÄRDIGHETER"
+      "current": "Baserat på erfarenhet 800-1200 eller 0 om osäker",
+      "optimized": "Optimerat värde 1000-1500 eller 0 om osäker",
+      "explanation": "Motivering baserat på faktisk erfarenhet och färdigheter"
     },
-    "competitiveAdvantages": ["FÖRDEL 1", "FÖRDEL 2"],
-    "marketDemand": "HÖG/MEDIUM/LÅG",
-    "recommendedFocus": "REKOMMENDERAT FOKUSOMRÅDE FÖR KARRIÄRUTVECKLING"
+    "competitiveAdvantages": ["Fördelar baserade på unika kombinationer i CV"],
+    "marketDemand": "Bedömning baserat på färdigheter eller Not available",
+    "recommendedFocus": "Rekommendation baserat på nuvarande färdigheter eller Not available"
   }
 }
 
-KRITISKT VIKTIGT: 
-- Basera ALLA mjukvärden på faktisk text och formuleringar från CV:t
-- Om information saknas, skriv "Ej tillräckligt underlag" för den egenskapen
-- Prioritera DETEKTERAD information för personuppgifter
-- Ge KONKRETA bevis för alla bedömningar`;
+VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -268,7 +260,7 @@ KRITISKT VIKTIGT:
         messages: [
           {
             role: 'system',
-            content: 'Du är en expertanalytiker för CV och professionell utvärdering. Du MÅSTE extrahera personlig information EXAKT från texten och ge djupgående mjukvärdesanalys. Svara ALLTID med korrekt JSON utan extra text. Din analys ska vara detaljerad och professionell.'
+            content: 'Du är en expertanalytiker för CV. Du MÅSTE använda ENDAST information som FAKTISKT finns i CV-texten. HITTA ALDRIG PÅ information. Svara ALLTID med korrekt JSON utan extra text.'
           },
           {
             role: 'user',
@@ -287,7 +279,7 @@ KRITISKT VIKTIGT:
     }
 
     const openaiData = await openaiResponse.json();
-    console.log('✅ ADVANCED OpenAI response received');
+    console.log('✅ STRICT OpenAI response received');
 
     let analysis;
     try {
@@ -301,59 +293,56 @@ KRITISKT VIKTIGT:
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
         
-        // ADVANCED data validation and override with detected data
+        // STRICT data validation - only use detected data if it's valid
         if (detectedInfo.emails.length > 0 && detectedInfo.emails[0].includes('@')) {
           analysis.personalInfo.email = detectedInfo.emails[0];
-          console.log('✅ Email prioritized from detection:', detectedInfo.emails[0]);
+          console.log('✅ Email from detection:', detectedInfo.emails[0]);
         }
         if (detectedInfo.phones.length > 0 && detectedInfo.phones[0].length >= 8) {
           analysis.personalInfo.phone = detectedInfo.phones[0];
-          console.log('✅ Phone prioritized from detection:', detectedInfo.phones[0]);
+          console.log('✅ Phone from detection:', detectedInfo.phones[0]);
         }
         if (detectedInfo.names.length > 0 && detectedInfo.names[0].split(' ').length >= 2) {
           analysis.personalInfo.name = detectedInfo.names[0];
-          console.log('✅ Name prioritized from detection:', detectedInfo.names[0]);
+          console.log('✅ Name from detection:', detectedInfo.names[0]);
         }
         if (detectedInfo.locations.length > 0) {
           analysis.personalInfo.location = detectedInfo.locations[0];
-          console.log('✅ Location prioritized from detection:', detectedInfo.locations[0]);
+          console.log('✅ Location from detection:', detectedInfo.locations[0]);
         }
         
-        // Enhance skills with detected technical skills
+        // Enhance skills with detected technical skills only if they exist
         if (detectedInfo.skills.length > 0) {
           analysis.skills.technical = [...new Set([...analysis.skills.technical, ...detectedInfo.skills])];
           console.log('✅ Technical skills enhanced with detection');
         }
         
-        console.log('📊 ADVANCED analysis completed:', {
+        console.log('📊 STRICT analysis completed:', {
           name: analysis.personalInfo.name,
           email: analysis.personalInfo.email,
           phone: analysis.personalInfo.phone,
           location: analysis.personalInfo.location,
-          softSkillsAnalyzed: !!analysis.softSkills,
-          scoresProvided: !!analysis.scores,
-          marketAnalysis: !!analysis.marketAnalysis,
-          insightsGenerated: !!analysis.analysisInsights
+          realDataOnly: true
         });
         
       } else {
         throw new Error('No valid JSON found in OpenAI response');
       }
     } catch (parseError) {
-      console.error('❌ Parse error, using ENHANCED fallback strategy:', parseError);
+      console.error('❌ Parse error, using STRICT fallback strategy:', parseError);
       
-      // ENHANCED fallback with comprehensive structure
+      // STRICT fallback with only detected information
       analysis = {
         personalInfo: {
-          name: detectedInfo.names[0] || 'Namn ej detekterat',
-          email: detectedInfo.emails[0] || 'Email ej detekterad',
-          phone: detectedInfo.phones[0] || 'Telefon ej detekterad',
-          location: detectedInfo.locations[0] || 'Sverige'
+          name: detectedInfo.names[0] || 'Not available in CV',
+          email: detectedInfo.emails[0] || 'Not available in CV',
+          phone: detectedInfo.phones[0] || 'Not available in CV',
+          location: detectedInfo.locations[0] || 'Not available in CV'
         },
         experience: {
-          years: 'Ej specificerat',
-          currentRole: 'Ej specificerat',
-          level: 'Ej specificerat'
+          years: 'Not available in CV',
+          currentRole: 'Not available in CV',
+          level: 'Not available in CV'
         },
         skills: {
           technical: detectedInfo.skills || [],
@@ -363,43 +352,43 @@ KRITISKT VIKTIGT:
         workHistory: [],
         education: [],
         softSkills: {
-          communicationStyle: 'Ej tillräckligt underlag',
-          leadershipStyle: 'Ej tillräckligt underlag',
+          communicationStyle: 'Insufficient evidence in CV',
+          leadershipStyle: 'Insufficient evidence in CV',
           values: [],
           personalityTraits: [],
-          workStyle: 'Ej tillräckligt underlag',
-          teamFit: 'Ej tillräckligt underlag'
+          workStyle: 'Insufficient evidence in CV',
+          teamFit: 'Insufficient evidence in CV'
         },
         scores: {
-          leadership: 3,
-          innovation: 3,
-          adaptability: 3,
+          leadership: 0,
+          innovation: 0,
+          adaptability: 0,
           culturalFit: 3,
           communication: 3,
-          teamwork: 3
+          teamwork: 0
         },
         analysisInsights: {
           strengths: [],
-          developmentAreas: [],
-          careerTrajectory: 'Ej tillräckligt underlag',
+          developmentAreas: ['Not applicable'],
+          careerTrajectory: 'Not available in CV',
           motivationFactors: [],
-          consultingReadiness: 'Ej tillräckligt underlag',
-          marketPosition: 'Ej tillräckligt underlag'
+          consultingReadiness: 'Not available in CV',
+          marketPosition: 'Not available in CV'
         },
         marketAnalysis: {
           hourlyRate: {
-            current: 800,
-            optimized: 1000,
-            explanation: 'Baserat på genomsnittliga marknadsrater'
+            current: 0,
+            optimized: 0,
+            explanation: 'Insufficient data in CV for rate estimation'
           },
           competitiveAdvantages: [],
-          marketDemand: 'Medium',
-          recommendedFocus: 'Teknisk vidareutveckling'
+          marketDemand: 'Not available',
+          recommendedFocus: 'Not available'
         }
       };
     }
 
-    console.log('✅ COMPREHENSIVE CV analysis with advanced soft skills completed successfully');
+    console.log('✅ STRICT CV analysis with real data only completed successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -414,8 +403,8 @@ KRITISKT VIKTIGT:
           locationsFound: detectedInfo.locations.length,
           companiesFound: detectedInfo.companies.length,
           skillsFound: detectedInfo.skills.length,
-          aiModel: 'gpt-4o-comprehensive-professional-analysis',
-          extractionQuality: 'advanced'
+          aiModel: 'gpt-4o-strict-real-data-only',
+          extractionQuality: 'strict-real-data'
         }
       }),
       {
@@ -424,7 +413,7 @@ KRITISKT VIKTIGT:
     );
 
   } catch (error) {
-    console.error('❌ ADVANCED CV parsing error:', error);
+    console.error('❌ STRICT CV parsing error:', error);
     
     return new Response(
       JSON.stringify({ 
