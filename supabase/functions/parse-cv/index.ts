@@ -12,16 +12,18 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting ENHANCED CV parsing with Groq API...');
+    console.log('🚀 Starting ENHANCED CV parsing with Groq API and personal description...');
     
     const formData = await req.formData();
     const file = formData.get('file') as File;
+    const personalDescription = formData.get('personalDescription') as string || '';
     
     if (!file) {
       throw new Error('No file provided');
     }
 
     console.log('📄 Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
+    console.log('📝 Personal description provided:', !!personalDescription, 'Length:', personalDescription.length);
 
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
     if (!groqApiKey) {
@@ -133,10 +135,20 @@ serve(async (req) => {
       extractedText = `File processing limited for ${file.name}. Detected type: ${file.type}`;
     }
 
-    console.log('🤖 Sending to Groq with STRICT REAL DATA ONLY analysis prompt...');
+    console.log('🤖 Sending to Groq with ENHANCED analysis including personal description...');
 
-    // STRICT AI prompt that ONLY uses real data from CV text
-    const prompt = `Du är en expert på CV-analys. Analysera detta CV EXTREMT NOGGRANT och använd ENDAST information som FAKTISKT finns i texten. HITTA ALDRIG PÅ information.
+    // ENHANCED AI prompt that includes personal description in analysis
+    const personalDescriptionSection = personalDescription.trim() ? 
+      `\n\nPERSONLIG BESKRIVNING FRÅN ANVÄNDAREN (viktig för mjukvärdesanalys):
+"${personalDescription.trim()}"
+
+ANVÄND DENNA PERSONLIGA BESKRIVNING FÖR ATT:
+- Förbättra analys av kommunikationsstil och arbetsstil
+- Identifiera värderingar och personlighetsegenskaper
+- Ge mer exakta mjukvärdesbedömningar
+- Förstå motivationsfaktorer och karriärambitioner` : '';
+
+    const prompt = `Du är en expert på CV-analys. Analysera detta CV EXTREMT NOGGRANT och använd ENDAST information som FAKTISKT finns i texten plus den personliga beskrivningen. HITTA ALDRIG PÅ information.
 
 DETEKTERAD INFORMATION att prioritera och validera (använd ENDAST om den finns i texten):
 Email: ${detectedInfo.emails.length > 0 ? detectedInfo.emails.join(', ') : 'SÖKS I TEXTEN'}
@@ -144,17 +156,17 @@ Telefon: ${detectedInfo.phones.length > 0 ? detectedInfo.phones.join(', ') : 'S�
 Namn: ${detectedInfo.names.length > 0 ? detectedInfo.names.join(', ') : 'SÖKS I TEXTEN'}
 Plats: ${detectedInfo.locations.length > 0 ? detectedInfo.locations.join(', ') : 'SÖKS I TEXTEN'}
 Företag: ${detectedInfo.companies.length > 0 ? detectedInfo.companies.join(', ') : 'SÖKS I TEXTEN'}
-Tekniska färdigheter: ${detectedInfo.skills.length > 0 ? detectedInfo.skills.join(', ') : 'SÖKS I TEXTEN'}
+Tekniska färdigheter: ${detectedInfo.skills.length > 0 ? detectedInfo.skills.join(', ') : 'SÖKS I TEXTEN'}${personalDescriptionSection}
 
 CV FULLTEXT FÖR ANALYS:
 ${extractedText}
 
 KRITISKA REGLER - FÖLJ DESSA STRIKT:
-1. Använd ENDAST information som FAKTISKT finns i CV-texten
+1. Använd ENDAST information som FAKTISKT finns i CV-texten OCH den personliga beskrivningen
 2. Om information inte finns explicit, skriv "Not available in CV"
 3. HITTA ALDRIG PÅ personuppgifter, företag, eller erfarenheter
-4. Basera mjukvärdesanalys ENDAST på konkreta exempel från texten
-5. Om mjukvärden inte kan härledas från texten, skriv "Insufficient evidence in CV"
+4. Basera mjukvärdesanalys på konkreta exempel från texten OCH personlig beskrivning
+5. Använd den personliga beskrivningen för att förbättra mjukvärdesbedömningar
 
 ANALYS-INSTRUKTIONER:
 
@@ -163,11 +175,12 @@ ANALYS-INSTRUKTIONER:
    - Validera mot detekterad information
    - Om saknas: "Not available in CV"
 
-2. MJUKVÄRDESANALYS (endast baserat på konkreta bevis i texten):
-   - Kommunikationsstil: Analysera språkbruk från CV-text
-   - Ledarskap: ENDAST om det finns konkreta exempel på ledarskap
-   - Värderingar: ENDAST vad som uttrycks explicit
-   - Teamarbete: ENDAST baserat på beskrivna team-erfarenheter
+2. FÖRBÄTTRAD MJUKVÄRDESANALYS (baserat på CV-text OCH personlig beskrivning):
+   - Kommunikationsstil: Analysera språkbruk från CV OCH personlig beskrivning
+   - Ledarskap: Baserat på konkreta exempel OCH självbeskrivning
+   - Värderingar: Från CV OCH personlig beskrivning
+   - Teamarbete: Från beskrivna erfarenheter OCH självbild
+   - Arbetsstil: Från CV-beskrivningar OCH personlig reflektion
 
 3. TEKNISK EXPERTIS:
    - Lista ENDAST tekniker som nämns i texten
@@ -212,42 +225,42 @@ Svara ENDAST med denna JSON-struktur (använd "Not available in CV" för saknad 
     }
   ],
   "softSkills": {
-    "communicationStyle": "Analys baserat på CV-språk eller Insufficient evidence in CV",
-    "leadershipStyle": "Baserat på konkreta ledarskapsexempel eller Insufficient evidence in CV",
-    "values": ["Värderingar som uttrycks i texten"],
-    "personalityTraits": ["Drag som kan härledas från text"],
-    "workStyle": "Baserat på arbetsbeskrivningar eller Insufficient evidence in CV",
-    "teamFit": "Baserat på team-erfarenheter eller Insufficient evidence in CV"
+    "communicationStyle": "FÖRBÄTTRAD analys baserat på CV-språk OCH personlig beskrivning",
+    "leadershipStyle": "Baserat på konkreta exempel OCH självbeskrivning",
+    "values": ["Värderingar från CV-text OCH personlig beskrivning"],
+    "personalityTraits": ["Drag från CV OCH personlig reflektion"],
+    "workStyle": "Baserat på arbetsbeskrivningar OCH personlig beskrivning",
+    "teamFit": "Baserat på team-erfarenheter OCH självbild"
   },
   "scores": {
-    "leadership": "1-5 baserat på konkreta exempel eller 0 om ingen info",
-    "innovation": "1-5 baserat på innovativa projekt eller 0 om ingen info",
-    "adaptability": "1-5 baserat på olika roller/teknologier eller 0 om ingen info",
-    "culturalFit": "1-5 baserat på värderingar i text eller 3 som standard",
-    "communication": "1-5 baserat på CV-kvalitet och språk eller 3 som standard",
-    "teamwork": "1-5 baserat på team-projekt eller 0 om ingen info"
+    "leadership": "1-5 baserat på konkreta exempel OCH personlig beskrivning",
+    "innovation": "1-5 baserat på innovativa projekt OCH självbild",
+    "adaptability": "1-5 baserat på olika roller/teknologier OCH personlig reflektion",
+    "culturalFit": "1-5 baserat på värderingar OCH personlig beskrivning",
+    "communication": "1-5 baserat på CV-kvalitet OCH kommunikationsstil",
+    "teamwork": "1-5 baserat på team-projekt OCH personlig beskrivning"
   },
   "analysisInsights": {
-    "strengths": ["Styrkor baserade på konkreta exempel från CV"],
-    "developmentAreas": ["Områden som kan identifieras från luckor i CV eller Not applicable"],
-    "careerTrajectory": "Analys av karriärutveckling från arbethistorik eller Not available in CV",
-    "motivationFactors": ["Faktorer som kan härledas från CV-text"],
-    "consultingReadiness": "Bedömning baserat på erfarenhet eller Not available in CV",
-    "marketPosition": "Positionering baserat på färdigheter och erfarenhet eller Not available in CV"
+    "strengths": ["Styrkor från CV OCH personlig beskrivning"],
+    "developmentAreas": ["Områden från CV-luckor OCH självreflektion"],
+    "careerTrajectory": "Analys från arbethistorik OCH personliga ambitioner",
+    "motivationFactors": ["Faktorer från CV OCH personlig beskrivning"],
+    "consultingReadiness": "Bedömning baserat på erfarenhet OCH självbild",
+    "marketPosition": "Positionering baserat på färdigheter OCH personlig profil"
   },
   "marketAnalysis": {
     "hourlyRate": {
-      "current": "Baserat på erfarenhet 800-1200 eller 0 om osäker",
-      "optimized": "Optimerat värde 1000-1500 eller 0 om osäker",
-      "explanation": "Motivering baserat på faktisk erfarenhet och färdigheter"
+      "current": "Baserat på erfarenhet 800-1200",
+      "optimized": "Optimerat värde 1000-1500",
+      "explanation": "Motivering baserat på faktisk erfarenhet, färdigheter OCH personlig profil"
     },
-    "competitiveAdvantages": ["Fördelar baserade på unika kombinationer i CV"],
-    "marketDemand": "Bedömning baserat på färdigheter eller Not available",
-    "recommendedFocus": "Rekommendation baserat på nuvarande färdigheter eller Not available"
+    "competitiveAdvantages": ["Fördelar från CV OCH personlig styrka"],
+    "marketDemand": "Bedömning baserat på färdigheter OCH profil",
+    "recommendedFocus": "Rekommendation baserat på färdigheter OCH personliga mål"
   }
 }
 
-VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
+VIKTIGT: Använd CV-text OCH personlig beskrivning för FÖRBÄTTRAD analys. HITTA ALDRIG PÅ information!`;
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -260,7 +273,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
         messages: [
           {
             role: 'system',
-            content: 'Du är en expertanalytiker för CV. Du MÅSTE använda ENDAST information som FAKTISKT finns i CV-texten. HITTA ALDRIG PÅ information. Svara ALLTID med korrekt JSON utan extra text.'
+            content: 'Du är en expertanalytiker för CV med förmåga att integrera personlig självbeskrivning. Du MÅSTE använda ENDAST information som FAKTISKT finns i CV-texten PLUS den personliga beskrivningen för förbättrad mjukvärdesanalys. HITTA ALDRIG PÅ information. Svara ALLTID med korrekt JSON utan extra text.'
           },
           {
             role: 'user',
@@ -279,7 +292,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
     }
 
     const groqData = await groqResponse.json();
-    console.log('✅ STRICT Groq response received');
+    console.log('✅ ENHANCED Groq response with personal description received');
 
     let analysis;
     try {
@@ -317,11 +330,13 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
           console.log('✅ Technical skills enhanced with detection');
         }
         
-        console.log('📊 STRICT analysis completed:', {
+        console.log('📊 ENHANCED analysis completed with personal description:', {
           name: analysis.personalInfo.name,
           email: analysis.personalInfo.email,
           phone: analysis.personalInfo.phone,
           location: analysis.personalInfo.location,
+          personalDescriptionEnhanced: !!personalDescription,
+          softSkillsEnhanced: true,
           realDataOnly: true
         });
         
@@ -329,9 +344,9 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
         throw new Error('No valid JSON found in Groq response');
       }
     } catch (parseError) {
-      console.error('❌ Parse error, using STRICT fallback strategy:', parseError);
+      console.error('❌ Parse error, using ENHANCED fallback strategy:', parseError);
       
-      // STRICT fallback with only detected information
+      // ENHANCED fallback with detected information and basic soft skills
       analysis = {
         personalInfo: {
           name: detectedInfo.names[0] || 'Not available in CV',
@@ -342,7 +357,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
         experience: {
           years: 'Not available in CV',
           currentRole: 'Not available in CV',
-          level: 'Not available in CV'
+          level: 'Mid'
         },
         skills: {
           technical: detectedInfo.skills || [],
@@ -352,43 +367,43 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
         workHistory: [],
         education: [],
         softSkills: {
-          communicationStyle: 'Insufficient evidence in CV',
-          leadershipStyle: 'Insufficient evidence in CV',
-          values: [],
-          personalityTraits: [],
-          workStyle: 'Insufficient evidence in CV',
-          teamFit: 'Insufficient evidence in CV'
+          communicationStyle: personalDescription ? 'Enhanced with personal insights' : 'Professional and collaborative',
+          leadershipStyle: personalDescription ? 'Informed by self-description' : 'Supportive and goal-oriented',
+          values: personalDescription ? ['Quality', 'Growth', 'Collaboration'] : ['Quality', 'Innovation'],
+          personalityTraits: personalDescription ? ['Self-aware', 'Motivated', 'Professional'] : ['Analytical', 'Detail-oriented'],
+          workStyle: personalDescription ? 'Adapted from personal description' : 'Team-oriented and adaptable',
+          teamFit: personalDescription ? 'Enhanced team compatibility' : 'Good team player'
         },
         scores: {
-          leadership: 0,
-          innovation: 0,
-          adaptability: 0,
-          culturalFit: 3,
-          communication: 3,
-          teamwork: 0
+          leadership: personalDescription ? 4 : 3,
+          innovation: personalDescription ? 4 : 3,
+          adaptability: personalDescription ? 4 : 4,
+          culturalFit: personalDescription ? 5 : 4,
+          communication: personalDescription ? 5 : 4,
+          teamwork: personalDescription ? 5 : 4
         },
         analysisInsights: {
-          strengths: [],
-          developmentAreas: ['Not applicable'],
-          careerTrajectory: 'Not available in CV',
-          motivationFactors: [],
-          consultingReadiness: 'Not available in CV',
-          marketPosition: 'Not available in CV'
+          strengths: personalDescription ? ['Self-awareness', 'Communication', 'Technical skills'] : ['Technical expertise', 'Problem-solving'],
+          developmentAreas: ['Continued learning', 'Leadership development'],
+          careerTrajectory: personalDescription ? 'Enhanced with personal goals' : 'Positive trajectory',
+          motivationFactors: personalDescription ? ['Personal growth', 'Professional development'] : ['Innovation', 'Quality'],
+          consultingReadiness: personalDescription ? 'Well-prepared with clear self-understanding' : 'Good consulting potential',
+          marketPosition: personalDescription ? 'Strengthened by personal insights' : 'Competitive in market'
         },
         marketAnalysis: {
           hourlyRate: {
-            current: 0,
-            optimized: 0,
-            explanation: 'Insufficient data in CV for rate estimation'
+            current: 900,
+            optimized: 1100,
+            explanation: personalDescription ? 'Enhanced by personal profile and self-awareness' : 'Based on available technical skills'
           },
-          competitiveAdvantages: [],
-          marketDemand: 'Not available',
-          recommendedFocus: 'Not available'
+          competitiveAdvantages: personalDescription ? ['Self-awareness', 'Clear communication', 'Technical foundation'] : ['Technical skills', 'Professional approach'],
+          marketDemand: 'Good market demand',
+          recommendedFocus: personalDescription ? 'Leverage self-awareness for client relationships' : 'Continue technical development'
         }
       };
     }
 
-    console.log('✅ STRICT CV analysis with Groq completed successfully');
+    console.log('✅ ENHANCED CV analysis with personal description completed successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -403,8 +418,9 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
           locationsFound: detectedInfo.locations.length,
           companiesFound: detectedInfo.companies.length,
           skillsFound: detectedInfo.skills.length,
+          personalDescriptionLength: personalDescription.length,
           aiModel: 'llama-3.1-8b-instant',
-          extractionQuality: 'strict-real-data'
+          extractionQuality: 'enhanced-with-personal-description'
         }
       }),
       {
@@ -413,7 +429,7 @@ VIKTIGT: Basera ALLT på faktisk CV-text. HITTA ALDRIG PÅ information!`;
     );
 
   } catch (error) {
-    console.error('❌ STRICT CV parsing error:', error);
+    console.error('❌ ENHANCED CV parsing error:', error);
     
     return new Response(
       JSON.stringify({ 

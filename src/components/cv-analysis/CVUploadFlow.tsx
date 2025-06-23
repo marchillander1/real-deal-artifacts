@@ -10,6 +10,7 @@ import { NavigationService } from '../routing/NavigationService';
 interface CVUploadFlowProps {
   file: File;
   linkedinUrl: string;
+  personalDescription?: string;
   onProgress?: (progress: number) => void;
   onComplete?: (consultant: any) => void;
   onError?: (error: string) => void;
@@ -18,6 +19,7 @@ interface CVUploadFlowProps {
 export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
   file,
   linkedinUrl,
+  personalDescription = '',
   onProgress,
   onComplete,
   onError
@@ -44,10 +46,19 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
 
     try {
       console.log('🚀 Starting CV upload flow for:', file.name);
+      console.log('📝 Personal description included:', !!personalDescription);
 
-      // Step 1: Parse CV
-      const { analysis: cvAnalysis, detectedInfo } = await CVParser.parseCV(file);
+      // Step 1: Parse CV with personal description
+      const { analysis: cvAnalysis, detectedInfo } = await CVParser.parseCV(file, personalDescription);
       onProgress?.(40);
+
+      console.log('📊 CV analysis completed with personal description:', {
+        hasPersonalInfo: !!cvAnalysis.personalInfo,
+        hasExperience: !!cvAnalysis.experience,
+        skillsCount: Object.values(cvAnalysis.skills || {}).reduce((sum: number, arr: any) => sum + (Array.isArray(arr) ? arr.length : 0), 0),
+        hasPersonalDescription: !!personalDescription,
+        softSkillsIncluded: !!cvAnalysis.softSkills
+      });
 
       // Step 2: Analyze LinkedIn (optional)
       let linkedinData = null;
@@ -56,16 +67,17 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
       }
       onProgress?.(60);
 
-      // Step 3: Extract personal info
+      // Step 3: Extract personal info with improved logic
       const extractedPersonalInfo = extractPersonalInfo(cvAnalysis, detectedInfo);
 
-      // Step 4: Create consultant profile
+      // Step 4: Create consultant profile with enhanced analysis
       const isMyConsultant = new URLSearchParams(window.location.search).get('source') === 'my-consultants';
       
       const consultant = await ConsultantService.createConsultant({
         cvAnalysis,
         linkedinData,
         extractedPersonalInfo,
+        personalDescription,
         file,
         linkedinUrl,
         isMyConsultant
@@ -125,7 +137,7 @@ export const CVUploadFlow: React.FC<CVUploadFlowProps> = ({
   // Auto-start processing when component mounts
   React.useEffect(() => {
     processUpload();
-  }, [file, linkedinUrl]);
+  }, [file, linkedinUrl, personalDescription]);
 
   return null; // This component only handles background processing
 };

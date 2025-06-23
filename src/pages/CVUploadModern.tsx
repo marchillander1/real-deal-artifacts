@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -467,7 +466,7 @@ export default function CVUploadModern() {
                       maxLength={500}
                     />
                     <p className="text-xs text-gray-500">
-                      {personalInfo.selfDescription.length}/500 characters
+                      {personalInfo.selfDescription.length}/500 characters - This information will be included in your AI analysis
                     </p>
                   </div>
 
@@ -604,11 +603,12 @@ export default function CVUploadModern() {
               </div>
             )}
 
-            {/* Background Processing */}
+            {/* Background Processing with Personal Description */}
             {isProcessing && file && (
               <CVUploadFlow
                 file={file}
                 linkedinUrl={linkedinUrl}
+                personalDescription={personalInfo.selfDescription}
                 onProgress={setProgress}
                 onComplete={handleProcessingComplete}
                 onError={handleProcessingError}

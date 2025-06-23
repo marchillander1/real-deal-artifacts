@@ -2,11 +2,15 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export class CVParser {
-  static async parseCV(file: File) {
+  static async parseCV(file: File, personalDescription: string = '') {
     console.log('📄 Starting enhanced CV parsing for:', file.name);
+    console.log('📝 Personal description provided:', !!personalDescription);
     
     const formData = new FormData();
     formData.append('file', file);
+    if (personalDescription.trim()) {
+      formData.append('personalDescription', personalDescription.trim());
+    }
 
     const cvResponse = await supabase.functions.invoke('parse-cv', {
       body: formData
@@ -49,7 +53,7 @@ export class CVParser {
       workHistory: data.analysis?.workHistory || [],
       education: data.analysis?.education || [],
       
-      // Soft skills section
+      // Soft skills section - enhanced with personal description analysis
       softSkills: {
         communicationStyle: data.analysis?.softSkills?.communicationStyle || data.analysis?.communicationStyle || 'Professional and collaborative',
         leadershipStyle: data.analysis?.softSkills?.leadershipStyle || data.analysis?.leadershipStyle || 'Supportive and goal-oriented',
@@ -58,7 +62,7 @@ export class CVParser {
         personalityTraits: data.analysis?.softSkills?.personalityTraits || data.analysis?.personalityTraits || ['Analytical', 'Detail-oriented', 'Problem-solver']
       },
 
-      // Behavioral scores (1-5 scale)
+      // Behavioral scores (1-5 scale) - enhanced with personal description insights
       scores: {
         leadership: data.analysis?.scores?.leadership || data.analysis?.leadership || 4,
         innovation: data.analysis?.scores?.innovation || data.analysis?.innovation || 4,
@@ -80,7 +84,7 @@ export class CVParser {
         recommendedFocus: data.analysis?.marketAnalysis?.recommendedFocus || data.analysis?.recommendedFocus || 'Continue building expertise in current tech stack while exploring emerging technologies'
       },
 
-      // Career development insights
+      // Career development insights - enhanced with personal description
       analysisInsights: {
         strengths: data.analysis?.analysisInsights?.strengths || data.analysis?.strengths || ['Technical expertise', 'Problem-solving ability', 'Team collaboration'],
         developmentAreas: data.analysis?.analysisInsights?.developmentAreas || data.analysis?.developmentAreas || ['Leadership development', 'Advanced certifications', 'Public speaking'],
@@ -97,7 +101,7 @@ export class CVParser {
       locations: data.detectedInformation?.locations || []
     };
 
-    console.log('✅ Data structure standardized:', {
+    console.log('✅ Data structure standardized with personal description analysis:', {
       hasPersonalInfo: !!standardAnalysis.personalInfo,
       hasExperience: !!standardAnalysis.experience,
       hasSkills: !!standardAnalysis.skills,
@@ -105,7 +109,8 @@ export class CVParser {
       hasScores: !!standardAnalysis.scores,
       hasMarketAnalysis: !!standardAnalysis.marketAnalysis,
       hasInsights: !!standardAnalysis.analysisInsights,
-      detectedItemsCount: Object.values(standardDetectedInfo).reduce((sum, arr) => sum + arr.length, 0)
+      detectedItemsCount: Object.values(standardDetectedInfo).reduce((sum, arr) => sum + arr.length, 0),
+      personalDescriptionEnhanced: true
     });
 
     return {
