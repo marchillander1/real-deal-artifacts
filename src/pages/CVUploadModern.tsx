@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { Upload, FileText, Check, ArrowLeft, Brain, Linkedin } from 'lucide-reac
 import { useToast } from '@/hooks/use-toast';
 import { CVUploadFlow } from '@/components/cv-analysis/CVUploadFlow';
 import Logo from '@/components/Logo';
+import { ExtractedData } from '@/types/extractedData';
 
 export default function CVUploadModern() {
   const [dragActive, setDragActive] = useState(false);

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, MapPin, Calendar, Briefcase, X, Plus } from 'lucide-react';
-import { ExtractedData } from '@/pages/CVUploadModern';
+import { ExtractedData } from '@/types/extractedData';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
