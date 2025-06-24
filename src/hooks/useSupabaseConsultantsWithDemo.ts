@@ -37,7 +37,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         roles: consultant.roles || [consultant.title] || ['Consultant'],
         values: consultant.values || [],
         experience: `${consultant.experience_years || 5} years experience`,
-        rating: consultant.rating?.toString() || '5.0',
+        rating: parseFloat(consultant.rating?.toString() || '5.0'),
         projects: consultant.projects_completed || 0,
         rate: `${consultant.hourly_rate || 800} SEK/h`,
         availability: consultant.availability || 'Available',
@@ -86,7 +86,7 @@ export const useSupabaseConsultantsWithDemo = () => {
           hourly_rate: updates.rate ? parseInt(updates.rate.replace(/[^\d]/g, '')) : undefined,
           availability: updates.availability
         })
-        .eq('id', id);
+        .eq('id', id.toString());
 
       if (error) throw error;
 
