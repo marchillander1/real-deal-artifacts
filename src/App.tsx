@@ -48,7 +48,7 @@ function App() {
             <Route path="/landing" element={<Landing />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/pricing" element={<Pricing />} />
-            <Route path="/matchwise-ai" element={<MatchWiseAI />} />
+            <Route path="/matchwiseai" element={<MatchWiseAI />} />
             <Route path="/admin" element={<AdminPortal />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
