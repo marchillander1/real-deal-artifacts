@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,28 +38,6 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
       
       console.log('Extracted info:', { name, email, phone, location, title });
       
-      // Create user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('user_profiles')
-        .insert({
-          full_name: name,
-          email: email,
-          phone: phone,
-          title: title,
-          personal_tagline: analysisData?.personal_tagline || null,
-          years_of_experience: analysisData?.experience?.years || 5,
-          availability: 'Available'
-        })
-        .select()
-        .single();
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        throw new Error('Could not create user profile');
-      }
-
-      console.log('Profile created:', profileData);
-
       // Translate Swedish skills to English for database storage
       const translateSkill = (skill: string): string => {
         const translations: Record<string, string> = {
@@ -82,6 +59,28 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
       };
 
       const translatedSkills = (analysisData?.skills?.technical || []).map(translateSkill);
+
+      // Create user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .insert({
+          full_name: name,
+          email: email,
+          phone: phone,
+          title: title,
+          personal_tagline: analysisData?.personal_tagline || null,
+          years_of_experience: analysisData?.experience?.years || 5,
+          availability: 'Available'
+        })
+        .select()
+        .single();
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw new Error('Could not create user profile');
+      }
+
+      console.log('Profile created:', profileData);
 
       // Create AI analysis record
       const { data: analysisRecord, error: analysisError } = await supabase
@@ -116,7 +115,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
 
       console.log('Analysis record created:', analysisRecord);
 
-      // Create consultant record for the network
+      // Create consultant record for the network with complete analysis data
       const { data: consultantRecord, error: consultantError } = await supabase
         .from('consultants')
         .insert({
@@ -140,13 +139,17 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           cultural_fit: analysisData?.scores?.culturalFit || 4,
           adaptability: analysisData?.scores?.adaptability || 4,
           availability: 'Available',
-          type: 'network',
+          type: 'new',
           is_published: true,
           visibility_status: 'public',
           market_rate_current: analysisData?.marketAnalysis?.hourlyRate?.current || 800,
           market_rate_optimized: analysisData?.marketAnalysis?.hourlyRate?.optimized || 950,
           profile_completeness: 95,
-          analysis_results: analysisData
+          analysis_results: analysisData,
+          // Store the complete CV analysis data for the analysis modal
+          cv_analysis_data: analysisData,
+          // Add roles array for compatibility
+          roles: [title]
         })
         .select()
         .single();

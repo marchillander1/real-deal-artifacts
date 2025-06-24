@@ -2,184 +2,112 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
+import { myDemoConsultants } from '@/data/myDemoConsultants';
+import { demoConsultants } from '@/data/demoConsultants';
 
 export const useSupabaseConsultantsWithDemo = () => {
   const [consultants, setConsultants] = useState<Consultant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchConsultants = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch real consultants from Supabase
-        const { data: realConsultants, error: supabaseError } = await supabase
-          .from('consultants')
-          .select('*')
-          .order('created_at', { ascending: false });
+  const fetchConsultants = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('consultants')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        if (supabaseError) {
-          console.error('Error fetching consultants:', supabaseError);
-          setError('Failed to fetch consultants');
-          return;
-        }
-
-        // Transform the data to match our Consultant interface
-        const transformedConsultants: Consultant[] = (realConsultants || []).map((consultant) => {
-          // Type cast the JSONB data safely
-          const cvAnalysisData = consultant.cv_analysis_data as any;
-          const linkedinAnalysisData = consultant.linkedin_analysis_data as any;
-
-          return {
-            id: consultant.id,
-            name: consultant.name || 'Unknown Consultant',
-            email: consultant.email || '',
-            phone: consultant.phone || '',
-            location: consultant.location || 'Sweden',
-            skills: consultant.skills || [],
-            experience: `${consultant.experience_years || 5} år`,
-            rate: consultant.hourly_rate ? `${consultant.hourly_rate} SEK/h` : '1000 SEK/h',
-            availability: consultant.availability || 'Available',
-            cv: consultant.cv_file_path || '',
-            communicationStyle: consultant.communication_style || 'Professional',
-            rating: Number(consultant.rating) || 4.8,
-            projects: consultant.projects_completed || 0,
-            lastActive: 'Today',
-            roles: consultant.roles || ['Consultant'],
-            certifications: consultant.certifications || [],
-            type: consultant.type as 'new' | 'existing' || 'existing',
-            user_id: consultant.user_id,
-            languages: consultant.languages || ['Swedish', 'English'],
-            workStyle: consultant.work_style || 'Collaborative',
-            values: consultant.values || [],
-            personalityTraits: consultant.personality_traits || [],
-            teamFit: consultant.team_fit || 'Team player',
-            culturalFit: consultant.cultural_fit || 5,
-            adaptability: consultant.adaptability || 5,
-            leadership: consultant.leadership || 3,
-            linkedinUrl: consultant.linkedin_url || '',
-            // Transform the standardized analysis data with safe type casting
-            cvAnalysis: cvAnalysisData ? {
-              personalInfo: {
-                name: cvAnalysisData.personalInfo?.name || consultant.name || 'Unknown',
-                email: cvAnalysisData.personalInfo?.email || consultant.email || '',
-                phone: cvAnalysisData.personalInfo?.phone || consultant.phone || '',
-                location: cvAnalysisData.personalInfo?.location || consultant.location || ''
-              },
-              experience: {
-                years: cvAnalysisData.experience?.years || `${consultant.experience_years || 5} år`,
-                currentRole: cvAnalysisData.experience?.currentRole || 'Consultant',
-                level: cvAnalysisData.experience?.level || 'Senior'
-              },
-              skills: {
-                technical: cvAnalysisData.skills?.technical || consultant.skills?.slice(0, 5) || [],
-                languages: cvAnalysisData.skills?.languages || ['Swedish', 'English'],
-                tools: cvAnalysisData.skills?.tools || []
-              },
-              workHistory: cvAnalysisData.workHistory || [],
-              education: cvAnalysisData.education || [],
-              softSkills: {
-                communicationStyle: cvAnalysisData.softSkills?.communicationStyle || consultant.communication_style || 'Professional and collaborative',
-                leadershipStyle: cvAnalysisData.softSkills?.leadershipStyle || 'Supportive and goal-oriented',
-                workStyle: cvAnalysisData.softSkills?.workStyle || consultant.work_style || 'Team-oriented and adaptable',
-                values: cvAnalysisData.softSkills?.values || consultant.values || ['Quality', 'Innovation', 'Collaboration'],
-                personalityTraits: cvAnalysisData.softSkills?.personalityTraits || consultant.personality_traits || ['Analytical', 'Detail-oriented', 'Problem-solver']
-              },
-              scores: {
-                leadership: cvAnalysisData.scores?.leadership || consultant.leadership || 4,
-                innovation: cvAnalysisData.scores?.innovation || 4,
-                adaptability: cvAnalysisData.scores?.adaptability || consultant.adaptability || 4,
-                culturalFit: cvAnalysisData.scores?.culturalFit || consultant.cultural_fit || 4,
-                communication: cvAnalysisData.scores?.communication || 4,
-                teamwork: cvAnalysisData.scores?.teamwork || 4
-              },
-              marketAnalysis: {
-                hourlyRate: {
-                  current: cvAnalysisData.marketAnalysis?.hourlyRate?.current || consultant.market_rate_current || 800,
-                  optimized: cvAnalysisData.marketAnalysis?.hourlyRate?.optimized || consultant.market_rate_optimized || 950,
-                  explanation: cvAnalysisData.marketAnalysis?.hourlyRate?.explanation || 'Based on experience level and technical skills in the Swedish market'
-                },
-                competitiveAdvantages: cvAnalysisData.marketAnalysis?.competitiveAdvantages || ['Strong technical foundation', 'Proven track record', 'Excellent communication skills'],
-                marketDemand: cvAnalysisData.marketAnalysis?.marketDemand || 'High demand in the current market',
-                recommendedFocus: cvAnalysisData.marketAnalysis?.recommendedFocus || 'Continue building expertise in current tech stack while exploring emerging technologies'
-              },
-              analysisInsights: {
-                strengths: cvAnalysisData.analysisInsights?.strengths || ['Technical expertise', 'Problem-solving ability', 'Team collaboration'],
-                developmentAreas: cvAnalysisData.analysisInsights?.developmentAreas || ['Leadership development', 'Advanced certifications', 'Public speaking'],
-                careerTrajectory: cvAnalysisData.analysisInsights?.careerTrajectory || 'Strong upward trajectory with opportunities for senior technical or leadership roles',
-                consultingReadiness: cvAnalysisData.analysisInsights?.consultingReadiness || 'Well-prepared for consulting with strong technical and soft skills'
-              }
-            } : undefined,
-            linkedinAnalysis: linkedinAnalysisData ? {
-              communicationStyle: linkedinAnalysisData.communicationStyle || 'Professional',
-              leadershipStyle: linkedinAnalysisData.leadershipStyle || 'Collaborative',
-              innovation: linkedinAnalysisData.innovation || 4,
-              leadership: linkedinAnalysisData.leadership || consultant.leadership || 3,
-              adaptability: linkedinAnalysisData.adaptability || consultant.adaptability || 5,
-              culturalFit: linkedinAnalysisData.culturalFit || consultant.cultural_fit || 5,
-              marketPositioning: linkedinAnalysisData.marketPositioning || {
-                uniqueValueProposition: 'Experienced IT consultant',
-                competitiveAdvantages: ['Technical expertise', 'Strong communication']
-              }
-            } : undefined,
-            // Enhanced analysis fields
-            profile_completeness: consultant.profile_completeness,
-            linkedin_engagement_level: consultant.linkedin_engagement_level,
-            thought_leadership_score: consultant.thought_leadership_score,
-            primary_tech_stack: consultant.primary_tech_stack,
-            secondary_tech_stack: consultant.secondary_tech_stack,
-            top_values: consultant.top_values,
-            industries: consultant.industries,
-            market_rate_current: consultant.market_rate_current,
-            market_rate_optimized: consultant.market_rate_optimized,
-            cv_tips: consultant.cv_tips,
-            suggested_learning_paths: consultant.suggested_learning_paths
-          };
-        });
-
-        setConsultants(transformedConsultants);
-        setError(null);
-      } catch (err) {
-        console.error('Error in useSupabaseConsultantsWithDemo:', err);
-        setError('Failed to load consultants');
-      } finally {
-        setIsLoading(false);
+      if (error) {
+        console.error('Error fetching consultants:', error);
+        setError(error.message);
+        return;
       }
-    };
 
-    fetchConsultants();
-  }, []);
+      // Transform Supabase data to match Consultant interface
+      const transformedData: Consultant[] = (data || []).map(consultant => ({
+        id: consultant.id.toString(),
+        name: consultant.name,
+        email: consultant.email,
+        phone: consultant.phone || '',
+        location: consultant.location || 'Sweden',
+        skills: consultant.skills || [],
+        certifications: consultant.certifications || [],
+        languages: consultant.languages || [],
+        roles: consultant.roles || [consultant.title] || ['Consultant'],
+        values: consultant.values || [],
+        experience: `${consultant.experience_years || 5} years experience`,
+        rating: consultant.rating?.toString() || '5.0',
+        projects: consultant.projects_completed || 0,
+        rate: `${consultant.hourly_rate || 800} SEK/h`,
+        availability: consultant.availability || 'Available',
+        lastActive: 'Today',
+        communicationStyle: consultant.communication_style || 'Professional',
+        workStyle: consultant.work_style || 'Collaborative',
+        personalityTraits: consultant.personality_traits || [],
+        teamFit: consultant.cultural_fit?.toString() || '4',
+        adaptability: consultant.adaptability || 4,
+        leadership: consultant.leadership || 3,
+        type: consultant.type || 'existing',
+        // Include analysis data for the analysis modal
+        cvAnalysis: consultant.cv_analysis_data || consultant.analysis_results,
+        linkedinAnalysis: consultant.linkedin_analysis_data
+      }));
 
-  const updateConsultant = async (consultant: Consultant) => {
+      // Combine with demo data
+      const allConsultants = [
+        ...transformedData,
+        ...myDemoConsultants,
+        ...demoConsultants
+      ];
+
+      setConsultants(allConsultants);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error in fetchConsultants:', err);
+      setError(err.message || 'Failed to fetch consultants');
+      // Fallback to demo data only
+      setConsultants([...myDemoConsultants, ...demoConsultants]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateConsultant = async (id: string | number, updates: Partial<Consultant>) => {
     try {
       const { error } = await supabase
         .from('consultants')
         .update({
-          name: consultant.name,
-          email: consultant.email,
-          phone: consultant.phone,
-          location: consultant.location,
-          skills: consultant.skills,
-          experience_years: consultant.experience ? parseInt(consultant.experience) : null,
-          hourly_rate: consultant.rate ? parseInt(consultant.rate) : null,
-          availability: consultant.availability,
-          cv_file_path: consultant.cv,
-          communication_style: consultant.communicationStyle,
+          name: updates.name,
+          email: updates.email,
+          phone: updates.phone,
+          location: updates.location,
+          skills: updates.skills,
+          hourly_rate: updates.rate ? parseInt(updates.rate.replace(/[^\d]/g, '')) : undefined,
+          availability: updates.availability
         })
-        .eq('id', String(consultant.id));
+        .eq('id', id);
 
       if (error) throw error;
 
-      // Update local state
-      setConsultants(prev => 
-        prev.map(c => c.id === consultant.id ? consultant : c)
-      );
-    } catch (err) {
+      // Refresh the data
+      fetchConsultants();
+      return true;
+    } catch (err: any) {
       console.error('Error updating consultant:', err);
       throw err;
     }
   };
 
-  return { consultants, isLoading, error, updateConsultant };
+  useEffect(() => {
+    fetchConsultants();
+  }, []);
+
+  return {
+    consultants,
+    isLoading,
+    error,
+    updateConsultant,
+    refetch: fetchConsultants
+  };
 };
