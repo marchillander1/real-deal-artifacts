@@ -110,13 +110,18 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
       }
 
       // Send welcome emails
-      await EmailNotificationHandler.sendWelcomeEmails({
-        consultantId: profileData.id,
-        finalEmail: email,
-        finalName: name,
-        isMyConsultant: false,
-        toast
-      });
+      try {
+        await EmailNotificationHandler.sendWelcomeEmails({
+          consultantId: profileData.id,
+          finalEmail: email,
+          finalName: name,
+          isMyConsultant: false,
+          toast
+        });
+      } catch (emailError) {
+        console.warn('Email sending failed, but continuing with process:', emailError);
+        // Don't throw here - we want the process to continue even if email fails
+      }
 
       // Log successful registration
       await supabase
@@ -138,6 +143,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         variant: "default",
       });
       
+      // Move to the next step
       onComplete();
 
     } catch (error: any) {
@@ -264,7 +270,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
               size="lg"
               className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-3"
             >
-              Join the network now
+              Join the Network Now
             </Button>
           </div>
         </CardContent>
