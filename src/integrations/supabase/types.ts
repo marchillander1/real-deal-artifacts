@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       ai_analysis: {
         Row: {
+          analysis_complete: boolean | null
           analysis_data: Json
           analysis_timestamp: string
           brand_themes: string[] | null
@@ -19,6 +20,7 @@ export type Database = {
           communication_style: string | null
           created_at: string
           cv_tips: string[] | null
+          fallback_flags: Json | null
           id: string
           industries: string[] | null
           linkedin_engagement_level: string | null
@@ -34,6 +36,7 @@ export type Database = {
           user_profile_id: string | null
         }
         Insert: {
+          analysis_complete?: boolean | null
           analysis_data: Json
           analysis_timestamp?: string
           brand_themes?: string[] | null
@@ -42,6 +45,7 @@ export type Database = {
           communication_style?: string | null
           created_at?: string
           cv_tips?: string[] | null
+          fallback_flags?: Json | null
           id?: string
           industries?: string[] | null
           linkedin_engagement_level?: string | null
@@ -57,6 +61,7 @@ export type Database = {
           user_profile_id?: string | null
         }
         Update: {
+          analysis_complete?: boolean | null
           analysis_data?: Json
           analysis_timestamp?: string
           brand_themes?: string[] | null
@@ -65,6 +70,7 @@ export type Database = {
           communication_style?: string | null
           created_at?: string
           cv_tips?: string[] | null
+          fallback_flags?: Json | null
           id?: string
           industries?: string[] | null
           linkedin_engagement_level?: string | null
@@ -271,6 +277,7 @@ export type Database = {
           cv_tips: string[] | null
           email: string
           experience_years: number | null
+          fallback_flags: Json | null
           hourly_rate: number | null
           id: string
           industries: string[] | null
@@ -329,6 +336,7 @@ export type Database = {
           cv_tips?: string[] | null
           email: string
           experience_years?: number | null
+          fallback_flags?: Json | null
           hourly_rate?: number | null
           id?: string
           industries?: string[] | null
@@ -387,6 +395,7 @@ export type Database = {
           cv_tips?: string[] | null
           email?: string
           experience_years?: number | null
+          fallback_flags?: Json | null
           hourly_rate?: number | null
           id?: string
           industries?: string[] | null
@@ -632,6 +641,7 @@ export type Database = {
           gdpr_consent: boolean
           id: string
           linkedin_url: string | null
+          personal_description: string | null
           personal_tagline: string | null
           session_token: string
           status: string
@@ -643,6 +653,7 @@ export type Database = {
           gdpr_consent?: boolean
           id?: string
           linkedin_url?: string | null
+          personal_description?: string | null
           personal_tagline?: string | null
           session_token: string
           status?: string
@@ -654,6 +665,7 @@ export type Database = {
           gdpr_consent?: boolean
           id?: string
           linkedin_url?: string | null
+          personal_description?: string | null
           personal_tagline?: string | null
           session_token?: string
           status?: string
