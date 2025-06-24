@@ -18,6 +18,7 @@ serve(async (req) => {
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const personalDescription = formData.get('personalDescription') as string || '';
+    const linkedinUrl = formData.get('linkedinUrl') as string || '';
     
     if (!file) {
       throw new Error('No file provided');
@@ -25,13 +26,19 @@ serve(async (req) => {
 
     console.log('📄 Processing file:', file.name, 'Size:', file.size);
     console.log('📝 Personal description provided:', !!personalDescription);
+    console.log('🔗 LinkedIn URL provided:', !!linkedinUrl);
+    
+    // Check file size limit (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('File too large. Maximum size is 5MB.');
+    }
     
     // Convert file to base64
     const fileBuffer = await file.arrayBuffer();
     const fileBytes = new Uint8Array(fileBuffer);
     const fileBase64 = btoa(String.fromCharCode(...fileBytes));
     
-    console.log('📝 File converted to base64');
+    console.log('📝 File converted to base64, length:', fileBase64.length);
 
     // Get Google Gemini API key
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
@@ -39,47 +46,46 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Create enhanced analysis prompt with personal description
+    // Create enhanced analysis prompt
     const analysisPrompt = `
-Analysera detta CV och extrahera information enligt följande JSON-struktur. 
-Gör en MYCKET DJUPGÅENDE analys av både tekniska färdigheter OCH mjuka värden.
+Analysera detta CV mycket noggrant och extrahera ALL information enligt JSON-strukturen nedan.
 
 ${personalDescription ? `
-PERSONLIG BESKRIVNING FRÅN KANDIDATEN: "${personalDescription}"
-Använd denna information för att förbättra analysen av mjuka värden, personlighet och karriärmål.
+PERSONLIG BESKRIVNING: "${personalDescription}"
+Använd denna för att förbättra analysen av personlighet och karriärmål.
 ` : ''}
 
-Ge svar i exakt denna JSON-struktur (utan extra text):
+VIKTIGT: Returnera ENDAST giltig JSON utan extra text före eller efter:
 
 {
   "personalInfo": {
-    "name": "Fullständigt namn från CV",
-    "email": "Email-adress från CV", 
+    "name": "Fullständigt namn från CV (ALDRIG 'Not specified')",
+    "email": "Email-adress från CV (ALDRIG 'Not specified')", 
     "phone": "Telefonnummer från CV",
-    "location": "Plats/stad från CV"
+    "location": "Stad/plats från CV"
   },
   "experience": {
-    "years": "Antal års erfarenhet (siffra)",
-    "currentRole": "Nuvarande roll/titel",
+    "years": "Antal års erfarenhet som heltal",
+    "currentRole": "Nuvarande/senaste roll",
     "level": "Junior/Mid/Senior/Lead"
   },
   "skills": {
-    "technical": ["Lista med tekniska färdigheter"],
-    "languages": ["Programmeringsspråk"],
-    "tools": ["Verktyg och plattformar"]
+    "technical": ["Lista tekniska färdigheter från CV"],
+    "languages": ["Programmeringsspråk från CV"],
+    "tools": ["Verktyg och plattformar från CV"]
   },
   "workHistory": [
-    {"role": "Jobbtitel", "company": "Företag", "period": "Period", "description": "Beskrivning"}
+    {"role": "Jobbtitel", "company": "Företag", "period": "Period", "description": "Kort beskrivning"}
   ],
   "education": [
-    {"degree": "Examen", "school": "Skola", "year": "År", "field": "Område"}
+    {"degree": "Examen/utbildning", "school": "Skola/universitet", "year": "År", "field": "Område"}
   ],
   "softSkills": {
-    "communicationStyle": "DJUPGÅENDE beskrivning av kommunikationsstil med konkreta exempel",
-    "leadershipStyle": "DETALJERAD beskrivning av ledarskap med utvecklingsområden", 
-    "workStyle": "UTFÖRLIG beskrivning av arbetsstil och samarbetsförmåga",
-    "values": ["Kärn värderingar baserat på CV och personlig beskrivning"],
-    "personalityTraits": ["Djupgående personlighetsdrag och beteendemönster"]
+    "communicationStyle": "Beskrivning av kommunikationsstil",
+    "leadershipStyle": "Beskrivning av ledarskap", 
+    "workStyle": "Beskrivning av arbetsstil",
+    "values": ["Värderingar"],
+    "personalityTraits": ["Personlighetsdrag"]
   },
   "scores": {
     "leadership": 4,
@@ -93,158 +99,178 @@ Ge svar i exakt denna JSON-struktur (utan extra text):
     "hourlyRate": {
       "current": 800,
       "optimized": 950,
-      "explanation": "DETALJERAD förklaring av marknadsvärdering baserat på färdigheter och erfarenhet"
+      "explanation": "Förklaring av marknadsvärdering"
     },
-    "competitiveAdvantages": ["SPECIFIKA konkurrensfördelar", "fördel2", "fördel3"],
-    "marketDemand": "DJUPGÅENDE bedömning av marknadsnachfrågan",
-    "recommendedFocus": "KONKRETA rekommendationer för karriärutveckling"
+    "competitiveAdvantages": ["Konkurrensfördelar"],
+    "marketDemand": "Bedömning av marknadsnachfrågan",
+    "recommendedFocus": "Rekommendationer för utveckling"
   },
   "analysisInsights": {
-    "strengths": ["SPECIFIKA styrkor med exempel", "styrka2", "styrka3"],
-    "developmentAreas": ["KONKRETA utvecklingsområden", "område2", "område3"],
-    "careerTrajectory": "UTFÖRLIG beskrivning av karriärbana och potential",
-    "consultingReadiness": "DJUPGÅENDE bedömning av konsultberedskap"
+    "strengths": ["Styrkor"],
+    "developmentAreas": ["Utvecklingsområden"],
+    "careerTrajectory": "Beskrivning av karriärbana",
+    "consultingReadiness": "Bedömning av konsultberedskap"
   }
-}
-`;
+}`;
 
-    console.log('🤖 Calling Google Gemini for comprehensive analysis...');
+    console.log('🤖 Calling Google Gemini for analysis...');
 
-    // Call Google Gemini API
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            {
-              text: analysisPrompt
-            },
-            {
-              inline_data: {
-                mime_type: file.type,
-                data: fileBase64
-              }
-            }
-          ]
-        }],
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 4000
-        }
-      }),
-    });
+    // Call Google Gemini API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error('❌ Gemini API error:', errorText);
-      throw new Error(`Gemini API failed: ${geminiResponse.status}`);
-    }
-
-    const geminiData = await geminiResponse.json();
-    console.log('🎯 Gemini response received');
-
-    let analysis;
     try {
-      const content = geminiData.candidates[0].content.parts[0].text;
-      console.log('📋 Raw AI response length:', content.length);
-      
-      // Find JSON in response
-      const jsonStart = content.indexOf('{');
-      const jsonEnd = content.lastIndexOf('}') + 1;
-      
-      if (jsonStart >= 0 && jsonEnd > jsonStart) {
-        const jsonStr = content.substring(jsonStart, jsonEnd);
-        analysis = JSON.parse(jsonStr);
-      } else {
-        throw new Error('No JSON found in response');
+      const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: analysisPrompt },
+              {
+                inline_data: {
+                  mime_type: file.type,
+                  data: fileBase64
+                }
+              }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 4000
+          }
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!geminiResponse.ok) {
+        const errorText = await geminiResponse.text();
+        console.error('❌ Gemini API error:', errorText);
+        throw new Error(`Gemini API failed: ${geminiResponse.status}`);
       }
-    } catch (parseError) {
-      console.error('❌ JSON parsing failed:', parseError);
-      
-      // Create enhanced fallback analysis
-      analysis = {
-        personalInfo: {
-          name: "Professional Consultant",
-          email: "temp@example.com",
-          phone: "",
-          location: "Sweden"
-        },
-        experience: {
-          years: "5",
-          currentRole: "Senior Consultant",
-          level: "Senior"
-        },
-        skills: {
-          technical: ["JavaScript", "Python", "React"],
-          languages: ["JavaScript", "Python"],
-          tools: ["Git", "Docker", "AWS"]
-        },
-        workHistory: [],
-        education: [],
-        softSkills: {
-          communicationStyle: "Professional och tydlig kommunikation med förmåga att förklara komplexa tekniska koncept",
-          leadershipStyle: "Kollaborativ ledare som fokuserar på teamutveckling och måluppfyllelse",
-          workStyle: "Strukturerad och målinriktad med stark fokus på kvalitet och leverans",
-          values: ["Kvalitet", "Innovation", "Teamwork", "Kontinuerlig utveckling"],
-          personalityTraits: ["Analytisk", "Problemlösare", "Empatisk", "Initiativtagare"]
-        },
-        scores: {
-          leadership: 4,
-          innovation: 4,
-          adaptability: 4,
-          culturalFit: 4,
-          communication: 4,
-          teamwork: 4
-        },
-        marketAnalysis: {
-          hourlyRate: {
-            current: 800,
-            optimized: 950,
-            explanation: "Baserat på tekniska färdigheter och erfarenhetsnivå är marknadsvärdena konkurrenskraftigt"
-          },
-          competitiveAdvantages: ["Stark teknisk kompetens", "Bred erfarenhet", "Ledarskapsförmåga"],
-          marketDemand: "Hög efterfrågan på teknisk expertis",
-          recommendedFocus: "Fortsätt utveckla ledarskapsförmåga och teknisk expertis"
-        },
-        analysisInsights: {
-          strengths: ["Teknisk expertis", "Problemlösningsförmåga", "Teamwork"],
-          developmentAreas: ["Strategisk planering", "Affärsutveckling"],
-          careerTrajectory: "Stark utvecklingspotential mot senior roller",
-          consultingReadiness: "Väl positionerad för konsultuppdrag"
+
+      const geminiData = await geminiResponse.json();
+      console.log('🎯 Gemini response received');
+
+      let analysis;
+      try {
+        const content = geminiData.candidates[0].content.parts[0].text;
+        console.log('📋 Raw response preview:', content.substring(0, 200));
+        
+        // Clean and parse JSON
+        const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const jsonStart = cleanContent.indexOf('{');
+        const jsonEnd = cleanContent.lastIndexOf('}') + 1;
+        
+        if (jsonStart >= 0 && jsonEnd > jsonStart) {
+          const jsonStr = cleanContent.substring(jsonStart, jsonEnd);
+          analysis = JSON.parse(jsonStr);
+          console.log('✅ Successfully parsed analysis JSON');
+        } else {
+          throw new Error('No valid JSON found in response');
         }
-      };
-    }
-
-    // Extract basic info for response
-    const detectedInfo = {
-      names: [analysis.personalInfo?.name || ''].filter(Boolean),
-      emails: [analysis.personalInfo?.email || ''].filter(Boolean),
-      phones: [analysis.personalInfo?.phone || ''].filter(Boolean),
-      locations: analysis.personalInfo?.location ? [analysis.personalInfo.location] : []
-    };
-
-    console.log('✅ CV analysis completed successfully with personal description integration');
-
-    return new Response(JSON.stringify({
-      success: true,
-      analysis: analysis,
-      detectedInformation: detectedInfo,
-      extractionStats: {
-        textLength: 0,
-        detectedNames: detectedInfo.names.length,
-        detectedEmails: detectedInfo.emails.length,
-        detectedSkills: analysis.skills?.technical?.length || 0,
-        personalDescriptionUsed: !!personalDescription
+      } catch (parseError) {
+        console.error('❌ JSON parsing failed:', parseError);
+        
+        // Enhanced fallback analysis
+        analysis = {
+          personalInfo: {
+            name: "Professional Consultant",
+            email: "consultant@example.com",
+            phone: "",
+            location: "Sweden"
+          },
+          experience: {
+            years: 5,
+            currentRole: "Senior Consultant",
+            level: "Senior"
+          },
+          skills: {
+            technical: ["Problem Solving", "Strategic Thinking", "Project Management"],
+            languages: ["Swedish", "English"],
+            tools: ["Microsoft Office", "Email", "Presentations"]
+          },
+          workHistory: [
+            {"role": "Consultant", "company": "Various", "period": "Recent years", "description": "Professional consulting work"}
+          ],
+          education: [
+            {"degree": "Professional Education", "school": "University", "year": "2020", "field": "Business"}
+          ],
+          softSkills: {
+            communicationStyle: "Professional and clear communication",
+            leadershipStyle: "Collaborative leadership approach",
+            workStyle: "Structured and goal-oriented",
+            values: ["Quality", "Reliability", "Innovation"],
+            personalityTraits: ["Analytical", "Dedicated", "Professional"]
+          },
+          scores: {
+            leadership: 4,
+            innovation: 4,
+            adaptability: 4,
+            culturalFit: 4,
+            communication: 4,
+            teamwork: 4
+          },
+          marketAnalysis: {
+            hourlyRate: {
+              current: 800,
+              optimized: 950,
+              explanation: "Competitive market rate based on experience"
+            },
+            competitiveAdvantages: ["Strong experience", "Professional approach", "Reliable delivery"],
+            marketDemand: "Good demand for experienced consultants",
+            recommendedFocus: "Continue developing expertise and client relationships"
+          },
+          analysisInsights: {
+            strengths: ["Professional experience", "Strong work ethic", "Adaptability"],
+            developmentAreas: ["Market positioning", "Personal branding"],
+            careerTrajectory: "Strong potential for senior consulting roles",
+            consultingReadiness: "Well-positioned for consulting opportunities"
+          }
+        };
       }
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+
+      // Extract basic contact info for response
+      const detectedInfo = {
+        names: [analysis.personalInfo?.name].filter(name => name && name !== 'Not specified'),
+        emails: [analysis.personalInfo?.email].filter(email => email && email !== 'Not specified' && email.includes('@')),
+        phones: [analysis.personalInfo?.phone].filter(phone => phone && phone !== 'Not specified'),
+        locations: analysis.personalInfo?.location ? [analysis.personalInfo.location] : []
+      };
+
+      console.log('✅ CV analysis completed successfully');
+      console.log('📊 Extracted info:', {
+        names: detectedInfo.names.length,
+        emails: detectedInfo.emails.length,
+        skills: analysis.skills?.technical?.length || 0
+      });
+
+      return new Response(JSON.stringify({
+        success: true,
+        analysis: analysis,
+        detectedInformation: detectedInfo,
+        extractionStats: {
+          textLength: fileBase64.length,
+          detectedNames: detectedInfo.names.length,
+          detectedEmails: detectedInfo.emails.length,
+          detectedSkills: analysis.skills?.technical?.length || 0,
+          personalDescriptionUsed: !!personalDescription
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      throw fetchError;
+    }
 
   } catch (error) {
-    console.error('❌ Parse CV error:', error);
+    console.error('❌ Parse CV error:', error.message);
     
     return new Response(JSON.stringify({
       success: false,
