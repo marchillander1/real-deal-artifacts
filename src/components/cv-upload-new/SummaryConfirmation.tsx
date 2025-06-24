@@ -8,23 +8,25 @@ import { Badge } from '@/components/ui/badge';
 interface SummaryConfirmationProps {
   analysisResult: any;
   onConfirm: () => void;
+  onRestart: () => void;
 }
 
 export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
   analysisResult,
-  onConfirm
+  onConfirm,
+  onRestart
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({
-    full_name: analysisResult.analysis.full_name || '',
-    email: analysisResult.analysis.email || '',
-    phone: analysisResult.analysis.phone || '',
-    title: analysisResult.analysis.title || '',
-    personal_tagline: analysisResult.analysis.personal_tagline || ''
+    full_name: analysisResult.analysisData?.full_name || '',
+    email: analysisResult.analysisData?.email || '',
+    phone: analysisResult.analysisData?.phone || '',
+    title: analysisResult.analysisData?.title || '',
+    personal_tagline: analysisResult.analysisData?.personal_tagline || ''
   });
   const [techSkills, setTechSkills] = useState([
-    ...(analysisResult.analysis.tech_stack_primary || []),
-    ...(analysisResult.analysis.tech_stack_secondary || [])
+    ...(analysisResult.analysisData?.tech_stack_primary || []),
+    ...(analysisResult.analysisData?.tech_stack_secondary || [])
   ]);
 
   const handleSave = () => {
@@ -35,11 +37,11 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
   const handleCancel = () => {
     setIsEditing(false);
     setEditedData({
-      full_name: analysisResult.analysis.full_name || '',
-      email: analysisResult.analysis.email || '',
-      phone: analysisResult.analysis.phone || '',
-      title: analysisResult.analysis.title || '',
-      personal_tagline: analysisResult.analysis.personal_tagline || ''
+      full_name: analysisResult.analysisData?.full_name || '',
+      email: analysisResult.analysisData?.email || '',
+      phone: analysisResult.analysisData?.phone || '',
+      title: analysisResult.analysisData?.title || '',
+      personal_tagline: analysisResult.analysisData?.personal_tagline || ''
     });
   };
 
@@ -245,7 +247,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-white rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">
-                    {analysisResult.analysis.years_of_experience || 0}
+                    {analysisResult.analysisData?.years_of_experience || 0}
                   </div>
                   <div className="text-sm text-slate-600">År av erfarenhet</div>
                 </div>
@@ -257,7 +259,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">
-                    {analysisResult.analysis.industries?.length || 0}
+                    {analysisResult.analysisData?.industries?.length || 0}
                   </div>
                   <div className="text-sm text-slate-600">Branschområden</div>
                 </div>
@@ -265,8 +267,17 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
             </div>
           </div>
 
-          {/* Action Button */}
-          <div className="mt-8 text-center">
+          {/* Action Buttons */}
+          <div className="mt-8 flex justify-between items-center">
+            <Button
+              onClick={onRestart}
+              variant="outline"
+              size="lg"
+              className="px-6 py-3"
+            >
+              Börja om
+            </Button>
+            
             <Button
               onClick={onConfirm}
               size="lg"

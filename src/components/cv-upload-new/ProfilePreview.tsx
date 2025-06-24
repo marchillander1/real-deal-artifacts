@@ -14,12 +14,12 @@ interface ProfilePreviewProps {
     profileId: string;
     analysisData: any;
   };
-  onJoinNetwork: () => void;
+  onComplete: () => void;
 }
 
 export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   analysisResult,
-  onJoinNetwork
+  onComplete
 }) => {
   const { analysisData } = analysisResult;
   const { toast } = useToast();
@@ -35,7 +35,8 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           full_name: analysisData?.full_name || 'Konsultnamn',
           email: analysisData?.email || 'email@exempel.se',
           phone: analysisData?.phone || null,
-          title: analysisData?.title || 'Senior Konsult',
+          title: analys
+Data?.title || 'Senior Konsult',
           personal_tagline: analysisData?.personal_tagline || null,
           years_of_experience: analysisData?.years_of_experience || 5,
           availability: 'Available'
@@ -113,7 +114,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         });
 
       console.log('✅ Network join completed successfully');
-      onJoinNetwork();
+      onComplete();
 
     } catch (error: any) {
       console.error('❌ Network join failed:', error);
