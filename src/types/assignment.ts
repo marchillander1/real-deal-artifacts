@@ -1,6 +1,6 @@
 
 export interface Assignment {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   company: string;
