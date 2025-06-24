@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -150,7 +151,7 @@ const MatchWiseAI: React.FC = () => {
 
   const handleCreateAssignment = (assignmentData: any) => {
     const newAssignment: Assignment = {
-      id: Math.random(),
+      id: Date.now(),
       ...assignmentData,
       status: 'open',
       created_at: new Date().toISOString()
@@ -455,11 +456,11 @@ We recommend proceeding with this consultant.`;
                 consultant={consultant} 
                 onViewAnalysis={handleViewAnalysis}
                 isMyConsultant={true}
-                notes={consultantNotes[consultant.id] || ''}
-                tags={consultantTags[consultant.id] || []}
-                onUpdateNotes={(notes) => updateConsultantNotes(consultant.id, notes)}
-                onAddTag={(tag) => addConsultantTag(consultant.id, tag)}
-                onRemoveTag={(tag) => removeConsultantTag(consultant.id, tag)}
+                notes={consultantNotes[consultant.id.toString()] || ''}
+                tags={consultantTags[consultant.id.toString()] || []}
+                onUpdateNotes={(notes) => updateConsultantNotes(consultant.id.toString(), notes)}
+                onAddTag={(tag) => addConsultantTag(consultant.id.toString(), tag)}
+                onRemoveTag={(tag) => removeConsultantTag(consultant.id.toString(), tag)}
               />
             ))}
           </div>
@@ -500,8 +501,8 @@ We recommend proceeding with this consultant.`;
                 consultant={consultant} 
                 onViewAnalysis={handleViewAnalysis}
                 isMyConsultant={false}
-                isFavorite={favorites.has(consultant.id)}
-                onToggleFavorite={() => toggleFavorite(consultant.id)}
+                isFavorite={favorites.has(consultant.id.toString())}
+                onToggleFavorite={() => toggleFavorite(consultant.id.toString())}
                 onRequestContact={() => requestContact(consultant)}
               />
             ))}
