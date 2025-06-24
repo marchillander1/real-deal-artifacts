@@ -263,8 +263,8 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         variant: "default",
       });
       
-      // Move to the next step
-      onComplete();
+      // Redirect to NetworkSuccess page
+      window.location.href = `/network-success?consultant=${profileData.id}`;
 
     } catch (error: any) {
       console.error('❌ Network join failed:', error);
