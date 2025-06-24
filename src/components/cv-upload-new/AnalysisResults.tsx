@@ -30,10 +30,11 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   const experience = analysisData?.experience || {};
   const skills = analysisData?.skills || {};
   const workHistory = analysisData?.workHistory || [];
-  const education = analysisData?.education || {};
+  const education = analysisData?.education || [];
   const marketAnalysis = analysisData?.marketAnalysis || {};
   const analysisInsights = analysisData?.analysisInsights || {};
   const scores = analysisData?.scores || {};
+  const softSkills = analysisData?.softSkills || {};
   
   return (
     <div className="max-w-6xl mx-auto">
@@ -109,9 +110,24 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     Programming Languages & Frameworks
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {(skills?.technical || skills?.programmingLanguages || ['JavaScript', 'React', 'Node.js', 'Python', 'TypeScript']).slice(0, 10).map((skill: string, index: number) => (
+                    {(skills?.technical || skills?.languages || ['JavaScript', 'React', 'Node.js', 'Python', 'TypeScript']).slice(0, 10).map((skill: string, index: number) => (
                       <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
                         {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tools & Platforms */}
+                <div>
+                  <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
+                    <Award className="h-4 w-4 mr-2" />
+                    Tools & Platforms
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(skills?.tools || ['AWS', 'Docker', 'Git', 'Kubernetes', 'CI/CD']).slice(0, 8).map((tool: string, index: number) => (
+                      <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800">
+                        {tool}
                       </Badge>
                     ))}
                   </div>
@@ -120,22 +136,27 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                 {/* Certifications & Education */}
                 <div>
                   <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
-                    <Award className="h-4 w-4 mr-2" />
-                    Certifications & Education
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Education & Certifications
                   </h4>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium mb-2">Education</p>
                       <div className="space-y-1">
-                        {(education?.degrees || ['Bachelor of Computer Science', 'Master of Engineering']).map((degree: string, index: number) => (
-                          <p key={index} className="text-sm text-blue-700 bg-white/60 p-2 rounded">{degree}</p>
+                        {(Array.isArray(education) ? education : [education]).filter(Boolean).slice(0, 3).map((edu: any, index: number) => (
+                          <p key={index} className="text-sm text-blue-700 bg-white/60 p-2 rounded">
+                            {typeof edu === 'string' ? edu : edu?.degree || edu?.field || 'Professional Education'}
+                          </p>
                         ))}
+                        {(!education || education.length === 0) && (
+                          <p className="text-sm text-blue-700 bg-white/60 p-2 rounded">Professional Education</p>
+                        )}
                       </div>
                     </div>
                     <div>
                       <p className="text-sm font-medium mb-2">Certifications</p>
                       <div className="flex flex-wrap gap-2">
-                        {(education?.certifications || skills?.certifications || ['AWS Certified', 'Scrum Master', 'PMP']).map((cert: string, index: number) => (
+                        {(education?.certifications || skills?.certifications || ['Professional Certification', 'Industry Standards']).slice(0, 4).map((cert: string, index: number) => (
                           <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800">
                             {cert}
                           </Badge>
@@ -145,23 +166,23 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   </div>
                 </div>
 
-                {/* Project Examples & Portfolio */}
+                {/* Work Experience Highlights */}
                 <div>
                   <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Project Examples & Portfolio
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Work Experience Highlights
                   </h4>
                   <div className="grid md:grid-cols-2 gap-4">
                     {(workHistory || [
                       {role: 'Senior Developer', company: 'Tech Corp', technologies: ['React', 'Node.js']},
                       {role: 'Full Stack Engineer', company: 'StartupCo', technologies: ['Vue.js', 'Python']}
-                    ]).slice(0, 3).map((project: any, index: number) => (
+                    ]).slice(0, 3).map((work: any, index: number) => (
                       <div key={index} className="bg-white/60 p-4 rounded-lg">
-                        <h5 className="font-medium text-blue-800">{project.role || `Project ${index + 1}`}</h5>
-                        <p className="text-sm text-blue-700">{project.company || 'Company'}</p>
-                        {project.technologies && (
+                        <h5 className="font-medium text-blue-800">{work.role || `Project ${index + 1}`}</h5>
+                        <p className="text-sm text-blue-700">{work.company || 'Company'}</p>
+                        {work.technologies && (
                           <div className="mt-2 flex flex-wrap gap-1">
-                            {project.technologies.slice(0, 4).map((tech: string, techIndex: number) => (
+                            {work.technologies.slice(0, 4).map((tech: string, techIndex: number) => (
                               <Badge key={techIndex} variant="outline" className="text-xs bg-blue-50">
                                 {tech}
                               </Badge>
@@ -194,7 +215,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   </h4>
                   <div className="bg-white/60 p-4 rounded-lg">
                     <p className="text-sm text-purple-700">
-                      {analysisInsights?.communicationStyle || 'Clear and effective communicator with strong presentation skills. Able to explain complex technical concepts to both technical and non-technical stakeholders.'}
+                      {softSkills?.communicationStyle || analysisInsights?.communicationStyle || 'Clear and effective communicator with strong presentation skills. Able to explain complex technical concepts to both technical and non-technical stakeholders.'}
                     </p>
                   </div>
                 </div>
@@ -248,7 +269,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     <div className="bg-white/60 p-4 rounded-lg">
                       <h5 className="font-medium text-purple-800 mb-2">Team Collaboration</h5>
                       <p className="text-sm text-purple-700">
-                        Strong team player with experience in agile environments and cross-functional collaboration.
+                        {softSkills?.workStyle || 'Strong team player with experience in agile environments and cross-functional collaboration.'}
                       </p>
                     </div>
                     <div className="bg-white/60 p-4 rounded-lg">
@@ -308,7 +329,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     Competitive Advantages
                   </h4>
                   <div className="space-y-2">
-                    {(marketAnalysis?.competitiveAdvantages || [
+                    {(marketAnalysis?.competitiveAdvantages || analysisInsights?.strengths || [
                       'Strong technical expertise in modern frameworks',
                       'Proven track record of successful project delivery',
                       'Excellent communication and leadership skills',
@@ -330,7 +351,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   </h4>
                   <div className="bg-white/60 p-4 rounded-lg">
                     <p className="text-sm text-emerald-800">
-                      <strong>Market Assessment:</strong> {marketAnalysis?.hourlyRate?.explanation || 'High demand for your skill set in the current market. Your expertise aligns well with trending technologies and business needs.'}
+                      <strong>Market Assessment:</strong> {marketAnalysis?.hourlyRate?.explanation || marketAnalysis?.marketDemand || 'High demand for your skill set in the current market. Your expertise aligns well with trending technologies and business needs.'}
                     </p>
                   </div>
                 </div>
@@ -355,7 +376,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     Development Areas
                   </h4>
                   <div className="space-y-2">
-                    {(analysisInsights?.developmentAreas || [
+                    {(analysisInsights?.developmentAreas || marketAnalysis?.recommendedFocus ? [marketAnalysis.recommendedFocus] : [
                       'Cloud architecture and microservices',
                       'Advanced data analytics and machine learning',
                       'Technical leadership and mentoring skills',
