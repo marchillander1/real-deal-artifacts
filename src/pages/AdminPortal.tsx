@@ -1,498 +1,205 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Shield, Users, BarChart3, Settings, Database, Zap, Activity } from 'lucide-react';
+import { PlatformHealth } from '@/components/platform/PlatformHealth';
+import { PerformanceMonitor } from '@/components/optimization/PerformanceMonitor';
+import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
+import { ReportsOverview } from '@/components/reports/ReportsOverview';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Users, Plus, Trash2, Building, Mail, UserCheck, Activity, Network } from 'lucide-react';
-import Logo from '@/components/Logo';
-
-interface CompanyStats {
-  id: string;
-  company: string;
-  userCount: number;
-  activeUsers: number;
-  lastActive: string;
-}
-
-interface UserData {
-  id: string;
-  email: string;
-  full_name: string;
-  company: string;
-  created_at: string;
-  role: string;
-}
-
-interface NetworkConsultant {
-  id: string;
-  name: string;
-  email: string;
-  skills: string[];
-  location: string;
-  created_at: string;
-  type: string;
-}
 
 const AdminPortal: React.FC = () => {
-  const [companies, setCompanies] = useState<CompanyStats[]>([]);
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [networkConsultants, setNetworkConsultants] = useState<NetworkConsultant[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreateUser, setShowCreateUser] = useState(false);
-  const [newUser, setNewUser] = useState({
-    email: '',
-    full_name: '',
-    company: '',
-    password: ''
+  const [activeTab, setActiveTab] = useState('overview');
+  const { consultants } = useSupabaseConsultantsWithDemo();
+
+  // Fetch system data
+  const { data: assignments = [] } = useQuery({
+    queryKey: ['admin-assignments'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('assignments').select('*');
+      return error ? [] : data;
+    },
   });
-  const { toast } = useToast();
 
-  useEffect(() => {
-    loadAdminData();
-  }, []);
+  const { data: matches = [] } = useQuery({
+    queryKey: ['admin-matches'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('matches').select('*');
+      return error ? [] : data;
+    },
+  });
 
-  const loadAdminData = async () => {
-    try {
-      // Load all users
-      const { data: usersData, error: usersError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (usersError) throw usersError;
-
-      setUsers(usersData || []);
-
-      // Load network consultants
-      const { data: consultantsData, error: consultantsError } = await supabase
-        .from('consultants')
-        .select('id, name, email, skills, location, created_at, type')
-        .eq('type', 'new')
-        .order('created_at', { ascending: false });
-
-      if (consultantsError) throw consultantsError;
-
-      setNetworkConsultants(consultantsData || []);
-
-      // Calculate company stats
-      const companyMap = new Map<string, CompanyStats>();
-      
-      usersData?.forEach(user => {
-        const company = user.company || 'No Company';
-        if (!companyMap.has(company)) {
-          companyMap.set(company, {
-            id: company,
-            company,
-            userCount: 0,
-            activeUsers: 0,
-            lastActive: user.created_at
-          });
-        }
-        
-        const stats = companyMap.get(company)!;
-        stats.userCount++;
-        // For demo purposes, assume 70% of users are active
-        if (Math.random() > 0.3) {
-          stats.activeUsers++;
-        }
-      });
-
-      setCompanies(Array.from(companyMap.values()));
-    } catch (error) {
-      console.error('Error loading admin data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load admin data",
-        variant: "destructive",
-      });
-    }
-    setLoading(false);
-  };
-
-  const handleCreateUser = async () => {
-    try {
-      // Generate a random password if none provided
-      const password = newUser.password || Math.random().toString(36).slice(-8);
-      
-      // Create user via edge function
-      const response = await fetch('/api/create-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...newUser,
-          password
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create user');
-      }
-
-      toast({
-        title: "User created!",
-        description: `Welcome email sent to ${newUser.email}`,
-      });
-
-      setNewUser({ email: '', full_name: '', company: '', password: '' });
-      setShowCreateUser(false);
-      loadAdminData();
-    } catch (error) {
-      console.error('Error creating user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create user",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
-
-      if (error) throw error;
-
-      toast({
-        title: "User deleted",
-        description: "User has been removed from the platform",
-      });
-
-      loadAdminData();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete user",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteNetworkConsultant = async (consultantId: string) => {
-    if (!confirm('Are you sure you want to delete this network consultant?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('consultants')
-        .delete()
-        .eq('id', consultantId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Network consultant deleted",
-        description: "The consultant has been removed from the network",
-      });
-
-      loadAdminData();
-    } catch (error) {
-      console.error('Error deleting consultant:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete network consultant",
-        variant: "destructive",
-      });
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  // System statistics
+  const totalUsers = consultants.length;
+  const totalAssignments = assignments.length;
+  const totalMatches = matches.length;
+  const systemUptime = '99.9%';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Logo />
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900">Admin Portal</h1>
-                <p className="text-sm text-slate-600">Manage platform users and companies</p>
-              </div>
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center space-x-3">
+            <Shield className="h-8 w-8 text-blue-600" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>
+              <p className="text-gray-600">Systemövervakning och plattformshantering</p>
             </div>
-            <Dialog open={showCreateUser} onOpenChange={setShowCreateUser}>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create User
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New User</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="create-email">Email *</Label>
-                    <Input
-                      id="create-email"
-                      type="email"
-                      value={newUser.email}
-                      onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                      placeholder="user@company.com"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="create-name">Full Name *</Label>
-                    <Input
-                      id="create-name"
-                      value={newUser.full_name}
-                      onChange={(e) => setNewUser({...newUser, full_name: e.target.value})}
-                      placeholder="User Name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="create-company">Company *</Label>
-                    <Input
-                      id="create-company"
-                      value={newUser.company}
-                      onChange={(e) => setNewUser({...newUser, company: e.target.value})}
-                      placeholder="Company Name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="create-password">Password (optional)</Label>
-                    <Input
-                      id="create-password"
-                      type="password"
-                      value={newUser.password}
-                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                      placeholder="Leave empty for auto-generated"
-                    />
-                  </div>
-                  <Button 
-                    onClick={handleCreateUser}
-                    disabled={!newUser.email || !newUser.full_name || !newUser.company}
-                    className="w-full"
-                  >
-                    Create User & Send Welcome Email
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Total Companies</p>
-                  <p className="text-2xl font-bold">{companies.length}</p>
-                </div>
-                <Building className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Översikt
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Analys
+            </TabsTrigger>
+            <TabsTrigger value="health" className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              Systemhälsa
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Prestanda
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Rapporter
+            </TabsTrigger>
+          </TabsList>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Total Users</p>
-                  <p className="text-2xl font-bold">{users.length}</p>
-                </div>
-                <Users className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Network Consultants</p>
-                  <p className="text-2xl font-bold">{networkConsultants.length}</p>
-                </div>
-                <Network className="h-8 w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Active Users</p>
-                  <p className="text-2xl font-bold">{companies.reduce((sum, c) => sum + c.activeUsers, 0)}</p>
-                </div>
-                <Activity className="h-8 w-8 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Platform Usage</p>
-                  <p className="text-2xl font-bold">94%</p>
-                </div>
-                <UserCheck className="h-8 w-8 text-teal-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Companies Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="h-5 w-5" />
-                Companies Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {companies.map((company) => (
-                  <div key={company.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+          <TabsContent value="overview" className="space-y-6">
+            {/* System Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="border-l-4 border-l-blue-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <Users className="h-8 w-8 text-blue-500" />
                     <div>
-                      <h3 className="font-semibold">{company.company}</h3>
-                      <p className="text-sm text-slate-600">
-                        {company.userCount} users • {company.activeUsers} active
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <Badge variant={company.activeUsers > 0 ? "default" : "secondary"}>
-                        {company.activeUsers > 0 ? "Active" : "Inactive"}
-                      </Badge>
+                      <p className="text-2xl font-bold">{totalUsers}</p>
+                      <p className="text-gray-600">Registrerade användare</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
 
-          {/* Users Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                User Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                        {user.full_name?.charAt(0) || user.email.charAt(0)}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">{user.full_name}</h4>
-                        <p className="text-sm text-slate-600">{user.email}</p>
-                        <p className="text-xs text-slate-500">{user.company}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline">{user.role}</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+              <Card className="border-l-4 border-l-green-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <BarChart3 className="h-8 w-8 text-green-500" />
+                    <div>
+                      <p className="text-2xl font-bold">{totalAssignments}</p>
+                      <p className="text-gray-600">Aktiva uppdrag</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                </CardContent>
+              </Card>
 
-        {/* Network Consultants Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Network className="h-5 w-5" />
-              Network Consultants Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {networkConsultants.length === 0 ? (
-              <div className="text-center py-8">
-                <Network className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No network consultants found</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Skills</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {networkConsultants.map((consultant) => (
-                    <TableRow key={consultant.id}>
-                      <TableCell className="font-medium">{consultant.name}</TableCell>
-                      <TableCell>{consultant.email}</TableCell>
-                      <TableCell>{consultant.location}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {consultant.skills.slice(0, 3).map((skill, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
-                          {consultant.skills.length > 3 && (
-                            <Badge variant="outline" className="text-xs text-gray-500">
-                              +{consultant.skills.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(consultant.created_at).toLocaleDateString('sv-SE')}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteNetworkConsultant(consultant.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+              <Card className="border-l-4 border-l-purple-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <Zap className="h-8 w-8 text-purple-500" />
+                    <div>
+                      <p className="text-2xl font-bold">{totalMatches}</p>
+                      <p className="text-gray-600">Totala matchningar</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-l-4 border-l-orange-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <Activity className="h-8 w-8 text-orange-500" />
+                    <div>
+                      <p className="text-2xl font-bold">{systemUptime}</p>
+                      <p className="text-gray-600">System drifttid</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Snabbåtgärder</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button className="h-16 flex flex-col items-center justify-center">
+                    <Database className="h-5 w-5 mb-1" />
+                    Backup databas
+                  </Button>
+                  <Button variant="outline" className="h-16 flex flex-col items-center justify-center">
+                    <Settings className="h-5 w-5 mb-1" />
+                    Systemunderhåll
+                  </Button>
+                  <Button variant="outline" className="h-16 flex flex-col items-center justify-center">
+                    <Shield className="h-5 w-5 mb-1" />
+                    Säkerhetslogg
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <PlatformHealth />
+              <PerformanceMonitor />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdvancedAnalytics />
+          </TabsContent>
+
+          <TabsContent value="health">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <PlatformHealth />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Systemloggar</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm font-mono bg-gray-900 text-green-400 p-4 rounded-lg max-h-64 overflow-y-auto">
+                    <div>[2024-06-24 14:23:12] INFO: AI matching service operational</div>
+                    <div>[2024-06-24 14:23:11] INFO: Database connection stable</div>
+                    <div>[2024-06-24 14:23:10] INFO: Email service functional</div>
+                    <div>[2024-06-24 14:23:09] INFO: Cache hit rate: 94%</div>
+                    <div>[2024-06-24 14:23:08] INFO: API response time: 156ms</div>
+                    <div>[2024-06-24 14:23:07] INFO: User session created</div>
+                    <div>[2024-06-24 14:23:06] INFO: CV analysis completed</div>
+                    <div>[2024-06-24 14:23:05] INFO: New consultant registered</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="performance">
+            <PerformanceMonitor />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <ReportsOverview 
+              consultants={consultants}
+              assignments={assignments}
+              matches={matches}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

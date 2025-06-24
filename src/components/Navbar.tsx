@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Upload, BarChart3, User, Home } from 'lucide-react';
+import { Menu, X, Upload, BarChart3, User, Home, Shield } from 'lucide-react';
 import Logo from './Logo';
+import { NotificationCenter } from './notifications/NotificationCenter';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +13,9 @@ const Navbar = () => {
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Ladda upp CV', href: '/cv-upload', icon: Upload },
     { name: 'Karriäranalys', href: '/analysis', icon: BarChart3 },
+    { name: 'Rapporter', href: '/reports', icon: BarChart3 },
     { name: 'Min Profil', href: '/my-profile', icon: User },
+    { name: 'Admin', href: '/admin', icon: Shield },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -46,10 +49,14 @@ const Navbar = () => {
                 </Link>
               );
             })}
+            
+            {/* Notification Center */}
+            <NotificationCenter />
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center space-x-2">
+            <NotificationCenter />
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
