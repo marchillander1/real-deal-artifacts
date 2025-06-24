@@ -17,16 +17,25 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
   onRestart
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Extract data from the correct structure returned by parse-cv
+  const analysisData = analysisResult.analysisData;
+  const personalInfo = analysisData?.personalInfo || {};
+  const experience = analysisData?.experience || {};
+  const skills = analysisData?.skills || {};
+  
   const [editedData, setEditedData] = useState({
-    full_name: analysisResult.analysisData?.full_name || '',
-    email: analysisResult.analysisData?.email || '',
-    phone: analysisResult.analysisData?.phone || '',
-    title: analysisResult.analysisData?.title || '',
-    personal_tagline: analysisResult.analysisData?.personal_tagline || ''
+    full_name: personalInfo.name || '',
+    email: personalInfo.email || '',
+    phone: personalInfo.phone || '',
+    title: experience.currentRole || '',
+    personal_tagline: analysisData?.analysisInsights?.strengths?.[0] || ''
   });
+  
   const [techSkills, setTechSkills] = useState([
-    ...(analysisResult.analysisData?.tech_stack_primary || []),
-    ...(analysisResult.analysisData?.tech_stack_secondary || [])
+    ...(skills.technical || []),
+    ...(skills.languages || []),
+    ...(skills.tools || [])
   ]);
 
   const handleSave = () => {
@@ -37,11 +46,11 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
   const handleCancel = () => {
     setIsEditing(false);
     setEditedData({
-      full_name: analysisResult.analysisData?.full_name || '',
-      email: analysisResult.analysisData?.email || '',
-      phone: analysisResult.analysisData?.phone || '',
-      title: analysisResult.analysisData?.title || '',
-      personal_tagline: analysisResult.analysisData?.personal_tagline || ''
+      full_name: personalInfo.name || '',
+      email: personalInfo.email || '',
+      phone: personalInfo.phone || '',
+      title: experience.currentRole || '',
+      personal_tagline: analysisData?.analysisInsights?.strengths?.[0] || ''
     });
   };
 
@@ -60,10 +69,10 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
       <Card className="shadow-xl">
         <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
           <CardTitle className="text-3xl font-bold">
-            Bekräfta din profilinformation
+            Confirm Your Profile Information
           </CardTitle>
           <p className="text-lg opacity-90">
-            Granska och redigera informationen som AI:n extraherat från ditt CV
+            Review and edit the information AI extracted from your CV
           </p>
         </CardHeader>
 
@@ -74,7 +83,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-slate-900 flex items-center">
                   <User className="h-5 w-5 mr-2" />
-                  Personlig information
+                  Personal Information
                 </h3>
                 {!isEditing ? (
                   <Button
@@ -84,7 +93,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
                     className="flex items-center"
                   >
                     <Edit2 className="h-4 w-4 mr-2" />
-                    Redigera
+                    Edit
                   </Button>
                 ) : (
                   <div className="flex space-x-2">
@@ -95,7 +104,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
                       className="flex items-center"
                     >
                       <Save className="h-4 w-4 mr-2" />
-                      Spara
+                      Save
                     </Button>
                     <Button
                       variant="outline"
@@ -104,7 +113,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
                       className="flex items-center"
                     >
                       <X className="h-4 w-4 mr-2" />
-                      Avbryt
+                      Cancel
                     </Button>
                   </div>
                 )}
@@ -113,7 +122,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Fullständigt namn
+                    Full Name
                   </label>
                   {isEditing ? (
                     <input
@@ -129,7 +138,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Titel/Roll
+                    Title/Role
                   </label>
                   {isEditing ? (
                     <input
@@ -145,7 +154,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    E-post
+                    Email
                   </label>
                   {isEditing ? (
                     <input
@@ -161,7 +170,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Telefon
+                    Phone
                   </label>
                   {isEditing ? (
                     <input
@@ -171,14 +180,14 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
                       className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   ) : (
-                    <p className="p-3 bg-white rounded-lg border">{editedData.phone || 'Ej angivet'}</p>
+                    <p className="p-3 bg-white rounded-lg border">{editedData.phone || 'Not specified'}</p>
                   )}
                 </div>
               </div>
 
               <div className="mt-4">
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Personlig tagline
+                  Personal Tagline
                 </label>
                 {isEditing ? (
                   <textarea
@@ -189,7 +198,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
                     maxLength={150}
                   />
                 ) : (
-                  <p className="p-3 bg-white rounded-lg border">{editedData.personal_tagline || 'Ingen tagline angiven'}</p>
+                  <p className="p-3 bg-white rounded-lg border">{editedData.personal_tagline || 'No tagline specified'}</p>
                 )}
               </div>
             </div>
@@ -198,7 +207,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
             <div className="bg-slate-50 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center">
                 <Briefcase className="h-5 w-5 mr-2" />
-                Tekniska färdigheter
+                Technical Skills
               </h3>
               
               <div className="flex flex-wrap gap-2 mb-4">
@@ -217,7 +226,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               <div className="flex items-center space-x-2">
                 <input
                   type="text"
-                  placeholder="Lägg till ny teknisk färdighet..."
+                  placeholder="Add new technical skill..."
                   className="flex-1 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
@@ -234,7 +243,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
                     input.value = '';
                   }}
                 >
-                  Lägg till
+                  Add
                 </Button>
               </div>
             </div>
@@ -242,26 +251,26 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
             {/* Experience Summary */}
             <div className="bg-slate-50 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-slate-900 mb-4">
-                Erfarenhetssammanfattning
+                Experience Summary
               </h3>
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-white rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">
-                    {analysisResult.analysisData?.years_of_experience || 0}
+                    {experience.years || 0}
                   </div>
-                  <div className="text-sm text-slate-600">År av erfarenhet</div>
+                  <div className="text-sm text-slate-600">Years of Experience</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
                     {techSkills.length}
                   </div>
-                  <div className="text-sm text-slate-600">Tekniska färdigheter</div>
+                  <div className="text-sm text-slate-600">Technical Skills</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">
-                    {analysisResult.analysisData?.industries?.length || 0}
+                    {analysisData?.workHistory?.length || 0}
                   </div>
-                  <div className="text-sm text-slate-600">Branschområden</div>
+                  <div className="text-sm text-slate-600">Work Experience Entries</div>
                 </div>
               </div>
             </div>
@@ -275,7 +284,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               size="lg"
               className="px-6 py-3"
             >
-              Börja om
+              Start Over
             </Button>
             
             <Button
@@ -283,13 +292,13 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl"
             >
-              Bekräfta och fortsätt till analys
+              Confirm and Continue to Analysis
             </Button>
           </div>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
             <p className="text-sm text-blue-700 text-center">
-              💡 Du kan alltid ändra denna information senare i din profil
+              💡 You can always change this information later in your profile
             </p>
           </div>
         </CardContent>
