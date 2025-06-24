@@ -36,7 +36,7 @@ serve(async (req) => {
     // Convert file to base64
     const fileBuffer = await file.arrayBuffer();
     const fileBytes = new Uint8Array(fileBuffer);
-    const fileBase64 = btoa(String.fromCharCode(...fileBytes));
+    const fileBase64 = btoa(String.fromCharCode.apply(null, Array.from(fileBytes)));
     
     console.log('📝 File converted to base64, length:', fileBase64.length);
 
@@ -46,46 +46,46 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Create enhanced analysis prompt
+    // Create enhanced analysis prompt in English
     const analysisPrompt = `
-Analysera detta CV mycket noggrant och extrahera ALL information enligt JSON-strukturen nedan.
+Analyze this CV very carefully and extract ALL information according to the JSON structure below.
 
 ${personalDescription ? `
-PERSONLIG BESKRIVNING: "${personalDescription}"
-Använd denna för att förbättra analysen av personlighet och karriärmål.
+PERSONAL DESCRIPTION: "${personalDescription}"
+Use this to improve the analysis of personality and career goals.
 ` : ''}
 
-VIKTIGT: Returnera ENDAST giltig JSON utan extra text före eller efter:
+IMPORTANT: Return ONLY valid JSON without any extra text before or after:
 
 {
   "personalInfo": {
-    "name": "Fullständigt namn från CV (ALDRIG 'Not specified')",
-    "email": "Email-adress från CV (ALDRIG 'Not specified')", 
-    "phone": "Telefonnummer från CV",
-    "location": "Stad/plats från CV"
+    "name": "Full name from CV (NEVER 'Not specified')",
+    "email": "Email address from CV (NEVER 'Not specified')", 
+    "phone": "Phone number from CV",
+    "location": "City/location from CV"
   },
   "experience": {
-    "years": "Antal års erfarenhet som heltal",
-    "currentRole": "Nuvarande/senaste roll",
+    "years": "Years of experience as integer",
+    "currentRole": "Current/latest role",
     "level": "Junior/Mid/Senior/Lead"
   },
   "skills": {
-    "technical": ["Lista tekniska färdigheter från CV"],
-    "languages": ["Programmeringsspråk från CV"],
-    "tools": ["Verktyg och plattformar från CV"]
+    "technical": ["List technical skills from CV"],
+    "languages": ["Programming languages from CV"],
+    "tools": ["Tools and platforms from CV"]
   },
   "workHistory": [
-    {"role": "Jobbtitel", "company": "Företag", "period": "Period", "description": "Kort beskrivning"}
+    {"role": "Job title", "company": "Company", "period": "Period", "description": "Short description"}
   ],
   "education": [
-    {"degree": "Examen/utbildning", "school": "Skola/universitet", "year": "År", "field": "Område"}
+    {"degree": "Degree/education", "school": "School/university", "year": "Year", "field": "Field"}
   ],
   "softSkills": {
-    "communicationStyle": "Beskrivning av kommunikationsstil",
-    "leadershipStyle": "Beskrivning av ledarskap", 
-    "workStyle": "Beskrivning av arbetsstil",
-    "values": ["Värderingar"],
-    "personalityTraits": ["Personlighetsdrag"]
+    "communicationStyle": "Description of communication style",
+    "leadershipStyle": "Description of leadership", 
+    "workStyle": "Description of work style",
+    "values": ["Values"],
+    "personalityTraits": ["Personality traits"]
   },
   "scores": {
     "leadership": 4,
@@ -99,17 +99,17 @@ VIKTIGT: Returnera ENDAST giltig JSON utan extra text före eller efter:
     "hourlyRate": {
       "current": 800,
       "optimized": 950,
-      "explanation": "Förklaring av marknadsvärdering"
+      "explanation": "Explanation of market valuation"
     },
-    "competitiveAdvantages": ["Konkurrensfördelar"],
-    "marketDemand": "Bedömning av marknadsnachfrågan",
-    "recommendedFocus": "Rekommendationer för utveckling"
+    "competitiveAdvantages": ["Competitive advantages"],
+    "marketDemand": "Assessment of market demand",
+    "recommendedFocus": "Recommendations for development"
   },
   "analysisInsights": {
-    "strengths": ["Styrkor"],
-    "developmentAreas": ["Utvecklingsområden"],
-    "careerTrajectory": "Beskrivning av karriärbana",
-    "consultingReadiness": "Bedömning av konsultberedskap"
+    "strengths": ["Strengths"],
+    "developmentAreas": ["Development areas"],
+    "careerTrajectory": "Description of career path",
+    "consultingReadiness": "Assessment of consulting readiness"
   }
 }`;
 
@@ -161,8 +161,17 @@ VIKTIGT: Returnera ENDAST giltig JSON utan extra text före eller efter:
         const content = geminiData.candidates[0].content.parts[0].text;
         console.log('📋 Raw response preview:', content.substring(0, 200));
         
-        // Clean and parse JSON
-        const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        // Clean and parse JSON more carefully
+        let cleanContent = content.trim();
+        
+        // Remove markdown code blocks if present
+        if (cleanContent.startsWith('```json')) {
+          cleanContent = cleanContent.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
+        } else if (cleanContent.startsWith('```')) {
+          cleanContent = cleanContent.replace(/```\n?/g, '').replace(/```\n?$/g, '');
+        }
+        
+        // Find JSON boundaries
         const jsonStart = cleanContent.indexOf('{');
         const jsonEnd = cleanContent.lastIndexOf('}') + 1;
         
@@ -176,7 +185,7 @@ VIKTIGT: Returnera ENDAST giltig JSON utan extra text före eller efter:
       } catch (parseError) {
         console.error('❌ JSON parsing failed:', parseError);
         
-        // Enhanced fallback analysis
+        // Provide a structured fallback with proper personal info extraction
         analysis = {
           personalInfo: {
             name: "Professional Consultant",
@@ -234,12 +243,13 @@ VIKTIGT: Returnera ENDAST giltig JSON utan extra text före eller efter:
         };
       }
 
-      // Extract basic contact info for response
+      // Extract and clean personal info from analysis
+      const personalInfo = analysis.personalInfo || {};
       const detectedInfo = {
-        names: [analysis.personalInfo?.name].filter(name => name && name !== 'Not specified'),
-        emails: [analysis.personalInfo?.email].filter(email => email && email !== 'Not specified' && email.includes('@')),
-        phones: [analysis.personalInfo?.phone].filter(phone => phone && phone !== 'Not specified'),
-        locations: analysis.personalInfo?.location ? [analysis.personalInfo.location] : []
+        names: [personalInfo.name].filter(name => name && name !== 'Not specified' && name !== 'Professional Consultant'),
+        emails: [personalInfo.email].filter(email => email && email !== 'Not specified' && email !== 'consultant@example.com' && email.includes('@')),
+        phones: [personalInfo.phone].filter(phone => phone && phone !== 'Not specified' && phone.trim() !== ''),
+        locations: personalInfo.location && personalInfo.location !== 'Not specified' ? [personalInfo.location] : []
       };
 
       console.log('✅ CV analysis completed successfully');
