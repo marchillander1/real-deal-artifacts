@@ -1,13 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { AssignmentsSection } from '@/components/dashboard/AssignmentsSection';
 import { ConsultantsSection } from '@/components/dashboard/ConsultantsSection';
 import { SkillAlertsDialog } from '@/components/SkillAlertsDialog';
 import { Button } from '@/components/ui/button';
 import { toast } from "@/components/ui/use-toast"
-import { Briefcase, Users, Bell } from 'lucide-react';
-import { Assignment } from '@/types/assignment';
-import { Consultant } from '@/types/consultant';
+import { Bell } from 'lucide-react';
+import { Assignment, Consultant } from '@/types/consultant';
 import { supabase } from '@/integrations/supabase/client';
 
 const MatchWiseAI: React.FC = () => {
@@ -48,7 +46,11 @@ const MatchWiseAI: React.FC = () => {
           remote: item.remote_type || 'Remote',
           teamCulture: item.team_culture || '',
           status: item.status || 'open',
-          createdAt: item.created_at
+          createdAt: item.created_at,
+          workload: item.workload || 'Full-time',
+          hourlyRate: item.budget_min || 0,
+          matchedConsultants: 0,
+          industry: item.industry || 'Technology'
         }));
         setAssignments(transformedAssignments);
       }
@@ -84,7 +86,7 @@ const MatchWiseAI: React.FC = () => {
           projects: item.projects_completed || 0,
           rating: item.rating || 5,
           lastActive: item.last_active || 'Today',
-          type: item.type || 'existing',
+          type: item.type === 'existing' ? 'my' : (item.type === 'new' ? 'network' : (item.type as 'my' | 'network' | 'existing' | 'new')),
           roles: item.roles || [],
           values: item.values || [],
           communicationStyle: item.communication_style || '',

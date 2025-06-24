@@ -52,8 +52,8 @@ export interface Consultant {
   linkedin_url?: string;
   thought_leadership_score?: number;
   
-  // Metadata
-  type: 'existing' | 'new';
+  // Metadata - Updated to include my/network types
+  type: 'existing' | 'new' | 'my' | 'network';
   created_at?: string;
   updated_at?: string;
   visibility_status?: string;
@@ -78,12 +78,14 @@ export interface Assignment {
   budget_max?: number;
   budget_currency?: string;
   start_date?: string;
-  remote?: string; // Keep as string to match existing usage
+  remote?: string;
   remote_type?: string;
   location?: string;
   team_size?: string;
   urgency?: string;
   status?: string;
+  hourlyRate?: number;
+  matchedConsultants?: number;
   
   // Team and culture requirements
   teamCulture?: string;
@@ -95,14 +97,15 @@ export interface Assignment {
   teamDynamics?: string;
   team_dynamics?: string;
   leadership_level?: number;
-  leadershipLevel?: number; // Alias for compatibility
+  leadershipLevel?: number;
   
   // Metadata
   created_by?: string;
   created_at?: string;
+  createdAt?: string;
   updated_at?: string;
   client_logo?: string;
-  clientLogo?: string; // Alias for compatibility
+  clientLogo?: string;
 }
 
 export interface Match {

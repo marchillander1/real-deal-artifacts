@@ -30,7 +30,7 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
   const filteredConsultants = consultants.filter(consultant => {
     const matchesSearch = 
       consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      consultant.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      consultant.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       consultant.skills.some(skill => 
         skill.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -51,13 +51,13 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
     }
   };
 
-  const handleFavorite = async (consultantId: string) => {
-    console.log('Adding to favorites:', consultantId);
+  const handleFavorite = async (consultantId: string | number) => {
+    console.log('Adding to favorites:', String(consultantId));
     // TODO: Implement favorites functionality
   };
 
-  const handleContact = async (consultantId: string) => {
-    console.log('Sending contact request:', consultantId);
+  const handleContact = async (consultantId: string | number) => {
+    console.log('Sending contact request:', String(consultantId));
     // TODO: Implement contact request functionality
   };
 
