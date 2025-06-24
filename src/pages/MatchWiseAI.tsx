@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ConsultantAnalysisModal } from "@/components/ConsultantAnalysisModal";
 import { Consultant } from "@/types/consultant";
-import { Assignment } from "@/types/consultant";
+import { Assignment } from "@/types/assignment";
 import { useToast } from "@/hooks/use-toast";
 
 const MatchWiseAI: React.FC = () => {
@@ -83,7 +82,7 @@ const MatchWiseAI: React.FC = () => {
 
   const handleCreateAssignment = (assignmentData: any) => {
     const newAssignment: Assignment = {
-      id: Math.random().toString(),
+      id: Math.random(),
       ...assignmentData,
       status: 'open',
       createdAt: new Date().toISOString()
@@ -105,7 +104,7 @@ const MatchWiseAI: React.FC = () => {
     const mockResults = consultants
       .filter(consultant => {
         // Basic matching logic
-        const hasRequiredSkills = assignment.required_skills?.some(skill => 
+        const hasRequiredSkills = assignment.requiredSkills?.some(skill => 
           consultant.skills.some(consultantSkill => 
             consultantSkill.toLowerCase().includes(skill.toLowerCase())
           )
@@ -452,7 +451,7 @@ We recommend proceeding with this consultant.`;
                   <h3 className="text-lg font-semibold">{assignment.title}</h3>
                   <p className="text-gray-600 mb-2">{assignment.company}</p>
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {assignment.required_skills?.slice(0, 3).map((skill, index) => (
+                    {assignment.requiredSkills?.slice(0, 3).map((skill, index) => (
                       <Badge key={index} variant="secondary">{skill}</Badge>
                     ))}
                   </div>
@@ -676,18 +675,18 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
     title: '',
     company: '',
     description: '',
-    required_skills: [] as string[],
-    team_culture: '',
-    communication_style: '',
-    required_values: [] as string[],
-    start_date: '',
+    requiredSkills: [] as string[],
+    teamCulture: '',
+    communicationStyle: '',
+    requiredValues: [] as string[],
+    startDate: '',
     duration: '',
     workload: '',
-    budget_min: '',
-    budget_max: '',
+    budgetMin: '',
+    budgetMax: '',
     industry: '',
-    team_size: '',
-    remote_type: '',
+    teamSize: '',
+    remoteType: '',
     urgency: 'Medium'
   });
 
@@ -695,10 +694,10 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
   const [currentValue, setCurrentValue] = useState('');
 
   const addSkill = () => {
-    if (currentSkill.trim() && !formData.required_skills.includes(currentSkill.trim())) {
+    if (currentSkill.trim() && !formData.requiredSkills.includes(currentSkill.trim())) {
       setFormData({
         ...formData,
-        required_skills: [...formData.required_skills, currentSkill.trim()]
+        requiredSkills: [...formData.requiredSkills, currentSkill.trim()]
       });
       setCurrentSkill('');
     }
@@ -707,15 +706,15 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
   const removeSkill = (skill: string) => {
     setFormData({
       ...formData,
-      required_skills: formData.required_skills.filter(s => s !== skill)
+      requiredSkills: formData.requiredSkills.filter(s => s !== skill)
     });
   };
 
   const addValue = () => {
-    if (currentValue.trim() && !formData.required_values.includes(currentValue.trim())) {
+    if (currentValue.trim() && !formData.requiredValues.includes(currentValue.trim())) {
       setFormData({
         ...formData,
-        required_values: [...formData.required_values, currentValue.trim()]
+        requiredValues: [...formData.requiredValues, currentValue.trim()]
       });
       setCurrentValue('');
     }
@@ -724,7 +723,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
   const removeValue = (value: string) => {
     setFormData({
       ...formData,
-      required_values: formData.required_values.filter(v => v !== value)
+      requiredValues: formData.requiredValues.filter(v => v !== value)
     });
   };
 
@@ -801,7 +800,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
                   <Button type="button" onClick={addSkill} variant="outline">Add</Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {formData.required_skills.map((skill, index) => (
+                  {formData.requiredSkills.map((skill, index) => (
                     <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeSkill(skill)}>
                       {skill} ✕
                     </Badge>
@@ -828,7 +827,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Team Culture</Label>
-                  <Select value={formData.team_culture} onValueChange={(value) => setFormData({...formData, team_culture: value})}>
+                  <Select value={formData.teamCulture} onValueChange={(value) => setFormData({...formData, teamCulture: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select team culture" />
                     </SelectTrigger>
@@ -843,7 +842,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
                 </div>
                 <div>
                   <Label>Communication Style</Label>
-                  <Select value={formData.communication_style} onValueChange={(value) => setFormData({...formData, communication_style: value})}>
+                  <Select value={formData.communicationStyle} onValueChange={(value) => setFormData({...formData, communicationStyle: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select style" />
                     </SelectTrigger>
@@ -868,7 +867,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
                   <Button type="button" onClick={addValue} variant="outline">Add</Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {formData.required_values.map((value, index) => (
+                  {formData.requiredValues.map((value, index) => (
                     <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeValue(value)}>
                       {value} ✕
                     </Badge>
@@ -889,8 +888,8 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
                   <Label>Start Date</Label>
                   <Input
                     type="date"
-                    value={formData.start_date}
-                    onChange={(e) => setFormData({...formData, start_date: e.target.value})}
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({...formData, startDate: e.target.value})}
                   />
                 </div>
                 <div>
@@ -928,22 +927,22 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
                     <Input
                       type="number"
                       placeholder="Min"
-                      value={formData.budget_min}
-                      onChange={(e) => setFormData({...formData, budget_min: e.target.value})}
+                      value={formData.budgetMin}
+                      onChange={(e) => setFormData({...formData, budgetMin: e.target.value})}
                     />
                     <Input
                       type="number"
                       placeholder="Max"
-                      value={formData.budget_max}
-                      onChange={(e) => setFormData({...formData, budget_max: e.target.value})}
+                      value={formData.budgetMax}
+                      onChange={(e) => setFormData({...formData, budgetMax: e.target.value})}
                     />
                   </div>
                 </div>
                 <div>
                   <Label>Team Size</Label>
                   <Input
-                    value={formData.team_size}
-                    onChange={(e) => setFormData({...formData, team_size: e.target.value})}
+                    value={formData.teamSize}
+                    onChange={(e) => setFormData({...formData, teamSize: e.target.value})}
                     placeholder="e.g., 5-10 people"
                   />
                 </div>
@@ -951,7 +950,7 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Remote Work</Label>
-                  <Select value={formData.remote_type} onValueChange={(value) => setFormData({...formData, remote_type: value})}>
+                  <Select value={formData.remoteType} onValueChange={(value) => setFormData({...formData, remoteType: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select remote type" />
                     </SelectTrigger>
