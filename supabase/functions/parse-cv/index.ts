@@ -7,6 +7,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to convert ArrayBuffer to base64 without stack overflow
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 8192; // Process in smaller chunks to avoid stack overflow
+  let result = '';
+  
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.slice(i, i + chunkSize);
+    result += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  
+  return btoa(result);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -33,10 +47,10 @@ serve(async (req) => {
       throw new Error('File too large. Maximum size is 5MB.');
     }
     
-    // Convert file to base64
+    // Convert file to base64 using safe method
     const fileBuffer = await file.arrayBuffer();
-    const fileBytes = new Uint8Array(fileBuffer);
-    const fileBase64 = btoa(String.fromCharCode.apply(null, Array.from(fileBytes)));
+    console.log('📝 Converting file to base64...');
+    const fileBase64 = arrayBufferToBase64(fileBuffer);
     
     console.log('📝 File converted to base64, length:', fileBase64.length);
 
