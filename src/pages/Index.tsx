@@ -40,8 +40,11 @@ const Index = () => {
               <Link to="/dashboard">
                 <Button variant="ghost">Dashboard</Button>
               </Link>
+              <Link to="/demo">
+                <Button variant="outline">Test Our System</Button>
+              </Link>
               <Link to="/cv-upload">
-                <Button>Get Started</Button>
+                <Button>Join Network</Button>
               </Link>
             </div>
           </div>
@@ -63,15 +66,23 @@ const Index = () => {
                   Upload your CV and get matched with opportunities instantly.
                 </p>
                 <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-                  <Link to="/cv-upload">
-                    <Button size="lg" className="w-full sm:w-auto flex items-center gap-2">
-                      Upload Your CV
+                  <Link to="/demo">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto flex items-center gap-2 mr-3">
+                      Test Our System
                       <ArrowRight className="h-5 w-5" />
                     </Button>
                   </Link>
-                  <Link to="/dashboard" className="ml-3">
-                    <Button variant="outline" size="lg" className="w-full sm:w-auto mt-3 sm:mt-0">
-                      View Dashboard
+                  <Link to="/cv-upload">
+                    <Button size="lg" className="w-full sm:w-auto flex items-center gap-2">
+                      Join Network
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                </div>
+                <div className="mt-3">
+                  <Link to="/landing">
+                    <Button variant="ghost" size="sm">
+                      Start Free Trial
                     </Button>
                   </Link>
                 </div>
@@ -120,7 +131,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             <span className="block">Ready to get started?</span>
-            <span className="block text-blue-200">Upload your CV today.</span>
+            <span className="block text-blue-200">Join our network today.</span>
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
             <Link to="/cv-upload">
