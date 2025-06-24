@@ -7,6 +7,7 @@ import Logo from '@/components/Logo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import BookMeetingButton from '@/components/BookMeetingButton';
 
 const Index = () => {
   const { consultants } = useSupabaseConsultantsWithDemo();
@@ -142,9 +143,9 @@ const Index = () => {
                   Connect the right consultants with the perfect assignments using advanced AI technology. 
                   Upload your CV and get matched with opportunities instantly.
                 </p>
-                <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+                <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8 gap-3">
                   <Link to="/demo">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto flex items-center gap-2 mr-3">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto flex items-center gap-2">
                       Test Our System
                       <ArrowRight className="h-5 w-5" />
                     </Button>
@@ -155,6 +156,7 @@ const Index = () => {
                       <ArrowRight className="h-5 w-5" />
                     </Button>
                   </Link>
+                  <BookMeetingButton />
                 </div>
                 <div className="mt-3">
                   <Link to="/landing">
