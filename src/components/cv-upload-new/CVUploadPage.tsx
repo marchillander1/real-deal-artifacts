@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { CVUploadForm } from './CVUploadForm';
 import { AnalysisProgress } from './AnalysisProgress';
+import { AnalysisResults } from './AnalysisResults';
 import { SummaryConfirmation } from './SummaryConfirmation';
 import { ProfilePreview } from './ProfilePreview';
 import { JoinNetworkSuccess } from './JoinNetworkSuccess';
 
-type UploadStep = 'upload' | 'analyzing' | 'summary' | 'preview' | 'success';
+type UploadStep = 'upload' | 'analyzing' | 'results' | 'summary' | 'preview' | 'success';
 
 interface UploadData {
   file: File | null;
@@ -38,6 +39,10 @@ export const CVUploadPage: React.FC = () => {
 
   const handleAnalysisComplete = (result: AnalysisResult) => {
     setAnalysisResult(result);
+    setCurrentStep('results');
+  };
+
+  const handleResultsReview = () => {
     setCurrentStep('summary');
   };
 
@@ -70,6 +75,15 @@ export const CVUploadPage: React.FC = () => {
           <AnalysisProgress
             uploadData={uploadData}
             onComplete={handleAnalysisComplete}
+          />
+        );
+      
+      case 'results':
+        return (
+          <AnalysisResults
+            analysisResult={analysisResult!}
+            onContinue={handleResultsReview}
+            onRestart={handleRestart}
           />
         );
       
@@ -112,13 +126,14 @@ export const CVUploadPage: React.FC = () => {
             {[
               { step: 'upload', label: 'Upload', number: 1 },
               { step: 'analyzing', label: 'Analysis', number: 2 },
-              { step: 'summary', label: 'Confirmation', number: 3 },
-              { step: 'preview', label: 'Preview', number: 4 },
-              { step: 'success', label: 'Complete', number: 5 }
+              { step: 'results', label: 'Results', number: 3 },
+              { step: 'summary', label: 'Confirmation', number: 4 },
+              { step: 'preview', label: 'Preview', number: 5 },
+              { step: 'success', label: 'Complete', number: 6 }
             ].map((stepInfo, index) => {
               const isActive = currentStep === stepInfo.step;
-              const isCompleted = ['upload', 'analyzing', 'summary', 'preview', 'success'].indexOf(currentStep) > 
-                                ['upload', 'analyzing', 'summary', 'preview', 'success'].indexOf(stepInfo.step);
+              const isCompleted = ['upload', 'analyzing', 'results', 'summary', 'preview', 'success'].indexOf(currentStep) > 
+                                ['upload', 'analyzing', 'results', 'summary', 'preview', 'success'].indexOf(stepInfo.step);
               
               return (
                 <React.Fragment key={stepInfo.step}>
@@ -137,7 +152,7 @@ export const CVUploadPage: React.FC = () => {
                     <span className="text-xs mt-1 font-medium">{stepInfo.label}</span>
                   </div>
                   
-                  {index < 4 && (
+                  {index < 5 && (
                     <div className={`w-12 h-0.5 ${
                       isCompleted ? 'bg-green-600' : 'bg-slate-200'
                     }`} />
