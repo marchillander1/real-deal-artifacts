@@ -54,6 +54,58 @@ const Index = () => {
     }
   ];
 
+  const pricingPlans = [
+    {
+      name: 'Basic Plan',
+      price: '€99',
+      period: '/month',
+      description: 'For 1-3 users',
+      features: [
+        'Analyze your own consultants',
+        'AI-driven CV and profile analysis',
+        'Detailed consultant profiles',
+        'Save favorites & download CVs',
+        '1 admin + 2 standard users',
+        'Basic matching algorithms',
+        'Standard report generation',
+        'Email support'
+      ]
+    },
+    {
+      name: 'Team Plan',
+      price: '€199',
+      period: '/month',
+      description: 'For 3-10 users',
+      features: [
+        'Everything in Basic, plus:',
+        'Access to network consultants',
+        'Extended user access (3-10 users)',
+        'Role-based access control',
+        'Advanced AI matching algorithms',
+        'Priority email support',
+        'Export consultant lists',
+        'Advanced analytics & insights'
+      ],
+      popular: true
+    },
+    {
+      name: 'Enterprise',
+      price: '€599',
+      period: '/month',
+      description: 'Unlimited users',
+      features: [
+        'Everything in Team, plus:',
+        'Unlimited searches in consultant database',
+        'Direct access to incoming freelance CVs',
+        'Premium visibility for your assignments',
+        'Full API access & integration capabilities',
+        'Dedicated onboarding & training',
+        'SLA-guaranteed support',
+        'Custom branding options'
+      ]
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Navigation */}
@@ -167,6 +219,117 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Pricing Section */}
+      <div className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Choose the plan that fits your company's needs
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {pricingPlans.map((plan, index) => (
+              <div key={index} className={`bg-white rounded-lg shadow-lg ${plan.popular ? 'ring-2 ring-blue-500' : ''}`}>
+                {plan.popular && (
+                  <div className="bg-blue-500 text-white text-center py-2 rounded-t-lg">
+                    <span className="text-sm font-medium">Most Popular</span>
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                  <p className="mt-2 text-gray-600">{plan.description}</p>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                    <span className="text-gray-600">{plan.period}</span>
+                  </div>
+                  <ul className="mt-6 space-y-3">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <p className="ml-3 text-base text-gray-700">{feature}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    <Link to="/landing">
+                      <Button className="w-full" variant={plan.popular ? "default" : "outline"}>
+                        Get Started
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Benefits Section */}
+      <div className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              Why Choose MatchWise AI?
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Experience the future of consultant matching
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="text-center">
+              <div className="flex items-center justify-center h-16 w-16 rounded-md bg-green-500 text-white mx-auto">
+                <Brain className="h-8 w-8" />
+              </div>
+              <div className="mt-5">
+                <h3 className="text-xl font-medium text-gray-900">
+                  AI-Powered Precision
+                </h3>
+                <p className="mt-2 text-base text-gray-500">
+                  Our advanced AI analyzes skills, experience, and cultural fit to ensure perfect matches every time.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="flex items-center justify-center h-16 w-16 rounded-md bg-blue-500 text-white mx-auto">
+                <Zap className="h-8 w-8" />
+              </div>
+              <div className="mt-5">
+                <h3 className="text-xl font-medium text-gray-900">
+                  Lightning Fast
+                </h3>
+                <p className="mt-2 text-base text-gray-500">
+                  Get matched with relevant opportunities in seconds, not weeks. Speed up your hiring process dramatically.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="flex items-center justify-center h-16 w-16 rounded-md bg-purple-500 text-white mx-auto">
+                <Users className="h-8 w-8" />
+              </div>
+              <div className="mt-5">
+                <h3 className="text-xl font-medium text-gray-900">
+                  Quality Network
+                </h3>
+                <p className="mt-2 text-base text-gray-500">
+                  Access to a carefully curated network of verified professionals with proven track records.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* CTA Section */}
       <div className="bg-blue-600">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
@@ -184,6 +347,47 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800">
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="space-y-4">
+              <Logo size="sm" />
+              <p className="text-gray-300 text-sm">
+                AI-powered consultant matching platform connecting the right professionals with perfect opportunities.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-white font-medium mb-4">Product</h3>
+              <ul className="space-y-2">
+                <li><Link to="/demo" className="text-gray-300 hover:text-white text-sm">Demo</Link></li>
+                <li><Link to="/pricing" className="text-gray-300 hover:text-white text-sm">Pricing</Link></li>
+                <li><Link to="/dashboard" className="text-gray-300 hover:text-white text-sm">Dashboard</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-medium mb-4">For Consultants</h3>
+              <ul className="space-y-2">
+                <li><Link to="/cv-upload" className="text-gray-300 hover:text-white text-sm">Join Network</Link></li>
+                <li><Link to="/my-profile" className="text-gray-300 hover:text-white text-sm">My Profile</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-medium mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li><Link to="/landing" className="text-gray-300 hover:text-white text-sm">About</Link></li>
+                <li><Link to="/landing#contact" className="text-gray-300 hover:text-white text-sm">Contact</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-gray-700">
+            <p className="text-gray-400 text-sm text-center">
+              © 2024 MatchWise AI. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
