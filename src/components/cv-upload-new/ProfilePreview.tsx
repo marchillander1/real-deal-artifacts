@@ -1,8 +1,11 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { User, MapPin, Mail, Phone, Star, Award } from 'lucide-react';
+import { User, MapPin, Mail, Phone, Star, Award, Edit2, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmailNotificationHandler } from '@/components/EmailNotificationHandler';
@@ -23,20 +26,73 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   const { analysisData } = analysisResult;
   const { toast } = useToast();
 
+  // Extract initial data for editing
+  const personalInfo = analysisData?.personalInfo || {};
+  const initialName = personalInfo.name || analysisData?.full_name || 'Professional Consultant';
+  const initialEmail = personalInfo.email || analysisData?.email || 'consultant@example.com';
+  const initialPhone = personalInfo.phone || analysisData?.phone || '+46 70 123 45 67';
+  const initialLocation = personalInfo.location || analysisData?.location || 'Sweden';
+
+  // State for editing contact information
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [editedInfo, setEditedInfo] = useState({
+    name: initialName,
+    email: initialEmail,
+    phone: initialPhone,
+    location: initialLocation
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
+
+  const handleSaveContact = () => {
+    if (!editedInfo.name.trim() || !editedInfo.email.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Name and email are required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Update the analysis data with new contact info
+    if (analysisData.personalInfo) {
+      analysisData.personalInfo = { ...analysisData.personalInfo, ...editedInfo };
+    } else {
+      analysisData.personalInfo = editedInfo;
+    }
+
+    setIsEditingContact(false);
+    toast({
+      title: "Contact Information Updated",
+      description: "Your contact information has been updated",
+      variant: "default",
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditedInfo({
+      name: initialName,
+      email: initialEmail,
+      phone: initialPhone,
+      location: initialLocation
+    });
+    setIsEditingContact(false);
+  };
+
   const handleJoinNetwork = async () => {
     try {
+      setIsJoining(true);
       console.log('🚀 Starting network join process...');
       console.log('Analysis data:', analysisData);
       
-      // Extract personal info from the analysis data
-      const personalInfo = analysisData?.personalInfo || {};
-      const name = personalInfo.name || analysisData?.full_name || 'Professional Consultant';
-      const email = personalInfo.email || analysisData?.email || 'consultant@example.com';
-      const phone = personalInfo.phone || analysisData?.phone || null;
-      const location = personalInfo.location || analysisData?.location || 'Sweden';
+      // Use the current (possibly edited) contact information
+      const name = editedInfo.name;
+      const email = editedInfo.email;
+      const phone = editedInfo.phone;
+      const location = editedInfo.location;
       const title = analysisData?.experience?.currentRole || analysisData?.title || 'Senior Consultant';
       
-      console.log('Extracted info:', { name, email, phone, location, title });
+      console.log('Using contact info:', { name, email, phone, location, title });
       
       // Translate Swedish skills to English for database storage
       const translateSkill = (skill: string): string => {
@@ -146,9 +202,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           market_rate_optimized: analysisData?.marketAnalysis?.hourlyRate?.optimized || 950,
           profile_completeness: 95,
           analysis_results: analysisData,
-          // Store the complete CV analysis data for the analysis modal
           cv_analysis_data: analysisData,
-          // Add roles array for compatibility
           roles: [title]
         })
         .select()
@@ -156,7 +210,6 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
 
       if (consultantError) {
         console.warn('Consultant creation error (non-blocking):', consultantError);
-        // Don't throw here - this is for the network display but shouldn't block the main flow
       } else {
         console.log('Consultant record created:', consultantRecord);
       }
@@ -187,7 +240,6 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         });
       } catch (emailError) {
         console.warn('Email sending failed, but continuing with process:', emailError);
-        // Don't throw here - we want the process to continue even if email fails
       }
 
       // Log successful registration
@@ -221,6 +273,8 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsJoining(false);
     }
   };
 
@@ -242,11 +296,6 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     return translations[skill.toLowerCase()] || skill;
   };
 
-  const personalInfo = analysisData?.personalInfo || {};
-  const name = personalInfo.name || analysisData?.full_name || 'Professional Consultant';
-  const email = personalInfo.email || analysisData?.email || 'email@example.com';
-  const phone = personalInfo.phone || analysisData?.phone || '+46 70 123 45 67';
-  const location = personalInfo.location || analysisData?.location || 'Sweden';
   const title = analysisData?.experience?.currentRole || analysisData?.title || 'Senior Consultant';
   const skills = (analysisData?.skills?.technical || ['Problem Solving', 'Strategic Thinking', 'Project Management']).map(translateSkill);
   const experience = analysisData?.experience?.years || 5;
@@ -273,7 +322,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
               
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                  {name}
+                  {editedInfo.name}
                 </h2>
                 <p className="text-lg text-blue-600 font-semibold mb-3">
                   {title}
@@ -290,7 +339,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
                 <div className="flex items-center gap-4 text-sm text-slate-600">
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    <span>{location}</span>
+                    <span>{editedInfo.location}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Award className="h-4 w-4" />
@@ -311,35 +360,130 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
             )}
           </div>
 
-          {/* Contact Information */}
+          {/* Contact Information - Editable */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-slate-800 mb-3">Contact Information</h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-slate-500" />
-                  <span className="text-sm">{email}</span>
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-slate-800">Contact Information</h3>
+                {!isEditingContact ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditingContact(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancelEdit}
+                      className="flex items-center gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveContact}
+                      disabled={isUpdating}
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      Save
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <Label className="flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4" />
+                    Full Name
+                  </Label>
+                  {isEditingContact ? (
+                    <Input
+                      value={editedInfo.name}
+                      onChange={(e) => setEditedInfo({ ...editedInfo, name: e.target.value })}
+                      placeholder="Enter your full name"
+                    />
+                  ) : (
+                    <p className="text-slate-900 font-medium">{editedInfo.name}</p>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-slate-500" />
-                  <span className="text-sm">{phone}</span>
+
+                <div>
+                  <Label className="flex items-center gap-2 mb-2">
+                    <Mail className="h-4 w-4" />
+                    Email Address
+                  </Label>
+                  {isEditingContact ? (
+                    <Input
+                      type="email"
+                      value={editedInfo.email}
+                      onChange={(e) => setEditedInfo({ ...editedInfo, email: e.target.value })}
+                      placeholder="Enter your email address"
+                    />
+                  ) : (
+                    <p className="text-slate-900 font-medium">{editedInfo.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="flex items-center gap-2 mb-2">
+                    <Phone className="h-4 w-4" />
+                    Phone Number
+                  </Label>
+                  {isEditingContact ? (
+                    <Input
+                      value={editedInfo.phone}
+                      onChange={(e) => setEditedInfo({ ...editedInfo, phone: e.target.value })}
+                      placeholder="Enter your phone number"
+                    />
+                  ) : (
+                    <p className="text-slate-900 font-medium">{editedInfo.phone}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="flex items-center gap-2 mb-2">
+                    <MapPin className="h-4 w-4" />
+                    Location
+                  </Label>
+                  {isEditingContact ? (
+                    <Input
+                      value={editedInfo.location}
+                      onChange={(e) => setEditedInfo({ ...editedInfo, location: e.target.value })}
+                      placeholder="Enter your location"
+                    />
+                  ) : (
+                    <p className="text-slate-900 font-medium">{editedInfo.location}</p>
+                  )}
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-slate-800 mb-3">Profile Status</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-slate-800 mb-4">Profile Status</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600">Visibility:</span>
                   <Badge variant="outline" className="text-green-600 border-green-200">Public</Badge>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600">Availability:</span>
                   <Badge variant="outline" className="text-blue-600 border-blue-200">Available</Badge>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Profile Score:</span>
+                  <span className="text-lg font-bold text-purple-600">95%</span>
+                </div>
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Join Network Button */}
@@ -352,10 +496,11 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
             </p>
             <Button 
               onClick={handleJoinNetwork}
+              disabled={isJoining}
               size="lg"
               className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-3"
             >
-              Join the Network Now
+              {isJoining ? 'Joining Network...' : 'Join the Network Now'}
             </Button>
           </div>
         </CardContent>
