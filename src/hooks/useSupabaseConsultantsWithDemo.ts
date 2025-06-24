@@ -48,7 +48,7 @@ export const useSupabaseConsultantsWithDemo = () => {
         teamFit: consultant.cultural_fit?.toString() || '4',
         adaptability: consultant.adaptability || 4,
         leadership: consultant.leadership || 3,
-        type: consultant.type || 'existing',
+        type: (consultant.type === 'existing' || consultant.type === 'new') ? consultant.type : 'existing',
         // Include analysis data for the analysis modal
         cvAnalysis: consultant.cv_analysis_data || consultant.analysis_results,
         linkedinAnalysis: consultant.linkedin_analysis_data
