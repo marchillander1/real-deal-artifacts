@@ -42,12 +42,17 @@ export const AnalysisResults: React.FC = () => {
 
       if (aiError) throw aiError;
 
-      // Fetch related consultant data
-      const { data: consultant, error: consultantError } = await supabase
-        .from('consultants')
-        .select('*')
-        .eq('id', aiAnalysis.consultant_id || '')
-        .single();
+      // Try to fetch related consultant data if consultant_id exists in analysis_data
+      let consultant = {};
+      const consultantId = aiAnalysis.analysis_data?.consultant_id;
+      if (consultantId) {
+        const { data: consultantData } = await supabase
+          .from('consultants')
+          .select('*')
+          .eq('id', consultantId)
+          .single();
+        consultant = consultantData || {};
+      }
 
       // Fetch user profile if available
       const { data: userProfile } = await supabase
@@ -58,7 +63,7 @@ export const AnalysisResults: React.FC = () => {
 
       setAnalysisData({
         id: analysisId,
-        consultant: consultant || {},
+        consultant: consultant,
         ai_analysis: aiAnalysis,
         user_profile: userProfile || {}
       });
@@ -99,7 +104,7 @@ export const AnalysisResults: React.FC = () => {
   }
 
   const analysis = analysisData.ai_analysis.analysis_data || {};
-  const consultant = analysisData.consultant;
+  const consultant = analysisData.consultant || {};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -125,20 +130,20 @@ export const AnalysisResults: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <h3 className="font-semibold text-slate-900">{consultant?.name || 'Professional'}</h3>
-                <p className="text-slate-600">{consultant?.title || 'Consultant'}</p>
+                <h3 className="font-semibold text-slate-900">{analysis?.full_name || consultant?.name || 'Professional'}</h3>
+                <p className="text-slate-600">{analysis?.title || consultant?.title || 'Consultant'}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-600">{consultant?.email}</span>
+                <span className="text-slate-600">{analysis?.email || consultant?.email || 'Not provided'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-600">{consultant?.phone || 'Not provided'}</span>
+                <span className="text-slate-600">{analysis?.phone || consultant?.phone || 'Not provided'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-600">{consultant?.location || 'Sweden'}</span>
+                <span className="text-slate-600">{analysis?.location || consultant?.location || 'Sweden'}</span>
               </div>
             </div>
           </CardContent>
@@ -155,7 +160,7 @@ export const AnalysisResults: React.FC = () => {
                 <div>
                   <h4 className="font-medium mb-2">Primary Technologies</h4>
                   <div className="flex flex-wrap gap-2">
-                    {(analysis?.skills?.technical || consultant?.primary_tech_stack || []).slice(0, 6).map((skill: string, index: number) => (
+                    {(analysis?.tech_stack_primary || consultant?.primary_tech_stack || ['React', 'TypeScript', 'Node.js']).slice(0, 6).map((skill: string, index: number) => (
                       <Badge key={index} variant="default">{skill}</Badge>
                     ))}
                   </div>
@@ -163,7 +168,7 @@ export const AnalysisResults: React.FC = () => {
                 <div>
                   <h4 className="font-medium mb-2">Tools & Platforms</h4>
                   <div className="flex flex-wrap gap-2">
-                    {(analysis?.skills?.tools || consultant?.secondary_tech_stack || []).slice(0, 6).map((tool: string, index: number) => (
+                    {(analysis?.tech_stack_secondary || consultant?.secondary_tech_stack || ['AWS', 'Docker', 'Git']).slice(0, 6).map((tool: string, index: number) => (
                       <Badge key={index} variant="secondary">{tool}</Badge>
                     ))}
                   </div>
@@ -180,7 +185,7 @@ export const AnalysisResults: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600">Experience Level</span>
-                  <span className="font-semibold">{consultant?.experience_years || 0} years</span>
+                  <span className="font-semibold">{analysis?.years_of_experience || consultant?.experience_years || 5} years</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600">Current Market Rate</span>
@@ -198,69 +203,6 @@ export const AnalysisResults: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Soft Skills & Values */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Soft Skills & Values</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium mb-3">Communication Style</h4>
-                <p className="text-slate-600 mb-4">
-                  {analysis?.softSkills?.communicationStyle || consultant?.communication_style || 'Professional and collaborative approach to communication'}
-                </p>
-                <h4 className="font-medium mb-3">Work Style</h4>
-                <p className="text-slate-600">
-                  {analysis?.softSkills?.workStyle || consultant?.work_style || 'Structured and goal-oriented with focus on quality delivery'}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-3">Core Values</h4>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {(analysis?.softSkills?.values || consultant?.values || ['Quality', 'Innovation', 'Teamwork']).map((value: string, index: number) => (
-                    <Badge key={index} variant="outline">{value}</Badge>
-                  ))}
-                </div>
-                <h4 className="font-medium mb-3">Personality Traits</h4>
-                <div className="flex flex-wrap gap-2">
-                  {(analysis?.softSkills?.personalityTraits || consultant?.personality_traits || ['Analytical', 'Problem-solver']).map((trait: string, index: number) => (
-                    <Badge key={index} variant="outline">{trait}</Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Market Analysis */}
-        {analysis?.marketAnalysis && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Market Analysis & Recommendations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Competitive Advantages</h4>
-                  <ul className="list-disc list-inside text-slate-600 space-y-1">
-                    {(analysis.marketAnalysis.competitiveAdvantages || []).map((advantage: string, index: number) => (
-                      <li key={index}>{advantage}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Recommended Focus Areas</h4>
-                  <p className="text-slate-600">{analysis.marketAnalysis.recommendedFocus}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Action Buttons */}
         <div className="text-center space-y-4">
