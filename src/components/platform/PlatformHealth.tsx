@@ -6,8 +6,27 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle, AlertCircle, Clock, Database, Wifi, Zap } from 'lucide-react';
 
+interface HealthStatusData {
+  database: {
+    status: string;
+    responseTime: string;
+    connections: string;
+  };
+  ai: {
+    status: string;
+    responseTime: string;
+    accuracy: string;
+  };
+  platform: {
+    status: string;
+    uptime: string;
+    loadTime: string;
+  };
+  lastUpdated: string;
+}
+
 export const PlatformHealth: React.FC = () => {
-  const { data: healthStatus = {}, isLoading } = useQuery({
+  const { data: healthStatus, isLoading } = useQuery<HealthStatusData>({
     queryKey: ['platform-health'],
     queryFn: async () => {
       try {
@@ -78,7 +97,7 @@ export const PlatformHealth: React.FC = () => {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || !healthStatus) {
     return (
       <Card>
         <CardHeader>
@@ -117,13 +136,13 @@ export const PlatformHealth: React.FC = () => {
             <div>
               <p className="font-medium">Databas</p>
               <p className="text-xs text-gray-500">
-                Svarstid: {healthStatus.database?.responseTime || 'N/A'}
+                Svarstid: {healthStatus.database.responseTime}
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            {getStatusIcon(healthStatus.database?.status)}
-            {getStatusBadge(healthStatus.database?.status)}
+            {getStatusIcon(healthStatus.database.status)}
+            {getStatusBadge(healthStatus.database.status)}
           </div>
         </div>
 
@@ -134,13 +153,13 @@ export const PlatformHealth: React.FC = () => {
             <div>
               <p className="font-medium">AI-tjänster</p>
               <p className="text-xs text-gray-500">
-                Noggrannhet: {healthStatus.ai?.accuracy || 'N/A'}
+                Noggrannhet: {healthStatus.ai.accuracy}
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            {getStatusIcon(healthStatus.ai?.status)}
-            {getStatusBadge(healthStatus.ai?.status)}
+            {getStatusIcon(healthStatus.ai.status)}
+            {getStatusBadge(healthStatus.ai.status)}
           </div>
         </div>
 
@@ -151,13 +170,13 @@ export const PlatformHealth: React.FC = () => {
             <div>
               <p className="font-medium">Plattform</p>
               <p className="text-xs text-gray-500">
-                Drifttid: {healthStatus.platform?.uptime || 'N/A'}
+                Drifttid: {healthStatus.platform.uptime}
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            {getStatusIcon(healthStatus.platform?.status)}
-            {getStatusBadge(healthStatus.platform?.status)}
+            {getStatusIcon(healthStatus.platform.status)}
+            {getStatusBadge(healthStatus.platform.status)}
           </div>
         </div>
 
