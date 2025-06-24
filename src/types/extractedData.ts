@@ -9,4 +9,9 @@ export interface ExtractedData {
   education: string[];
   workHistory: any[];
   linkedin?: string;
+  // Additional fields for enhanced confirmation
+  yearsOfExperience?: number;
+  currentRole?: string;
+  industries?: string[];
+  certifications?: string[];
 }
