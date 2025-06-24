@@ -44,7 +44,8 @@ export const AnalysisResults: React.FC = () => {
 
       // Try to fetch related consultant data if consultant_id exists in analysis_data
       let consultant = {};
-      const consultantId = aiAnalysis.analysis_data?.consultant_id;
+      const analysisData = aiAnalysis.analysis_data as any;
+      const consultantId = analysisData?.consultant_id;
       if (consultantId) {
         const { data: consultantData } = await supabase
           .from('consultants')
@@ -103,7 +104,7 @@ export const AnalysisResults: React.FC = () => {
     );
   }
 
-  const analysis = analysisData.ai_analysis.analysis_data || {};
+  const analysis = (analysisData.ai_analysis.analysis_data as any) || {};
   const consultant = analysisData.consultant || {};
 
   return (
