@@ -61,6 +61,28 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
 
       console.log('Profile created:', profileData);
 
+      // Translate Swedish skills to English for database storage
+      const translateSkill = (skill: string): string => {
+        const translations: Record<string, string> = {
+          'programvaruteknik': 'Software Engineering',
+          'nätverksanalys': 'Network Analysis',
+          'systemunderhåll': 'System Maintenance',
+          'IT-lösningar': 'IT Solutions',
+          'mjukvaruutveckling': 'Software Development',
+          'databashantering': 'Database Management',
+          'projektledning': 'Project Management',
+          'problemlösning': 'Problem Solving',
+          'teknisk dokumentation': 'Technical Documentation',
+          'kundrelationer': 'Customer Relations',
+          'systemintegration': 'System Integration',
+          'kvalitetssäkring': 'Quality Assurance'
+        };
+        
+        return translations[skill.toLowerCase()] || skill;
+      };
+
+      const translatedSkills = (analysisData?.skills?.technical || []).map(translateSkill);
+
       // Create AI analysis record
       const { data: analysisRecord, error: analysisError } = await supabase
         .from('ai_analysis')
@@ -68,7 +90,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           user_profile_id: profileData.id,
           upload_session_id: analysisResult.sessionId,
           analysis_data: analysisData,
-          tech_stack_primary: analysisData?.skills?.technical || [],
+          tech_stack_primary: translatedSkills || [],
           tech_stack_secondary: analysisData?.skills?.tools || [],
           certifications: analysisData?.education?.certifications || [],
           industries: analysisData?.workHistory?.map((w: any) => w.company) || [],
@@ -93,6 +115,48 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
       }
 
       console.log('Analysis record created:', analysisRecord);
+
+      // Create consultant record for the network
+      const { data: consultantRecord, error: consultantError } = await supabase
+        .from('consultants')
+        .insert({
+          name: name,
+          email: email,
+          phone: phone,
+          location: location,
+          title: title,
+          experience_years: analysisData?.experience?.years || 5,
+          hourly_rate: analysisData?.marketAnalysis?.hourlyRate?.optimized || 950,
+          skills: translatedSkills,
+          primary_tech_stack: translatedSkills,
+          secondary_tech_stack: analysisData?.skills?.tools || [],
+          certifications: analysisData?.education?.certifications || [],
+          industries: analysisData?.workHistory?.map((w: any) => w.company) || [],
+          values: analysisData?.softSkills?.values || [],
+          communication_style: analysisData?.softSkills?.communicationStyle || 'Professional',
+          work_style: analysisData?.softSkills?.workStyle || 'Collaborative',
+          personality_traits: analysisData?.softSkills?.personalityTraits || [],
+          leadership: analysisData?.scores?.leadership || 4,
+          cultural_fit: analysisData?.scores?.culturalFit || 4,
+          adaptability: analysisData?.scores?.adaptability || 4,
+          availability: 'Available',
+          type: 'network',
+          is_published: true,
+          visibility_status: 'public',
+          market_rate_current: analysisData?.marketAnalysis?.hourlyRate?.current || 800,
+          market_rate_optimized: analysisData?.marketAnalysis?.hourlyRate?.optimized || 950,
+          profile_completeness: 95,
+          analysis_results: analysisData
+        })
+        .select()
+        .single();
+
+      if (consultantError) {
+        console.warn('Consultant creation error (non-blocking):', consultantError);
+        // Don't throw here - this is for the network display but shouldn't block the main flow
+      } else {
+        console.log('Consultant record created:', consultantRecord);
+      }
 
       // Publish profile
       const { error: publishError } = await supabase
@@ -131,7 +195,8 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           event_type: 'profile_published',
           event_data: {
             profile_id: profileData.id,
-            analysis_id: analysisRecord.id
+            analysis_id: analysisRecord.id,
+            consultant_id: consultantRecord?.id || null
           }
         });
 
@@ -156,14 +221,31 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     }
   };
 
-  // Extract data for display
+  // Extract data for display with skill translation
+  const translateSkill = (skill: string): string => {
+    const translations: Record<string, string> = {
+      'programvaruteknik': 'Software Engineering',
+      'nätverksanalys': 'Network Analysis',
+      'systemunderhåll': 'System Maintenance',
+      'IT-lösningar': 'IT Solutions',
+      'mjukvaruutveckling': 'Software Development',
+      'databashantering': 'Database Management',
+      'projektledning': 'Project Management',
+      'problemlösning': 'Problem Solving',
+      'teknisk dokumentation': 'Technical Documentation',
+      'kundrelationer': 'Customer Relations'
+    };
+    
+    return translations[skill.toLowerCase()] || skill;
+  };
+
   const personalInfo = analysisData?.personalInfo || {};
   const name = personalInfo.name || analysisData?.full_name || 'Professional Consultant';
   const email = personalInfo.email || analysisData?.email || 'email@example.com';
   const phone = personalInfo.phone || analysisData?.phone || '+46 70 123 45 67';
   const location = personalInfo.location || analysisData?.location || 'Sweden';
   const title = analysisData?.experience?.currentRole || analysisData?.title || 'Senior Consultant';
-  const skills = analysisData?.skills?.technical || ['Problem Solving', 'Strategic Thinking', 'Project Management'];
+  const skills = (analysisData?.skills?.technical || ['Problem Solving', 'Strategic Thinking', 'Project Management']).map(translateSkill);
   const experience = analysisData?.experience?.years || 5;
 
   return (

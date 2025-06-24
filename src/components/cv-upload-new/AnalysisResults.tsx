@@ -25,7 +25,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   
   console.log('Full analysis data in AnalysisResults:', JSON.stringify(analysisData, null, 2));
   
-  // Extract data safely with fallbacks
+  // Extract data safely with fallbacks and translate skills to English
   const personalInfo = analysisData?.personalInfo || {};
   const experience = analysisData?.experience || {};
   const skills = analysisData?.skills || {};
@@ -36,6 +36,32 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   const scores = analysisData?.scores || {};
   const softSkills = analysisData?.softSkills || {};
   
+  // Translate Swedish skills to English
+  const translateSkill = (skill: string): string => {
+    const translations: Record<string, string> = {
+      'programvaruteknik': 'Software Engineering',
+      'nätverksanalys': 'Network Analysis',
+      'systemunderhåll': 'System Maintenance',
+      'IT-lösningar': 'IT Solutions',
+      'mjukvaruutveckling': 'Software Development',
+      'databashantering': 'Database Management',
+      'projektledning': 'Project Management',
+      'problemlösning': 'Problem Solving',
+      'teknisk dokumentation': 'Technical Documentation',
+      'kundrelationer': 'Customer Relations',
+      'systemintegration': 'System Integration',
+      'kvalitetssäkring': 'Quality Assurance',
+      'agile': 'Agile',
+      'scrum': 'Scrum'
+    };
+    
+    return translations[skill.toLowerCase()] || skill;
+  };
+
+  // Translate technical skills to English
+  const technicalSkills = (skills?.technical || ['Software Engineering', 'Network Analysis', 'System Maintenance', 'IT Solutions'])
+    .map(translateSkill);
+
   return (
     <div className="max-w-6xl mx-auto">
       <Card className="shadow-xl">
@@ -110,7 +136,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     Programming Languages & Frameworks
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {(skills?.technical || skills?.languages || ['JavaScript', 'React', 'Node.js', 'Python', 'TypeScript']).slice(0, 10).map((skill: string, index: number) => (
+                    {technicalSkills.slice(0, 10).map((skill: string, index: number) => (
                       <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
                         {skill}
                       </Badge>
@@ -127,7 +153,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   <div className="flex flex-wrap gap-2">
                     {(skills?.tools || ['AWS', 'Docker', 'Git', 'Kubernetes', 'CI/CD']).slice(0, 8).map((tool: string, index: number) => (
                       <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800">
-                        {tool}
+                        {translateSkill(tool)}
                       </Badge>
                     ))}
                   </div>
@@ -184,7 +210,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                           <div className="mt-2 flex flex-wrap gap-1">
                             {work.technologies.slice(0, 4).map((tech: string, techIndex: number) => (
                               <Badge key={techIndex} variant="outline" className="text-xs bg-blue-50">
-                                {tech}
+                                {translateSkill(tech)}
                               </Badge>
                             ))}
                           </div>
