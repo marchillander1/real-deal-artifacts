@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,17 +10,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MatchWiseAIProps {
-  assignments: Assignment[];
-  onMatch: (assignment: Assignment) => void;
-  onAssignmentCreated: (assignment: Assignment) => void;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  assignments?: Assignment[];
+  onMatch?: (assignment: Assignment) => void;
+  onAssignmentCreated?: (assignment: Assignment) => void;
+  onFileUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const MatchWiseAI: React.FC<MatchWiseAIProps> = ({
-  assignments,
-  onMatch,
-  onAssignmentCreated,
-  onFileUpload,
+  assignments = [],
+  onMatch = () => {},
+  onAssignmentCreated = () => {},
+  onFileUpload = () => {},
 }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);

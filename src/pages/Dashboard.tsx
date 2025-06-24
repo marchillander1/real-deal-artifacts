@@ -10,17 +10,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardProps {
-  assignments: Assignment[];
-  onMatch: (assignment: Assignment) => void;
-  onAssignmentCreated: (assignment: Assignment) => void;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  assignments?: Assignment[];
+  onMatch?: (assignment: Assignment) => void;
+  onAssignmentCreated?: (assignment: Assignment) => void;
+  onFileUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
-  assignments,
-  onMatch,
-  onAssignmentCreated,
-  onFileUpload,
+  assignments = [],
+  onMatch = () => {},
+  onAssignmentCreated = () => {},
+  onFileUpload = () => {},
 }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
