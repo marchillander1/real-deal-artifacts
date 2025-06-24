@@ -3,6 +3,7 @@ import { AssignmentsSection } from '@/components/dashboard/AssignmentsSection';
 import { ConsultantsSection } from '@/components/dashboard/ConsultantsSection';
 import { SkillAlertsDialog } from '@/components/SkillAlertsDialog';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from "@/components/ui/use-toast"
 import { Bell } from 'lucide-react';
 import { Assignment } from '@/types/assignment';
@@ -185,13 +186,24 @@ const MatchWiseAI: React.FC = () => {
         </div>
       </div>
 
-      <AssignmentsSection
-        assignments={assignments}
-        onMatch={handleMatchAssignment}
-        consultants={consultants}
-      />
-
-      <ConsultantsSection consultants={consultants} />
+      <Tabs defaultValue="assignments" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="assignments">Assignments</TabsTrigger>
+          <TabsTrigger value="consultants">Consultants</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="assignments" className="space-y-6">
+          <AssignmentsSection
+            assignments={assignments}
+            onMatch={handleMatchAssignment}
+            consultants={consultants}
+          />
+        </TabsContent>
+        
+        <TabsContent value="consultants" className="space-y-6">
+          <ConsultantsSection consultants={consultants} />
+        </TabsContent>
+      </Tabs>
 
       <SkillAlertsDialog isOpen={isSkillAlertsOpen} onClose={() => setIsSkillAlertsOpen(false)} />
     </div>
