@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Brain, FileText, Linkedin, Database, CheckCircle, Loader2, Sparkles, TrendingUp, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -21,63 +20,62 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
   onComplete
 }) => {
   const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState('Förbereder analys...');
+  const [currentStep, setCurrentStep] = useState('Preparing analysis...');
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [analysisInsights, setAnalysisInsights] = useState<string[]>([]);
-  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(180); // 3 minutes
+  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(180);
   const { toast } = useToast();
 
   const steps = [
     { 
       icon: FileText, 
-      label: 'Analyserar CV med Gemini AI', 
+      label: 'Analyzing CV with Gemini AI', 
       key: 'cv', 
       duration: 45000,
-      description: 'Extraherar tekniska färdigheter och erfarenhet'
+      description: 'Extracting technical skills and experience'
     },
     { 
       icon: Linkedin, 
-      label: 'Bearbetar LinkedIn-data', 
+      label: 'Processing LinkedIn data', 
       key: 'linkedin', 
       duration: 30000,
-      description: 'Analyserar professionell närvaro och nätverk'
+      description: 'Analyzing professional presence and network'
     },
     { 
       icon: Brain, 
-      label: 'AI-analys av mjuka värden', 
+      label: 'AI analysis of soft skills', 
       key: 'processing', 
       duration: 35000,
-      description: 'Bedömer kommunikationsstil och ledarskap'
+      description: 'Assessing communication style and leadership'
     },
     { 
       icon: TrendingUp, 
-      label: 'Marknadsvärdering', 
+      label: 'Market valuation', 
       key: 'market', 
       duration: 25000,
-      description: 'Beräknar optimal timpris och konkurrenskraft'
+      description: 'Calculating optimal hourly rate and competitiveness'
     },
     { 
       icon: Database, 
-      label: 'Skapar konsultprofil', 
+      label: 'Creating consultant profile', 
       key: 'database', 
       duration: 15000,
-      description: 'Sparar resultat och förbereder rekommendationer'
+      description: 'Saving results and preparing recommendations'
     }
   ];
 
   const insightMessages = [
-    "🎯 Identifierar dina unika styrkor...",
-    "💡 Analyserar marknadsmöjligheter...",
-    "🚀 Beräknar din utvecklingspotential...",
-    "📊 Jämför med branschstandarder...",
-    "🎪 Skapar personliga rekommendationer...",
-    "✨ Finsliper din profil..."
+    "🎯 Identifying your unique strengths...",
+    "💡 Analyzing market opportunities...",
+    "🚀 Calculating your development potential...",
+    "📊 Comparing with industry standards...",
+    "🎪 Creating personal recommendations...",
+    "✨ Fine-tuning your profile..."
   ];
 
   useEffect(() => {
     performAnalysis();
     
-    // Update insights periodically
     const insightInterval = setInterval(() => {
       if (analysisInsights.length < insightMessages.length) {
         setAnalysisInsights(prev => [
@@ -87,7 +85,6 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       }
     }, 25000);
 
-    // Update estimated time
     const timeInterval = setInterval(() => {
       setEstimatedTimeRemaining(prev => Math.max(0, prev - 1));
     }, 1000);
@@ -100,97 +97,91 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
   const performAnalysis = async () => {
     try {
-      // Step 1: Create upload session
       setProgress(5);
-      setCurrentStep('Förbereder analys...');
+      setCurrentStep('Preparing analysis...');
       
       const sessionToken = crypto.randomUUID();
-      const { data: sessionData, error: sessionError } = await supabase
-        .from('upload_sessions')
-        .insert({
-          session_token: sessionToken,
-          linkedin_url: uploadData.linkedinUrl,
-          personal_tagline: uploadData.personalTagline,
-          gdpr_consent: uploadData.gdprConsent,
-          status: 'processing'
-        })
-        .select()
-        .single();
 
-      if (sessionError) {
-        throw new Error('Kunde inte skapa analyssession');
-      }
-
-      // Step 2: CV Analysis
+      // Step 1: CV Analysis with personal tagline
       setProgress(15);
-      setCurrentStep('Analyserar CV med Gemini AI...');
-      setAnalysisInsights(['🎯 Identifierar dina unika styrkor...']);
+      setCurrentStep('Analyzing CV with Gemini AI...');
+      setAnalysisInsights(['🎯 Identifying your unique strengths...']);
       
       await simulateStepProgress('cv', 15, 35, 45000);
       setCompletedSteps(prev => [...prev, 'cv']);
 
-      // Step 3: LinkedIn Analysis
+      // Step 2: LinkedIn Analysis
       setProgress(40);
-      setCurrentStep('Bearbetar LinkedIn-data...');
+      setCurrentStep('Processing LinkedIn data...');
       
       await simulateStepProgress('linkedin', 40, 55, 30000);
       setCompletedSteps(prev => [...prev, 'linkedin']);
 
-      // Step 4: AI Processing
+      // Step 3: AI Processing
       setProgress(60);
-      setCurrentStep('AI-analys av mjuka värden...');
+      setCurrentStep('AI analysis of soft skills...');
       
       await simulateStepProgress('processing', 60, 75, 35000);
       setCompletedSteps(prev => [...prev, 'processing']);
 
-      // Step 5: Market Analysis
+      // Step 4: Market Analysis
       setProgress(80);
-      setCurrentStep('Marknadsvärdering...');
+      setCurrentStep('Market valuation...');
       
       await simulateStepProgress('market', 80, 90, 25000);
       setCompletedSteps(prev => [...prev, 'market']);
 
-      // Step 6: Database Creation
+      // Step 5: Actual CV Analysis with parse-cv function
       setProgress(95);
-      setCurrentStep('Skapar konsultprofil...');
+      setCurrentStep('Creating consultant profile...');
+      
+      console.log('🚀 Starting CV analysis with personal tagline:', uploadData.personalTagline);
       
       const formData = new FormData();
       formData.append('file', uploadData.file!);
       formData.append('linkedinUrl', uploadData.linkedinUrl);
-      formData.append('personalTagline', uploadData.personalTagline);
-      formData.append('sessionToken', sessionToken);
+      formData.append('personalDescription', uploadData.personalTagline); // Pass personal tagline as description
 
-      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('parse-cv-enhanced', {
+      console.log('📤 Calling parse-cv function with data...');
+
+      const response = await supabase.functions.invoke('parse-cv', {
         body: formData
       });
 
-      if (analysisError) {
-        throw new Error('CV-analys misslyckades');
+      if (response.error) {
+        throw new Error(`CV analysis failed: ${response.error.message}`);
       }
+
+      const result = response.data;
+      
+      if (!result.success) {
+        throw new Error(result.error || 'CV analysis failed');
+      }
+
+      console.log('✅ CV analysis completed:', result.analysis);
 
       setCompletedSteps(prev => [...prev, 'database']);
       setProgress(100);
-      setCurrentStep('Analys slutförd!');
+      setCurrentStep('Analysis completed!');
 
-      // Complete with success message
       setTimeout(() => {
         toast({
-          title: "Analys slutförd! 🎉",
-          description: "Din konsultprofil har skapats med AI-drivna insikter",
+          title: "Analysis completed! 🎉",
+          description: "Your consultant profile has been created with AI-driven insights",
         });
         
         onComplete({
-          sessionId: sessionData.id,
-          profileId: analysisData.profileId,
-          analysisData: analysisData.analysis
+          sessionId: sessionToken,
+          profileId: result.analysis?.personalInfo?.name || 'profile',
+          analysisData: result.analysis
         });
       }, 2000);
 
     } catch (error: any) {
-      console.error('Analysis failed:', error);
+      console.error('❌ Analysis failed:', error);
       toast({
-        title: "Analys misslyckades",
-        description: error.message || "Ett oväntat fel inträffade",
+        title: "Analysis failed",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     }
@@ -232,34 +223,32 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
             </div>
           </div>
           <CardTitle className="text-3xl font-bold mb-4">
-            AI Analyserar Din Profil
+            AI Analyzing Your Profile
           </CardTitle>
           <p className="text-lg opacity-90">
-            Vårt avancerade AI-system analyserar både mjuka och hårda värden för djupgående karriärinsikter
+            Our advanced AI system analyzes both soft and hard skills for deep career insights
           </p>
           
           {estimatedTimeRemaining > 0 && (
             <div className="mt-4 text-sm opacity-75">
-              Beräknad tid kvar: {formatTime(estimatedTimeRemaining)}
+              Estimated time remaining: {formatTime(estimatedTimeRemaining)}
             </div>
           )}
         </CardHeader>
 
         <CardContent className="p-8">
-          {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-slate-700">Analysförlopp</span>
+              <span className="text-sm font-medium text-slate-700">Analysis Progress</span>
               <span className="text-sm font-medium text-slate-700">{Math.round(progress)}%</span>
             </div>
             <Progress value={progress} className="w-full h-4" />
             <p className="text-sm text-slate-600 mt-2 font-medium">{currentStep}</p>
           </div>
 
-          {/* Real-time Insights */}
           {analysisInsights.length > 0 && (
             <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
-              <h4 className="font-semibold text-blue-800 mb-2">🔍 Pågående analys:</h4>
+              <h4 className="font-semibold text-blue-800 mb-2">🔍 Ongoing analysis:</h4>
               <div className="space-y-1">
                 {analysisInsights.map((insight, index) => (
                   <p key={index} className="text-sm text-blue-700 animate-fade-in">
@@ -270,7 +259,6 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
             </div>
           )}
 
-          {/* Analysis Steps */}
           <div className="space-y-4">
             {steps.map((step, index) => {
               const Icon = step.icon;
@@ -313,7 +301,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
                       {step.description}
                     </p>
                     <p className="text-xs mt-1 font-medium">
-                      {isCompleted ? '✅ Slutförd' : isActive ? '⏳ Pågår...' : '⏸️ Väntar'}
+                      {isCompleted ? '✅ Completed' : isActive ? '⏳ In progress...' : '⏸️ Waiting'}
                     </p>
                   </div>
                   {isActive && (
@@ -326,43 +314,42 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
             })}
           </div>
 
-          {/* What's Being Analyzed */}
           <div className="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200">
             <h4 className="font-semibold text-indigo-800 mb-3 flex items-center">
               <Target className="h-5 w-5 mr-2" />
-              Vad analyseras just nu:
+              What's being analyzed right now:
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-indigo-700">
               <div>
-                <strong>Tekniska färdigheter:</strong>
+                <strong>Technical skills:</strong>
                 <ul className="mt-1 space-y-1">
-                  <li>• Programmeringsspråk & ramverk</li>
-                  <li>• Certifieringar & utbildning</li>
-                  <li>• Projektexempel & portfölj</li>
+                  <li>• Programming languages & frameworks</li>
+                  <li>• Certifications & education</li>
+                  <li>• Project examples & portfolio</li>
                 </ul>
               </div>
               <div>
-                <strong>Mjuka värden:</strong>
+                <strong>Soft skills:</strong>
                 <ul className="mt-1 space-y-1">
-                  <li>• Kommunikationsstil</li>
-                  <li>• Ledarskapsförmåga</li>
-                  <li>• Teamwork & kulturell passform</li>
+                  <li>• Communication style</li>
+                  <li>• Leadership abilities</li>
+                  <li>• Teamwork & cultural fit</li>
                 </ul>
               </div>
               <div>
-                <strong>Marknadsvärdering:</strong>
+                <strong>Market valuation:</strong>
                 <ul className="mt-1 space-y-1">
-                  <li>• Optimal timpris</li>
-                  <li>• Konkurrensfördelar</li>
-                  <li>• Efterfrågan & trender</li>
+                  <li>• Optimal hourly rate</li>
+                  <li>• Competitive advantages</li>
+                  <li>• Demand & trends</li>
                 </ul>
               </div>
               <div>
-                <strong>Karriärutveckling:</strong>
+                <strong>Career development:</strong>
                 <ul className="mt-1 space-y-1">
-                  <li>• Utvecklingsområden</li>
-                  <li>• Rekommenderade kurser</li>
-                  <li>• Nästa karriärsteg</li>
+                  <li>• Development areas</li>
+                  <li>• Recommended courses</li>
+                  <li>• Next career step</li>
                 </ul>
               </div>
             </div>
@@ -371,7 +358,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           {progress > 80 && (
             <div className="mt-6 p-4 bg-green-50 rounded-xl border border-green-200 animate-fade-in">
               <p className="text-sm text-green-700 text-center font-medium">
-                🎉 Analysen är nästan klar! Förbereder din personliga karriärrapport...
+                🎉 Analysis is almost complete! Preparing your personal career report...
               </p>
             </div>
           )}
