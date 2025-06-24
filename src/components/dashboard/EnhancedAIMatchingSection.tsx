@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ export const EnhancedAIMatchingSection: React.FC<EnhancedAIMatchingSectionProps>
   onSelectConsultant
 }) => {
   const { performAdvancedAiMatching, isMatching, matchResults } = useAdvancedAiMatching();
-  const { data: consultants = [] } = useSupabaseConsultants();
+  const { consultants } = useSupabaseConsultants();
   const [showResults, setShowResults] = useState(false);
 
   const handleAdvancedMatching = async () => {

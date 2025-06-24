@@ -1,4 +1,3 @@
-
 import { Consultant, Assignment } from '@/types/consultant';
 
 interface AdvancedMatchResult {
@@ -193,9 +192,9 @@ const calculateExperienceMatch = (assignment: Assignment, consultant: Consultant
   else if (projectComplexity === 'senior' && consultantYears >= 7) experienceScore += 40;
   else if (projectComplexity === 'expert' && consultantYears >= 10) experienceScore += 45;
   
-  // Relevant project experience
-  if (consultant.projects_completed && consultant.projects_completed > 5) {
-    experienceScore += Math.min(15, consultant.projects_completed);
+  // Relevant project experience - Use correct property name 'projects'
+  if (consultant.projects && consultant.projects > 5) {
+    experienceScore += Math.min(15, consultant.projects);
   }
   
   // Industry-specific experience
@@ -312,7 +311,7 @@ const identifyStrengthAreas = (assignment: Assignment, consultant: Consultant): 
   const strengths: string[] = [];
   
   if (consultant.rating >= 4.5) strengths.push('Hög kundnöjdhet');
-  if (consultant.projects_completed && consultant.projects_completed > 10) {
+  if (consultant.projects && consultant.projects > 10) {
     strengths.push('Omfattande projekterfarenhet');
   }
   if (consultant.certifications && consultant.certifications.length > 2) {
@@ -409,7 +408,7 @@ const calculateSuccessPrediction = (consultant: Consultant, matchScore: number):
   let prediction = matchScore * 0.7;
   
   if (consultant.rating >= 4.5) prediction += 10;
-  if (consultant.projects_completed && consultant.projects_completed > 5) prediction += 10;
+  if (consultant.projects && consultant.projects > 5) prediction += 10;
   
   return Math.min(95, Math.round(prediction));
 };
