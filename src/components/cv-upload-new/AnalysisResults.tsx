@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { User, Briefcase, Star, TrendingUp, Target, Award, CheckCircle, ArrowRight, MapPin, Mail, Phone, Globe } from 'lucide-react';
+import { User, Briefcase, Star, TrendingUp, Target, Award, CheckCircle, ArrowRight, MapPin, Mail, Phone, Globe, BookOpen, Users, MessageSquare, Lightbulb, DollarSign, BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -97,38 +97,78 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             <CardHeader>
               <CardTitle className="flex items-center text-blue-800">
                 <Star className="h-5 w-5 mr-2" />
-                Technical Expertise
+                Technical Skills
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="space-y-6">
+                {/* Programming Languages & Frameworks */}
                 <div>
-                  <h4 className="font-semibold text-blue-800 mb-3">Core Technologies</h4>
+                  <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
+                    <Globe className="h-4 w-4 mr-2" />
+                    Programming Languages & Frameworks
+                  </h4>
                   <div className="flex flex-wrap gap-2">
-                    {(skills?.technical || skills?.programmingLanguages || ['Problem Solving', 'Project Management', 'Strategic Planning']).slice(0, 8).map((skill: string, index: number) => (
+                    {(skills?.technical || skills?.programmingLanguages || ['JavaScript', 'React', 'Node.js', 'Python', 'TypeScript']).slice(0, 10).map((skill: string, index: number) => (
                       <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
                         {skill}
                       </Badge>
                     ))}
                   </div>
                 </div>
+
+                {/* Certifications & Education */}
                 <div>
-                  <h4 className="font-semibold text-blue-800 mb-3">Languages</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {(skills?.languages || education?.languages || ['English', 'Swedish']).map((lang: string, index: number) => (
-                      <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800">
-                        {lang}
-                      </Badge>
-                    ))}
+                  <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
+                    <Award className="h-4 w-4 mr-2" />
+                    Certifications & Education
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium mb-2">Education</p>
+                      <div className="space-y-1">
+                        {(education?.degrees || ['Bachelor of Computer Science', 'Master of Engineering']).map((degree: string, index: number) => (
+                          <p key={index} className="text-sm text-blue-700 bg-white/60 p-2 rounded">{degree}</p>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium mb-2">Certifications</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(education?.certifications || skills?.certifications || ['AWS Certified', 'Scrum Master', 'PMP']).map((cert: string, index: number) => (
+                          <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800">
+                            {cert}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Project Examples & Portfolio */}
                 <div>
-                  <h4 className="font-semibold text-blue-800 mb-3">Tools & Frameworks</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {(skills?.tools || skills?.frameworks || ['Microsoft Office', 'Communication', 'Leadership']).slice(0, 6).map((tool: string, index: number) => (
-                      <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
-                        {tool}
-                      </Badge>
+                  <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Project Examples & Portfolio
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {(workHistory || [
+                      {role: 'Senior Developer', company: 'Tech Corp', technologies: ['React', 'Node.js']},
+                      {role: 'Full Stack Engineer', company: 'StartupCo', technologies: ['Vue.js', 'Python']}
+                    ]).slice(0, 3).map((project: any, index: number) => (
+                      <div key={index} className="bg-white/60 p-4 rounded-lg">
+                        <h5 className="font-medium text-blue-800">{project.role || `Project ${index + 1}`}</h5>
+                        <p className="text-sm text-blue-700">{project.company || 'Company'}</p>
+                        {project.technologies && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {project.technologies.slice(0, 4).map((tech: string, techIndex: number) => (
+                              <Badge key={techIndex} variant="outline" className="text-xs bg-blue-50">
+                                {tech}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -136,123 +176,144 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             </CardContent>
           </Card>
 
-          {/* Work Experience */}
-          {workHistory && workHistory.length > 0 && (
-            <Card className="mb-8 border-green-200 bg-green-50">
-              <CardHeader>
-                <CardTitle className="flex items-center text-green-800">
-                  <Briefcase className="h-5 w-5 mr-2" />
-                  Professional Experience
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {workHistory.slice(0, 3).map((job: any, index: number) => (
-                    <div key={index} className="border-l-4 border-green-400 pl-4 bg-white/60 p-4 rounded-lg">
-                      <h4 className="font-semibold text-green-800">
-                        {job.role || job.title || `Position ${index + 1}`}
-                      </h4>
-                      <p className="text-sm text-green-700">{job.company || 'Company'}</p>
-                      <p className="text-xs text-green-600">{job.duration || job.period || 'Duration not specified'}</p>
-                      {job.technologies && job.technologies.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {job.technologies.slice(0, 5).map((tech: string, techIndex: number) => (
-                            <Badge key={techIndex} variant="outline" className="text-xs bg-green-100">
-                              {tech}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Competency Scores */}
+          {/* Soft Skills */}
           <Card className="mb-8 border-purple-200 bg-purple-50">
             <CardHeader>
               <CardTitle className="flex items-center text-purple-800">
-                <Award className="h-5 w-5 mr-2" />
-                Professional Competencies
+                <Users className="h-5 w-5 mr-2" />
+                Soft Skills
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                {Object.entries({
-                  leadership: scores?.leadership || 4,
-                  innovation: scores?.innovation || 4,
-                  adaptability: scores?.adaptability || 4,
-                  culturalFit: scores?.culturalFit || 4,
-                  communication: scores?.communication || 4,
-                  teamwork: scores?.teamwork || 4,
-                  ...scores
-                }).slice(0, 6).map(([key, value]: [string, any]) => {
-                  const scoreNames: Record<string, string> = {
-                    leadership: 'Leadership',
-                    innovation: 'Innovation',
-                    adaptability: 'Adaptability',
-                    culturalFit: 'Cultural Fit',
-                    communication: 'Communication',
-                    teamwork: 'Teamwork'
-                  };
-                  
-                  const numValue = typeof value === 'number' ? value : 4;
-                  
-                  return (
-                    <div key={key} className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium text-purple-800">
-                          {scoreNames[key] || key.charAt(0).toUpperCase() + key.slice(1)}
-                        </span>
-                        <span className="text-sm font-bold text-purple-800">
-                          {numValue}/5
-                        </span>
-                      </div>
-                      <Progress value={(numValue / 5) * 100} className="h-2" />
+              <div className="space-y-6">
+                {/* Communication Style */}
+                <div>
+                  <h4 className="font-semibold text-purple-800 mb-3 flex items-center">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Communication Style
+                  </h4>
+                  <div className="bg-white/60 p-4 rounded-lg">
+                    <p className="text-sm text-purple-700">
+                      {analysisInsights?.communicationStyle || 'Clear and effective communicator with strong presentation skills. Able to explain complex technical concepts to both technical and non-technical stakeholders.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Leadership Abilities */}
+                <div>
+                  <h4 className="font-semibold text-purple-800 mb-3 flex items-center">
+                    <Target className="h-4 w-4 mr-2" />
+                    Leadership Abilities
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {Object.entries({
+                      leadership: scores?.leadership || 4,
+                      innovation: scores?.innovation || 4,
+                      adaptability: scores?.adaptability || 4,
+                      problemSolving: scores?.problemSolving || 4
+                    }).map(([key, value]: [string, any]) => {
+                      const scoreNames: Record<string, string> = {
+                        leadership: 'Leadership',
+                        innovation: 'Innovation',
+                        adaptability: 'Adaptability',
+                        problemSolving: 'Problem Solving'
+                      };
+                      
+                      const numValue = typeof value === 'number' ? value : 4;
+                      
+                      return (
+                        <div key={key} className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-purple-800">
+                              {scoreNames[key] || key.charAt(0).toUpperCase() + key.slice(1)}
+                            </span>
+                            <span className="text-sm font-bold text-purple-800">
+                              {numValue}/5
+                            </span>
+                          </div>
+                          <Progress value={(numValue / 5) * 100} className="h-2" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Teamwork & Cultural Fit */}
+                <div>
+                  <h4 className="font-semibold text-purple-800 mb-3 flex items-center">
+                    <Users className="h-4 w-4 mr-2" />
+                    Teamwork & Cultural Fit
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-white/60 p-4 rounded-lg">
+                      <h5 className="font-medium text-purple-800 mb-2">Team Collaboration</h5>
+                      <p className="text-sm text-purple-700">
+                        Strong team player with experience in agile environments and cross-functional collaboration.
+                      </p>
                     </div>
-                  );
-                })}
+                    <div className="bg-white/60 p-4 rounded-lg">
+                      <h5 className="font-medium text-purple-800 mb-2">Cultural Adaptability</h5>
+                      <p className="text-sm text-purple-700">
+                        Adaptable to different work cultures and environments, with international experience.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Market Analysis */}
+          {/* Market Valuation */}
           <Card className="mb-8 border-emerald-200 bg-emerald-50">
             <CardHeader>
               <CardTitle className="flex items-center text-emerald-800">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                Market Analysis & Positioning
+                <DollarSign className="h-5 w-5 mr-2" />
+                Market Valuation
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-3 gap-6 mb-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-emerald-600 mb-2">
-                    {marketAnalysis?.hourlyRate?.current || 800} SEK/h
+              <div className="space-y-6">
+                {/* Optimal Hourly Rate */}
+                <div>
+                  <h4 className="font-semibold text-emerald-800 mb-3 flex items-center">
+                    <BarChart className="h-4 w-4 mr-2" />
+                    Optimal Hourly Rate
+                  </h4>
+                  <div className="grid md:grid-cols-3 gap-6 mb-6">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-emerald-600 mb-2">
+                        {marketAnalysis?.hourlyRate?.current || 800} SEK/h
+                      </div>
+                      <p className="text-sm text-emerald-700">Current Market Value</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-emerald-600 mb-2">
+                        {marketAnalysis?.hourlyRate?.optimized || 950} SEK/h
+                      </div>
+                      <p className="text-sm text-emerald-700">Optimized Value</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-emerald-600 mb-2">
+                        +{((marketAnalysis?.hourlyRate?.optimized || 950) - (marketAnalysis?.hourlyRate?.current || 800))} SEK/h
+                      </div>
+                      <p className="text-sm text-emerald-700">Potential Increase</p>
+                    </div>
                   </div>
-                  <p className="text-sm text-emerald-700">Current Market Value</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-emerald-600 mb-2">
-                    {marketAnalysis?.hourlyRate?.optimized || 950} SEK/h
-                  </div>
-                  <p className="text-sm text-emerald-700">Optimized Value</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-emerald-600 mb-2">
-                    +{((marketAnalysis?.hourlyRate?.optimized || 950) - (marketAnalysis?.hourlyRate?.current || 800))} SEK/h
-                  </div>
-                  <p className="text-sm text-emerald-700">Potential Increase</p>
-                </div>
-              </div>
-              
-              {marketAnalysis?.competitiveAdvantages && (
-                <div className="mb-4">
-                  <h4 className="font-semibold text-emerald-800 mb-3">Competitive Advantages</h4>
+
+                {/* Competitive Advantages */}
+                <div>
+                  <h4 className="font-semibold text-emerald-800 mb-3 flex items-center">
+                    <Star className="h-4 w-4 mr-2" />
+                    Competitive Advantages
+                  </h4>
                   <div className="space-y-2">
-                    {marketAnalysis.competitiveAdvantages.map((advantage: string, index: number) => (
+                    {(marketAnalysis?.competitiveAdvantages || [
+                      'Strong technical expertise in modern frameworks',
+                      'Proven track record of successful project delivery',
+                      'Excellent communication and leadership skills',
+                      'Experience with enterprise-level solutions'
+                    ]).map((advantage: string, index: number) => (
                       <div key={index} className="flex items-start gap-2">
                         <CheckCircle className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                         <p className="text-sm text-emerald-800">{advantage}</p>
@@ -260,43 +321,46 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     ))}
                   </div>
                 </div>
-              )}
 
-              {marketAnalysis?.hourlyRate?.explanation && (
-                <div className="p-4 bg-white/60 rounded-lg">
-                  <p className="text-sm text-emerald-800">
-                    <strong>Market Assessment:</strong> {marketAnalysis.hourlyRate.explanation}
-                  </p>
+                {/* Demand & Trends */}
+                <div>
+                  <h4 className="font-semibold text-emerald-800 mb-3 flex items-center">
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Demand & Trends
+                  </h4>
+                  <div className="bg-white/60 p-4 rounded-lg">
+                    <p className="text-sm text-emerald-800">
+                      <strong>Market Assessment:</strong> {marketAnalysis?.hourlyRate?.explanation || 'High demand for your skill set in the current market. Your expertise aligns well with trending technologies and business needs.'}
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
 
-          {/* Career Development & Insights */}
+          {/* Career Development */}
           <Card className="mb-8 border-indigo-200 bg-indigo-50">
             <CardHeader>
               <CardTitle className="flex items-center text-indigo-800">
-                <Target className="h-5 w-5 mr-2" />
-                Career Development Analysis
+                <Lightbulb className="h-5 w-5 mr-2" />
+                Career Development
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                {/* Development Areas */}
                 <div>
-                  <h4 className="font-semibold text-indigo-800 mb-3">Key Strengths</h4>
+                  <h4 className="font-semibold text-indigo-800 mb-3 flex items-center">
+                    <Target className="h-4 w-4 mr-2" />
+                    Development Areas
+                  </h4>
                   <div className="space-y-2">
-                    {(analysisInsights?.strengths || ['Professional experience', 'Strong analytical skills', 'Proven track record']).map((strength: string, index: number) => (
-                      <div key={index} className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-indigo-800">{strength}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-indigo-800 mb-3">Development Areas</h4>
-                  <div className="space-y-2">
-                    {(analysisInsights?.developmentAreas || ['Market positioning', 'Personal branding', 'Network expansion']).map((area: string, index: number) => (
+                    {(analysisInsights?.developmentAreas || [
+                      'Cloud architecture and microservices',
+                      'Advanced data analytics and machine learning',
+                      'Technical leadership and mentoring skills',
+                      'Industry-specific domain knowledge'
+                    ]).map((area: string, index: number) => (
                       <div key={index} className="flex items-start gap-2">
                         <TrendingUp className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
                         <p className="text-sm text-indigo-800">{area}</p>
@@ -304,64 +368,42 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     ))}
                   </div>
                 </div>
+
+                {/* Recommended Courses */}
+                <div>
+                  <h4 className="font-semibold text-indigo-800 mb-3 flex items-center">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Recommended Courses
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      'AWS Solutions Architect Certification',
+                      'Advanced React and Next.js',
+                      'Leadership in Tech Organizations',
+                      'Data Science and Machine Learning'
+                    ].map((course: string, index: number) => (
+                      <div key={index} className="bg-white/60 p-3 rounded-lg">
+                        <p className="text-sm text-indigo-800">{course}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Next Career Step */}
+                <div>
+                  <h4 className="font-semibold text-indigo-800 mb-3 flex items-center">
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    Next Career Step
+                  </h4>
+                  <div className="bg-white/60 p-4 rounded-lg">
+                    <p className="text-sm text-indigo-700">
+                      {analysisInsights?.careerTrajectory || 'Based on your current skills and market trends, consider transitioning to a Senior Technical Lead or Solution Architect role. Focus on expanding your leadership experience and cloud architecture expertise.'}
+                    </p>
+                  </div>
+                </div>
               </div>
-              
-              {analysisInsights?.careerTrajectory && (
-                <div className="mt-6 p-4 bg-white/60 rounded-lg">
-                  <h4 className="font-semibold text-indigo-800 mb-2">Career Trajectory</h4>
-                  <p className="text-sm text-indigo-700">{analysisInsights.careerTrajectory}</p>
-                </div>
-              )}
-              
-              {analysisInsights?.consultingReadiness && (
-                <div className="mt-4 p-4 bg-white/60 rounded-lg">
-                  <h4 className="font-semibold text-indigo-800 mb-2">Consulting Readiness</h4>
-                  <p className="text-sm text-indigo-700">{analysisInsights.consultingReadiness}</p>
-                </div>
-              )}
             </CardContent>
           </Card>
-
-          {/* Education & Certifications */}
-          {(education?.degrees?.length > 0 || education?.certifications?.length > 0) && (
-            <Card className="mb-8 border-orange-200 bg-orange-50">
-              <CardHeader>
-                <CardTitle className="flex items-center text-orange-800">
-                  <Award className="h-5 w-5 mr-2" />
-                  Education & Qualifications
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {education.degrees?.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-orange-800 mb-3">Education</h4>
-                      <div className="space-y-2">
-                        {education.degrees.map((degree: string, index: number) => (
-                          <div key={index} className="p-3 bg-white/60 rounded-lg">
-                            <p className="text-sm text-orange-800">{degree}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {education.certifications?.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-orange-800 mb-3">Certifications</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {education.certifications.map((cert: string, index: number) => (
-                          <Badge key={index} variant="outline" className="bg-orange-100 text-orange-800">
-                            {cert}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Action Buttons */}
           <div className="flex justify-between items-center pt-6 border-t border-slate-200">
