@@ -43,10 +43,12 @@ serve(async (req) => {
             
             <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="color: #1e293b; margin-top: 0;">${consultant.name}</h3>
+              <p><strong>Titel:</strong> ${consultant.title || 'Not specified'}</p>
               <p><strong>Erfarenhet:</strong> ${consultant.experience}</p>
               <p><strong>Rating:</strong> ${consultant.rating}/5 ⭐</p>
               <p><strong>Plats:</strong> ${consultant.location}</p>
               <p><strong>Tillgänglighet:</strong> ${consultant.availability}</p>
+              <p><strong>Pris:</strong> ${consultant.rate}</p>
             </div>
             
             <h4 style="color: #1e293b;">🎯 Matchande färdigheter:</h4>
