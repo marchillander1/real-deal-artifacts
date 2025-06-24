@@ -4,10 +4,11 @@ import { Brain } from 'lucide-react';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
+  variant?: 'full' | 'icon';
   className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 'md', className = '' }) => {
+const Logo: React.FC<LogoProps> = ({ size = 'md', variant = 'full', className = '' }) => {
   const sizeClasses = {
     sm: 'text-lg',
     md: 'text-xl',
@@ -19,6 +20,14 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', className = '' }) => {
     md: 'h-6 w-6',
     lg: 'h-8 w-8'
   };
+
+  if (variant === 'icon') {
+    return (
+      <div className={`bg-blue-600 p-2 rounded-lg ${className}`}>
+        <Brain className={`${iconSizes[size]} text-white`} />
+      </div>
+    );
+  }
 
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
