@@ -5,7 +5,8 @@ import { SkillAlertsDialog } from '@/components/SkillAlertsDialog';
 import { Button } from '@/components/ui/button';
 import { toast } from "@/components/ui/use-toast"
 import { Bell } from 'lucide-react';
-import { Assignment, Consultant } from '@/types/consultant';
+import { Assignment } from '@/types/assignment';
+import { Consultant } from '@/types/consultant';
 import { supabase } from '@/integrations/supabase/client';
 
 const MatchWiseAI: React.FC = () => {
@@ -42,10 +43,10 @@ const MatchWiseAI: React.FC = () => {
           duration: item.duration || '',
           budget: `${item.budget_min || 0}-${item.budget_max || 0} ${item.budget_currency || 'SEK'}`,
           teamSize: item.team_size || '',
-          urgency: item.urgency || 'Medium',
+          urgency: (item.urgency || 'Medium') as "High" | "Medium" | "Low",
           remote: item.remote_type || 'Remote',
           teamCulture: item.team_culture || '',
-          status: item.status || 'open',
+          status: (item.status || 'open') as "open" | "in_progress" | "completed" | "cancelled",
           createdAt: item.created_at,
           workload: item.workload || 'Full-time',
           hourlyRate: item.budget_min || 0,
