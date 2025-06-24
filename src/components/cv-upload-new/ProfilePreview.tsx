@@ -35,8 +35,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           full_name: analysisData?.full_name || 'Konsultnamn',
           email: analysisData?.email || 'email@exempel.se',
           phone: analysisData?.phone || null,
-          title: analys
-Data?.title || 'Senior Konsult',
+          title: analysisData?.title || 'Senior Konsult',
           personal_tagline: analysisData?.personal_tagline || null,
           years_of_experience: analysisData?.years_of_experience || 5,
           availability: 'Available'
