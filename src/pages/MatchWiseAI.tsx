@@ -7,10 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { 
   Upload, Users, TrendingUp, Clock, Plus, Search, Filter, 
   FileText, Star, MapPin, Calendar, DollarSign, User,
-  Brain, Mail, Eye, Award, Bell, Briefcase
+  Brain, Mail, Eye, Award, Bell, Briefcase, Heart, Tag,
+  StickyNote, AlertTriangle, CheckCircle, Zap
 } from "lucide-react";
 import { useSupabaseConsultantsWithDemo } from "@/hooks/useSupabaseConsultantsWithDemo";
 import { useQuery } from '@tanstack/react-query';
@@ -19,6 +22,9 @@ import { ConsultantAnalysisModal } from "@/components/ConsultantAnalysisModal";
 import { Consultant } from "@/types/consultant";
 import { Assignment } from "@/types/assignment";
 import { useToast } from "@/hooks/use-toast";
+import { UserMenu } from "@/components/UserMenu";
+import { SkillAlertsDialog } from "@/components/SkillAlertsDialog";
+import { useAuth } from "@/hooks/useAuth";
 
 const MatchWiseAI: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consultants' | 'assignments'>('dashboard');
@@ -32,9 +38,14 @@ const MatchWiseAI: React.FC = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [matchResults, setMatchResults] = useState<any[]>([]);
   const [showMatchResults, setShowMatchResults] = useState(false);
+  const [showSkillAlerts, setShowSkillAlerts] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [consultantNotes, setConsultantNotes] = useState<{[key: string]: string}>({});
+  const [consultantTags, setConsultantTags] = useState<{[key: string]: string[]}>({});
 
   const { consultants, isLoading } = useSupabaseConsultantsWithDemo();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Fetch matches data for dashboard stats
   const { data: matchesData = [] } = useQuery({
@@ -80,12 +91,69 @@ const MatchWiseAI: React.FC = () => {
     setShowAnalysisModal(true);
   };
 
+  const toggleFavorite = (consultantId: string) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(consultantId)) {
+      newFavorites.delete(consultantId);
+      toast({
+        title: "Removed from favorites",
+        description: "Consultant removed from your favorites",
+      });
+    } else {
+      newFavorites.add(consultantId);
+      toast({
+        title: "Added to favorites",
+        description: "Consultant added to your favorites",
+      });
+    }
+    setFavorites(newFavorites);
+  };
+
+  const updateConsultantNotes = (consultantId: string, notes: string) => {
+    setConsultantNotes(prev => ({
+      ...prev,
+      [consultantId]: notes
+    }));
+  };
+
+  const addConsultantTag = (consultantId: string, tag: string) => {
+    if (!tag.trim()) return;
+    
+    setConsultantTags(prev => ({
+      ...prev,
+      [consultantId]: [...(prev[consultantId] || []), tag.trim()]
+    }));
+  };
+
+  const removeConsultantTag = (consultantId: string, tagToRemove: string) => {
+    setConsultantTags(prev => ({
+      ...prev,
+      [consultantId]: (prev[consultantId] || []).filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const requestContact = async (consultant: Consultant) => {
+    try {
+      // This would typically send a request to the consultant
+      toast({
+        title: "Contact request sent",
+        description: `Your contact request has been sent to ${consultant.name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not send contact request",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCreateAssignment = (assignmentData: any) => {
     const newAssignment: Assignment = {
       id: Math.random(),
       ...assignmentData,
       status: 'open',
-      createdAt: new Date().toISOString()
+      created_at: new Date().toISOString()
     };
     setAssignments([...assignments, newAssignment]);
     setShowCreateAssignment(false);
@@ -217,6 +285,23 @@ We recommend proceeding with this consultant.`;
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div>
+                <p className="font-medium text-blue-900">Skill Alerts</p>
+                <p className="text-sm text-blue-700">
+                  Get notified when consultants with specific skills join the network
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowSkillAlerts(true)}
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                Manage
+              </Button>
+            </div>
+
             {networkConsultants.length > 0 && (
               <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                 <div>
@@ -370,6 +455,11 @@ We recommend proceeding with this consultant.`;
                 consultant={consultant} 
                 onViewAnalysis={handleViewAnalysis}
                 isMyConsultant={true}
+                notes={consultantNotes[consultant.id] || ''}
+                tags={consultantTags[consultant.id] || []}
+                onUpdateNotes={(notes) => updateConsultantNotes(consultant.id, notes)}
+                onAddTag={(tag) => addConsultantTag(consultant.id, tag)}
+                onRemoveTag={(tag) => removeConsultantTag(consultant.id, tag)}
               />
             ))}
           </div>
@@ -410,6 +500,9 @@ We recommend proceeding with this consultant.`;
                 consultant={consultant} 
                 onViewAnalysis={handleViewAnalysis}
                 isMyConsultant={false}
+                isFavorite={favorites.has(consultant.id)}
+                onToggleFavorite={() => toggleFavorite(consultant.id)}
+                onRequestContact={() => requestContact(consultant)}
               />
             ))}
           </div>
@@ -462,7 +555,7 @@ We recommend proceeding with this consultant.`;
                     {assignment.status}
                   </Badge>
                   <p className="text-sm text-gray-500 mt-2">
-                    Created {new Date(assignment.createdAt).toLocaleDateString()}
+                    Created {new Date(assignment.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -500,11 +593,14 @@ We recommend proceeding with this consultant.`;
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900">MatchWise AI Platform</h1>
-          <p className="text-gray-600 mt-1">
-            Match consultants with assignments using advanced AI that analyzes both technical skills and soft factors
-          </p>
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">MatchWise AI Platform</h1>
+            <p className="text-gray-600 mt-1">
+              Match consultants with assignments using advanced AI that analyzes both technical skills and soft factors
+            </p>
+          </div>
+          <UserMenu />
         </div>
       </div>
 
@@ -555,6 +651,12 @@ We recommend proceeding with this consultant.`;
           onClose={() => setShowAnalysisModal(false)}
         />
       )}
+
+      {/* Skill Alerts Dialog */}
+      <SkillAlertsDialog
+        isOpen={showSkillAlerts}
+        onClose={() => setShowSkillAlerts(false)}
+      />
     </div>
   );
 };
@@ -564,9 +666,34 @@ interface ConsultantCardProps {
   consultant: Consultant;
   onViewAnalysis: (consultant: Consultant) => void;
   isMyConsultant: boolean;
+  notes?: string;
+  tags?: string[];
+  onUpdateNotes?: (notes: string) => void;
+  onAddTag?: (tag: string) => void;
+  onRemoveTag?: (tag: string) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
+  onRequestContact?: () => void;
 }
 
-const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, onViewAnalysis, isMyConsultant }) => {
+const ConsultantCard: React.FC<ConsultantCardProps> = ({ 
+  consultant, 
+  onViewAnalysis, 
+  isMyConsultant,
+  notes = '',
+  tags = [],
+  onUpdateNotes,
+  onAddTag,
+  onRemoveTag,
+  isFavorite = false,
+  onToggleFavorite,
+  onRequestContact
+}) => {
+  const [showNotes, setShowNotes] = useState(false);
+  const [showTags, setShowTags] = useState(false);
+  const [newTag, setNewTag] = useState('');
+  const [localNotes, setLocalNotes] = useState(notes);
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -578,6 +705,18 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, onViewAnaly
   };
 
   const hasAnalysisData = consultant.cvAnalysis || consultant.linkedinAnalysis;
+
+  const handleSaveNotes = () => {
+    onUpdateNotes?.(localNotes);
+    setShowNotes(false);
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim()) {
+      onAddTag?.(newTag.trim());
+      setNewTag('');
+    }
+  };
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -599,6 +738,16 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, onViewAnaly
                   AI
                 </Badge>
               )}
+              {!isMyConsultant && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onToggleFavorite}
+                  className={`h-6 w-6 p-0 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
+                >
+                  <Heart className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''}`} />
+                </Button>
+              )}
             </div>
           </div>
           <div className="flex items-center">
@@ -610,15 +759,15 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, onViewAnaly
         <div className="space-y-2 text-xs">
           <div className="flex justify-between">
             <span className="text-gray-600">Experience:</span>
-            <span>{consultant.experience.replace(' experience', '')}</span>
+            <span>{consultant.experience?.replace(' experience', '') || 'N/A'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Rate:</span>
-            <span className="text-green-600 font-medium">{consultant.rate}</span>
+            <span className="text-green-600 font-medium">{consultant.hourly_rate ? `${consultant.hourly_rate} SEK/h` : 'N/A'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Location:</span>
-            <span>{consultant.location}</span>
+            <span>{consultant.location || 'Remote'}</span>
           </div>
         </div>
 
@@ -644,21 +793,120 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({ consultant, onViewAnaly
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-4 pt-3 border-t">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => onViewAnalysis(consultant)}
-            className="text-xs"
-          >
-            <Eye className="h-3 w-3 mr-1" />
-            View Analysis
-          </Button>
-          <Button variant="outline" size="sm" className="text-xs">
-            <Mail className="h-3 w-3 mr-1" />
-            Contact
-          </Button>
-        </div>
+        {/* Tags for My Consultants */}
+        {isMyConsultant && tags.length > 0 && (
+          <div className="mt-3">
+            <p className="text-xs font-medium text-gray-700 mb-1">Tags:</p>
+            <div className="flex flex-wrap gap-1">
+              {tags.map((tag, index) => (
+                <Badge 
+                  key={index} 
+                  variant="outline" 
+                  className="text-xs cursor-pointer"
+                  onClick={() => onRemoveTag?.(tag)}
+                >
+                  <Tag className="h-2 w-2 mr-1" />
+                  {tag} ✕
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* My Consultants Actions */}
+        {isMyConsultant && (
+          <div className="flex justify-between items-center mt-4 pt-3 border-t">
+            <div className="flex gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowNotes(!showNotes)}
+                className="text-xs"
+              >
+                <StickyNote className="h-3 w-3 mr-1" />
+                Notes
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowTags(!showTags)}
+                className="text-xs"
+              >
+                <Tag className="h-3 w-3 mr-1" />
+                Tag
+              </Button>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onViewAnalysis(consultant)}
+              className="text-xs"
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              View
+            </Button>
+          </div>
+        )}
+
+        {/* Network Consultants Actions */}
+        {!isMyConsultant && (
+          <div className="flex justify-between items-center mt-4 pt-3 border-t">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onViewAnalysis(consultant)}
+              className="text-xs"
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              View Analysis
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onRequestContact}
+              className="text-xs"
+            >
+              <Mail className="h-3 w-3 mr-1" />
+              Request Contact
+            </Button>
+          </div>
+        )}
+
+        {/* Notes Section */}
+        {showNotes && isMyConsultant && (
+          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+            <Label className="text-xs">Internal Notes</Label>
+            <Textarea
+              value={localNotes}
+              onChange={(e) => setLocalNotes(e.target.value)}
+              placeholder="Add internal notes about this consultant..."
+              rows={3}
+              className="mt-1 text-xs"
+            />
+            <div className="flex gap-2 mt-2">
+              <Button size="sm" onClick={handleSaveNotes} className="text-xs">Save</Button>
+              <Button size="sm" variant="outline" onClick={() => setShowNotes(false)} className="text-xs">Cancel</Button>
+            </div>
+          </div>
+        )}
+
+        {/* Tags Section */}
+        {showTags && isMyConsultant && (
+          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+            <Label className="text-xs">Add Tag</Label>
+            <div className="flex gap-2 mt-1">
+              <Input
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Add a tag..."
+                className="text-xs"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+              />
+              <Button size="sm" onClick={handleAddTag} className="text-xs">Add</Button>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => setShowTags(false)} className="text-xs mt-2">Done</Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -692,6 +940,52 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
 
   const [currentSkill, setCurrentSkill] = useState('');
   const [currentValue, setCurrentValue] = useState('');
+  const [matchPrediction, setMatchPrediction] = useState<string>('');
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+
+  // Common skills for autocomplete
+  const commonSkills = [
+    'React', 'TypeScript', 'Node.js', 'Python', 'Java', 'AWS', 'Docker', 'Kubernetes',
+    'Angular', 'Vue.js', 'C#', '.NET', 'PostgreSQL', 'MongoDB', 'GraphQL', 'REST API',
+    'Machine Learning', 'Data Science', 'DevOps', 'Scrum', 'Agile', 'Project Management'
+  ];
+
+  // Common values for autocomplete
+  const commonValues = [
+    'Innovation', 'Quality', 'Teamwork', 'Integrity', 'Excellence', 'Collaboration',
+    'Continuous Learning', 'Customer Focus', 'Transparency', 'Diversity', 'Sustainability'
+  ];
+
+  // Update match prediction when form changes
+  const updateMatchPrediction = () => {
+    const filledFields = Object.values(formData).filter(value => 
+      Array.isArray(value) ? value.length > 0 : value !== ''
+    ).length;
+    const totalFields = Object.keys(formData).length;
+    const completeness = (filledFields / totalFields) * 100;
+
+    if (completeness > 80) {
+      setMatchPrediction('High match potential - detailed requirements will help AI find perfect candidates');
+    } else if (completeness > 50) {
+      setMatchPrediction('Good match potential - consider adding more details for better results');
+    } else if (completeness > 25) {
+      setMatchPrediction('Medium match potential - more information needed for optimal matching');
+    } else {
+      setMatchPrediction('Basic information provided - add more details to improve matching accuracy');
+    }
+
+    // Check for missing critical fields
+    const critical = [];
+    if (!formData.title) critical.push('Title');
+    if (!formData.description) critical.push('Description');
+    if (formData.requiredSkills.length === 0) critical.push('Required Skills');
+    if (!formData.budgetMin || !formData.budgetMax) critical.push('Budget Range');
+    setMissingFields(critical);
+  };
+
+  React.useEffect(() => {
+    updateMatchPrediction();
+  }, [formData]);
 
   const addSkill = () => {
     if (currentSkill.trim() && !formData.requiredSkills.includes(currentSkill.trim())) {
@@ -729,12 +1023,22 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (missingFields.length > 0) {
+      return; // Don't submit if critical fields are missing
+    }
     onSubmit(formData);
+  };
+
+  const getPredictionColor = () => {
+    if (matchPrediction.includes('High')) return 'text-green-600';
+    if (matchPrediction.includes('Good')) return 'text-blue-600';
+    if (matchPrediction.includes('Medium')) return 'text-yellow-600';
+    return 'text-gray-600';
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold">Create New Assignment</h2>
@@ -742,251 +1046,373 @@ const CreateAssignmentModal: React.FC<CreateAssignmentModalProps> = ({ onClose, 
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Title *</Label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    placeholder="e.g., Senior Frontend Developer"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Company *</Label>
-                  <Input
-                    value={formData.company}
-                    onChange={(e) => setFormData({...formData, company: e.target.value})}
-                    placeholder="e.g., Spotify"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <Label>Description *</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Detailed description of the role and responsibilities..."
-                  rows={4}
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Technical Requirements */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Technical Requirements</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Required Skills</Label>
-                <div className="flex gap-2 mb-2">
-                  <Input
-                    value={currentSkill}
-                    onChange={(e) => setCurrentSkill(e.target.value)}
-                    placeholder="Add a skill..."
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                  />
-                  <Button type="button" onClick={addSkill} variant="outline">Add</Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {formData.requiredSkills.map((skill, index) => (
-                    <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeSkill(skill)}>
-                      {skill} ✕
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label>Industry</Label>
-                <Input
-                  value={formData.industry}
-                  onChange={(e) => setFormData({...formData, industry: e.target.value})}
-                  placeholder="e.g., Fintech, E-commerce"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Cultural Fit */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Cultural Fit</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Team Culture</Label>
-                  <Select value={formData.teamCulture} onValueChange={(value) => setFormData({...formData, teamCulture: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select team culture" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="collaborative">Collaborative</SelectItem>
-                      <SelectItem value="autonomous">Autonomous</SelectItem>
-                      <SelectItem value="fast-paced">Fast-paced</SelectItem>
-                      <SelectItem value="structured">Structured</SelectItem>
-                      <SelectItem value="innovative">Innovative</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Communication Style</Label>
-                  <Select value={formData.communicationStyle} onValueChange={(value) => setFormData({...formData, communicationStyle: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="direct">Direct</SelectItem>
-                      <SelectItem value="diplomatic">Diplomatic</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                      <SelectItem value="formal">Formal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div>
-                <Label>Required Values</Label>
-                <div className="flex gap-2 mb-2">
-                  <Input
-                    value={currentValue}
-                    onChange={(e) => setCurrentValue(e.target.value)}
-                    placeholder="Add a value..."
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addValue())}
-                  />
-                  <Button type="button" onClick={addValue} variant="outline">Add</Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {formData.requiredValues.map((value, index) => (
-                    <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeValue(value)}>
-                      {value} ✕
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Project Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label>Start Date</Label>
-                  <Input
-                    type="date"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label>Duration</Label>
-                  <Select value={formData.duration} onValueChange={(value) => setFormData({...formData, duration: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select duration" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-3 months">1-3 months</SelectItem>
-                      <SelectItem value="3-6 months">3-6 months</SelectItem>
-                      <SelectItem value="6-12 months">6-12 months</SelectItem>
-                      <SelectItem value="12+ months">12+ months</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Workload</Label>
-                  <Select value={formData.workload} onValueChange={(value) => setFormData({...formData, workload: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select workload" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="100%">100%</SelectItem>
-                      <SelectItem value="75%">75%</SelectItem>
-                      <SelectItem value="50%">50%</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Budget Range (SEK/hour)</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Min"
-                      value={formData.budgetMin}
-                      onChange={(e) => setFormData({...formData, budgetMin: e.target.value})}
-                    />
-                    <Input
-                      type="number"
-                      placeholder="Max"
-                      value={formData.budgetMax}
-                      onChange={(e) => setFormData({...formData, budgetMax: e.target.value})}
+        <div className="grid lg:grid-cols-3 gap-6 p-6">
+          {/* Form - 2/3 width */}
+          <div className="lg:col-span-2 space-y-6">
+            <form onSubmit={handleSubmit}>
+              {/* Basic Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Basic Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Title *</Label>
+                      <Input
+                        value={formData.title}
+                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                        placeholder="e.g., Senior Frontend Developer"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label>Company *</Label>
+                      <Input
+                        value={formData.company}
+                        onChange={(e) => setFormData({...formData, company: e.target.value})}
+                        placeholder="e.g., Spotify"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Description *</Label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      placeholder="Detailed description of the role and responsibilities..."
+                      rows={4}
+                      required
                     />
                   </div>
-                </div>
-                <div>
-                  <Label>Team Size</Label>
-                  <Input
-                    value={formData.teamSize}
-                    onChange={(e) => setFormData({...formData, teamSize: e.target.value})}
-                    placeholder="e.g., 5-10 people"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Remote Work</Label>
-                  <Select value={formData.remoteType} onValueChange={(value) => setFormData({...formData, remoteType: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select remote type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fully-remote">Fully Remote</SelectItem>
-                      <SelectItem value="hybrid">Hybrid</SelectItem>
-                      <SelectItem value="on-site">On-site</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Urgency</Label>
-                  <Select value={formData.urgency} onValueChange={(value) => setFormData({...formData, urgency: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select urgency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="High">High</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="Low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
 
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-              Create Assignment & Start AI Matching
-            </Button>
+              {/* Technical Requirements */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Technical Requirements</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Required Skills *</Label>
+                    <div className="flex gap-2 mb-2">
+                      <Input
+                        value={currentSkill}
+                        onChange={(e) => setCurrentSkill(e.target.value)}
+                        placeholder="Add a skill..."
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                        list="skills-datalist"
+                      />
+                      <datalist id="skills-datalist">
+                        {commonSkills.map(skill => (
+                          <option key={skill} value={skill} />
+                        ))}
+                      </datalist>
+                      <Button type="button" onClick={addSkill} variant="outline">Add</Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.requiredSkills.map((skill, index) => (
+                        <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeSkill(skill)}>
+                          {skill} ✕
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Industry</Label>
+                    <Input
+                      value={formData.industry}
+                      onChange={(e) => setFormData({...formData, industry: e.target.value})}
+                      placeholder="e.g., Fintech, E-commerce"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Cultural Fit */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cultural Fit</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Team Culture</Label>
+                      <Select value={formData.teamCulture} onValueChange={(value) => setFormData({...formData, teamCulture: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select team culture" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="collaborative">Collaborative</SelectItem>
+                          <SelectItem value="autonomous">Autonomous</SelectItem>
+                          <SelectItem value="fast-paced">Fast-paced</SelectItem>
+                          <SelectItem value="structured">Structured</SelectItem>
+                          <SelectItem value="innovative">Innovative</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Communication Style</Label>
+                      <Select value={formData.communicationStyle} onValueChange={(value) => setFormData({...formData, communicationStyle: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select style" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="direct">Direct</SelectItem>
+                          <SelectItem value="diplomatic">Diplomatic</SelectItem>
+                          <SelectItem value="casual">Casual</SelectItem>
+                          <SelectItem value="formal">Formal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Required Values</Label>
+                    <div className="flex gap-2 mb-2">
+                      <Input
+                        value={currentValue}
+                        onChange={(e) => setCurrentValue(e.target.value)}
+                        placeholder="Add a value..."
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addValue())}
+                        list="values-datalist"
+                      />
+                      <datalist id="values-datalist">
+                        {commonValues.map(value => (
+                          <option key={value} value={value} />
+                        ))}
+                      </datalist>
+                      <Button type="button" onClick={addValue} variant="outline">Add</Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.requiredValues.map((value, index) => (
+                        <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeValue(value)}>
+                          {value} ✕
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Project Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Project Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label>Start Date</Label>
+                      <Input
+                        type="date"
+                        value={formData.startDate}
+                        onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Duration</Label>
+                      <Select value={formData.duration} onValueChange={(value) => setFormData({...formData, duration: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select duration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1-3 months">1-3 months</SelectItem>
+                          <SelectItem value="3-6 months">3-6 months</SelectItem>
+                          <SelectItem value="6-12 months">6-12 months</SelectItem>
+                          <SelectItem value="12+ months">12+ months</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Workload</Label>
+                      <Select value={formData.workload} onValueChange={(value) => setFormData({...formData, workload: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select workload" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="100%">100%</SelectItem>
+                          <SelectItem value="75%">75%</SelectItem>
+                          <SelectItem value="50%">50%</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Budget Range (SEK/hour) *</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={formData.budgetMin}
+                          onChange={(e) => setFormData({...formData, budgetMin: e.target.value})}
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={formData.budgetMax}
+                          onChange={(e) => setFormData({...formData, budgetMax: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Team Size</Label>
+                      <Input
+                        value={formData.teamSize}
+                        onChange={(e) => setFormData({...formData, teamSize: e.target.value})}
+                        placeholder="e.g., 5-10 people"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Remote Work</Label>
+                      <Select value={formData.remoteType} onValueChange={(value) => setFormData({...formData, remoteType: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select remote type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="fully-remote">Fully Remote</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
+                          <SelectItem value="on-site">On-site</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Urgency</Label>
+                      <Select value={formData.urgency} onValueChange={(value) => setFormData({...formData, urgency: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select urgency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="High">High</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="Low">Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-end gap-4">
+                <Button type="button" variant="outline" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  disabled={missingFields.length > 0}
+                >
+                  Create Assignment & Start AI Matching
+                </Button>
+              </div>
+            </form>
           </div>
-        </form>
+
+          {/* Preview Panel - 1/3 width */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-6 space-y-4">
+              {/* Match Prediction */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    AI Match Prediction
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className={`text-sm ${getPredictionColor()}`}>
+                    {matchPrediction}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Missing Fields Warning */}
+              {missingFields.length > 0 && (
+                <Card className="border-yellow-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-yellow-700">
+                      <AlertTriangle className="h-5 w-5" />
+                      Missing Critical Fields
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="text-sm text-yellow-700 space-y-1">
+                      {missingFields.map(field => (
+                        <li key={field}>• {field}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Assignment Preview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assignment Preview</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {formData.title && (
+                    <div>
+                      <p className="text-sm font-medium">{formData.title}</p>
+                      {formData.company && (
+                        <p className="text-xs text-gray-600">{formData.company}</p>
+                      )}
+                    </div>
+                  )}
+                  
+                  {formData.requiredSkills.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium mb-1">Skills:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {formData.requiredSkills.slice(0, 5).map(skill => (
+                          <Badge key={skill} variant="secondary" className="text-xs">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {formData.requiredSkills.length > 5 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{formData.requiredSkills.length - 5} more
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {(formData.budgetMin || formData.budgetMax) && (
+                    <div className="flex justify-between text-xs">
+                      <span>Budget:</span>
+                      <span className="font-medium">
+                        {formData.budgetMin && formData.budgetMax 
+                          ? `${formData.budgetMin}-${formData.budgetMax} SEK/h`
+                          : formData.budgetMin ? `${formData.budgetMin}+ SEK/h`
+                          : `Up to ${formData.budgetMax} SEK/h`
+                        }
+                      </span>
+                    </div>
+                  )}
+
+                  {formData.duration && (
+                    <div className="flex justify-between text-xs">
+                      <span>Duration:</span>
+                      <span>{formData.duration}</span>
+                    </div>
+                  )}
+
+                  {formData.remoteType && (
+                    <div className="flex justify-between text-xs">
+                      <span>Work Style:</span>
+                      <span>{formData.remoteType}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
