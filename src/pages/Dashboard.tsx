@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Assignment } from "../types/consultant";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus } from "lucide-react";
+import { Upload, Users, Briefcase, TrendingUp, Clock, Star, Check, Plus, BarChart3 } from "lucide-react";
 import CreateAssignmentForm from "../components/CreateAssignmentForm";
 import { EnhancedConsultantsTab } from "../components/EnhancedConsultantsTab";
 import { useSupabaseConsultantsWithDemo } from "@/hooks/useSupabaseConsultantsWithDemo";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardProps {
   assignments?: Assignment[];
@@ -27,6 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [matchResults, setMatchResults] = useState<any[]>([]);
   const [showMatchResults, setShowMatchResults] = useState(false);
   const { consultants } = useSupabaseConsultantsWithDemo();
+  const navigate = useNavigate();
 
   // Fetch matches data for stats
   const { data: matchesData = [] } = useQuery({
@@ -219,6 +221,38 @@ const Dashboard: React.FC<DashboardProps> = ({
             </CardContent>
           </Card>
         </div>
+
+        {/* Quick Actions */}
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Snabbåtgärder</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Button 
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center justify-center gap-2 h-16 bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus className="h-5 w-5" />
+              Skapa nytt uppdrag
+            </Button>
+            
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/reports')}
+              className="flex items-center justify-center gap-2 h-16 border-2 hover:bg-gray-50"
+            >
+              <BarChart3 className="h-5 w-5" />
+              Visa detaljerade rapporter
+            </Button>
+            
+            <Button 
+              variant="outline"
+              onClick={() => setActiveTab('consultants')}
+              className="flex items-center justify-center gap-2 h-16 border-2 hover:bg-gray-50"
+            >
+              <Users className="h-5 w-5" />
+              Hantera konsulter
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -245,6 +279,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                 onClick={() => setActiveTab('consultants')}
               >
                 Consultants
+              </button>
+              <button 
+                className="font-medium pb-2 text-gray-500 hover:text-gray-700"
+                onClick={() => navigate('/reports')}
+              >
+                Rapporter
               </button>
             </div>
             <div className="flex space-x-3">
