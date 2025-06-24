@@ -63,12 +63,12 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
     ];
     
     if (!validTypes.includes(selectedFile.type)) {
-      errors.push('Endast PDF, DOC eller DOCX filer tillåtna');
+      errors.push('Only PDF, DOC or DOCX files allowed');
     }
     
     // Validate file size (max 10MB)
     if (selectedFile.size > 10 * 1024 * 1024) {
-      errors.push('Filen är för stor (max 10MB)');
+      errors.push('File is too large (max 10MB)');
     }
     
     if (errors.length === 0) {
@@ -91,7 +91,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
     setLinkedinValid(isValid);
     
     if (!isValid && url.includes('linkedin.com')) {
-      setValidationErrors(prev => [...prev.filter(e => !e.includes('LinkedIn')), 'LinkedIn URL format är inkorrekt']);
+      setValidationErrors(prev => [...prev.filter(e => !e.includes('LinkedIn')), 'LinkedIn URL format is incorrect']);
     } else {
       setValidationErrors(prev => prev.filter(e => !e.includes('LinkedIn')));
     }
@@ -134,16 +134,16 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
       <Card className="shadow-xl">
         <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
           <CardTitle className="text-3xl font-bold">
-            Analysera din konsultprofil med AI
+            Analyze your consultant profile with AI
           </CardTitle>
           <p className="text-lg opacity-90">
-            Få djupgående insikter om dina tekniska färdigheter och marknadsvärde
+            Get deep insights into your technical skills and market value
           </p>
           
           {/* Progress indicator */}
           <div className="mt-6">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Profilkomplettering</span>
+              <span className="text-sm font-medium">Profile completion</span>
               <span className="text-sm font-medium">{completeness}%</span>
             </div>
             <Progress value={completeness} className="w-full h-2 bg-white/20" />
@@ -156,7 +156,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
             <div className="bg-red-50 border border-red-200 rounded-xl p-4">
               <div className="flex items-center mb-2">
                 <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-                <span className="text-red-800 font-medium">Korrigera följande fel:</span>
+                <span className="text-red-800 font-medium">Please correct the following errors:</span>
               </div>
               <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
                 {validationErrors.map((error, index) => (
@@ -169,7 +169,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
           {/* CV Upload */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700">
-              Ladda upp ditt CV (PDF eller DOCX) *
+              Upload your CV (PDF or DOCX) *
             </label>
             
             <div
@@ -199,7 +199,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
                     <div>
                       <p className="font-semibold text-green-700">{file.name}</p>
                       <p className="text-sm text-green-600">
-                        {(file.size / (1024 * 1024)).toFixed(1)} MB - Redo för analys
+                        {(file.size / (1024 * 1024)).toFixed(1)} MB - Ready for analysis
                       </p>
                     </div>
                     <CheckCircle className="h-6 w-6 text-green-600" />
@@ -208,10 +208,10 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
                   <div>
                     <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
                     <p className="text-lg font-medium text-slate-700 mb-2">
-                      Dra och släpp ditt CV här
+                      Drag and drop your CV here
                     </p>
                     <p className="text-slate-500">
-                      eller klicka för att bläddra (max 10MB)
+                      or click to browse (max 10MB)
                     </p>
                   </div>
                 )}
@@ -222,7 +222,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
           {/* LinkedIn URL */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700">
-              LinkedIn-profil (rekommenderas för bättre analys)
+              LinkedIn profile (recommended for better analysis)
             </label>
             <div className="relative">
               <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -230,7 +230,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
                 type="url"
                 value={linkedinUrl}
                 onChange={(e) => handleLinkedInChange(e.target.value)}
-                placeholder="https://linkedin.com/in/din-profil"
+                placeholder="https://linkedin.com/in/your-profile"
                 className={`w-full pl-12 pr-12 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
                   linkedinUrl && linkedinValid === false 
                     ? 'border-red-300 bg-red-50' 
@@ -250,29 +250,29 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
               )}
             </div>
             <p className="text-sm text-slate-500">
-              Vi analyserar din LinkedIn-profil för att ge mer omfattande karriärinsikter och marknadsvärdering.
+              We analyze your LinkedIn profile to provide more comprehensive career insights and market valuation.
             </p>
           </div>
 
           {/* Personal Tagline */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700">
-              Personlig tagline (valfritt, förbättrar AI-analysen)
+              Personal tagline (optional, improves AI analysis)
             </label>
             <textarea
               value={personalTagline}
               onChange={(e) => setPersonalTagline(e.target.value.slice(0, 200))}
-              placeholder="Beskriv kort vad som driver dig som konsult och dina karriärmål..."
+              placeholder="Briefly describe what drives you as a consultant and your career goals..."
               className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
               rows={3}
               maxLength={200}
             />
             <div className="flex justify-between items-center">
               <p className="text-sm text-slate-500">
-                En personlig beskrivning hjälper AI:n att ge mer skräddarsydda rekommendationer
+                A personal description helps the AI provide more tailored recommendations
               </p>
               <div className="text-sm text-slate-500">
-                {personalTagline.length}/200 tecken
+                {personalTagline.length}/200 characters
               </div>
             </div>
           </div>
@@ -288,16 +288,16 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
               />
               <div className="text-sm">
                 <label htmlFor="gdpr-consent" className="cursor-pointer font-medium text-slate-700">
-                  Jag godkänner att MatchWise analyserar mitt CV och LinkedIn-profil *
+                  I agree to let MatchWise analyze my CV and LinkedIn profile *
                 </label>
                 <p className="mt-2 text-slate-600">
-                  Genom att markera denna ruta samtycker jag till att MatchWise AI analyserar mitt CV 
-                  och LinkedIn-profil för att skapa en personlig karriärrapport. Dina data behandlas 
-                  enligt vår integritetspolicy och delas aldrig med tredje part utan ditt samtycke.
+                  By checking this box, I consent to MatchWise AI analyzing my CV 
+                  and LinkedIn profile to create a personalized career report. Your data is processed 
+                  according to our privacy policy and never shared with third parties without your consent.
                 </p>
                 <div className="flex items-center mt-3 text-blue-700">
                   <Shield className="h-4 w-4 mr-2" />
-                  <span className="text-sm font-medium">GDPR-kompatibel databehandling</span>
+                  <span className="text-sm font-medium">GDPR-compliant data processing</span>
                 </div>
               </div>
             </div>
@@ -316,32 +316,32 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
               }`}
             >
               {!file 
-                ? 'Ladda upp CV först' 
+                ? 'Upload CV first' 
                 : validationErrors.length > 0
-                ? 'Korrigera fel först'
+                ? 'Fix errors first'
                 : !gdprConsent 
-                ? 'Godkänn databehandling'
-                : 'Starta AI-analys'
+                ? 'Accept data processing'
+                : 'Start AI analysis'
               }
             </Button>
           </div>
 
           {/* Tips Section */}
           <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200">
-            <h4 className="font-semibold text-indigo-800 mb-2">💡 Tips för bästa resultat:</h4>
+            <h4 className="font-semibold text-indigo-800 mb-2">💡 Tips for best results:</h4>
             <ul className="text-sm text-indigo-700 space-y-1">
-              <li>• Använd ditt senaste CV med uppdaterade färdigheter</li>
-              <li>• Inkludera din LinkedIn-profil för djupare analys</li>
-              <li>• Skriv en personlig tagline som beskriver dina mål</li>
-              <li>• Analysen tar 2-3 minuter och är helt automatiserad</li>
+              <li>• Use your latest CV with updated skills</li>
+              <li>• Include your LinkedIn profile for deeper analysis</li>
+              <li>• Write a personal tagline describing your goals</li>
+              <li>• Analysis takes 2-3 minutes and is fully automated</li>
             </ul>
           </div>
 
           {/* Privacy Notice */}
           <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
             <p className="text-sm text-slate-600 text-center">
-              <strong>Integritet:</strong> Dina data används endast för analys och matchning. 
-              De delas aldrig utan ditt godkännande och du kan när som helst begära att de raderas.
+              <strong>Privacy:</strong> Your data is used only for analysis and matching. 
+              It's never shared without your approval and you can request deletion at any time.
             </p>
           </div>
         </CardContent>

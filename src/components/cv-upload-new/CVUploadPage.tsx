@@ -110,11 +110,11 @@ export const CVUploadPage: React.FC = () => {
         <div className="max-w-4xl mx-auto mb-8">
           <div className="flex items-center justify-center space-x-4">
             {[
-              { step: 'upload', label: 'Uppladdning', number: 1 },
-              { step: 'analyzing', label: 'Analys', number: 2 },
-              { step: 'summary', label: 'Bekräftelse', number: 3 },
-              { step: 'preview', label: 'Förhandsvisning', number: 4 },
-              { step: 'success', label: 'Klar', number: 5 }
+              { step: 'upload', label: 'Upload', number: 1 },
+              { step: 'analyzing', label: 'Analysis', number: 2 },
+              { step: 'summary', label: 'Confirmation', number: 3 },
+              { step: 'preview', label: 'Preview', number: 4 },
+              { step: 'success', label: 'Complete', number: 5 }
             ].map((stepInfo, index) => {
               const isActive = currentStep === stepInfo.step;
               const isCompleted = ['upload', 'analyzing', 'summary', 'preview', 'success'].indexOf(currentStep) > 
