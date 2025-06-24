@@ -49,6 +49,7 @@ export interface Consultant {
   // Analysis data
   cvAnalysis?: any;
   linkedinAnalysis?: any;
+  linkedin_url?: string;
   thought_leadership_score?: number;
   
   // Metadata
@@ -60,7 +61,6 @@ export interface Consultant {
   
   // Additional fields
   industries?: string[];
-  linkedin_url?: string;
 }
 
 export interface Assignment {
@@ -73,11 +73,12 @@ export interface Assignment {
   required_skills?: string[];
   duration?: string;
   workload?: string;
+  budget?: string;
   budget_min?: number;
   budget_max?: number;
   budget_currency?: string;
   start_date?: string;
-  remote?: boolean;
+  remote?: string; // Keep as string to match existing usage
   remote_type?: string;
   location?: string;
   team_size?: string;
@@ -94,12 +95,14 @@ export interface Assignment {
   teamDynamics?: string;
   team_dynamics?: string;
   leadership_level?: number;
+  leadershipLevel?: number; // Alias for compatibility
   
   // Metadata
   created_by?: string;
   created_at?: string;
   updated_at?: string;
   client_logo?: string;
+  clientLogo?: string; // Alias for compatibility
 }
 
 export interface Match {

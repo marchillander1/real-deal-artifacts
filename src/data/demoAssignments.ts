@@ -18,12 +18,12 @@ export const demoAssignments: Assignment[] = [
     teamCulture: "Agile, innovative and collaborative culture with focus on continuous improvement",
     industry: "E-commerce",
     status: "open" as const,
-    createdAt: "2024-01-15",
+    created_at: "2024-01-15",
     desiredCommunicationStyle: "Open and transparent communication",
     requiredValues: ["Innovation", "Quality", "Teamwork"],
     teamDynamics: "Close-knit team with flat hierarchies",
-    startDate: "2024-02-01",
-    leadershipLevel: 3
+    start_date: "2024-02-01",
+    leadership_level: 3
   },
   {
     id: 2,
@@ -41,12 +41,12 @@ export const demoAssignments: Assignment[] = [
     teamCulture: "Startup environment with fast decisions and high pace",
     industry: "Fintech",
     status: "open" as const,
-    createdAt: "2024-01-10",
+    created_at: "2024-01-10",
     desiredCommunicationStyle: "Direct and results-focused",
     requiredValues: ["Speed", "Quality", "Innovation"],
     teamDynamics: "Self-organized team with high responsibility",
-    startDate: "2024-01-22",
-    leadershipLevel: 4
+    start_date: "2024-01-22",
+    leadership_level: 4
   },
   {
     id: 3,
@@ -64,12 +64,12 @@ export const demoAssignments: Assignment[] = [
     teamCulture: "Balanced work culture with focus on work-life balance",
     industry: "SaaS/HR Tech",
     status: "open" as const,
-    createdAt: "2024-01-08",
+    created_at: "2024-01-08",
     desiredCommunicationStyle: "Structured and well-planned communication",
     requiredValues: ["Work-life balance", "Quality", "Growth"],
     teamDynamics: "Experienced team with mentorship culture",
-    startDate: "2024-02-15",
-    leadershipLevel: 2
+    start_date: "2024-02-15",
+    leadership_level: 2
   },
   {
     id: 4,
@@ -87,11 +87,11 @@ export const demoAssignments: Assignment[] = [
     teamCulture: "Research-oriented environment with high technical requirements",
     industry: "Automotive/AI",
     status: "open" as const,
-    createdAt: "2024-01-12",
+    created_at: "2024-01-12",
     desiredCommunicationStyle: "Technical depth and analytical",
     requiredValues: ["Innovation", "Precision", "Safety"],
     teamDynamics: "Experts working with cutting-edge technology",
-    startDate: "2024-01-29",
-    leadershipLevel: 5
+    start_date: "2024-01-29",
+    leadership_level: 5
   }
 ];
