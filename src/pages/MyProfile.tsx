@@ -1,37 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Briefcase, 
-  Star, 
-  TrendingUp, 
-  Award, 
-  Target,
-  Edit,
-  Save,
-  ArrowLeft,
-  CheckCircle,
-  Globe,
-  Calendar,
-  DollarSign
-} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+
 import { ProfileEditDialog } from '@/components/profile/ProfileEditDialog';
-import { ProfileHeader } from '@/components/profile/ProfileHeader';
-import { ProfileStats } from '@/components/profile/ProfileStats';
+import { ProfileOverview } from '@/components/profile/ProfileOverview';
+import { ProfileMetrics } from '@/components/profile/ProfileMetrics';
 import { TechnicalSkillsSection } from '@/components/profile/TechnicalSkillsSection';
 import { SoftSkillsSection } from '@/components/profile/SoftSkillsSection';
 import { ExperienceSection } from '@/components/profile/ExperienceSection';
 import { MarketAnalysisSection } from '@/components/profile/MarketAnalysisSection';
 import { CareerInsightsSection } from '@/components/profile/CareerInsightsSection';
+import { QuickActions } from '@/components/profile/QuickActions';
+import { RecentActivity } from '@/components/profile/RecentActivity';
 
 export default function MyProfile() {
   const [searchParams] = useSearchParams();
@@ -151,15 +134,13 @@ export default function MyProfile() {
   if (!consultant) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6 text-center">
-            <h2 className="text-xl font-semibold mb-4">Profil inte hittad</h2>
-            <p className="text-gray-600 mb-4">Kunde inte ladda din profil</p>
-            <Button onClick={() => navigate('/cv-upload')}>
-              Gå tillbaka till CV-uppladdning
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md text-center">
+          <h2 className="text-xl font-semibold mb-4">Profil inte hittad</h2>
+          <p className="text-gray-600 mb-4">Kunde inte ladda din profil</p>
+          <Button onClick={() => navigate('/cv-upload')}>
+            Gå tillbaka till CV-uppladdning
+          </Button>
+        </div>
       </div>
     );
   }
@@ -167,63 +148,61 @@ export default function MyProfile() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Tillbaka
-            </Button>
-            
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline"
-                onClick={handleToggleVisibility}
-                className="flex items-center gap-2"
-              >
-                <Globe className="h-4 w-4" />
-                {consultant.visibility_status === 'public' ? 'Gör privat' : 'Publicera'}
-              </Button>
-              
-              <Button 
-                onClick={() => setIsEditDialogOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <Edit className="h-4 w-4" />
-                Redigera profil
-              </Button>
-            </div>
-          </div>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Tillbaka
+          </Button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          {/* Profile Header */}
-          <ProfileHeader consultant={consultant} />
+          {/* Profile Overview */}
+          <ProfileOverview 
+            consultant={consultant}
+            onEditClick={() => setIsEditDialogOpen(true)}
+            onToggleVisibility={handleToggleVisibility}
+          />
           
-          {/* Profile Stats */}
-          <ProfileStats consultant={consultant} />
+          {/* Profile Metrics */}
+          <ProfileMetrics consultant={consultant} />
           
-          {/* Technical Skills */}
-          <TechnicalSkillsSection consultant={consultant} />
-          
-          {/* Soft Skills & Personal Traits */}
-          <SoftSkillsSection consultant={consultant} />
-          
-          {/* Experience & Background */}
-          <ExperienceSection consultant={consultant} />
-          
-          {/* Market Analysis */}
-          <MarketAnalysisSection consultant={consultant} />
-          
-          {/* Career Insights */}
-          <CareerInsightsSection consultant={consultant} />
+          {/* Two Column Layout */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Content - 2/3 width */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Technical Skills */}
+              <TechnicalSkillsSection consultant={consultant} />
+              
+              {/* Soft Skills & Personal Traits */}
+              <SoftSkillsSection consultant={consultant} />
+              
+              {/* Experience & Background */}
+              <ExperienceSection consultant={consultant} />
+              
+              {/* Market Analysis */}
+              <MarketAnalysisSection consultant={consultant} />
+              
+              {/* Career Insights */}
+              <CareerInsightsSection consultant={consultant} />
+            </div>
+            
+            {/* Sidebar - 1/3 width */}
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <QuickActions consultant={consultant} />
+              
+              {/* Recent Activity */}
+              <RecentActivity consultant={consultant} />
+            </div>
+          </div>
         </div>
       </div>
 
