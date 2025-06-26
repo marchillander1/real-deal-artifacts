@@ -1,10 +1,11 @@
-
-import React from 'react';
-import { User, Briefcase, Star, TrendingUp, Target, Award, CheckCircle, ArrowRight, MapPin, Mail, Phone, Globe, BookOpen, Users, MessageSquare, Lightbulb, DollarSign, BarChart } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Briefcase, Star, TrendingUp, Target, Award, CheckCircle, ArrowRight, MapPin, Mail, Phone, Globe, BookOpen, Users, MessageSquare, Lightbulb, DollarSign, BarChart, Download, Linkedin, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface AnalysisResultsProps {
   analysisResult: {
@@ -21,6 +22,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   onContinue,
   onRestart
 }) => {
+  const [showLinkedInSummary, setShowLinkedInSummary] = useState(false);
   const analysisData = analysisResult.analysisData;
   
   console.log('Full analysis data in AnalysisResults:', JSON.stringify(analysisData, null, 2));
@@ -62,6 +64,90 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   const technicalSkills = (skills?.technical || ['Software Engineering', 'Network Analysis', 'System Maintenance', 'IT Solutions'])
     .map(translateSkill);
 
+  const generateLinkedInSummary = () => {
+    const name = personalInfo?.name || 'Professional Consultant';
+    const role = experience?.currentRole || 'Consultant';
+    const years = experience?.years || 5;
+    const topSkills = technicalSkills.slice(0, 5).join(', ');
+    const strengths = analysisInsights?.strengths?.slice(0, 3).join(', ') || 'Strong technical expertise, proven track record, excellent communication';
+    const careerGoal = analysisInsights?.careerTrajectory || 'Focused on delivering exceptional consulting services and driving business growth';
+    
+    return `🚀 ${role} with ${years}+ years of experience in ${topSkills}
+
+💼 Key Strengths:
+${strengths}
+
+🎯 Career Focus:
+${careerGoal}
+
+📊 Proven track record of delivering high-quality solutions and driving business value. Ready for new consulting opportunities and challenging projects.
+
+#Consulting #${role.replace(/\s+/g, '')} #TechConsultant #Available`;
+  };
+
+  const downloadAnalysis = () => {
+    const analysisText = `
+FULLSTÄNDIG KARRIÄRANALYS
+Generated: ${new Date().toLocaleDateString('sv-SE')}
+
+PERSONLIG INFORMATION
+Namn: ${personalInfo?.name || 'Ej angivet'}
+E-post: ${personalInfo?.email || 'Ej angivet'}
+Telefon: ${personalInfo?.phone || 'Ej angivet'}
+Plats: ${personalInfo?.location || 'Ej angivet'}
+
+YRKESLIVSERFARENHET
+Nuvarande roll: ${experience?.currentRole || 'Ej angivet'}
+År av erfarenhet: ${experience?.years || 0}
+Nivå: ${experience?.level || 'Ej angivet'}
+
+TEKNISKA FÄRDIGHETER
+${technicalSkills.join(', ')}
+
+MJUKA FÄRDIGHETER
+Kommunikationsstil: ${softSkills?.communicationStyle || 'Professionell kommunikation'}
+Ledarskap: ${softSkills?.leadershipStyle || 'Samarbetsinriktad ledarskapsstil'}
+Arbetsstil: ${softSkills?.workStyle || 'Strukturerad och målinriktad'}
+
+MARKNADSANALYS
+Nuvarande timpris: ${marketAnalysis?.hourlyRate?.current || 800} SEK/h
+Optimerat timpris: ${marketAnalysis?.hourlyRate?.optimized || 950} SEK/h
+Potentiell ökning: +${((marketAnalysis?.hourlyRate?.optimized || 950) - (marketAnalysis?.hourlyRate?.current || 800))} SEK/h
+
+KONKURRENSFÖRDELAR
+${(marketAnalysis?.competitiveAdvantages || analysisInsights?.strengths || [
+  'Stark teknisk expertis',
+  'Beprövad track record',
+  'Utmärkta kommunikationsfärdigheter'
+]).join('\n')}
+
+KARRIÄRUTVECKLING
+Styrkor: ${(analysisInsights?.strengths || ['Teknisk expertis', 'Problemlösning', 'Kundrelationer']).join(', ')}
+Utvecklingsområden: ${(analysisInsights?.developmentAreas || ['Marknadspositionering', 'Personlig branding']).join(', ')}
+Karriärbana: ${analysisInsights?.careerTrajectory || 'Stark potential för senior konsultroller'}
+
+REKOMMENDATIONER
+${marketAnalysis?.recommendedFocus || 'Fortsätt utveckla expertis och kundrelationer'}
+`;
+
+    const blob = new Blob([analysisText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `karriäranalys-${personalInfo?.name?.replace(/\s+/g, '-').toLowerCase() || 'analys'}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success('Analys nedladdad!');
+  };
+
+  const copyLinkedInSummary = () => {
+    navigator.clipboard.writeText(generateLinkedInSummary());
+    toast.success('LinkedIn-sammanfattning kopierad!');
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
       <Card className="shadow-xl">
@@ -78,6 +164,61 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         </CardHeader>
 
         <CardContent className="p-8">
+          {/* Download and LinkedIn Summary Buttons */}
+          <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              onClick={downloadAnalysis}
+              variant="outline"
+              size="lg"
+              className="px-6 py-3 bg-blue-50 hover:bg-blue-100 border-blue-200"
+            >
+              <Download className="h-5 w-5 mr-2" />
+              Ladda ner fullständig analys
+            </Button>
+            
+            <Button
+              onClick={() => setShowLinkedInSummary(!showLinkedInSummary)}
+              variant="outline"
+              size="lg"
+              className="px-6 py-3 bg-blue-50 hover:bg-blue-100 border-blue-200"
+            >
+              <Linkedin className="h-5 w-5 mr-2" />
+              {showLinkedInSummary ? 'Dölj' : 'Visa'} LinkedIn-sammanfattning
+            </Button>
+          </div>
+
+          {/* LinkedIn Summary */}
+          {showLinkedInSummary && (
+            <Card className="mb-8 border-blue-200 bg-blue-50">
+              <CardHeader>
+                <CardTitle className="flex items-center text-blue-800">
+                  <Linkedin className="h-5 w-5 mr-2" />
+                  LinkedIn-sammanfattning
+                </CardTitle>
+                <p className="text-sm text-blue-600">
+                  Kopiera denna text och använd i din LinkedIn-profil
+                </p>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={generateLinkedInSummary()}
+                  readOnly
+                  className="min-h-[200px] bg-white"
+                />
+                <div className="mt-4 flex justify-end">
+                  <Button
+                    onClick={copyLinkedInSummary}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Kopiera text
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Personal Information */}
           <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
             <div className="flex items-start gap-6">
