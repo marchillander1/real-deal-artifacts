@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Upload, FileText, Link as LinkIcon, Shield, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, FileText, Shield, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,12 +17,10 @@ interface CVUploadFormProps {
 
 export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
   const [file, setFile] = useState<File | null>(null);
-  const [linkedinUrl, setLinkedinUrl] = useState('');
   const [personalTagline, setPersonalTagline] = useState('');
   const [gdprConsent, setGdprConsent] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [linkedinValid, setLinkedinValid] = useState<boolean | null>(null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -80,47 +78,23 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
     }
   };
 
-  const validateLinkedInUrl = (url: string) => {
-    if (!url) {
-      setLinkedinValid(null);
-      return;
-    }
-    
-    const linkedinPattern = /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/;
-    const isValid = linkedinPattern.test(url);
-    setLinkedinValid(isValid);
-    
-    if (!isValid && url.includes('linkedin.com')) {
-      setValidationErrors(prev => [...prev.filter(e => !e.includes('LinkedIn')), 'LinkedIn URL format is incorrect']);
-    } else {
-      setValidationErrors(prev => prev.filter(e => !e.includes('LinkedIn')));
-    }
-  };
-
-  const handleLinkedInChange = (value: string) => {
-    setLinkedinUrl(value);
-    validateLinkedInUrl(value);
-  };
-
   const getFormCompleteness = () => {
     let completeness = 0;
-    if (file) completeness += 40;
-    if (linkedinUrl && linkedinValid) completeness += 30;
-    if (personalTagline.trim()) completeness += 20;
+    if (file) completeness += 60;
+    if (personalTagline.trim()) completeness += 30;
     if (gdprConsent) completeness += 10;
     return completeness;
   };
 
   const isFormValid = () => {
-    return file && gdprConsent && validationErrors.length === 0 && 
-           (linkedinUrl === '' || linkedinValid);
+    return file && gdprConsent && validationErrors.length === 0;
   };
 
   const handleSubmit = () => {
     if (isFormValid()) {
       onSubmit({
         file,
-        linkedinUrl,
+        linkedinUrl: '', // Empty since we removed LinkedIn
         personalTagline,
         gdprConsent
       });
@@ -219,38 +193,18 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
             </div>
           </div>
 
-          {/* LinkedIn URL */}
+          {/* LinkedIn URL - Coming Soon */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700">
-              LinkedIn profile (recommended for better analysis)
+              LinkedIn profile integration
             </label>
             <div className="relative">
-              <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-              <input
-                type="url"
-                value={linkedinUrl}
-                onChange={(e) => handleLinkedInChange(e.target.value)}
-                placeholder="https://linkedin.com/in/your-profile"
-                className={`w-full pl-12 pr-12 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                  linkedinUrl && linkedinValid === false 
-                    ? 'border-red-300 bg-red-50' 
-                    : linkedinUrl && linkedinValid 
-                    ? 'border-green-300 bg-green-50' 
-                    : 'border-slate-300'
-                }`}
-              />
-              {linkedinUrl && (
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  {linkedinValid ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                  ) : (
-                    <AlertCircle className="h-5 w-5 text-red-600" />
-                  )}
-                </div>
-              )}
+              <div className="w-full p-4 border border-slate-300 rounded-xl bg-slate-50 text-slate-500 text-center">
+                🚀 Coming soon - LinkedIn profile analysis
+              </div>
             </div>
             <p className="text-sm text-slate-500">
-              We analyze your LinkedIn profile to provide more comprehensive career insights and market valuation.
+              LinkedIn integration will be available soon to provide even more comprehensive analysis.
             </p>
           </div>
 
@@ -288,11 +242,11 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
               />
               <div className="text-sm">
                 <label htmlFor="gdpr-consent" className="cursor-pointer font-medium text-slate-700">
-                  I agree to let MatchWise analyze my CV and LinkedIn profile *
+                  I agree to let MatchWise analyze my CV *
                 </label>
                 <p className="mt-2 text-slate-600">
                   By checking this box, I consent to MatchWise AI analyzing my CV 
-                  and LinkedIn profile to create a personalized career report. Your data is processed 
+                  to create a personalized career report. Your data is processed 
                   according to our privacy policy and never shared with third parties without your consent.
                 </p>
                 <div className="flex items-center mt-3 text-blue-700">
@@ -331,9 +285,9 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onSubmit }) => {
             <h4 className="font-semibold text-indigo-800 mb-2">💡 Tips for best results:</h4>
             <ul className="text-sm text-indigo-700 space-y-1">
               <li>• Use your latest CV with updated skills</li>
-              <li>• Include your LinkedIn profile for deeper analysis</li>
               <li>• Write a personal tagline describing your goals</li>
               <li>• Analysis takes 2-3 minutes and is fully automated</li>
+              <li>• LinkedIn integration coming soon for deeper analysis</li>
             </ul>
           </div>
 

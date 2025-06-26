@@ -32,6 +32,7 @@ serve(async (req) => {
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const personalDescription = formData.get('personalDescription') as string || '';
+    const personalTagline = formData.get('personalTagline') as string || '';
     const linkedinUrl = formData.get('linkedinUrl') as string || '';
     
     if (!file) {
@@ -40,6 +41,7 @@ serve(async (req) => {
 
     console.log('📄 Processing file:', file.name, 'Size:', file.size);
     console.log('📝 Personal description provided:', !!personalDescription);
+    console.log('🏷️ Personal tagline provided:', !!personalTagline);
     console.log('🔗 LinkedIn URL provided:', !!linkedinUrl);
     
     // Check file size limit (5MB)
@@ -60,16 +62,25 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Create enhanced analysis prompt in English
+    // Create enhanced analysis prompt in English with focus on personal description/tagline
     const analysisPrompt = `
 Analyze this CV very carefully and extract ALL information according to the JSON structure below.
 
 ${personalDescription ? `
-PERSONAL DESCRIPTION: "${personalDescription}"
-Use this to improve the analysis of personality and career goals.
+PERSONAL DESCRIPTION FROM USER: "${personalDescription}"
+Use this information to enhance the analysis of personality traits, work style, values, and career goals. This is valuable context provided by the consultant themselves.
 ` : ''}
 
-IMPORTANT: Return ONLY valid JSON without any extra text before or after:
+${personalTagline ? `
+PERSONAL TAGLINE FROM USER: "${personalTagline}"
+This tagline represents how the consultant sees themselves and their career aspirations. Use this to improve the analysis of their professional identity, values, and career trajectory.
+` : ''}
+
+IMPORTANT INSTRUCTIONS:
+- Use the personal description and tagline to provide more accurate personality and career insights
+- The personal text should influence the soft skills, values, and career trajectory analysis
+- Return ONLY valid JSON without any extra text before or after
+- Never use "Not specified" for name or email - extract from CV
 
 {
   "personalInfo": {
@@ -95,11 +106,11 @@ IMPORTANT: Return ONLY valid JSON without any extra text before or after:
     {"degree": "Degree/education", "school": "School/university", "year": "Year", "field": "Field"}
   ],
   "softSkills": {
-    "communicationStyle": "Description of communication style",
-    "leadershipStyle": "Description of leadership", 
-    "workStyle": "Description of work style",
-    "values": ["Values"],
-    "personalityTraits": ["Personality traits"]
+    "communicationStyle": "Description enhanced by personal description/tagline",
+    "leadershipStyle": "Description enhanced by personal context", 
+    "workStyle": "Description enhanced by personal insights",
+    "values": ["Values from CV and personal description"],
+    "personalityTraits": ["Traits from CV and personal context"]
   },
   "scores": {
     "leadership": 4,
@@ -115,15 +126,15 @@ IMPORTANT: Return ONLY valid JSON without any extra text before or after:
       "optimized": 950,
       "explanation": "Explanation of market valuation"
     },
-    "competitiveAdvantages": ["Competitive advantages"],
+    "competitiveAdvantages": ["Competitive advantages including personal strengths"],
     "marketDemand": "Assessment of market demand",
-    "recommendedFocus": "Recommendations for development"
+    "recommendedFocus": "Recommendations considering personal goals"
   },
   "analysisInsights": {
-    "strengths": ["Strengths"],
+    "strengths": ["Strengths from CV and personal description"],
     "developmentAreas": ["Development areas"],
-    "careerTrajectory": "Description of career path",
-    "consultingReadiness": "Assessment of consulting readiness"
+    "careerTrajectory": "Career path considering personal goals and tagline",
+    "consultingReadiness": "Assessment enhanced by personal context"
   }
 }`;
 
@@ -199,7 +210,7 @@ IMPORTANT: Return ONLY valid JSON without any extra text before or after:
       } catch (parseError) {
         console.error('❌ JSON parsing failed:', parseError);
         
-        // Provide a structured fallback with proper personal info extraction
+        // Provide a structured fallback with enhanced personal context
         analysis = {
           personalInfo: {
             name: "Professional Consultant",
@@ -224,11 +235,11 @@ IMPORTANT: Return ONLY valid JSON without any extra text before or after:
             {"degree": "Professional Education", "school": "University", "year": "2020", "field": "Business"}
           ],
           softSkills: {
-            communicationStyle: "Professional and clear communication",
+            communicationStyle: personalTagline ? `Professional communication style influenced by: ${personalTagline}` : "Professional and clear communication",
             leadershipStyle: "Collaborative leadership approach",
-            workStyle: "Structured and goal-oriented",
-            values: ["Quality", "Reliability", "Innovation"],
-            personalityTraits: ["Analytical", "Dedicated", "Professional"]
+            workStyle: personalDescription ? `Work style informed by personal goals: ${personalDescription.substring(0, 100)}...` : "Structured and goal-oriented",
+            values: personalDescription ? ["Quality", "Reliability", "Innovation", "Personal Growth"] : ["Quality", "Reliability", "Innovation"],
+            personalityTraits: personalTagline ? ["Analytical", "Dedicated", "Professional", "Goal-oriented"] : ["Analytical", "Dedicated", "Professional"]
           },
           scores: {
             leadership: 4,
@@ -242,17 +253,17 @@ IMPORTANT: Return ONLY valid JSON without any extra text before or after:
             hourlyRate: {
               current: 800,
               optimized: 950,
-              explanation: "Competitive market rate based on experience"
+              explanation: "Competitive market rate based on experience and personal positioning"
             },
-            competitiveAdvantages: ["Strong experience", "Professional approach", "Reliable delivery"],
+            competitiveAdvantages: ["Strong experience", "Professional approach", "Reliable delivery", "Clear personal vision"],
             marketDemand: "Good demand for experienced consultants",
-            recommendedFocus: "Continue developing expertise and client relationships"
+            recommendedFocus: personalDescription ? "Continue developing expertise while pursuing personal career goals" : "Continue developing expertise and client relationships"
           },
           analysisInsights: {
-            strengths: ["Professional experience", "Strong work ethic", "Adaptability"],
+            strengths: ["Professional experience", "Strong work ethic", "Adaptability", "Clear career vision"],
             developmentAreas: ["Market positioning", "Personal branding"],
-            careerTrajectory: "Strong potential for senior consulting roles",
-            consultingReadiness: "Well-positioned for consulting opportunities"
+            careerTrajectory: personalTagline ? `Strong potential for senior consulting roles, aligned with personal vision: ${personalTagline}` : "Strong potential for senior consulting roles",
+            consultingReadiness: "Well-positioned for consulting opportunities with clear personal direction"
           }
         };
       }
@@ -270,7 +281,9 @@ IMPORTANT: Return ONLY valid JSON without any extra text before or after:
       console.log('📊 Extracted info:', {
         names: detectedInfo.names.length,
         emails: detectedInfo.emails.length,
-        skills: analysis.skills?.technical?.length || 0
+        skills: analysis.skills?.technical?.length || 0,
+        personalDescriptionUsed: !!personalDescription,
+        personalTaglineUsed: !!personalTagline
       });
 
       return new Response(JSON.stringify({
@@ -282,7 +295,8 @@ IMPORTANT: Return ONLY valid JSON without any extra text before or after:
           detectedNames: detectedInfo.names.length,
           detectedEmails: detectedInfo.emails.length,
           detectedSkills: analysis.skills?.technical?.length || 0,
-          personalDescriptionUsed: !!personalDescription
+          personalDescriptionUsed: !!personalDescription,
+          personalTaglineUsed: !!personalTagline
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

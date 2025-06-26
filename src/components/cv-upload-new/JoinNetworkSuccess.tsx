@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle, User, Mail, Calendar, ArrowRight } from 'lucide-react';
+import { CheckCircle, Star, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -13,156 +13,112 @@ export const JoinNetworkSuccess: React.FC<JoinNetworkSuccessProps> = ({
   profileId,
   onRestart
 }) => {
+  const handleExploreOpportunities = () => {
+    // Navigate to the main dashboard
+    window.location.href = '/matchwiseai';
+  };
+
+  const handleViewProfile = () => {
+    // For now, just show an alert - later this could navigate to a profile page
+    alert('Profile viewing will be available soon!');
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <Card className="shadow-xl">
-        <CardHeader className="text-center bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-t-lg">
-          <div className="flex items-center justify-center mb-4">
-            <CheckCircle className="h-16 w-16 animate-pulse" />
+        <CardHeader className="text-center bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
+          <div className="flex justify-center mb-4">
+            <div className="bg-white/20 p-4 rounded-full">
+              <CheckCircle className="h-16 w-16 text-white" />
+            </div>
           </div>
           <CardTitle className="text-3xl font-bold mb-4">
-            Välkommen till MatchWise! 🎉
+            Welcome to the MatchWise Network! 🎉
           </CardTitle>
           <p className="text-lg opacity-90">
-            Din konsultprofil har skapats och publicerats i vårt nätverk
+            Your profile has been successfully created and you're now part of our exclusive consultant network.
           </p>
         </CardHeader>
 
         <CardContent className="p-8">
-          {/* Success Message */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-800 mb-4">
-              Grattis! Du är nu del av MatchWise-nätverket
-            </h2>
-            <p className="text-lg text-slate-600 mb-6">
-              Din AI-analyserade profil är nu synlig för potentiella kunder och du kommer att få tillgång till skräddarsydda uppdrag som matchar dina färdigheter.
-            </p>
-          </div>
-
-          {/* Next Steps */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="text-center p-6 bg-blue-50 rounded-xl border border-blue-200">
-              <User className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-slate-800 mb-2">Profil Aktiv</h3>
-              <p className="text-sm text-slate-600">
-                Din profil är nu synlig för kunder som söker konsulter med dina färdigheter
-              </p>
-            </div>
-
+          {/* Success Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="text-center p-6 bg-green-50 rounded-xl border border-green-200">
-              <Mail className="h-8 w-8 text-green-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-slate-800 mb-2">E-post skickat</h3>
-              <p className="text-sm text-slate-600">
-                Du kommer att få en välkomstmail med dina inloggningsuppgifter
-              </p>
+              <Star className="h-8 w-8 text-green-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-green-900 mb-2">Profile Created</h3>
+              <p className="text-sm text-green-700">Your consultant profile is now live and optimized</p>
             </div>
-
+            
+            <div className="text-center p-6 bg-blue-50 rounded-xl border border-blue-200">
+              <Users className="h-8 w-8 text-blue-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-blue-900 mb-2">Network Access</h3>
+              <p className="text-sm text-blue-700">Connected to 500+ top companies and recruiters</p>
+            </div>
+            
             <div className="text-center p-6 bg-purple-50 rounded-xl border border-purple-200">
-              <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-slate-800 mb-2">Matchning startar</h3>
-              <p className="text-sm text-slate-600">
-                Vår AI börjar matcha dig med relevanta uppdrag inom 24 timmar
-              </p>
+              <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-purple-900 mb-2">AI Matching</h3>
+              <p className="text-sm text-purple-700">Smart algorithm matches you with perfect assignments</p>
             </div>
           </div>
 
-          {/* What Happens Next */}
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 mb-8 border border-indigo-200">
-            <h3 className="text-lg font-semibold text-indigo-800 mb-4">
-              Vad händer härnäst?
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                <p className="text-sm text-indigo-700">
-                  <strong>Inom 1 timme:</strong> Du får en välkomstmail med dina inloggningsuppgifter och en länk till din profilsida
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                <p className="text-sm text-indigo-700">
-                  <strong>Inom 24 timmar:</strong> Vår AI-matchning börjar arbeta och du kan få ditt första uppdragsförslag
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                <p className="text-sm text-indigo-700">
-                  <strong>Löpande:</strong> Du får notifieringar om nya uppdrag som matchar din profil och dina önskemål
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Benefits Reminder */}
-          <div className="bg-slate-50 rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">
-              Dina fördelar som MatchWise-konsult
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-slate-700">AI-driven matchning med rätt uppdrag</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-slate-700">Transparent prismodell utan dolda avgifter</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-slate-700">Kontinuerlig karriärutveckling och coaching</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-slate-700">Kvalitetssäkrade kunder och uppdrag</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-slate-700">Flexibel arbetssätt som passar dig</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-slate-700">Community med andra erfarna konsulter</span>
-                </div>
-              </div>
-            </div>
+          {/* What's Next */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-8">
+            <h3 className="text-xl font-bold text-slate-900 mb-4">What's next?</h3>
+            <ul className="space-y-3 text-slate-700">
+              <li className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                <span>Your profile is now visible to companies looking for consultants with your skills</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                <span>You'll receive email notifications when matching assignments are available</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                <span>Browse and apply to assignments that match your expertise and interests</span>
+              </li>
+            </ul>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              onClick={() => window.open(`/my-profile?id=${profileId}`, '_blank')}
+              onClick={handleExploreOpportunities}
               size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
             >
-              Visa min profil
-              <ArrowRight className="h-4 w-4" />
+              Explore Opportunities
+              <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
             
             <Button
-              onClick={onRestart}
+              onClick={handleViewProfile}
               variant="outline"
               size="lg"
-              className="px-6 py-3"
+              className="px-8 py-4 text-lg font-semibold rounded-xl border-2 hover:bg-slate-50 transition-all duration-200"
             >
-              Skapa ny profil
+              View My Profile
             </Button>
           </div>
 
-          {/* Support Info */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
-            <p className="text-sm text-blue-700">
-              <strong>Behöver du hjälp?</strong> Kontakta oss på{' '}
-              <a href="mailto:support@matchwise.se" className="underline">
-                support@matchwise.se
-              </a>{' '}
-              eller ring{' '}
-              <a href="tel:+46701234567" className="underline">
-                070-123 45 67
-              </a>
+          {/* Additional Info */}
+          <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <p className="text-sm text-slate-600 text-center">
+              <strong>Profile ID:</strong> {profileId.substring(0, 8)}... • 
+              <strong> Network Status:</strong> Active • 
+              <strong> Visibility:</strong> Public to verified companies
             </p>
+          </div>
+
+          {/* Start Over Option */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={onRestart}
+              className="text-sm text-slate-500 hover:text-slate-700 underline transition-colors duration-200"
+            >
+              Want to analyze another CV? Start over
+            </button>
           </div>
         </CardContent>
       </Card>
