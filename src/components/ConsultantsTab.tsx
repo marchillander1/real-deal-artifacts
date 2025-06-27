@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useRealTimeTeamNotifications } from '@/hooks/useRealTimeTeamNotifications';
@@ -6,8 +5,10 @@ import { ConsultantAnalysisModal } from '@/components/ConsultantAnalysisModal';
 import { ConsultantStats } from '@/components/consultant/ConsultantStats';
 import { ConsultantFilters } from '@/components/consultant/ConsultantFilters';
 import { ConsultantGrid } from '@/components/consultant/ConsultantGrid';
+import { UnifiedCVUpload } from '@/components/cv-upload/UnifiedCVUpload';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,6 +30,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const [skillFilter, setSkillFilter] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const { toast } = useToast();
 
   useRealTimeTeamNotifications();
@@ -49,11 +51,19 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
 
   const allSkills = [...new Set(consultants.flatMap(c => c.skills))];
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      window.location.href = '/cv-upload?source=my-consultants';
-    }
+  const handleUploadComplete = (consultant: any) => {
+    console.log('✅ Consultant added to team:', consultant);
+    setShowUploadDialog(false);
+    
+    toast({
+      title: "Consultant added successfully! 🎉",
+      description: `${consultant.name} has been added to your team`,
+    });
+
+    // Refresh consultants list
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   const handleDeleteConsultant = async (consultantId: string | number) => {
@@ -143,18 +153,13 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
               <h3 className="text-lg font-semibold">Team Consultants</h3>
               <p className="text-sm text-gray-600">Shared with your team members</p>
             </div>
-            <div className="relative">
-              <Button className="bg-green-600 hover:bg-green-700 flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add Consultant
-              </Button>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileUpload}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
+            <Button 
+              onClick={() => setShowUploadDialog(true)}
+              className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Consultant
+            </Button>
           </div>
           
           <ConsultantGrid
@@ -188,6 +193,21 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
         </TabsContent>
       </Tabs>
 
+      {/* Upload Dialog */}
+      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Consultant to Team</DialogTitle>
+          </DialogHeader>
+          <UnifiedCVUpload
+            isMyConsultant={true}
+            onComplete={handleUploadComplete}
+            onClose={() => setShowUploadDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Analysis Modal */}
       {selectedConsultant && (
         <ConsultantAnalysisModal
           consultant={selectedConsultant}
