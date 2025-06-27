@@ -14,11 +14,13 @@ import {
   Clock, 
   Building2,
   Brain,
-  Zap
+  Zap,
+  Plus
 } from 'lucide-react';
 import { Assignment } from '@/types/assignment';
 import { Consultant } from '@/types/consultant';
 import { AIMatchingResults } from './AIMatchingResults';
+import { CreateAssignmentForm } from '../assignments/CreateAssignmentForm';
 
 interface AssignmentsSectionProps {
   assignments: Assignment[];
@@ -34,6 +36,7 @@ export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [showMatchResults, setShowMatchResults] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const filteredAssignments = assignments.filter(assignment =>
     assignment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -58,6 +61,11 @@ export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({
     onMatch(assignment);
   };
 
+  const handleCreateAssignment = (newAssignment: any) => {
+    // This will be handled by the parent component's data refresh
+    window.location.reload(); // Simple refresh for now
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -66,8 +74,11 @@ export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({
           <h2 className="text-2xl font-bold text-gray-900">Assignments</h2>
           <p className="text-gray-600">Manage assignments and find the perfect consultant matches</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Briefcase className="h-4 w-4 mr-2" />
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => setShowCreateForm(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
           Create Assignment
         </Button>
       </div>
@@ -215,6 +226,31 @@ export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({
           </Card>
         ))}
       </div>
+
+      {/* Empty State */}
+      {filteredAssignments.length === 0 && (
+        <div className="text-center py-12">
+          <Briefcase className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No assignments found</h3>
+          <p className="text-gray-600 mb-4">
+            {searchTerm ? 'Try adjusting your search terms' : 'Create your first assignment to get started'}
+          </p>
+          {!searchTerm && (
+            <Button onClick={() => setShowCreateForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create First Assignment
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Create Assignment Form */}
+      {showCreateForm && (
+        <CreateAssignmentForm
+          onClose={() => setShowCreateForm(false)}
+          onSubmit={handleCreateAssignment}
+        />
+      )}
 
       {/* AI Matching Results Modal */}
       {selectedAssignment && (

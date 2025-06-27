@@ -2,12 +2,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, TrendingUp, Clock, Plus, Bell } from 'lucide-react';
-import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import { Users, TrendingUp, Clock, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
 import { Assignment } from '@/types/assignment';
+import { ActivityFeed } from './ActivityFeed';
 
 interface DashboardOverviewProps {
   onCreateAssignment: () => void;
@@ -103,55 +103,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       </Card>
 
       {/* Activity Feed */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Activity & Alerts
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {networkConsultants.length > 0 && (
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-blue-900">
-                    {networkConsultants.length} new consultants available in network
-                  </p>
-                  <p className="text-sm text-blue-700">
-                    Review their profiles to find potential matches
-                  </p>
-                </div>
-                <Button variant="outline" size="sm">
-                  View
-                </Button>
-              </div>
-            )}
-            
-            {myConsultants.length > 0 && (
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-green-900">
-                    {myConsultants.length} consultants in your team
-                  </p>
-                  <p className="text-sm text-green-700">
-                    Ready for new assignments
-                  </p>
-                </div>
-                <Button variant="outline" size="sm">
-                  Manage
-                </Button>
-              </div>
-            )}
-
-            {consultants.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <p>No activity yet. Upload some consultants to get started!</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <ActivityFeed consultants={consultants} assignments={assignments} />
     </div>
   );
 };

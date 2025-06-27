@@ -1,4 +1,5 @@
 
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -12,110 +13,95 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🤖 AI Matching request received');
+    const { assignment, consultant, matchData, type } = await req.json();
     
-    const { assignment, consultant, scores, type } = await req.json();
-    
-    const groqApiKey = Deno.env.get('GROQ_API_KEY');
-    if (!groqApiKey) {
-      console.error('❌ GROQ_API_KEY not found');
-      throw new Error('GROQ API key not configured');
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY not configured');
     }
 
     let prompt = '';
     
     if (type === 'match_letter') {
-      prompt = `Skriv en professionell matchningsbrev på svenska för följande uppdrag och konsult.
+      prompt = `Generate a professional match letter for this consultant and assignment match.
 
-UPPDRAG:
-Titel: ${assignment.title}
-Företag: ${assignment.company}
-Beskrivning: ${assignment.description}
-Krav: ${assignment.requiredSkills?.join(', ') || 'Ej specificerat'}
-Budget: ${assignment.budget_min}-${assignment.budget_max} SEK
-Varaktighet: ${assignment.duration}
+Assignment: ${assignment.title} at ${assignment.company}
+Required Skills: ${assignment.requiredSkills?.join(', ') || 'N/A'}
+Team Culture: ${assignment.team_culture || 'N/A'}
+Communication Style: ${assignment.desiredCommunicationStyle || 'N/A'}
 
-KONSULT:
-Namn: ${consultant.name}
-Erfarenhet: ${consultant.experience}
-Färdigheter: ${consultant.skills?.join(', ') || 'Ej specificerat'}
-Rating: ${consultant.rating}/5
-Projekt: ${consultant.projects} genomförda
-Tillgänglighet: ${consultant.availability}
+Consultant: ${consultant.name}
+Skills: ${consultant.skills?.join(', ') || 'N/A'}
+Experience: ${consultant.experience_years || 'N/A'} years
+Communication Style: ${consultant.communication_style || 'N/A'}
 
-MATCHNINGSRESULTAT:
-Teknisk passform: ${scores.technicalFit}%
-Kulturell passform: ${scores.culturalFit}%
-Total match: ${scores.totalMatchScore}%
+Match Scores:
+- Technical Fit: ${matchData.technicalFit}%
+- Cultural Fit: ${matchData.culturalFit}%
+- Overall Match: ${matchData.totalMatchScore}%
 
-Skriv ett professionellt matchningsbrev som:
-1. Introducerar konsulten
-2. Förklarar varför de är en bra match
-3. Lyfter fram relevanta färdigheter och erfarenheter
-4. Nämner praktiska detaljer som tillgänglighet
-5. Avslutar med en rekommendation
+Write a professional match letter following this format:
+Subject: Match Recommendation – [Consultant Name] for [Assignment Title]
 
-Håll det koncist och professionellt (max 300 ord).`;
+Hello,
+
+Based on your assignment, [consultant details and why they're a good match]...
+
+**Technical Fit**
+• [specific technical points]
+
+**Cultural Fit**
+• [cultural alignment points]
+
+**Match Score**
+• [scores and availability]
+
+[Recommendation conclusion]
+
+Best regards,
+MatchWise AI
+
+Keep it professional, concise, and focused on the match quality.`;
     }
 
-    console.log('🚀 Sending request to Groq...');
-
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama3-8b-8192',
-        messages: [
-          {
-            role: 'system',
-            content: 'Du är en expert på konsultmatchning och skriver professionella rekommendationsbrev på svenska. Du är konkret, tydlig och fokuserad på affärsnytta.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 1000
+        }
       }),
     });
 
-    if (!groqResponse.ok) {
-      const errorText = await groqResponse.text();
-      console.error('❌ GROQ API error:', errorText);
-      throw new Error(`GROQ API failed: ${groqResponse.status}`);
+    if (!response.ok) {
+      throw new Error(`Gemini API failed: ${response.status}`);
     }
 
-    const groqData = await groqResponse.json();
-    const matchLetter = groqData.choices[0]?.message?.content;
+    const data = await response.json();
+    const matchLetter = data.candidates[0].content.parts[0].text;
 
-    console.log('✅ AI matching letter generated successfully');
-
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        matchLetter: matchLetter
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ matchLetter }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
-    console.error('❌ AI matching error:', error);
+    console.error('Error in ai-matching function:', error);
     
-    return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: error.message
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({
+      error: error.message,
+      matchLetter: null
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
