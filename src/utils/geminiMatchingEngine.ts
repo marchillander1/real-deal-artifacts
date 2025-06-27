@@ -32,7 +32,7 @@ export const generateGeminiMatches = async (
       
       // Find matched skills and values
       const matchedSkills = findMatchedSkills(assignment.requiredSkills, consultant.skills);
-      const matchedValues = findMatchedValues(assignment.requiredValues || [], consultant.values || []);
+      const matchedValues = findMatchedValues([], consultant.values || []); // Assignment doesn't have requiredValues
       
       // Generate AI match letter using Gemini
       const matchLetter = await generateGeminiMatchLetter(assignment, consultant, {
@@ -86,7 +86,7 @@ const calculateTechnicalFit = (assignment: Assignment, consultant: Consultant): 
   );
   
   const baseScore = (matchedSkills.length / requiredSkills.length) * 100;
-  const experienceBonus = Math.min(15, consultant.experience_years || 0);
+  const experienceBonus = Math.min(15, parseInt(consultant.experience) || 0);
   const skillDepthBonus = Math.min(10, Math.max(0, consultantSkills.length - requiredSkills.length) * 2);
   
   return Math.min(100, Math.round(baseScore + experienceBonus + skillDepthBonus));
@@ -95,9 +95,9 @@ const calculateTechnicalFit = (assignment: Assignment, consultant: Consultant): 
 const calculateCulturalFit = (assignment: Assignment, consultant: Consultant): number => {
   let culturalScore = 75; // Base score
   
-  // Communication style match - using correct property names
-  const assignmentCommStyle = assignment.desiredCommunicationStyle || assignment.teamCulture;
-  const consultantCommStyle = consultant.communication_style || consultant.communicationStyle;
+  // Communication style match - using available properties
+  const assignmentCommStyle = assignment.teamCulture;
+  const consultantCommStyle = consultant.communicationStyle;
   
   if (assignmentCommStyle && consultantCommStyle) {
     if (assignmentCommStyle.toLowerCase() === consultantCommStyle.toLowerCase()) {
@@ -105,8 +105,8 @@ const calculateCulturalFit = (assignment: Assignment, consultant: Consultant): n
     }
   }
   
-  // Values alignment
-  const requiredValues = assignment.requiredValues || [];
+  // Values alignment - Assignment doesn't have requiredValues, use default empty array
+  const requiredValues: string[] = [];
   const consultantValues = consultant.values || [];
   
   if (requiredValues.length > 0) {
@@ -118,8 +118,8 @@ const calculateCulturalFit = (assignment: Assignment, consultant: Consultant): n
     culturalScore += (matchedValues.length / requiredValues.length) * 20;
   }
   
-  // Team culture fit - using correct property name
-  if (assignment.teamCulture && consultant.team_fit) {
+  // Team culture fit
+  if (assignment.teamCulture && consultant.teamFit) {
     culturalScore += 10;
   }
   
@@ -188,13 +188,13 @@ Based on your assignment, ${consultant.name} appears to be a highly relevant mat
 
 **Technical Fit**
 • Core skills: ${matchData.matchedSkills.slice(0, 3).join(', ')}
-• Experience: ${consultant.experience_years || 'Several'} years
-• Relevant background: ${consultant.industries?.slice(0, 2).join(', ') || 'Technology'}
+• Experience: ${consultant.experience || 'Several years'}
+• Relevant background: ${consultant.roles?.slice(0, 2).join(', ') || 'Technology'}
 
 **Cultural Fit**  
-• Communication style: ${consultant.communication_style || consultant.communicationStyle || 'Professional and collaborative'}
+• Communication style: ${consultant.communicationStyle || 'Professional and collaborative'}
 • Values alignment: ${matchData.matchedValues.slice(0, 3).join(', ')}
-• Team fit: ${consultant.team_fit || consultant.teamFit || 'Excellent team collaboration skills'}
+• Team fit: ${consultant.teamFit || 'Excellent team collaboration skills'}
 
 **Match Score**
 • Technical: ${matchData.technicalFit}%
@@ -202,7 +202,7 @@ Based on your assignment, ${consultant.name} appears to be a highly relevant mat
 • Overall: ${matchData.totalMatchScore}%
 • Availability: ${consultant.availability || 'Available'}
 
-${consultant.name} has completed ${consultant.projects || consultant.projects_completed || 'multiple'} successful projects with a ${consultant.rating}/5 rating. 
+${consultant.name} has completed ${consultant.projects || 'multiple'} successful projects with a ${consultant.rating}/5 rating. 
 
 We recommend proceeding with this consultant for your ${assignment.title} position.
 
@@ -211,7 +211,7 @@ MatchWise AI`;
 };
 
 const calculateEstimatedSavings = (consultant: Consultant): string => {
-  const rate = consultant.hourly_rate || 800;
+  const rate = parseInt(consultant.rate) || 800;
   const marketAverage = 1200;
   const savings = marketAverage - rate;
   
