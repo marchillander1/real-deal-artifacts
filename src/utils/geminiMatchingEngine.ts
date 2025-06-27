@@ -32,7 +32,7 @@ export const generateGeminiMatches = async (
       
       // Find matched skills and values
       const matchedSkills = findMatchedSkills(assignment.requiredSkills, consultant.skills);
-      const matchedValues = findMatchedValues(assignment.requiredValues || [], consultant.values);
+      const matchedValues = findMatchedValues(assignment.requiredValues || [], consultant.values || []);
       
       // Generate AI match letter using Gemini
       const matchLetter = await generateGeminiMatchLetter(assignment, consultant, {
@@ -95,9 +95,12 @@ const calculateTechnicalFit = (assignment: Assignment, consultant: Consultant): 
 const calculateCulturalFit = (assignment: Assignment, consultant: Consultant): number => {
   let culturalScore = 75; // Base score
   
-  // Communication style match
-  if (assignment.desiredCommunicationStyle && consultant.communication_style) {
-    if (assignment.desiredCommunicationStyle.toLowerCase() === consultant.communication_style.toLowerCase()) {
+  // Communication style match - using correct property names
+  const assignmentCommStyle = assignment.desiredCommunicationStyle || assignment.teamCulture;
+  const consultantCommStyle = consultant.communication_style || consultant.communicationStyle;
+  
+  if (assignmentCommStyle && consultantCommStyle) {
+    if (assignmentCommStyle.toLowerCase() === consultantCommStyle.toLowerCase()) {
       culturalScore += 15;
     }
   }
@@ -115,8 +118,8 @@ const calculateCulturalFit = (assignment: Assignment, consultant: Consultant): n
     culturalScore += (matchedValues.length / requiredValues.length) * 20;
   }
   
-  // Team culture fit
-  if (assignment.team_culture && consultant.team_fit) {
+  // Team culture fit - using correct property name
+  if (assignment.teamCulture && consultant.team_fit) {
     culturalScore += 10;
   }
   
@@ -189,9 +192,9 @@ Based on your assignment, ${consultant.name} appears to be a highly relevant mat
 • Relevant background: ${consultant.industries?.slice(0, 2).join(', ') || 'Technology'}
 
 **Cultural Fit**  
-• Communication style: ${consultant.communication_style || 'Professional and collaborative'}
+• Communication style: ${consultant.communication_style || consultant.communicationStyle || 'Professional and collaborative'}
 • Values alignment: ${matchData.matchedValues.slice(0, 3).join(', ')}
-• Team fit: ${consultant.team_fit || 'Excellent team collaboration skills'}
+• Team fit: ${consultant.team_fit || consultant.teamFit || 'Excellent team collaboration skills'}
 
 **Match Score**
 • Technical: ${matchData.technicalFit}%
@@ -199,7 +202,7 @@ Based on your assignment, ${consultant.name} appears to be a highly relevant mat
 • Overall: ${matchData.totalMatchScore}%
 • Availability: ${consultant.availability || 'Available'}
 
-${consultant.name} has completed ${consultant.projects_completed || 'multiple'} successful projects with a ${consultant.rating}/5 rating. 
+${consultant.name} has completed ${consultant.projects || consultant.projects_completed || 'multiple'} successful projects with a ${consultant.rating}/5 rating. 
 
 We recommend proceeding with this consultant for your ${assignment.title} position.
 
