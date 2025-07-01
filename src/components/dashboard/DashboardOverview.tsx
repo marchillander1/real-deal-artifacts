@@ -8,6 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Consultant } from '@/types/consultant';
 import { Assignment } from '@/types/assignment';
 import { ActivityFeed } from './ActivityFeed';
+import { AIInsightsSection } from './AIInsightsSection';
+import { PredictiveAnalytics } from './PredictiveAnalytics';
+import { SmartRecommendations } from './SmartRecommendations';
 
 interface DashboardOverviewProps {
   onCreateAssignment: () => void;
@@ -83,6 +86,26 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Insights Section */}
+      <AIInsightsSection 
+        consultants={consultants}
+        assignments={assignments}
+        onCreateAssignment={onCreateAssignment}
+      />
+
+      {/* Smart Recommendations */}
+      <SmartRecommendations
+        consultants={consultants}
+        assignments={assignments}
+        onCreateAssignment={onCreateAssignment}
+      />
+
+      {/* Predictive Analytics */}
+      <PredictiveAnalytics
+        consultants={consultants}
+        assignments={assignments}
+      />
 
       {/* Main CTA */}
       <Card>
