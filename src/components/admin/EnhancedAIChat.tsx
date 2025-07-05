@@ -118,7 +118,8 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
           const score = Number(m.match_score);
           return sum + (isNaN(score) ? 0 : score);
         }, 0);
-        const avgScore: number = totalScore / matches.length;
+        const matchesLength: number = matches.length;
+        const avgScore: number = totalScore / matchesLength;
         
         if (avgScore < 80) {
           suggestions.push('🎯 Förbättra matchningsalgoritmen - snittet är ' + Math.round(avgScore) + '%');
