@@ -35,7 +35,7 @@ interface Consultant {
   availability: string;
   is_published: boolean;
   created_at: string;
-  projects_completed: number;
+  projects: number;
   hourly_rate: number;
 }
 
@@ -94,7 +94,7 @@ export const DetailedReporting: React.FC = () => {
     availability: consultant.availability || 'Available',
     isPublished: consultant.is_published || false,
     createdAt: consultant.created_at ? new Date(consultant.created_at).toLocaleDateString() : 'Unknown',
-    projects: consultant.projects_completed || 0,
+    projects: consultant.projects || 0,
     rate: consultant.hourly_rate || 0,
     lastActive: 'Today'
   }));
