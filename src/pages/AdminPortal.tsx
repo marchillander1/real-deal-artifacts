@@ -3,151 +3,186 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Shield, Users, BarChart3, Settings, Database, Zap, Activity, UserCog } from 'lucide-react';
-import { PlatformHealth } from '@/components/platform/PlatformHealth';
-import { PerformanceMonitor } from '@/components/optimization/PerformanceMonitor';
-import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
-import { ReportsOverview } from '@/components/reports/ReportsOverview';
-import { UserManagement } from '@/components/admin/UserManagement';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Users, 
+  Target, 
+  BarChart3, 
+  Settings,
+  Search,
+  Filter,
+  Download,
+  Plus,
+  Shield,
+  Activity,
+  TrendingUp,
+  UserCheck,
+  Briefcase
+} from 'lucide-react';
 import { ConsultantManagement } from '@/components/admin/ConsultantManagement';
-import { EnhancedAIChat } from '@/components/admin/EnhancedAIChat';
+import { UserManagement } from '@/components/admin/UserManagement';
 import { DetailedReporting } from '@/components/admin/DetailedReporting';
-import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+// import { EnhancedAIChat } from '@/components/admin/EnhancedAIChat';
+import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
+import { useSupabaseAssignments } from '@/hooks/useSupabaseAssignments';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-const AdminPortal: React.FC = () => {
+const AdminPortal = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const { consultants } = useSupabaseConsultantsWithDemo();
-
-  // Fetch system data
-  const { data: assignments = [] } = useQuery({
-    queryKey: ['admin-assignments'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('assignments').select('*');
-      return error ? [] : data;
-    },
-  });
-
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const { data: consultants = [] } = useSupabaseConsultants();
+  const { data: assignments = [] } = useSupabaseAssignments();
+  
   const { data: matches = [] } = useQuery({
     queryKey: ['admin-matches'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('matches').select('*');
-      return error ? [] : data;
-    },
+      const { data, error } = await supabase
+        .from('matches')
+        .select('*');
+      
+      if (error) throw error;
+      return data || [];
+    }
   });
 
-  // System statistics
-  const totalUsers = consultants.length;
-  const totalAssignments = assignments.length;
-  const totalMatches = matches.length;
-  const systemUptime = '99.9%';
+  const stats = {
+    totalConsultants: consultants.length,
+    activeConsultants: consultants.filter(c => c.availability === 'Available').length,
+    totalAssignments: assignments.length,
+    totalMatches: matches.length,
+    successfulMatches: matches.filter(m => m.status === 'accepted').length,
+    avgMatchScore: matches.length > 0 
+      ? Math.round(matches.reduce((sum, m) => sum + (Number(m.match_score) || 0), 0) / matches.length) 
+      : 0
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>
-              <p className="text-gray-600">Systemövervakning och plattformshantering</p>
+      <div className="bg-white border-b border-slate-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl">
+                <Shield className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Admin Portal</h1>
+                <p className="text-slate-600">Hantera plattformen och användare</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                <Input
+                  placeholder="Sök..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-64"
+                />
+              </div>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+              <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
+                <Plus className="h-4 w-4 mr-2" />
+                Ny användare
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
-              Översikt
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <UserCog className="h-4 w-4" />
-              Användare
+              <span className="hidden sm:inline">Översikt</span>
             </TabsTrigger>
             <TabsTrigger value="consultants" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Konsulter
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Konsulter</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Analys
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Användare</span>
             </TabsTrigger>
             <TabsTrigger value="reports" className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Rapporter
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Rapporter</span>
             </TabsTrigger>
-            <TabsTrigger value="ai-chat" className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              AI-Chat
-            </TabsTrigger>
-            <TabsTrigger value="health" className="flex items-center gap-2">
+            <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
-              Systemhälsa
-            </TabsTrigger>
-            <TabsTrigger value="performance" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Prestanda
-            </TabsTrigger>
-            <TabsTrigger value="detailed-reports" className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Detaljrapporter
+              <span className="hidden sm:inline">Inställningar</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* System Overview */}
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="border-l-4 border-l-blue-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <Users className="h-8 w-8 text-blue-500" />
-                    <div>
-                      <p className="text-2xl font-bold">{totalUsers}</p>
-                      <p className="text-gray-600">Registrerade användare</p>
-                    </div>
-                  </div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-600">
+                    Totala Konsulter
+                  </CardTitle>
+                  <Target className="h-4 w-4 text-blue-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-slate-900">{stats.totalConsultants}</div>
+                  <p className="text-xs text-slate-600 mt-1">
+                    {stats.activeConsultants} aktiva
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className="border-l-4 border-l-green-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <BarChart3 className="h-8 w-8 text-green-500" />
-                    <div>
-                      <p className="text-2xl font-bold">{totalAssignments}</p>
-                      <p className="text-gray-600">Aktiva uppdrag</p>
-                    </div>
-                  </div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-600">
+                    Uppdrag
+                  </CardTitle>
+                  <Briefcase className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-slate-900">{stats.totalAssignments}</div>
+                  <p className="text-xs text-slate-600 mt-1">
+                    skapade totalt
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className="border-l-4 border-l-purple-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <Zap className="h-8 w-8 text-purple-500" />
-                    <div>
-                      <p className="text-2xl font-bold">{totalMatches}</p>
-                      <p className="text-gray-600">Totala matchningar</p>
-                    </div>
-                  </div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-600">
+                    Matchningar
+                  </CardTitle>
+                  <UserCheck className="h-4 w-4 text-purple-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-slate-900">{stats.totalMatches}</div>
+                  <p className="text-xs text-slate-600 mt-1">
+                    {stats.successfulMatches} lyckade
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className="border-l-4 border-l-orange-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <Activity className="h-8 w-8 text-orange-500" />
-                    <div>
-                      <p className="text-2xl font-bold">{systemUptime}</p>
-                      <p className="text-gray-600">System drifttid</p>
-                    </div>
-                  </div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-600">
+                    Snitt Matchning
+                  </CardTitle>
+                  <TrendingUp className="h-4 w-4 text-orange-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-slate-900">{stats.avgMatchScore}%</div>
+                  <p className="text-xs text-slate-600 mt-1">
+                    genomsnittlig poäng
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -155,89 +190,132 @@ const AdminPortal: React.FC = () => {
             {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>Snabbåtgärder</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-blue-600" />
+                  Snabbåtgärder
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button className="h-16 flex flex-col items-center justify-center">
-                    <Database className="h-5 w-5 mb-1" />
-                    Backup databas
+                  <Button variant="outline" className="justify-start h-auto p-4">
+                    <div className="text-left">
+                      <div className="font-medium">Exportera Data</div>
+                      <div className="text-sm text-slate-600">Ladda ner rapporter</div>
+                    </div>
                   </Button>
-                  <Button variant="outline" className="h-16 flex flex-col items-center justify-center">
-                    <Settings className="h-5 w-5 mb-1" />
-                    Systemunderhåll
+                  
+                  <Button variant="outline" className="justify-start h-auto p-4">
+                    <div className="text-left">
+                      <div className="font-medium">Backup System</div>
+                      <div className="text-sm text-slate-600">Säkerhetskopiera data</div>
+                    </div>
                   </Button>
-                  <Button variant="outline" className="h-16 flex flex-col items-center justify-center">
-                    <Shield className="h-5 w-5 mb-1" />
-                    Säkerhetslogg
+                  
+                  <Button variant="outline" className="justify-start h-auto p-4">
+                    <div className="text-left">
+                      <div className="font-medium">System Health</div>
+                      <div className="text-sm text-slate-600">Kontrollera status</div>
+                    </div>
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <PlatformHealth />
-              <PerformanceMonitor />
-            </div>
+            {/* Recent Activity */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-blue-600" />
+                  Senaste Aktivitet
+                </CardTitle>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportera
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { action: "Ny konsult registrerad", user: "system", time: "2 min sedan", type: "success" },
+                    { action: "Uppdrag skapat", user: "admin", time: "15 min sedan", type: "info" },
+                    { action: "Matchning genomförd", user: "system", time: "1 timme sedan", type: "success" },
+                    { action: "Användare inaktiverad", user: "admin", time: "3 timmar sedan", type: "warning" }
+                  ].map((activity, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Badge variant={activity.type === 'success' ? 'default' : activity.type === 'warning' ? 'destructive' : 'secondary'}>
+                          {activity.type}
+                        </Badge>
+                        <div>
+                          <div className="font-medium text-slate-900">{activity.action}</div>
+                          <div className="text-sm text-slate-600">av {activity.user}</div>
+                        </div>
+                      </div>
+                      <div className="text-sm text-slate-500">{activity.time}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="consultants">
+            <ConsultantManagement consultants={consultants} />
           </TabsContent>
 
           <TabsContent value="users">
             <UserManagement />
           </TabsContent>
 
-          <TabsContent value="consultants">
-            <ConsultantManagement />
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <AdvancedAnalytics />
-          </TabsContent>
-
           <TabsContent value="reports">
-            <ReportsOverview 
-              consultants={consultants}
-              assignments={assignments}
-              matches={matches}
+            <DetailedReporting 
+              consultants={consultants} 
+              assignments={assignments} 
+              matches={matches} 
             />
           </TabsContent>
 
-          <TabsContent value="ai-chat">
-            <EnhancedAIChat 
-              consultants={consultants}
-              assignments={assignments}
-              matches={matches}
-            />
-          </TabsContent>
-
-          <TabsContent value="health">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <PlatformHealth />
-              <Card>
-                <CardHeader>
-                  <CardTitle>Systemloggar</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm font-mono bg-gray-900 text-green-400 p-4 rounded-lg max-h-64 overflow-y-auto">
-                    <div>[2024-06-24 14:23:12] INFO: AI matching service operational</div>
-                    <div>[2024-06-24 14:23:11] INFO: Database connection stable</div>
-                    <div>[2024-06-24 14:23:10] INFO: Email service functional</div>
-                    <div>[2024-06-24 14:23:09] INFO: Cache hit rate: 94%</div>
-                    <div>[2024-06-24 14:23:08] INFO: API response time: 156ms</div>
-                    <div>[2024-06-24 14:23:07] INFO: User session created</div>
-                    <div>[2024-06-24 14:23:06] INFO: CV analysis completed</div>
-                    <div>[2024-06-24 14:23:05] INFO: New consultant registered</div>
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-blue-600" />
+                  Systeminställningar
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Allmänna Inställningar</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">Automatiska matchningar</div>
+                          <div className="text-sm text-slate-600">Aktivera automatisk matchning av konsulter</div>
+                        </div>
+                        <Button variant="outline" size="sm">Aktivera</Button>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">E-postnotifikationer</div>
+                          <div className="text-sm text-slate-600">Skicka notifikationer till användare</div>
+                        </div>
+                        <Button variant="outline" size="sm">Konfigurera</Button>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">Datalagring</div>
+                          <div className="text-sm text-slate-600">Hantera datalagring och backup</div>
+                        </div>
+                        <Button variant="outline" size="sm">Hantera</Button>
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="performance">
-            <PerformanceMonitor />
-          </TabsContent>
-
-          <TabsContent value="detailed-reports">
-            <DetailedReporting />
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
