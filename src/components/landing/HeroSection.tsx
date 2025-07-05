@@ -31,7 +31,7 @@ export const HeroSection = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-          <Link to="/cv-upload">
+          <Link to="/cv-upload-new">
             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
               <Upload className="h-5 w-5 mr-2" />
               Upload Your CV
