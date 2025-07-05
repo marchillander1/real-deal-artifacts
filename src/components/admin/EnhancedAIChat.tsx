@@ -71,7 +71,7 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
         totalAssignments: assignments.length,
         totalMatches: matches.length,
         successfulMatches: matches.filter(m => m.status === 'accepted').length,
-        avgMatchScore: matches.length > 0 ? Math.round(matches.reduce((sum, m) => {
+        avgMatchScore: matches.length > 0 ? Math.round(matches.reduce((sum: number, m: any) => {
           const score = Number(m.match_score);
           return sum + (isNaN(score) ? 0 : score);
         }, 0) / matches.length) : 0
@@ -114,11 +114,11 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
       const suggestions = [];
       
       if (matches.length > 0) {
-        const totalScore = matches.reduce((sum, m) => {
+        const totalScore: number = matches.reduce((sum: number, m: any) => {
           const score = Number(m.match_score);
           return sum + (isNaN(score) ? 0 : score);
         }, 0);
-        const avgScore = totalScore / matches.length;
+        const avgScore: number = totalScore / matches.length;
         
         if (avgScore < 80) {
           suggestions.push('🎯 Förbättra matchningsalgoritmen - snittet är ' + Math.round(avgScore) + '%');
