@@ -1,141 +1,68 @@
 
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Upload, Sparkles, Clock, Users, TrendingUp, Shield, Play } from 'lucide-react';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Zap, Users, TrendingUp, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import TrialSignupModal from './TrialSignupModal';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 
 export const HeroSection = () => {
-  const { consultants } = useSupabaseConsultantsWithDemo();
-  
-  // Fetch matches data for stats
-  const { data: matchesData = [] } = useQuery({
-    queryKey: ['matches'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('matches')
-        .select('*');
-      if (error) {
-        console.error('Error fetching matches:', error);
-        return [];
-      }
-      return data || [];
-    },
-  });
-
-  // Real dashboard stats using actual data from matchwiseai
-  const networkConsultants = consultants.filter(consultant => consultant.type === 'new');
-  const successfulMatches = matchesData.filter(match => match.status === 'accepted').length;
-  const totalConsultants = consultants.length;
-
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                           radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                           radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%)`
-        }} />
-      </div>
-
-      <div className="relative container mx-auto px-4 py-20 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Column - Text Content */}
-          <div className="space-y-8">
-            <div className="space-y-6">
-              <div className="inline-flex items-center px-3 py-1.5 bg-blue-600/20 border border-blue-400/20 rounded-full text-blue-300 text-sm font-medium">
-                <Sparkles className="w-3 h-3 mr-2" />
-                Human-First AI Matching
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Match the whole
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400"> person</span>
-                <br />not just the CV
-              </h1>
-              
-              <p className="text-xl text-slate-300 leading-relaxed max-w-2xl">
-                MatchWise AI revolutionizes consultant matching by analyzing both technical skills AND soft factors like values, communication style, and personal fit.
-              </p>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/demo"
-                className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-lg transition-all duration-300 hover:shadow-xl"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Try Free Demo
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </div>
-
-            {/* CTA Buttons Row 2 */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <TrialSignupModal 
-                trigger={
-                  <button className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-300 hover:shadow-xl">
-                    Start Free Trial
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </button>
-                }
-              />
-              
-              <Link
-                to="/cv-upload"
-                className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-slate-800 bg-white hover:bg-gray-50 rounded-lg transition-all duration-300 hover:shadow-xl"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Join Consultants
-              </Link>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-6 pt-8">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mb-3 mx-auto">
-                  <Sparkles className="h-6 w-6 text-blue-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-1">Human-First</h3>
-                <p className="text-sm text-slate-400">AI Matching</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center mb-3 mx-auto">
-                  <Clock className="h-6 w-6 text-green-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-1">12 seconds</h3>
-                <p className="text-sm text-slate-400">Analysis</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center mb-3 mx-auto">
-                  <Shield className="h-6 w-6 text-purple-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-1">GDPR</h3>
-                <p className="text-sm text-slate-400">Secure</p>
-              </div>
-            </div>
+    <section className="relative min-h-screen flex items-center justify-center px-4 pt-20">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur-sm"></div>
+      
+      <div className="relative z-10 max-w-6xl mx-auto text-center">
+        <div className="mb-8">
+          <span className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium mb-6">
+            <Zap className="h-4 w-4 mr-2" />
+            AI-Powered Consultant Matching
+          </span>
+        </div>
+        
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+          Find Perfect
+          <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            {" "}Consultants{" "}
+          </span>
+          in Minutes
+        </h1>
+        
+        <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-4xl mx-auto leading-relaxed">
+          Revolutionary AI technology that analyzes CVs, LinkedIn profiles, and soft skills 
+          to match you with the perfect consultants for any project.
+        </p>
+        
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+          <Link to="/cv-upload-new">
+            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+              <Upload className="h-5 w-5 mr-2" />
+              Upload Your CV
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </Button>
+          </Link>
+          
+          <Link to="/matchwiseai">
+            <Button variant="outline" size="lg" className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm">
+              Explore Platform
+            </Button>
+          </Link>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="text-center p-6 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20">
+            <Users className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">500+ Consultants</h3>
+            <p className="text-gray-300">Verified experts across all industries</p>
           </div>
-
-          {/* Right Column - Live Network Count Only */}
-          <div className="space-y-6">
-            {/* Live Network Count */}
-            <div className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
-              <div className="flex items-center justify-center mb-3">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 font-medium">LIVE</span>
-                </div>
-              </div>
-              <div className="text-3xl font-bold mb-2">{totalConsultants}</div>
-              <div className="text-slate-300">Active Network Consultants</div>
-              <div className="text-sm text-green-400 mt-2">+{Math.floor(Math.random() * 5) + 1} joined this hour</div>
-            </div>
+          
+          <div className="text-center p-6 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20">
+            <Zap className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">AI Matching</h3>
+            <p className="text-gray-300">95% accuracy in consultant matching</p>
+          </div>
+          
+          <div className="text-center p-6 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20">
+            <TrendingUp className="h-12 w-12 text-green-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">60% Faster</h3>
+            <p className="text-gray-300">Reduce hiring time dramatically</p>
           </div>
         </div>
       </div>
