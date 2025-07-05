@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,7 +71,10 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
         totalAssignments: assignments.length,
         totalMatches: matches.length,
         successfulMatches: matches.filter(m => m.status === 'accepted').length,
-        avgMatchScore: matches.length > 0 ? Math.round(matches.reduce((sum, m) => sum + (Number(m.match_score) || 0), 0) / matches.length) : 0
+        avgMatchScore: matches.length > 0 ? Math.round(matches.reduce((sum, m) => {
+          const score = Number(m.match_score);
+          return sum + (isNaN(score) ? 0 : score);
+        }, 0) / matches.length) : 0
       };
 
       return `📊 **Plattformsstatistik**\n\n🏢 **Konsulter:** ${stats.totalConsultants} totalt (${stats.activeConsultants} aktiva)\n📋 **Uppdrag:** ${stats.totalAssignments} skapade\n🎯 **Matchningar:** ${stats.totalMatches} totalt (${stats.successfulMatches} lyckade)\n📈 **Framgångsgrad:** ${stats.totalMatches > 0 ? Math.round((stats.successfulMatches / stats.totalMatches) * 100) : 0}%\n⭐ **Snitt matchning:** ${stats.avgMatchScore} poäng\n\nVill du ha mer detaljerad analys av något specifikt område?`;
@@ -112,7 +114,12 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
       const suggestions = [];
       
       if (matches.length > 0) {
-        const avgScore = matches.reduce((sum, m) => sum + (Number(m.match_score) || 0), 0) / matches.length;
+        const totalScore = matches.reduce((sum, m) => {
+          const score = Number(m.match_score);
+          return sum + (isNaN(score) ? 0 : score);
+        }, 0);
+        const avgScore = totalScore / matches.length;
+        
         if (avgScore < 80) {
           suggestions.push('🎯 Förbättra matchningsalgoritmen - snittet är ' + Math.round(avgScore) + '%');
         }
