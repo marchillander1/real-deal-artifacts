@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Plus, X, Mail } from 'lucide-react';
+import { Bell, Plus, X, Mail, Settings } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -93,7 +93,7 @@ export const SkillAlertsManager: React.FC = () => {
       setNewEmail('');
 
       toast({
-        title: "Skill Alert skapad!",
+        title: "Skill Alert skapad! 🔔",
         description: `Du kommer få email när nya konsulter med "${newSkill}" läggs till`,
       });
       
@@ -155,29 +155,33 @@ export const SkillAlertsManager: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-blue-600" />
-            Skill Alerts
+            Smart Skill Alerts
+            <Badge variant="outline" className="ml-2">Automatiska</Badge>
           </CardTitle>
           <p className="text-gray-600">
-            Få email-notifieringar när nya konsulter med specifika skills läggs till
+            Få email-notifieringar automatiskt när nya konsulter med specifika skills läggs till i nätverket
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Create New Alert */}
-          <div className="border rounded-lg p-4 bg-blue-50">
-            <h4 className="font-medium text-blue-900 mb-3">Skapa ny skill alert</h4>
+          <div className="border rounded-lg p-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex items-center gap-2 mb-3">
+              <Settings className="h-4 w-4 text-blue-600" />
+              <h4 className="font-medium text-blue-900">Skapa ny automatisk alert</h4>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Input
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
                 placeholder="t.ex. React, Python, DevOps"
-                className="bg-white"
+                className="bg-white border-blue-200 focus:border-blue-400"
               />
               <Input
                 type="email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="din@email.com"
-                className="bg-white"
+                className="bg-white border-blue-200 focus:border-blue-400"
               />
               <Button
                 onClick={handleCreateAlert}
@@ -192,43 +196,47 @@ export const SkillAlertsManager: React.FC = () => {
 
           {/* Existing Alerts */}
           <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">Aktiva alerts ({alerts.length})</h4>
+            <h4 className="font-medium text-gray-900 flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Aktiva alerts ({alerts.length})
+            </h4>
             
             {alerts.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Bell className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                 <p>Inga skill alerts skapade ännu</p>
-                <p className="text-sm">Skapa din första alert ovan</p>
+                <p className="text-sm">Skapa din första alert ovan för att få automatiska notifieringar</p>
               </div>
             ) : (
               alerts.map((alert) => (
-                <Card key={alert.id} className="border-l-4 border-l-green-500">
+                <Card key={alert.id} className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Mail className="h-4 w-4 text-gray-500" />
                           <span className="text-sm text-gray-600">{alert.email}</span>
-                          <Badge variant="outline" className="text-green-600 border-green-200">
-                            Aktiv
+                          <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                            🔔 Aktiv
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1 mb-2">
                           {alert.skills.map((skill, index) => (
-                            <Badge key={index} className="bg-blue-100 text-blue-800">
+                            <Badge key={index} className="bg-blue-100 text-blue-800 hover:bg-blue-200">
                               {skill}
                             </Badge>
                           ))}
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Skapad: {new Date(alert.created_at).toLocaleDateString('sv-SE')}
+                        <p className="text-xs text-gray-500">
+                          Skapad: {new Date(alert.created_at).toLocaleDateString('sv-SE')} • 
+                          <span className="text-green-600 ml-1">Automatiska email-alerts aktiverade</span>
                         </p>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteAlert(alert.id)}
-                        className="text-gray-400 hover:text-red-600"
+                        className="text-gray-400 hover:text-red-600 hover:bg-red-50"
                       >
                         <X className="h-4 w-4" />
                       </Button>
