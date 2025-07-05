@@ -10,6 +10,8 @@ import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { ReportsOverview } from '@/components/reports/ReportsOverview';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { ConsultantManagement } from '@/components/admin/ConsultantManagement';
+import { EnhancedAIChat } from '@/components/admin/EnhancedAIChat';
+import { DetailedReporting } from '@/components/admin/DetailedReporting';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,7 +61,7 @@ const AdminPortal: React.FC = () => {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Översikt
@@ -76,17 +78,25 @@ const AdminPortal: React.FC = () => {
               <Activity className="h-4 w-4" />
               Analys
             </TabsTrigger>
-            <TabsTrigger value="health" className="flex items-center gap-2">
+            <TabsTrigger value="reports" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Rapporter
+            </TabsTrigger>
+            <TabsTrigger value="ai-chat" className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
+              AI-Chat
+            </TabsTrigger>
+            <TabsTrigger value="health" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
               Systemhälsa
             </TabsTrigger>
             <TabsTrigger value="performance" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Prestanda
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2">
+            <TabsTrigger value="detailed-reports" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
-              Rapporter
+              Detaljrapporter
             </TabsTrigger>
           </TabsList>
 
@@ -183,6 +193,22 @@ const AdminPortal: React.FC = () => {
             <AdvancedAnalytics />
           </TabsContent>
 
+          <TabsContent value="reports">
+            <ReportsOverview 
+              consultants={consultants}
+              assignments={assignments}
+              matches={matches}
+            />
+          </TabsContent>
+
+          <TabsContent value="ai-chat">
+            <EnhancedAIChat 
+              consultants={consultants}
+              assignments={assignments}
+              matches={matches}
+            />
+          </TabsContent>
+
           <TabsContent value="health">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PlatformHealth />
@@ -210,12 +236,8 @@ const AdminPortal: React.FC = () => {
             <PerformanceMonitor />
           </TabsContent>
 
-          <TabsContent value="reports">
-            <ReportsOverview 
-              consultants={consultants}
-              assignments={assignments}
-              matches={matches}
-            />
+          <TabsContent value="detailed-reports">
+            <DetailedReporting />
           </TabsContent>
         </Tabs>
       </div>
