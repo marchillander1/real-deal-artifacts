@@ -14,14 +14,14 @@ export default function Navbar() {
             <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
               <Link to="/demo">Try Demo</Link>
             </Button>
-            <Button variant="ghost" onClick={() => window.open('/cv-upload', '_blank')} className="text-slate-300 hover:text-white hover:bg-slate-800">
-              Upload CV
+            <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
+              <Link to="/cv-upload-new">Upload CV</Link>
             </Button>
             <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
               <Link to="/my-profile">My Profile</Link>
             </Button>
             <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
-              <Link to="/pricing-auth">Get Started</Link>
+              <Link to="/auth">Get Started</Link>
             </Button>
           </div>
         </div>
