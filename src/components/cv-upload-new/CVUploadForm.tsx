@@ -125,6 +125,10 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
     }
   };
 
+  const handleGdprConsentChange = (checked: boolean | 'indeterminate') => {
+    setGdprConsent(checked === true);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <Card className="shadow-xl">
@@ -226,7 +230,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
               <Checkbox
                 id="gdpr"
                 checked={gdprConsent}
-                onCheckedChange={setGdprConsent}
+                onCheckedChange={handleGdprConsentChange}
                 className="mt-1"
               />
               <div className="flex-1">

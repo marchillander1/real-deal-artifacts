@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CheckCircle, User, Star, TrendingUp, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -93,6 +94,14 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
     }
   };
 
+  const handleTermsChange = (checked: boolean | 'indeterminate') => {
+    setAgreedToTerms(checked === true);
+  };
+
+  const handlePublicProfileChange = (checked: boolean | 'indeterminate') => {
+    setMakeProfilePublic(checked === true);
+  };
+
   const personalInfo = analysisData?.personalInfo || {};
   const skills = analysisData?.skills || {};
   const marketAnalysis = analysisData?.marketAnalysis || {};
@@ -150,7 +159,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               <Checkbox
                 id="public-profile"
                 checked={makeProfilePublic}
-                onCheckedChange={setMakeProfilePublic}
+                onCheckedChange={handlePublicProfileChange}
               />
               <div>
                 <Label htmlFor="public-profile" className="font-medium cursor-pointer">
@@ -166,7 +175,7 @@ export const SummaryConfirmation: React.FC<SummaryConfirmationProps> = ({
               <Checkbox
                 id="terms"
                 checked={agreedToTerms}
-                onCheckedChange={setAgreedToTerms}
+                onCheckedChange={handleTermsChange}
               />
               <div>
                 <Label htmlFor="terms" className="font-medium cursor-pointer">
