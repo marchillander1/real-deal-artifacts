@@ -8,22 +8,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 interface AnalysisResultsProps {
-  analysisResult: {
-    sessionId: string;
-    profileId: string;
-    analysisData: any;
-  };
-  onContinue: () => void;
-  onRestart: () => void;
+  analysisData: any;
+  onViewResults: () => void;
 }
 
 export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
-  analysisResult,
-  onContinue,
-  onRestart
+  analysisData,
+  onViewResults
 }) => {
   const [showLinkedInSummary, setShowLinkedInSummary] = useState(false);
-  const analysisData = analysisResult.analysisData;
   
   console.log('Full analysis data in AnalysisResults:', JSON.stringify(analysisData, null, 2));
   
@@ -596,7 +589,7 @@ ${marketAnalysis?.recommendedFocus || 'Fortsätt utveckla expertis och kundrelat
           {/* Action Buttons */}
           <div className="flex justify-between items-center pt-6 border-t border-slate-200">
             <Button
-              onClick={onRestart}
+              onClick={() => window.location.reload()}
               variant="outline"
               size="lg"
               className="px-6 py-3"
@@ -605,7 +598,7 @@ ${marketAnalysis?.recommendedFocus || 'Fortsätt utveckla expertis och kundrelat
             </Button>
             
             <Button
-              onClick={onContinue}
+              onClick={onViewResults}
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl"
             >

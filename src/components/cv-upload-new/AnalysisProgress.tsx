@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Brain, FileText, Linkedin, Database, CheckCircle, Loader2, Sparkles, TrendingUp, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -6,18 +7,13 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnalysisProgressProps {
-  uploadData: {
-    file: File | null;
-    linkedinUrl: string;
-    personalTagline: string;
-    gdprConsent: boolean;
-  };
-  onComplete: (result: any) => void;
+  sessionToken: string;
+  onAnalysisComplete: (data: any) => void;
 }
 
 export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
-  uploadData,
-  onComplete
+  sessionToken,
+  onAnalysisComplete
 }) => {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('Preparing analysis...');
@@ -93,16 +89,25 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       clearInterval(insightInterval);
       clearInterval(timeInterval);
     };
-  }, []);
+  }, [sessionToken]);
 
   const performAnalysis = async () => {
     try {
       setProgress(5);
       setCurrentStep('Preparing analysis...');
       
-      const sessionToken = crypto.randomUUID();
+      // Get upload session data
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('upload_sessions')
+        .select('*')
+        .eq('session_token', sessionToken)
+        .single();
 
-      // Step 1: CV Analysis with personal tagline
+      if (sessionError || !sessionData) {
+        throw new Error('Upload session not found');
+      }
+
+      // Step 1: CV Analysis
       setProgress(15);
       setCurrentStep('Analyzing CV with Gemini AI...');
       setAnalysisInsights(['🎯 Identifying your unique strengths...']);
@@ -135,12 +140,23 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       setProgress(95);
       setCurrentStep('Creating consultant profile...');
       
-      console.log('🚀 Starting CV analysis with personal tagline:', uploadData.personalTagline);
+      console.log('🚀 Starting CV analysis with session token:', sessionToken);
       
       const formData = new FormData();
-      formData.append('file', uploadData.file!);
-      formData.append('linkedinUrl', uploadData.linkedinUrl);
-      formData.append('personalDescription', uploadData.personalTagline); // Pass personal tagline as description
+      
+      // Download the CV file from storage and add to FormData
+      const { data: fileData, error: fileError } = await supabase.storage
+        .from('cv-uploads')
+        .download(sessionData.cv_file_path);
+
+      if (fileError || !fileData) {
+        throw new Error('Failed to download CV file');
+      }
+
+      const file = new File([fileData], 'cv.pdf', { type: 'application/pdf' });
+      formData.append('file', file);
+      formData.append('linkedinUrl', sessionData.linkedin_url || '');
+      formData.append('personalDescription', sessionData.personal_tagline || '');
 
       console.log('📤 Calling parse-cv function with data...');
 
@@ -170,7 +186,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           description: "Your consultant profile has been created with AI-driven insights",
         });
         
-        onComplete({
+        onAnalysisComplete({
           sessionId: sessionToken,
           profileId: result.analysis?.personalInfo?.name || 'profile',
           analysisData: result.analysis
@@ -364,16 +380,6 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           )}
         </CardContent>
       </Card>
-
-      <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

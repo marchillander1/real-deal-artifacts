@@ -5,13 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface JoinNetworkSuccessProps {
-  profileId: string;
-  onRestart: () => void;
+  consultantId: string;
 }
 
 export const JoinNetworkSuccess: React.FC<JoinNetworkSuccessProps> = ({
-  profileId,
-  onRestart
+  consultantId
 }) => {
   const handleExploreOpportunities = () => {
     // Navigate to the main dashboard
@@ -21,6 +19,10 @@ export const JoinNetworkSuccess: React.FC<JoinNetworkSuccessProps> = ({
   const handleViewProfile = () => {
     // For now, just show an alert - later this could navigate to a profile page
     alert('Profile viewing will be available soon!');
+  };
+
+  const handleStartOver = () => {
+    window.location.reload();
   };
 
   return (
@@ -105,7 +107,7 @@ export const JoinNetworkSuccess: React.FC<JoinNetworkSuccessProps> = ({
           {/* Additional Info */}
           <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
             <p className="text-sm text-slate-600 text-center">
-              <strong>Profile ID:</strong> {profileId.substring(0, 8)}... • 
+              <strong>Profile ID:</strong> {consultantId.substring(0, 8)}... • 
               <strong> Network Status:</strong> Active • 
               <strong> Visibility:</strong> Public to verified companies
             </p>
@@ -114,7 +116,7 @@ export const JoinNetworkSuccess: React.FC<JoinNetworkSuccessProps> = ({
           {/* Start Over Option */}
           <div className="mt-6 text-center">
             <button
-              onClick={onRestart}
+              onClick={handleStartOver}
               className="text-sm text-slate-500 hover:text-slate-700 underline transition-colors duration-200"
             >
               Want to analyze another CV? Start over
