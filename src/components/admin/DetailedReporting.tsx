@@ -1,37 +1,60 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-  Download, 
-  TrendingUp, 
-  Users, 
-  Target, 
-  Calendar,
-  FileText,
-  BarChart3,
-  PieChart
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Download, FileText, Users, Target, BarChart3, Filter, Search } from 'lucide-react';
+import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { usePDFExport } from '@/hooks/usePDFExport';
-import { toast } from 'sonner';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
+interface Match {
+  id: string;
+  assignment_id: string;
+  consultant_id: string;
+  match_score: number;
+  status: string;
+  created_at: string;
+  cultural_match: number;
+  communication_match: number;
+  values_alignment: number;
+}
+
+interface Consultant {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
+  experience_years: number;
+  skills: string[];
+  availability: string;
+  is_published: boolean;
+  created_at: string;
+  projects_completed: number;
+  hourly_rate: number;
+}
+
+interface Assignment {
+  id: string;
+  title: string;
+  company: string;
+  industry: string;
+  budget_min: number;
+  budget_max: number;
+  budget_currency: string;
+  status: string;
+  created_at: string;
+}
 
 export const DetailedReporting: React.FC = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('30d');
-  const { exportMatchesToPDF, exportConsultantListToPDF } = usePDFExport();
-
-  // Fetch data for reports
-  const { data: consultants = [] } = useQuery({
-    queryKey: ['admin-consultants-detailed'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('consultants').select('*');
-      return error ? [] : data;
-    },
-  });
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const { consultants } = useSupabaseConsultantsWithDemo();
 
   const { data: assignments = [] } = useQuery({
     queryKey: ['admin-assignments-detailed'],
@@ -49,231 +72,232 @@ export const DetailedReporting: React.FC = () => {
     },
   });
 
-  // Calculate detailed statistics
-  const stats = {
-    totalConsultants: consultants.length,
-    activeConsultants: consultants.filter(c => c.availability === 'Available').length,
-    totalAssignments: assignments.length,
-    completedMatches: matches.filter(m => m.status === 'accepted').length,
-    successRate: matches.length > 0 ? Math.round((matches.filter(m => m.status === 'accepted').length / matches.length) * 100) : 0,
-    avgMatchScore: matches.length > 0 ? Math.round(matches.reduce((sum, m) => sum + (m.match_score || 0), 0) / matches.length) : 0
+  const processedMatches = matches.map(match => ({
+    id: match.id,
+    assignmentTitle: assignments.find(a => a.id === match.assignment_id)?.title || 'Unknown Assignment',
+    consultantName: consultants.find(c => c.id === match.consultant_id)?.name || 'Unknown Consultant',
+    matchScore: match.match_score || 0,
+    status: match.status || 'pending',
+    createdAt: match.created_at ? new Date(match.created_at).toLocaleDateString() : 'Unknown',
+    culturalMatch: match.cultural_match || 0,
+    communicationMatch: match.communication_match || 0,
+    valuesAlignment: match.values_alignment || 0
+  }));
+
+  const processedConsultants = consultants.map(consultant => ({
+    id: consultant.id,
+    name: consultant.name,
+    email: consultant.email,
+    title: consultant.title || 'Consultant',
+    experience: consultant.experience_years || 0,
+    skills: consultant.skills || [],
+    availability: consultant.availability || 'Available',
+    isPublished: consultant.is_published || false,
+    createdAt: consultant.created_at ? new Date(consultant.created_at).toLocaleDateString() : 'Unknown',
+    projects: consultant.projects_completed || 0,
+    rate: consultant.hourly_rate || 0,
+    lastActive: 'Today'
+  }));
+
+  const exportMatchesPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(20);
+    doc.text('Matchnings Rapport', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Genererad: ${new Date().toLocaleDateString()}`, 20, 30);
+    
+    const tableData = processedMatches.map(match => [
+      match.assignmentTitle,
+      match.consultantName,
+      `${match.matchScore}%`,
+      match.status,
+      match.createdAt
+    ]);
+
+    (doc as any).autoTable({
+      head: [['Uppdrag', 'Konsult', 'Match %', 'Status', 'Skapad']],
+      body: tableData,
+      startY: 40,
+    });
+    
+    doc.save('matchningar-rapport.pdf');
   };
 
-  const handleExportDetailedReport = async () => {
-    try {
-      // Create a comprehensive report with all data
-      const mockAssignment = {
-        title: "Detaljerad Plattformsrapport",
-        company: "MatchWise Platform",
-        description: `Omfattande rapport för perioden ${selectedPeriod}`
-      };
+  const exportConsultantsPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(20);
+    doc.text('Konsult Rapport', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Genererad: ${new Date().toLocaleDateString()}`, 20, 30);
+    
+    const tableData = processedConsultants.map(consultant => [
+      consultant.name,
+      consultant.title,
+      `${consultant.experience} år`,
+      consultant.skills.slice(0, 3).join(', '),
+      consultant.availability
+    ]);
 
-      const reportMatches = matches.map(match => {
-        const consultant = consultants.find(c => c.id === match.consultant_id);
-        return {
-          consultant: consultant || { name: 'Okänd konsult', skills: [], location: 'Okänd', rate: 'N/A', experience: 'N/A' },
-          score: match.match_score || 0,
-          matchedSkills: match.matched_skills || [],
-          estimatedSavings: match.estimated_savings || 0,
-          responseTime: match.response_time_hours || 0,
-          humanFactorsScore: match.human_factors_score || 0,
-          culturalMatch: match.cultural_match || 0,
-          communicationMatch: match.communication_match || 0,
-          valuesAlignment: match.values_alignment || 0
-        };
-      });
-
-      await exportMatchesToPDF(reportMatches.slice(0, 10), mockAssignment);
-      toast.success('Detaljerad rapport exporterad som PDF');
-    } catch (error) {
-      toast.error('Fel vid export av rapport');
-    }
+    (doc as any).autoTable({
+      head: [['Namn', 'Titel', 'Erfarenhet', 'Huvudkompetenser', 'Tillgänglighet']],
+      body: tableData,
+      startY: 40,
+    });
+    
+    doc.save('konsulter-rapport.pdf');
   };
 
-  const handleExportConsultants = async () => {
-    try {
-      await exportConsultantListToPDF(consultants);
-      toast.success('Konsultlista exporterad som PDF');
-    } catch (error) {
-      toast.error('Fel vid export av konsultlista');
-    }
-  };
+  const skillAnalysis = consultants.reduce((acc, consultant) => {
+    (consultant.skills || []).forEach(skill => {
+      acc[skill] = (acc[skill] || 0) + 1;
+    });
+    return acc;
+  }, {} as Record<string, number>);
+
+  const topSkills = Object.entries(skillAnalysis)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 10);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Detaljerad Rapportering</h2>
-          <p className="text-gray-600">Omfattande analytics och exportfunktioner</p>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          <select 
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="7d">Senaste 7 dagarna</option>
-            <option value="30d">Senaste 30 dagarna</option>
-            <option value="90d">Senaste 90 dagarna</option>
-            <option value="1y">Senaste året</option>
-          </select>
-          
-          <Button onClick={handleExportDetailedReport} className="flex items-center gap-2">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Detaljerade Rapporter</h2>
+        <div className="flex gap-2">
+          <Button onClick={exportMatchesPDF} variant="outline" className="flex items-center gap-2">
             <Download className="h-4 w-4" />
-            Exportera Rapport
+            Export Matchningar
+          </Button>
+          <Button onClick={exportConsultantsPDF} variant="outline" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            Export Konsulter
           </Button>
         </div>
       </div>
 
-      {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <Users className="h-8 w-8 text-blue-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.totalConsultants}</p>
-                <p className="text-gray-600">Totala konsulter</p>
-                <p className="text-xs text-green-600">+{stats.activeConsultants} aktiva</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <Target className="h-8 w-8 text-green-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.successRate}%</p>
-                <p className="text-gray-600">Framgångsgrad</p>
-                <p className="text-xs text-gray-500">{stats.completedMatches} lyckade</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-purple-500">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <BarChart3 className="h-8 w-8 text-purple-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.avgMatchScore}</p>
-                <p className="text-gray-600">Snitt matchning</p>
-                <p className="text-xs text-gray-500">av 100 poäng</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-orange-500">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <TrendingUp className="h-8 w-8 text-orange-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.totalAssignments}</p>
-                <p className="text-gray-600">Totala uppdrag</p>
-                <p className="text-xs text-gray-500">Skapade hittills</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="matches" className="space-y-6">
+      <Tabs defaultValue="matches" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="matches">Matchningar</TabsTrigger>
           <TabsTrigger value="consultants">Konsulter</TabsTrigger>
           <TabsTrigger value="assignments">Uppdrag</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="analytics">Analys</TabsTrigger>
         </TabsList>
 
         <TabsContent value="matches">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Matchningsrapport</CardTitle>
-              <Button variant="outline" onClick={handleExportDetailedReport}>
-                <FileText className="h-4 w-4 mr-2" />
-                Exportera
-              </Button>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                Matchningsrapport
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Konsult</TableHead>
-                    <TableHead>Uppdrag</TableHead>
-                    <TableHead>Matchningsgrad</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Skapad</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {matches.slice(0, 10).map((match) => {
-                    const consultant = consultants.find(c => c.id === match.consultant_id);
-                    const assignment = assignments.find(a => a.id === match.assignment_id);
-                    
-                    return (
-                      <TableRow key={match.id}>
-                        <TableCell className="font-medium">
-                          {consultant?.name || 'Okänd konsult'}
-                        </TableCell>
-                        <TableCell>{assignment?.title || 'Okänt uppdrag'}</TableCell>
-                        <TableCell>
-                          <Badge variant={match.match_score >= 80 ? 'default' : 'secondary'}>
-                            {match.match_score}%
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={match.status === 'accepted' ? 'default' : 'secondary'}>
-                            {match.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(match.created_at || '').toLocaleDateString('sv-SE')}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Sök matchningar..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <Select value={activeFilter} onValueChange={setActiveFilter}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Filtrera status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alla</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="accepted">Accepterad</SelectItem>
+                      <SelectItem value="rejected">Avvisad</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Uppdrag</TableHead>
+                      <TableHead>Konsult</TableHead>
+                      <TableHead>Match %</TableHead>
+                      <TableHead>Kulturell Match</TableHead>
+                      <TableHead>Kommunikation</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Skapad</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {processedMatches
+                      .filter(match => 
+                        activeFilter === 'all' || match.status === activeFilter
+                      )
+                      .filter(match =>
+                        match.assignmentTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        match.consultantName.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .map((match) => (
+                        <TableRow key={match.id}>
+                          <TableCell className="font-medium">{match.assignmentTitle}</TableCell>
+                          <TableCell>{match.consultantName}</TableCell>
+                          <TableCell>
+                            <Badge variant={match.matchScore >= 80 ? "default" : match.matchScore >= 60 ? "secondary" : "destructive"}>
+                              {match.matchScore}%
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{match.culturalMatch}%</TableCell>
+                          <TableCell>{match.communicationMatch}%</TableCell>
+                          <TableCell>
+                            <Badge variant={match.status === 'accepted' ? "default" : match.status === 'pending' ? "secondary" : "destructive"}>
+                              {match.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{match.createdAt}</TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="consultants">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Konsultrapport</CardTitle>
-              <Button variant="outline" onClick={handleExportConsultants}>
-                <FileText className="h-4 w-4 mr-2" />
-                Exportera
-              </Button>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Konsultrapport
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Namn</TableHead>
-                    <TableHead>Kompetenser</TableHead>
+                    <TableHead>Titel</TableHead>
                     <TableHead>Erfarenhet</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Registrerad</TableHead>
+                    <TableHead>Kompetenser</TableHead>
+                    <TableHead>Tillgänglighet</TableHead>
+                    <TableHead>Publicerad</TableHead>
+                    <TableHead>Skapad</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {consultants.slice(0, 10).map((consultant) => (
+                  {processedConsultants.map((consultant) => (
                     <TableRow key={consultant.id}>
                       <TableCell className="font-medium">{consultant.name}</TableCell>
+                      <TableCell>{consultant.title}</TableCell>
+                      <TableCell>{consultant.experience} år</TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {consultant.skills?.slice(0, 3).map((skill, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
+                          {consultant.skills.slice(0, 3).map((skill, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
                               {skill}
                             </Badge>
                           ))}
-                          {consultant.skills?.length > 3 && (
+                          {consultant.skills.length > 3 && (
                             <Badge variant="secondary" className="text-xs">
                               +{consultant.skills.length - 3}
                             </Badge>
@@ -281,16 +305,16 @@ export const DetailedReporting: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {consultant.experience_years ? `${consultant.experience_years} år` : 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={consultant.availability === 'Available' ? 'default' : 'secondary'}>
+                        <Badge variant={consultant.availability === 'Available' ? "default" : "secondary"}>
                           {consultant.availability}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {new Date(consultant.created_at || '').toLocaleDateString('sv-SE')}
+                        <Badge variant={consultant.isPublished ? "default" : "secondary"}>
+                          {consultant.isPublished ? 'Ja' : 'Nej'}
+                        </Badge>
                       </TableCell>
+                      <TableCell>{consultant.createdAt}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -302,7 +326,10 @@ export const DetailedReporting: React.FC = () => {
         <TabsContent value="assignments">
           <Card>
             <CardHeader>
-              <CardTitle>Uppdragsrapport</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Uppdragsrapport
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -310,37 +337,31 @@ export const DetailedReporting: React.FC = () => {
                   <TableRow>
                     <TableHead>Titel</TableHead>
                     <TableHead>Företag</TableHead>
-                    <TableHead>Kompetenser</TableHead>
+                    <TableHead>Bransch</TableHead>
+                    <TableHead>Budget</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Skapad</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {assignments.slice(0, 10).map((assignment) => (
+                  {assignments.map((assignment) => (
                     <TableRow key={assignment.id}>
                       <TableCell className="font-medium">{assignment.title}</TableCell>
                       <TableCell>{assignment.company}</TableCell>
+                      <TableCell>{assignment.industry || 'Ej specificerad'}</TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {assignment.required_skills?.slice(0, 2).map((skill, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
-                          {assignment.required_skills?.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{assignment.required_skills.length - 2}
-                            </Badge>
-                          )}
-                        </div>
+                        {assignment.budget_min && assignment.budget_max 
+                          ? `${assignment.budget_min.toLocaleString()} - ${assignment.budget_max.toLocaleString()} ${assignment.budget_currency}`
+                          : 'Ej specificerad'
+                        }
                       </TableCell>
                       <TableCell>
-                        <Badge variant={assignment.status === 'open' ? 'default' : 'secondary'}>
+                        <Badge variant={assignment.status === 'open' ? "default" : "secondary"}>
                           {assignment.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {new Date(assignment.created_at || '').toLocaleDateString('sv-SE')}
+                        {assignment.created_at ? new Date(assignment.created_at).toLocaleDateString() : 'Unknown'}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -355,61 +376,53 @@ export const DetailedReporting: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5" />
-                  Kompetensfördelning
+                  <BarChart3 className="h-5 w-5" />
+                  Kompetensanalys
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {['React', 'Python', 'Java', 'Node.js', 'AWS'].map((skill, index) => {
-                    const count = consultants.filter(c => 
-                      c.skills?.some(s => s.toLowerCase().includes(skill.toLowerCase()))
-                    ).length;
-                    const percentage = consultants.length > 0 ? Math.round((count / consultants.length) * 100) : 0;
-                    
-                    return (
-                      <div key={skill} className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{skill}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${percentage}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600 w-12">{percentage}%</span>
+                <div className="space-y-3">
+                  {topSkills.map(([skill, count], index) => (
+                    <div key={skill} className="flex items-center justify-between">
+                      <span className="font-medium">{index + 1}. {skill}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${(count / Math.max(...topSkills.map(([,c]) => c))) * 100}%` }}
+                          ></div>
                         </div>
+                        <span className="text-sm text-gray-500">{count}</span>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Matchningsstatistik
-                </CardTitle>
+                <CardTitle>Plattformsöversikt</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Genomsnittlig matchningsgrad</span>
-                    <span className="text-lg font-bold text-green-600">{stats.avgMatchScore}%</span>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{consultants.length}</div>
+                    <div className="text-sm text-blue-600">Totala Konsulter</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Lyckade matchningar</span>
-                    <span className="text-lg font-bold text-blue-600">{stats.completedMatches}</span>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{assignments.length}</div>
+                    <div className="text-sm text-green-600">Aktiva Uppdrag</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Totala matchningar</span>
-                    <span className="text-lg font-bold text-purple-600">{matches.length}</span>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">{matches.length}</div>
+                    <div className="text-sm text-purple-600">Totala Matchningar</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Framgångsgrad</span>
-                    <span className="text-lg font-bold text-orange-600">{stats.successRate}%</span>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {matches.length > 0 ? Math.round((matches.filter(m => m.status === 'accepted').length / matches.length) * 100) : 0}%
+                    </div>
+                    <div className="text-sm text-orange-600">Framgångsgrad</div>
                   </div>
                 </div>
               </CardContent>

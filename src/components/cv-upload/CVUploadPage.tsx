@@ -4,7 +4,7 @@ import { CVUploadStep } from './CVUploadStep';
 import { CVAnalysisStep } from './CVAnalysisStep';
 import { JoinNetworkStep } from './JoinNetworkStep';
 import { SuccessStep } from './SuccessStep';
-import { MatchWiseChat } from '../MatchWiseChat';
+import { CVCareerChat } from '../CVCareerChat';
 
 type UploadStep = 'upload' | 'analyzing' | 'join-network' | 'success';
 
@@ -80,6 +80,21 @@ export const CVUploadPage: React.FC = () => {
     }
   };
 
+  // Map step to chat step
+  const getChatStep = (): 'upload' | 'analyzing' | 'complete' => {
+    switch (currentStep) {
+      case 'upload':
+        return 'upload';
+      case 'analyzing':
+        return 'analyzing';
+      case 'join-network':
+      case 'success':
+        return 'complete';
+      default:
+        return 'upload';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
@@ -89,12 +104,12 @@ export const CVUploadPage: React.FC = () => {
             {renderCurrentStep()}
           </div>
           
-          {/* AI Chat Sidebar */}
+          {/* AI Career Chat Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
-              <MatchWiseChat 
+              <CVCareerChat 
                 analysisResults={analysisResult}
-                showWelcome={currentStep === 'upload'}
+                currentStep={getChatStep()}
                 isMinimized={isChatMinimized}
                 onToggleMinimize={() => setIsChatMinimized(!isChatMinimized)}
               />

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -112,7 +111,7 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
       const suggestions = [];
       
       if (matches.length > 0) {
-        const avgScore = matches.reduce((sum, m) => sum + (m.match_score || 0), 0) / matches.length;
+        const avgScore = matches.reduce((sum, m) => sum + (Number(m.match_score) || 0), 0) / matches.length;
         if (avgScore < 80) {
           suggestions.push('🎯 Förbättra matchningsalgoritmen - snittet är ' + Math.round(avgScore) + '%');
         }

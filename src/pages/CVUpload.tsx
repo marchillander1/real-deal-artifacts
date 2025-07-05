@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CVUploadPage } from '@/components/cv-upload-new/CVUploadPage';
+import { CVUploadPage } from '@/components/cv-upload/CVUploadPage';
 
 const CVUpload: React.FC = () => {
   return <CVUploadPage />;
