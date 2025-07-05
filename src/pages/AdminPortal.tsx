@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,7 +22,6 @@ import {
 import { ConsultantManagement } from '@/components/admin/ConsultantManagement';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { DetailedReporting } from '@/components/admin/DetailedReporting';
-// import { EnhancedAIChat } from '@/components/admin/EnhancedAIChat';
 import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
 import { useSupabaseAssignments } from '@/hooks/useSupabaseAssignments';
 import { useQuery } from '@tanstack/react-query';
@@ -33,8 +31,8 @@ const AdminPortal = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
   
-  const { data: consultants = [] } = useSupabaseConsultants();
-  const { data: assignments = [] } = useSupabaseAssignments();
+  const { consultants } = useSupabaseConsultants();
+  const { assignments } = useSupabaseAssignments();
   
   const { data: matches = [] } = useQuery({
     queryKey: ['admin-matches'],
@@ -124,7 +122,6 @@ const AdminPortal = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="border-l-4 border-l-blue-500">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -187,7 +184,6 @@ const AdminPortal = () => {
               </Card>
             </div>
 
-            {/* Quick Actions */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -221,7 +217,6 @@ const AdminPortal = () => {
               </CardContent>
             </Card>
 
-            {/* Recent Activity */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -260,7 +255,7 @@ const AdminPortal = () => {
           </TabsContent>
 
           <TabsContent value="consultants">
-            <ConsultantManagement consultants={consultants} />
+            <ConsultantManagement />
           </TabsContent>
 
           <TabsContent value="users">
