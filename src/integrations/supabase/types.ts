@@ -737,6 +737,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_management: {
+        Row: {
+          company: string | null
+          created_at: string
+          created_by: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          created_by: string
+          email: string
+          full_name: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          created_by?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           availability: string | null

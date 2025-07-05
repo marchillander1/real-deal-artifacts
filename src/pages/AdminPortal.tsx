@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Shield, Users, BarChart3, Settings, Database, Zap, Activity } from 'lucide-react';
+import { Shield, Users, BarChart3, Settings, Database, Zap, Activity, UserCog } from 'lucide-react';
 import { PlatformHealth } from '@/components/platform/PlatformHealth';
 import { PerformanceMonitor } from '@/components/optimization/PerformanceMonitor';
 import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { ReportsOverview } from '@/components/reports/ReportsOverview';
+import { UserManagement } from '@/components/admin/UserManagement';
+import { ConsultantManagement } from '@/components/admin/ConsultantManagement';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -57,10 +59,18 @@ const AdminPortal: React.FC = () => {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Översikt
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <UserCog className="h-4 w-4" />
+              Användare
+            </TabsTrigger>
+            <TabsTrigger value="consultants" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Konsulter
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
@@ -159,6 +169,14 @@ const AdminPortal: React.FC = () => {
               <PlatformHealth />
               <PerformanceMonitor />
             </div>
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="consultants">
+            <ConsultantManagement />
           </TabsContent>
 
           <TabsContent value="analytics">
