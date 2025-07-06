@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -263,11 +264,7 @@ const AdminPortal = () => {
           </TabsContent>
 
           <TabsContent value="reports">
-            <DetailedReporting 
-              consultants={consultants} 
-              assignments={assignments} 
-              matches={matches} 
-            />
+            <DetailedReporting />
           </TabsContent>
 
           <TabsContent value="settings">

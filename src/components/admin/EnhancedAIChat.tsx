@@ -79,7 +79,11 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
         ) : 0
       };
 
-      return `📊 **Plattformsstatistik**\n\n🏢 **Konsulter:** ${stats.totalConsultants} totalt (${stats.activeConsultants} aktiva)\n📋 **Uppdrag:** ${stats.totalAssignments} skapade\n🎯 **Matchningar:** ${stats.totalMatches} totalt (${stats.successfulMatches} lyckade)\n📈 **Framgångsgrad:** ${stats.totalMatches > 0 ? Math.round((stats.successfulMatches / stats.totalMatches) * 100) : 0}%\n⭐ **Snitt matchning:** ${stats.avgMatchScore} poäng\n\nVill du ha mer detaljerad analys av något specifikt område?`;
+      const totalMatches = Number(stats.totalMatches);
+      const successfulMatches = Number(stats.successfulMatches);
+      const successRate = totalMatches > 0 ? Math.round((successfulMatches / totalMatches) * 100) : 0;
+
+      return `📊 **Plattformsstatistik**\n\n🏢 **Konsulter:** ${stats.totalConsultants} totalt (${stats.activeConsultants} aktiva)\n📋 **Uppdrag:** ${stats.totalAssignments} skapade\n🎯 **Matchningar:** ${stats.totalMatches} totalt (${stats.successfulMatches} lyckade)\n📈 **Framgångsgrad:** ${successRate}%\n⭐ **Snitt matchning:** ${stats.avgMatchScore} poäng\n\nVill du ha mer detaljerad analys av något specifikt område?`;
     }
 
     // User management queries
