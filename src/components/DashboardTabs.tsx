@@ -29,23 +29,25 @@ export const DashboardTabs: React.FC = () => {
     title: assignment.title,
     description: assignment.description,
     company: assignment.company,
-    clientLogo: assignment.clientLogo || '🏢',
-    requiredSkills: assignment.requiredSkills || [],
+    clientLogo: assignment.client_logo || '🏢',
+    requiredSkills: assignment.required_skills || [],
     workload: assignment.workload || 'Full-time',
     duration: assignment.duration || '6 months',
-    budget: assignment.budget || 'Not specified',
-    remote: assignment.remote || 'Hybrid',
+    budget: assignment.budget_min && assignment.budget_max 
+      ? `${assignment.budget_min}-${assignment.budget_max} ${assignment.budget_currency}`
+      : 'Not specified',
+    remote: assignment.remote_type || 'Hybrid',
     urgency: assignment.urgency as 'Low' | 'Medium' | 'High',
-    teamSize: assignment.teamSize || '5-8 people',
-    teamCulture: assignment.teamCulture || '',
+    teamSize: assignment.team_size || '5-8 people',
+    teamCulture: assignment.team_culture || '',
     industry: assignment.industry || 'Technology',
     status: assignment.status as 'open' | 'in_progress' | 'completed' | 'cancelled',
-    createdAt: assignment.createdAt || new Date().toISOString(),
-    startDate: assignment.startDate || new Date().toISOString().split('T')[0],
-    desiredCommunicationStyle: assignment.desiredCommunicationStyle || '',
-    requiredValues: assignment.requiredValues || [],
-    leadershipLevel: assignment.leadershipLevel || 3,
-    teamDynamics: assignment.teamDynamics || ''
+    createdAt: assignment.created_at || new Date().toISOString(),
+    startDate: assignment.start_date || new Date().toISOString().split('T')[0],
+    desiredCommunicationStyle: assignment.desired_communication_style || '',
+    requiredValues: assignment.required_values || [],
+    leadershipLevel: assignment.leadership_level || 3,
+    teamDynamics: assignment.team_dynamics || ''
   }));
 
   // Combine database assignments with demo assignments
