@@ -51,7 +51,13 @@ export const CVUploadPage: React.FC = () => {
 
   const handleAnalysisComplete = (results: any) => {
     console.log('✅ Real CV analysis completed:', results);
-    setAnalysisData(results);
+    setAnalysisData(results.analysis);
+    
+    // Set consultant ID from the results
+    if (results.consultant?.id) {
+      setConsultantId(results.consultant.id);
+    }
+    
     setCurrentStep('results');
   };
 
