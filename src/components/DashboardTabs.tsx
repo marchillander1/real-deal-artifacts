@@ -25,12 +25,13 @@ export const DashboardTabs: React.FC = () => {
   // Convert assignments to the correct type format
   const formattedAssignments: Assignment[] = assignments.map(assignment => ({
     ...assignment,
+    duration: assignment.duration || '6 months', // Ensure duration is always present
     requiredSkills: assignment.required_skills || [],
     workload: assignment.workload || 'Full-time',
-    teamCulture: assignment.team_culture,
-    desiredCommunicationStyle: assignment.desired_communication_style,
+    teamCulture: assignment.team_culture || '',
+    desiredCommunicationStyle: assignment.desired_communication_style || '',
     requiredValues: assignment.required_values || [],
-    teamDynamics: assignment.team_dynamics,
+    teamDynamics: assignment.team_dynamics || '',
     leadershipLevel: assignment.leadership_level || 3
   }));
 
