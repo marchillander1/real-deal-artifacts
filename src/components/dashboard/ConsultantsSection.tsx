@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Search, 
   Users, 
@@ -14,9 +15,11 @@ import {
   Heart,
   MessageSquare,
   Filter,
-  Eye
+  Eye,
+  Plus
 } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
+import { UnifiedCVUpload } from '../cv-upload/UnifiedCVUpload';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ConsultantsSectionProps {
@@ -26,6 +29,11 @@ interface ConsultantsSectionProps {
 export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consultants }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<'all' | 'my' | 'network'>('all');
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+
+  // Separate consultants by type
+  const myTeamConsultants = consultants.filter(c => c.type === 'existing' || c.type === 'my');
+  const networkConsultants = consultants.filter(c => c.type === 'new' || c.type === 'network');
 
   const filteredConsultants = consultants.filter(consultant => {
     const matchesSearch = 
@@ -37,17 +45,35 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
 
     const matchesType = 
       selectedType === 'all' || 
-      (selectedType === 'my' && consultant.type === 'my') ||
-      (selectedType === 'network' && consultant.type === 'network');
+      (selectedType === 'my' && (consultant.type === 'existing' || consultant.type === 'my')) ||
+      (selectedType === 'network' && (consultant.type === 'new' || consultant.type === 'network'));
 
     return matchesSearch && matchesType;
   });
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'my': return 'bg-blue-100 text-blue-800';
-      case 'network': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'existing':
+      case 'my': 
+        return 'bg-blue-100 text-blue-800';
+      case 'new':
+      case 'network': 
+        return 'bg-green-100 text-green-800';
+      default: 
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'existing':
+      case 'my': 
+        return 'My Team';
+      case 'new':
+      case 'network': 
+        return 'Network';
+      default: 
+        return 'Unknown';
     }
   };
 
@@ -61,14 +87,31 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
     // TODO: Implement contact request functionality
   };
 
+  const handleUploadComplete = (consultant: any) => {
+    console.log('✅ Consultant added to team:', consultant);
+    setShowUploadDialog(false);
+    
+    // Refresh the page to show the new consultant
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  };
+
   return (
-    <div className="space-y-6 mt-12">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Consultants</h2>
           <p className="text-gray-600">Browse and manage your consultant network</p>
         </div>
+        <Button 
+          onClick={() => setShowUploadDialog(true)}
+          className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Consultant
+        </Button>
       </div>
 
       {/* Filters */}
@@ -97,14 +140,14 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
                 onClick={() => setSelectedType('my')}
                 size="sm"
               >
-                My Team ({consultants.filter(c => c.type === 'my').length})
+                My Team ({myTeamConsultants.length})
               </Button>
               <Button 
                 variant={selectedType === 'network' ? 'default' : 'outline'}
                 onClick={() => setSelectedType('network')}
                 size="sm"
               >
-                Network ({consultants.filter(c => c.type === 'network').length})
+                Network ({networkConsultants.length})
               </Button>
             </div>
           </div>
@@ -199,7 +242,7 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
                 </div>
                 <div className="flex flex-col items-end space-y-2">
                   <Badge className={getTypeColor(consultant.type)} variant="secondary">
-                    {consultant.type === 'my' ? 'My Team' : 'Network'}
+                    {getTypeLabel(consultant.type)}
                   </Badge>
                   <div className="text-sm text-gray-500">{consultant.experience}</div>
                 </div>
@@ -228,7 +271,7 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
                   <span>{consultant.projects} projects completed</span>
                 </div>
                 <div className="flex gap-2">
-                  {consultant.type === 'network' && (
+                  {(consultant.type === 'new' || consultant.type === 'network') && (
                     <>
                       <Button 
                         variant="outline" 
@@ -266,6 +309,20 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
           <p className="text-gray-600">Try adjusting your search or filters</p>
         </div>
       )}
+
+      {/* Upload Dialog */}
+      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Consultant to Team</DialogTitle>
+          </DialogHeader>
+          <UnifiedCVUpload
+            isMyConsultant={true}
+            onComplete={handleUploadComplete}
+            onClose={() => setShowUploadDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

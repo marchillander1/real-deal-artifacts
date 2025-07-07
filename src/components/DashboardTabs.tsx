@@ -22,6 +22,18 @@ export const DashboardTabs: React.FC = () => {
     console.log('Selected consultant:', consultant);
   };
 
+  // Convert assignments to the correct type format
+  const formattedAssignments: Assignment[] = assignments.map(assignment => ({
+    ...assignment,
+    requiredSkills: assignment.required_skills || [],
+    workload: assignment.workload || 'Full-time',
+    teamCulture: assignment.team_culture,
+    desiredCommunicationStyle: assignment.desired_communication_style,
+    requiredValues: assignment.required_values || [],
+    teamDynamics: assignment.team_dynamics,
+    leadershipLevel: assignment.leadership_level || 3
+  }));
+
   return (
     <div className="w-full">
       <Tabs defaultValue="overview" className="w-full">
@@ -35,7 +47,7 @@ export const DashboardTabs: React.FC = () => {
         <TabsContent value="overview" className="space-y-6">
           <DashboardOverview 
             consultants={consultants}
-            assignments={assignments}
+            assignments={formattedAssignments}
             onCreateAssignment={() => {}}
           />
         </TabsContent>
@@ -48,7 +60,7 @@ export const DashboardTabs: React.FC = () => {
         
         <TabsContent value="assignments" className="space-y-6">
           <AssignmentsSection 
-            assignments={assignments}
+            assignments={formattedAssignments}
             onMatch={handleMatch}
             consultants={consultants}
           />
