@@ -18,27 +18,29 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/landing" element={<Landing />} />
-          <Route path="/automations" element={<Automations />} />
-          <Route path="/matchwiseai" element={<MatchWiseAI />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/cv-upload" element={<CVUpload />} />
-          <Route path="/analysis" element={<Analysis />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/my-profile" element={<MyProfile />} />
-          <Route path="/admin" element={<AdminPortal />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App: React.FC = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/automations" element={<Automations />} />
+            <Route path="/matchwiseai" element={<MatchWiseAI />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/cv-upload" element={<CVUpload />} />
+            <Route path="/analysis" element={<Analysis />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/my-profile" element={<MyProfile />} />
+            <Route path="/admin" element={<AdminPortal />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
