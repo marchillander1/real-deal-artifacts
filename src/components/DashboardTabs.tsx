@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConsultantsSection } from './dashboard/ConsultantsSection';
@@ -40,7 +38,8 @@ export const DashboardTabs: React.FC = () => {
       : 'Medium' as 'Low' | 'Medium' | 'High',
     status: (assignment.status === 'open' || assignment.status === 'in_progress' || assignment.status === 'completed' || assignment.status === 'cancelled')
       ? assignment.status as 'open' | 'in_progress' | 'completed' | 'cancelled'
-      : 'open' as 'open' | 'in_progress' | 'completed' | 'cancelled'
+      : 'open' as 'open' | 'in_progress' | 'completed' | 'cancelled',
+    createdAt: assignment.created_at || new Date().toISOString()
   }));
 
   return (
