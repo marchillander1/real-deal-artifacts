@@ -35,41 +35,41 @@ interface AutomationData {
 const questions = [
   {
     key: 'trigger',
-    question: 'När ska denna automation starta? (Trigger)',
-    placeholder: 'T.ex. "När en ny konsult registrerar sig", "Varje måndag kl 09:00", "När ett uppdrag skapas"...'
+    question: 'When should this automation start? (Trigger)',
+    placeholder: 'E.g. "When a new consultant registers", "Every Monday at 09:00", "When an assignment is created"...'
   },
   {
     key: 'steps',
-    question: 'Vad ska hända, i vilken ordning? (Steg-för-steg flöde)',
-    placeholder: 'Beskriv alla steg som ska utföras automatiskt...'
+    question: 'What should happen, in which order? (Step-by-step flow)',
+    placeholder: 'Describe all steps that should be executed automatically...'
   },
   {
     key: 'systems',
-    question: 'Vilka system, verktyg eller appar vill du inkludera? (System)',
-    placeholder: 'T.ex. "MatchWise-plattformen, Slack, e-post, CRM, LinkedIn"...'
+    question: 'Which systems, tools, or apps do you want to include? (Systems)',
+    placeholder: 'E.g. "MatchWise platform, Slack, email, CRM, LinkedIn"...'
   },
   {
     key: 'errorHandling',
-    question: 'Vad ska hända om något går fel? (Felhantering)',
-    placeholder: 'T.ex. "Skicka notifikation till admin", "Försök igen om 5 minuter", "Stoppa och logga fel"...'
+    question: 'What should happen if something goes wrong? (Error handling)',
+    placeholder: 'E.g. "Send notification to admin", "Retry after 5 minutes", "Stop and log error"...'
   },
   {
     key: 'output',
-    question: 'Vad ska slutresultatet vara? (Output)',
-    placeholder: 'T.ex. "Matchade konsulter i systemet", "Rapport skickad till teamet", "Uppdaterad databas"...'
+    question: 'What should the final result be? (Output)',
+    placeholder: 'E.g. "Matched consultants in system", "Report sent to team", "Updated database"...'
   }
 ];
 
 const optionalQuestions = [
   {
     key: 'notifications',
-    question: 'Hur vill du bli notifierad när det är klart? (Notifikationer)',
-    placeholder: 'T.ex. "E-post till mig", "Slack-meddelande", "Dashboard-uppdatering"...'
+    question: 'How do you want to be notified when it\'s done? (Notifications)',
+    placeholder: 'E.g. "Email to me", "Slack message", "Dashboard update"...'
   },
   {
     key: 'conditions',
-    question: 'Några specifika villkor eller undantag?',
-    placeholder: 'T.ex. "Bara under arbetstid", "Endast för vissa typer av uppdrag"...'
+    question: 'Any specific conditions or exceptions?',
+    placeholder: 'E.g. "Only during business hours", "Only for certain types of assignments"...'
   }
 ];
 
@@ -94,7 +94,7 @@ export default function Automations() {
 
   const handleStart = () => {
     if (!automationData.description.trim()) {
-      toast.error('Beskriv kort vad du vill automatisera först');
+      toast.error('Please describe what you want to automate first');
       return;
     }
     setIsStarted(true);
@@ -138,28 +138,28 @@ export default function Automations() {
     // Simulate AI generation (replace with actual OpenAI API call)
     setTimeout(() => {
       const goal = `
-**Automation Mål:** ${automationData.description}
+**Automation Goal:** ${automationData.description}
 
 **Trigger:** ${automationData.trigger}
 
-**Processflöde:**
+**Process Flow:**
 ${automationData.steps}
 
-**Integrerade System:**
+**Integrated Systems:**
 ${automationData.systems}
 
-**Felhantering:**
+**Error Handling:**
 ${automationData.errorHandling}
 
-**Förväntad Output:**
+**Expected Output:**
 ${automationData.output}
 
-${automationData.notifications ? `**Notifikationer:** ${automationData.notifications}` : ''}
+${automationData.notifications ? `**Notifications:** ${automationData.notifications}` : ''}
 
-${automationData.conditions ? `**Villkor & Undantag:** ${automationData.conditions}` : ''}
+${automationData.conditions ? `**Conditions & Exceptions:** ${automationData.conditions}` : ''}
 
-**Sammanfattning:**
-Detta automation kommer att streamline processen för ${automationData.description.toLowerCase()} genom att automatiskt trigga när ${automationData.trigger.toLowerCase()}. Systemet kommer att utföra definierade steg och leverera ${automationData.output.toLowerCase()} med robust felhantering på plats.
+**Summary:**
+This automation will streamline the process for ${automationData.description.toLowerCase()} by automatically triggering when ${automationData.trigger.toLowerCase()}. The system will execute the defined steps and deliver ${automationData.output.toLowerCase()} with robust error handling in place.
       `.trim();
 
       setFinalGoal(goal);
@@ -170,11 +170,11 @@ Detta automation kommer att streamline processen för ${automationData.descripti
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(finalGoal);
-    toast.success('Automation kopierad till urklipp!');
+    toast.success('Automation copied to clipboard!');
   };
 
   const downloadPDF = () => {
-    toast.success('PDF nedladdning påbörjad!');
+    toast.success('PDF download started!');
     // Implement PDF generation
   };
 
@@ -196,18 +196,18 @@ Detta automation kommer att streamline processen för ${automationData.descripti
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6">
-                Automatisera din konsultmatchning
+                Automate your workflow
               </h1>
               
               <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-                Beskriv ditt arbetsflöde till vår AI-agent och få en personlig automation-blueprint — på bara några minuter.
+                Describe your workflow to our AI agent and get a personalized automation blueprint — in just a few minutes.
               </p>
               
               <div className="max-w-2xl mx-auto">
                 <Textarea
                   value={automationData.description}
                   onChange={(e) => setAutomationData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Hej! 👋 Vad skulle du vilja automatisera idag? Beskriv det kort med dina egna ord..."
+                  placeholder="Hi! 👋 What would you like to automate today? Describe it briefly in your own words..."
                   className="h-24 text-lg bg-white/90 border-0 shadow-xl"
                 />
                 
@@ -216,7 +216,7 @@ Detta automation kommer att streamline processen för ${automationData.descripti
                   size="lg"
                   className="mt-6 bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-3 h-auto"
                 >
-                  Starta din automation-resa
+                  Start your automation journey
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
@@ -228,10 +228,10 @@ Detta automation kommer att streamline processen för ${automationData.descripti
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Varför automatisera?
+              Why automate?
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Spara tid, minska manuella fel och matcha snabbare. Automation ger dig möjlighet att fokusera på riktig mänsklig kontakt istället för repetitiva uppgifter.
+              Save time, reduce manual errors, and match faster. Automation empowers you to focus on real human connection instead of repetitive tasks.
             </p>
           </div>
 
@@ -239,24 +239,24 @@ Detta automation kommer att streamline processen för ${automationData.descripti
             <Card className="text-center p-6 hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
                 <Clock className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Spara Tid</h3>
-                <p className="text-slate-600">Automatisera repetitiva uppgifter och fokusera på värdeskapande aktiviteter.</p>
+                <h3 className="text-xl font-semibold mb-2">Save Time</h3>
+                <p className="text-slate-600">Automate repetitive tasks and focus on value-creating activities.</p>
               </CardContent>
             </Card>
 
             <Card className="text-center p-6 hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
                 <Target className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Bättre Matchning</h3>
-                <p className="text-slate-600">AI-driven precision för perfekta konsult-uppdrag matchningar.</p>
+                <h3 className="text-xl font-semibold mb-2">Better Matching</h3>
+                <p className="text-slate-600">AI-driven precision for perfect workflow matching.</p>
               </CardContent>
             </Card>
 
             <Card className="text-center p-6 hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
                 <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Mänsklig Fokus</h3>
-                <p className="text-slate-600">Låt tekniken hantera processen så du kan fokusera på relationer.</p>
+                <h3 className="text-xl font-semibold mb-2">Human Focus</h3>
+                <p className="text-slate-600">Let technology handle the process so you can focus on relationships.</p>
               </CardContent>
             </Card>
           </div>
@@ -272,10 +272,10 @@ Detta automation kommer att streamline processen för ${automationData.descripti
           <div className="text-center mb-8">
             <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-slate-900 mb-2">
-              Din automation-blueprint är klar! 🎉
+              Your automation blueprint is ready! 🎉
             </h1>
             <p className="text-slate-600">
-              Ladda ner som PDF, kopiera, eller boka en session med vårt team för att förvandla den till en fullt fungerande lösning.
+              Download as PDF, copy, or book a session with our team to turn it into a fully working solution.
             </p>
           </div>
 
@@ -283,7 +283,7 @@ Detta automation kommer att streamline processen för ${automationData.descripti
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bot className="h-5 w-5 text-blue-600" />
-                Din Kompletta Automation
+                Your Complete Automation
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -296,12 +296,12 @@ Detta automation kommer att streamline processen för ${automationData.descripti
           <div className="flex flex-wrap gap-4 justify-center mb-8">
             <Button onClick={downloadPDF} className="bg-blue-600 hover:bg-blue-700">
               <Download className="mr-2 h-4 w-4" />
-              Ladda ner PDF
+              Download PDF
             </Button>
             
             <Button onClick={copyToClipboard} variant="outline">
               <Copy className="mr-2 h-4 w-4" />
-              Kopiera till urklipp
+              Copy to clipboard
             </Button>
             
             <Button 
@@ -309,27 +309,27 @@ Detta automation kommer att streamline processen för ${automationData.descripti
               className="bg-purple-600 hover:bg-purple-700"
             >
               <Calendar className="mr-2 h-4 w-4" />
-              Boka möte med vårt team
+              Book meeting with our team
             </Button>
           </div>
 
           <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
             <CardContent className="p-6 text-center">
-              <h3 className="text-xl font-semibold mb-2">Behöver du hjälp med implementering?</h3>
+              <h3 className="text-xl font-semibold mb-2">Need help with implementation?</h3>
               <p className="text-slate-600 mb-4">
-                Boka en gratis konsultation med våra automation-strateger idag.
+                Book a free consultation with our automation strategists today.
               </p>
               <Button 
                 onClick={() => window.open('https://calendly.com/marc-hillander-rbak/30min', '_blank')}
                 className="bg-purple-600 hover:bg-purple-700"
               >
-                Boka gratis konsultation
+                Book free consultation
               </Button>
             </CardContent>
           </Card>
 
           <div className="text-center mt-6 text-sm text-slate-500">
-            Om du behöver hjälp med att implementera denna automation eller lansera din sida, kan du boka en gratis konsultation med vårt team!
+            If you need help implementing this automation or launching your site, you can book a free consultation with our team!
           </div>
         </div>
       </div>
@@ -343,14 +343,14 @@ Detta automation kommer att streamline processen för ${automationData.descripti
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-slate-900">Automation Wizard</h1>
             <Badge variant="outline" className="text-blue-600 border-blue-600">
-              {showOptional ? 'Valfria frågor' : `Steg ${currentStep + 1} av ${questions.length}`}
+              {showOptional ? 'Optional questions' : `Step ${currentStep + 1} of ${questions.length}`}
             </Badge>
           </div>
           
           <Progress value={progress} className="h-2" />
           
           <div className="mt-2 text-sm text-slate-600">
-            {Math.round(progress)}% genomfört
+            {Math.round(progress)}% completed
           </div>
         </div>
 
@@ -358,8 +358,8 @@ Detta automation kommer att streamline processen för ${automationData.descripti
           <Card>
             <CardContent className="p-12 text-center">
               <Bot className="h-16 w-16 text-blue-600 mx-auto mb-4 animate-pulse" />
-              <h2 className="text-xl font-semibold mb-2">AI genererar din automation...</h2>
-              <p className="text-slate-600 mb-4">Detta tar vanligtvis 10-30 sekunder</p>
+              <h2 className="text-xl font-semibold mb-2">AI is generating your automation...</h2>
+              <p className="text-slate-600 mb-4">This usually takes 10-30 seconds</p>
               <div className="flex items-center justify-center gap-2">
                 <div className="animate-bounce">🤖</div>
                 <div className="animate-bounce delay-100">💭</div>
@@ -399,7 +399,7 @@ function QuestionCard({ question, onAnswer }: QuestionCardProps) {
 
   const handleSubmit = () => {
     if (!answer.trim()) {
-      toast.error('Vänligen ange ett svar');
+      toast.error('Please provide an answer');
       return;
     }
     onAnswer(answer);
@@ -423,7 +423,7 @@ function QuestionCard({ question, onAnswer }: QuestionCardProps) {
         />
         
         <Button onClick={handleSubmit} className="w-full">
-          Nästa
+          Next
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </CardContent>
@@ -456,7 +456,7 @@ function OptionalQuestionCard({ question, onAnswer, onSkip, isLast }: OptionalQu
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-purple-600" />
           {question.question}
-          <Badge variant="secondary" className="ml-2">Valfri</Badge>
+          <Badge variant="secondary" className="ml-2">Optional</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -469,12 +469,12 @@ function OptionalQuestionCard({ question, onAnswer, onSkip, isLast }: OptionalQu
         
         <div className="flex gap-2">
           <Button onClick={handleSubmit} className="flex-1">
-            {isLast ? 'Slutför & Generera' : 'Nästa'}
+            {isLast ? 'Complete & Generate' : 'Next'}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           
           <Button onClick={onSkip} variant="outline">
-            {isLast ? 'Generera utan detta' : 'Hoppa över'}
+            {isLast ? 'Generate without this' : 'Skip'}
           </Button>
         </div>
       </CardContent>
