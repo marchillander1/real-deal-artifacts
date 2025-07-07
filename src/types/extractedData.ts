@@ -8,6 +8,7 @@ export interface ExtractedData {
   experience: string;
   education: string[];
   workHistory: any[];
+  languages: string[];
   linkedin?: string;
   // Additional fields for enhanced confirmation
   yearsOfExperience?: number;
