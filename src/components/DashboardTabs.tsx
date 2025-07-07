@@ -23,29 +23,39 @@ export const DashboardTabs: React.FC = () => {
     console.log('Selected consultant:', consultant);
   };
 
-  // Convert database assignments and combine with demo assignments
+  // Convert database assignments to Assignment type format
   const formattedDbAssignments: Assignment[] = dbAssignments.map(assignment => ({
-    ...assignment,
-    duration: assignment.duration || '6 months',
-    budget: assignment.budget || 'Not specified',
-    requiredSkills: assignment.required_skills || [],
+    id: assignment.id,
+    title: assignment.title,
+    description: assignment.description,
+    company: assignment.company,
+    client_logo: assignment.client_logo || '🏢',
+    required_skills: assignment.required_skills || [],
     workload: assignment.workload || 'Full-time',
-    teamCulture: assignment.team_culture || '',
-    desiredCommunicationStyle: assignment.desired_communication_style || '',
-    requiredValues: assignment.required_values || [],
-    teamDynamics: assignment.team_dynamics || '',
-    leadershipLevel: assignment.leadership_level || 3,
+    duration: assignment.duration || '6 months',
+    budget_min: assignment.budget_min || 0,
+    budget_max: assignment.budget_max || 0,
+    budget_currency: assignment.budget_currency || 'SEK',
+    remote_type: assignment.remote_type || 'Hybrid',
     urgency: (assignment.urgency === 'Low' || assignment.urgency === 'Medium' || assignment.urgency === 'High') 
       ? assignment.urgency 
       : 'Medium' as 'Low' | 'Medium' | 'High',
+    team_size: assignment.team_size || '5-8 people',
+    team_culture: assignment.team_culture || '',
+    industry: assignment.industry || 'Technology',
     status: (assignment.status === 'open' || assignment.status === 'in_progress' || assignment.status === 'completed' || assignment.status === 'cancelled')
       ? assignment.status as 'open' | 'in_progress' | 'completed' | 'cancelled'
       : 'open' as 'open' | 'in_progress' | 'completed' | 'cancelled',
-    createdAt: assignment.created_at || new Date().toISOString()
+    created_at: assignment.created_at || new Date().toISOString(),
+    start_date: assignment.start_date || new Date().toISOString().split('T')[0],
+    desired_communication_style: assignment.desired_communication_style || '',
+    required_values: assignment.required_values || [],
+    leadership_level: assignment.leadership_level || 3,
+    team_dynamics: assignment.team_dynamics || ''
   }));
 
   // Combine database assignments with demo assignments
-  const allAssignments = [...formattedDbAssignments, ...demoAssignments];
+  const allAssignments: Assignment[] = [...formattedDbAssignments, ...demoAssignments];
 
   return (
     <div className="w-full">

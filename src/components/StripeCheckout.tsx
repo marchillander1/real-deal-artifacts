@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,8 +21,8 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Check if this is the most popular plan (Team Plan at 199 EUR)
-  const isPopular = planName === "Team Plan" && price === 199;
+  // Check if this is the most popular plan (Team Plan at 299 EUR)
+  const isPopular = planName === "Team Plan" && price === 299;
 
   const handleCheckout = async () => {
     setIsLoading(true);

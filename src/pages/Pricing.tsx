@@ -30,7 +30,7 @@ export default function Pricing() {
     },
     {
       name: "Team Plan",
-      price: "€199",
+      price: "€299",
       period: "per month", 
       description: "For 3-10 users",
       features: [

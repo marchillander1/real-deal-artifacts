@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -75,7 +74,7 @@ export default function PricingSection() {
                 <h3 className="text-xl font-bold text-white">Team Plan</h3>
               </div>
               <p className="text-slate-400 mb-6">For 3-10 users</p>
-              <div className="text-3xl font-bold text-white mb-6">€199<span className="text-lg text-slate-400">/month</span></div>
+              <div className="text-3xl font-bold text-white mb-6">€299<span className="text-lg text-slate-400">/month</span></div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-slate-300">

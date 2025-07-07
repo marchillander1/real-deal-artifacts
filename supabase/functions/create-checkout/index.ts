@@ -46,6 +46,9 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
+    // Update price for Team Plan
+    const unitAmount = planName === "Team Plan" ? 29900 : price * 100; // 299 EUR for Team Plan
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -57,7 +60,7 @@ serve(async (req) => {
               name: `${planName} - MatchWise AI`,
               description: `${planName} subscription for MatchWise AI platform`
             },
-            unit_amount: price * 100, // Convert to cents
+            unit_amount: unitAmount,
             recurring: { interval: "month" },
           },
           quantity: 1,

@@ -34,7 +34,7 @@ const packages = [
   {
     id: 'team',
     name: 'Team Plan',
-    price: '199',
+    price: '299',
     currency: 'EUR',
     period: 'month',
     description: 'For 3-10 users',
