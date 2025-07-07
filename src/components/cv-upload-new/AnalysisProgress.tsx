@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, FileText, Search, Zap, CheckCircle2, Mail, Linkedin, TrendingUp, User } from 'lucide-react';
+import { Brain, FileText, Search, Zap, CheckCircle2, TrendingUp, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnalysisProgressProps {
@@ -19,7 +19,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
   const [overallProgress, setOverallProgress] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(180); // 3 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(120); // 2 minutes in seconds
   const [isComplete, setIsComplete] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState('');
@@ -30,27 +30,19 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       title: 'Analyzing CV with Gemini AI', 
       description: 'Extracting technical skills and experience', 
       icon: Brain,
-      duration: 35,
+      duration: 45,
       status: 'In progress...'
     },
     { 
       id: 2, 
-      title: 'Processing LinkedIn data', 
-      description: 'Analyzing professional presence and network', 
-      icon: Linkedin,
-      duration: 25,
+      title: 'AI analysis of soft skills', 
+      description: 'Assessing communication style and leadership', 
+      icon: User,
+      duration: 35,
       status: 'Waiting'
     },
     { 
       id: 3, 
-      title: 'AI analysis of soft skills', 
-      description: 'Assessing communication style and leadership', 
-      icon: User,
-      duration: 30,
-      status: 'Waiting'
-    },
-    { 
-      id: 4, 
       title: 'Market valuation', 
       description: 'Calculating optimal hourly rate and competitiveness', 
       icon: TrendingUp,
@@ -58,19 +50,11 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       status: 'Waiting'
     },
     { 
-      id: 5, 
-      title: 'Creating consultant profile', 
-      description: 'Saving results and preparing recommendations', 
+      id: 4, 
+      title: 'Finalizing analysis', 
+      description: 'Preparing comprehensive career insights', 
       icon: FileText,
-      duration: 25,
-      status: 'Waiting'
-    },
-    { 
-      id: 6, 
-      title: 'Welcome Email', 
-      description: 'Sending your welcome package and profile access', 
-      icon: Mail,
-      duration: 10,
+      duration: 15,
       status: 'Waiting'
     }
   ];
@@ -89,7 +73,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
     market: [
       'Optimal hourly rate',
       'Competitive advantages',
-      'Demand & trends'
+      'Market demand & trends'
     ],
     career: [
       'Development areas',
@@ -104,7 +88,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
     'Evaluating market positioning...',
     'Assessing leadership potential...',
     'Calculating optimal rates...',
-    'Building profile recommendations...'
+    'Building comprehensive profile...'
   ];
 
   useEffect(() => {
@@ -466,22 +450,18 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
               <h4 className="font-semibold text-green-900 mb-3 flex items-center">
                 🎉 Analysis Complete!
               </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
                   <div className="font-bold text-green-800">{analysisResults.extractionStats?.detectedSkills || 0}</div>
                   <div className="text-green-600">Skills Identified</div>
                 </div>
                 <div className="text-center">
                   <div className="font-bold text-green-800">✅</div>
-                  <div className="text-green-600">Profile Created</div>
+                  <div className="text-green-600">Analysis Complete</div>
                 </div>
                 <div className="text-center">
                   <div className="font-bold text-green-800">✅</div>
-                  <div className="text-green-600">Network Added</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-bold text-green-800">✅</div>
-                  <div className="text-green-600">Email Sent</div>
+                  <div className="text-green-600">Ready for Review</div>
                 </div>
               </div>
             </div>
