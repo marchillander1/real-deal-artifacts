@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, FileText, Search, Zap, CheckCircle2, Mail } from 'lucide-react';
+import { Brain, FileText, Search, Zap, CheckCircle2, Mail, Linkedin, TrendingUp, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnalysisProgressProps {
@@ -18,55 +18,101 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 }) => {
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
+  const [overallProgress, setOverallProgress] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(180); // 3 minutes in seconds
   const [isComplete, setIsComplete] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [currentAnalysis, setCurrentAnalysis] = useState('');
 
   const stages = [
     { 
       id: 1, 
-      title: 'CV Upload Processing', 
-      description: 'Extracting text and structure from your CV', 
-      icon: FileText,
-      duration: 25000 // 25 seconds
+      title: 'Analyzing CV with Gemini AI', 
+      description: 'Extracting technical skills and experience', 
+      icon: Brain,
+      duration: 35,
+      status: 'In progress...'
     },
     { 
       id: 2, 
-      title: 'AI Analysis Engine', 
-      description: 'Advanced AI analyzing your skills, experience, and potential', 
-      icon: Brain,
-      duration: 60000 // 60 seconds  
+      title: 'Processing LinkedIn data', 
+      description: 'Analyzing professional presence and network', 
+      icon: Linkedin,
+      duration: 25,
+      status: 'Waiting'
     },
     { 
       id: 3, 
-      title: 'Market Intelligence', 
-      description: 'Comparing your profile against market demand and opportunities', 
-      icon: Search,
-      duration: 40000 // 40 seconds
+      title: 'AI analysis of soft skills', 
+      description: 'Assessing communication style and leadership', 
+      icon: User,
+      duration: 30,
+      status: 'Waiting'
     },
     { 
       id: 4, 
-      title: 'Profile Enhancement', 
-      description: 'Optimizing your profile for maximum market appeal', 
-      icon: Zap,
-      duration: 30000 // 30 seconds
+      title: 'Market valuation', 
+      description: 'Calculating optimal hourly rate and competitiveness', 
+      icon: TrendingUp,
+      duration: 25,
+      status: 'Waiting'
     },
     { 
       id: 5, 
-      title: 'Network Integration', 
-      description: 'Adding you to the MatchWise consultant network', 
-      icon: CheckCircle2,
-      duration: 20000 // 20 seconds
+      title: 'Creating consultant profile', 
+      description: 'Saving results and preparing recommendations', 
+      icon: FileText,
+      duration: 25,
+      status: 'Waiting'
     },
     { 
       id: 6, 
       title: 'Welcome Email', 
       description: 'Sending your welcome package and profile access', 
       icon: Mail,
-      duration: 5000 // 5 seconds
+      duration: 10,
+      status: 'Waiting'
     }
   ];
 
+  const analysisDetails = {
+    technical: [
+      'Programming languages & frameworks',
+      'Certifications & education', 
+      'Project examples & portfolio'
+    ],
+    soft: [
+      'Communication style',
+      'Leadership abilities',
+      'Teamwork & cultural fit'
+    ],
+    market: [
+      'Optimal hourly rate',
+      'Competitive advantages',
+      'Demand & trends'
+    ],
+    career: [
+      'Development areas',
+      'Recommended courses',
+      'Next career step'
+    ]
+  };
+
+  const ongoingAnalyses = [
+    'Identifying your unique strengths...',
+    'Analyzing technical expertise depth...',
+    'Evaluating market positioning...',
+    'Assessing leadership potential...',
+    'Calculating optimal rates...',
+    'Building profile recommendations...'
+  ];
+
   useEffect(() => {
+    let progressInterval: NodeJS.Timeout;
+    let timeInterval: NodeJS.Timeout;
+    let analysisInterval: NodeJS.Timeout;
+    let analysisComplete = false;
+
     const startAnalysis = async () => {
       console.log('🚀 Starting comprehensive CV analysis...');
       
@@ -95,30 +141,48 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           lastModified: fileInfoParsed.lastModified 
         });
 
-        // Start progress simulation with proper variable scoping
+        // Start progress simulation
         let currentProgress = 0;
         let stageIndex = 0;
-        let analysisComplete = false;
+        let analysisIndex = 0;
         
-        const updateProgress = () => {
+        progressInterval = setInterval(() => {
           if (analysisComplete) return;
           
           const stage = stages[stageIndex];
-          const increment = (100 / stage.duration) * 1000;
+          const increment = 100 / stage.duration;
           currentProgress += increment;
           
           setProgress(Math.min(100, Math.floor(currentProgress)));
-          setCurrentStage(stageIndex);
           
           if (currentProgress >= 100 && stageIndex < stages.length - 1) {
             stageIndex++;
+            setCurrentStage(stageIndex);
             currentProgress = 0;
           }
-        };
+          
+          // Update overall progress
+          const stageWeight = 100 / stages.length;
+          const totalProgress = (stageIndex * stageWeight) + (currentProgress * stageWeight / 100);
+          setOverallProgress(Math.min(100, Math.floor(totalProgress)));
+        }, 1000);
 
-        const progressInterval = setInterval(updateProgress, 1000);
+        // Update time remaining
+        timeInterval = setInterval(() => {
+          setTimeRemaining(prev => Math.max(0, prev - 1));
+        }, 1000);
 
-        // Perform real analysis - this will take the full duration
+        // Rotate ongoing analysis messages
+        analysisInterval = setInterval(() => {
+          if (analysisComplete) return;
+          setCurrentAnalysis(ongoingAnalyses[analysisIndex % ongoingAnalyses.length]);
+          analysisIndex++;
+        }, 3000);
+
+        // Start with first analysis message
+        setCurrentAnalysis(ongoingAnalyses[0]);
+
+        // Perform real analysis
         const formData = new FormData();
         formData.append('file', file);
         formData.append('personalTagline', storedTagline || personalTagline || '');
@@ -126,14 +190,15 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
         console.log('📤 Sending CV for AI analysis...');
         
-        // Wait for the analysis to complete (this should take the full 3 minutes)
         const analysisResponse = await supabase.functions.invoke('parse-cv', {
           body: formData
         });
 
-        // Stop the progress simulation
+        // Stop intervals
         analysisComplete = true;
         clearInterval(progressInterval);
+        clearInterval(timeInterval);
+        clearInterval(analysisInterval);
 
         if (analysisResponse.error) {
           console.error('❌ Analysis failed:', analysisResponse.error);
@@ -147,13 +212,14 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         }
 
         console.log('✅ CV analysis completed successfully');
-        console.log('👤 Consultant created:', result.consultant?.id);
-        console.log('📧 Welcome email status: sent');
         
         // Complete all stages
         setProgress(100);
         setCurrentStage(stages.length - 1);
+        setOverallProgress(100);
         setIsComplete(true);
+        setTimeRemaining(0);
+        setCurrentAnalysis('Analysis complete!');
         
         const resultsData = {
           analysis: result.analysis,
@@ -171,46 +237,93 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
       } catch (error: any) {
         console.error('❌ Analysis error:', error);
-        // Handle error appropriately
+        analysisComplete = true;
+        clearInterval(progressInterval);
+        clearInterval(timeInterval);
+        clearInterval(analysisInterval);
       }
     };
 
     startAnalysis();
+
+    return () => {
+      clearInterval(progressInterval);
+      clearInterval(timeInterval);
+      clearInterval(analysisInterval);
+    };
   }, [sessionToken, personalTagline, onAnalysisComplete]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
       <Card className="shadow-xl">
         <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-          <CardTitle className="text-2xl font-bold mb-2">
-            🤖 AI Analysis in Progress
+          <CardTitle className="text-3xl font-bold mb-2">
+            AI Analyzing Your Profile
           </CardTitle>
-          <p className="text-blue-100">
-            Our advanced AI is analyzing your CV and creating your consultant profile
+          <p className="text-lg text-blue-100 mb-4">
+            Our advanced AI system analyzes both soft and hard skills for deep career insights
           </p>
+          <div className="text-xl font-semibold">
+            Estimated time remaining: {formatTime(timeRemaining)}
+          </div>
         </CardHeader>
 
         <CardContent className="p-8">
           {/* Overall Progress */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-600">Overall Progress</span>
-              <span className="text-sm font-medium text-gray-600">{Math.floor((currentStage + 1) / stages.length * 100)}%</span>
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-lg font-semibold text-gray-700">Analysis Progress</span>
+              <span className="text-lg font-semibold text-gray-700">{overallProgress}%</span>
             </div>
-            <Progress value={(currentStage + 1) / stages.length * 100} className="h-3" />
+            <Progress value={overallProgress} className="h-4 mb-2" />
+            <div className="text-sm text-gray-600">
+              {stages[currentStage]?.title || 'Completing analysis...'}
+            </div>
           </div>
 
-          {/* Current Stage Progress */}
+          {/* Current Analysis */}
+          <div className="mb-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div>
+                <h4 className="font-semibold text-blue-900">🔍 Ongoing analysis:</h4>
+                <p className="text-blue-700">{currentAnalysis}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Active Stage Detail */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-600">Current Stage</span>
-              <span className="text-sm font-medium text-gray-600">{progress}%</span>
+            <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200">
+              <div className="flex items-center space-x-4 mb-4">
+                {React.createElement(stages[currentStage]?.icon || Brain, { 
+                  className: "h-8 w-8 text-blue-600 animate-pulse" 
+                })}
+                <div className="flex-grow">
+                  <h3 className="text-xl font-bold text-blue-900">
+                    {stages[currentStage]?.title}
+                  </h3>
+                  <p className="text-blue-700">
+                    {stages[currentStage]?.description}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-blue-600">{progress}%</div>
+                  <div className="text-sm text-blue-500">Progress</div>
+                </div>
+              </div>
+              <Progress value={progress} className="h-2" />
             </div>
-            <Progress value={progress} className="h-2" />
           </div>
 
-          {/* Stages List */}
-          <div className="space-y-4">
+          {/* All Stages Overview */}
+          <div className="space-y-3 mb-8">
             {stages.map((stage, index) => {
               const Icon = stage.icon;
               const isActive = index === currentStage;
@@ -220,30 +333,30 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
               return (
                 <div 
                   key={stage.id}
-                  className={`flex items-center p-4 rounded-xl border-2 transition-all duration-500 ${
+                  className={`flex items-center p-4 rounded-xl border transition-all duration-300 ${
                     isActive 
-                      ? 'border-blue-500 bg-blue-50 shadow-md scale-105' 
+                      ? 'border-blue-300 bg-blue-50 shadow-md' 
                       : isCompleted
-                      ? 'border-green-500 bg-green-50'
+                      ? 'border-green-300 bg-green-50'
                       : 'border-gray-200 bg-gray-50'
                   }`}
                 >
-                  <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                     isActive
-                      ? 'bg-blue-500 text-white animate-pulse'
+                      ? 'bg-blue-500 text-white'
                       : isCompleted
                       ? 'bg-green-500 text-white'
                       : 'bg-gray-300 text-gray-500'
                   }`}>
                     {isCompleted ? (
-                      <CheckCircle2 className="h-6 w-6" />
+                      <CheckCircle2 className="h-5 w-5" />
                     ) : (
-                      <Icon className={`h-6 w-6 ${isActive ? 'animate-spin' : ''}`} />
+                      <Icon className="h-5 w-5" />
                     )}
                   </div>
                   
                   <div className="ml-4 flex-grow">
-                    <h3 className={`font-semibold ${
+                    <h4 className={`font-semibold ${
                       isActive 
                         ? 'text-blue-900' 
                         : isCompleted 
@@ -251,7 +364,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
                         : 'text-gray-600'
                     }`}>
                       {stage.title}
-                    </h3>
+                    </h4>
                     <p className={`text-sm ${
                       isActive 
                         ? 'text-blue-700' 
@@ -266,15 +379,15 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
                   <div className="flex-shrink-0 ml-4">
                     {isActive && (
                       <div className="flex items-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        <span className="text-sm text-blue-600 font-medium">Processing...</span>
+                        <div className="animate-pulse h-2 w-2 bg-blue-600 rounded-full"></div>
+                        <span className="text-sm text-blue-600 font-medium">In progress...</span>
                       </div>
                     )}
                     {isCompleted && (
                       <span className="text-sm text-green-600 font-medium">✅ Complete</span>
                     )}
                     {isUpcoming && (
-                      <span className="text-sm text-gray-400">Pending</span>
+                      <span className="text-sm text-gray-400">⏳ Waiting</span>
                     )}
                   </div>
                 </div>
@@ -282,20 +395,74 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
             })}
           </div>
 
-          {/* Analysis Details */}
+          {/* What's Being Analyzed */}
+          <div className="p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h4 className="font-bold text-purple-900 mb-4 text-lg flex items-center">
+              🎯 What's being analyzed right now:
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h5 className="font-semibold text-purple-800 mb-2">Technical skills:</h5>
+                <ul className="text-sm text-purple-700 space-y-1">
+                  {analysisDetails.technical.map((item, index) => (
+                    <li key={index} className="flex items-center">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h5 className="font-semibold text-purple-800 mb-2">Soft skills:</h5>
+                <ul className="text-sm text-purple-700 space-y-1">
+                  {analysisDetails.soft.map((item, index) => (
+                    <li key={index} className="flex items-center">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h5 className="font-semibold text-purple-800 mb-2">Market valuation:</h5>
+                <ul className="text-sm text-purple-700 space-y-1">
+                  {analysisDetails.market.map((item, index) => (
+                    <li key={index} className="flex items-center">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h5 className="font-semibold text-purple-800 mb-2">Career development:</h5>
+                <ul className="text-sm text-purple-700 space-y-1">
+                  {analysisDetails.career.map((item, index) => (
+                    <li key={index} className="flex items-center">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Enhanced Analysis Notice */}
           {personalTagline && (
-            <div className="mt-8 p-4 bg-purple-50 rounded-xl border border-purple-200">
-              <h4 className="font-semibold text-purple-900 mb-2">
-                🎯 Enhanced Analysis Active
+            <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
+              <h4 className="font-semibold text-green-900 mb-2">
+                🚀 Enhanced Analysis Active
               </h4>
-              <p className="text-sm text-purple-700">
+              <p className="text-sm text-green-700">
                 Using your personal tagline to provide more targeted insights and recommendations.
               </p>
             </div>
           )}
 
+          {/* Completion Status */}
           {isComplete && analysisResults && (
-            <div className="mt-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <div className="mt-6 p-6 bg-green-50 rounded-xl border border-green-200">
               <h4 className="font-semibold text-green-900 mb-3 flex items-center">
                 🎉 Analysis Complete!
               </h4>
