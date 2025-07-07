@@ -42,32 +42,32 @@ export const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
       id: 1,
       type: 'opportunity',
       icon: Target,
-      title: 'Hög matchningspotential identifierad',
-      description: `${highSkillConsultants.length} konsulter med bred kompetens är tillgängliga just nu`,
-      action: 'Skapa nytt uppdrag',
+      title: 'High matching potential identified',
+      description: `${highSkillConsultants.length} consultants with broad expertise are available right now`,
+      action: 'Create new assignment',
       urgency: 'medium',
-      prediction: '85% sannolikhet för snabb matchning',
+      prediction: '85% probability for quick matching',
       onClick: onCreateAssignment
     },
     {
       id: 2,
       type: 'trend',
       icon: TrendingUp,
-      title: 'Efterfrågan på React-utvecklare ökar',
-      description: 'AI förutspår 40% ökning nästa månad baserat på marknadsdata',
-      action: 'Rekrytera fler React-utvecklare',
+      title: 'Demand for React developers increasing',
+      description: 'AI predicts 40% increase next month based on market data',
+      action: 'Recruit more React developers',
       urgency: 'high',
-      prediction: 'Marknadstrend pågående'
+      prediction: 'Market trend ongoing'
     },
     {
       id: 3,
       type: 'efficiency',
       icon: Zap,
-      title: 'Optimera dina matchningar',
-      description: `${recentConsultants.length} aktiva konsulter väntar på uppdrag`,
-      action: 'Visa aktiva konsulter',
+      title: 'Optimize your matching',
+      description: `${recentConsultants.length} active consultants waiting for assignments`,
+      action: 'Show active consultants',
       urgency: 'medium',
-      prediction: '3x snabbare matchning möjlig'
+      prediction: '3x faster matching possible'
     }
   ];
 
@@ -77,27 +77,27 @@ export const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
       id: 1,
       type: 'action',
       icon: AlertTriangle,
-      title: 'Brådskande uppdrag behöver uppmärksamhet',
-      description: `${highPriorityAssignments.length} högprioriterade uppdrag väntar på matchning`,
-      cta: 'Matcha nu',
+      title: 'Urgent assignments need attention',
+      description: `${highPriorityAssignments.length} high priority assignments waiting for matching`,
+      cta: 'Match now',
       severity: 'high'
     },
     {
       id: 2,
       type: 'opportunity',
       icon: Users,
-      title: 'Nya konsulter i nätverket',
-      description: `${consultants.filter(c => c.type === 'new').length} nya profiler att utvärdera`,
-      cta: 'Granska profiler',
+      title: 'New consultants in network',
+      description: `${consultants.filter(c => c.type === 'new').length} new profiles to evaluate`,
+      cta: 'Review profiles',
       severity: 'medium'
     },
     {
       id: 3,
       type: 'success',
       icon: CheckCircle,
-      title: 'Stark matchningshistorik',
-      description: 'Din senaste matchning fick 95% tillfredsställelse',
-      cta: 'Se detaljer',
+      title: 'Strong matching history',
+      description: 'Your latest matching received 95% satisfaction',
+      cta: 'See details',
       severity: 'low'
     }
   ];
@@ -113,9 +113,9 @@ export const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
 
   const getUrgencyBadge = (urgency: string) => {
     switch (urgency) {
-      case 'high': return <Badge className="bg-red-100 text-red-800">Hög prioritet</Badge>;
-      case 'medium': return <Badge className="bg-yellow-100 text-yellow-800">Medium prioritet</Badge>;
-      case 'low': return <Badge className="bg-green-100 text-green-800">Låg prioritet</Badge>;
+      case 'high': return <Badge className="bg-red-100 text-red-800">High priority</Badge>;
+      case 'medium': return <Badge className="bg-yellow-100 text-yellow-800">Medium priority</Badge>;
+      case 'low': return <Badge className="bg-green-100 text-green-800">Low priority</Badge>;
       default: return null;
     }
   };
@@ -127,7 +127,7 @@ export const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-purple-600" />
-            AI-Insikter & Prediktioner
+            AI Insights & Predictions
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -163,7 +163,7 @@ export const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5 text-amber-600" />
-            Smarta påminnelser
+            Smart Reminders
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -199,30 +199,30 @@ export const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-blue-600" />
-            Prestanda & Trender
+            Performance & Trends
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-blue-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">12s</div>
-              <div className="text-sm text-gray-600">Genomsnittlig matchningstid</div>
-              <div className="text-xs text-green-600">↓ 67% snabbare</div>
+              <div className="text-sm text-gray-600">Average matching time</div>
+              <div className="text-xs text-green-600">↓ 67% faster</div>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">94%</div>
-              <div className="text-sm text-gray-600">Matchningsframgång</div>
-              <div className="text-xs text-green-600">↑ +12% denna månad</div>
+              <div className="text-sm text-gray-600">Matching success</div>
+              <div className="text-xs text-green-600">↑ +12% this month</div>
             </div>
             <div className="text-center p-3 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">{availableConsultants.length}</div>
-              <div className="text-sm text-gray-600">Tillgängliga nu</div>
-              <div className="text-xs text-blue-600">Redo för uppdrag</div>
+              <div className="text-sm text-gray-600">Available now</div>
+              <div className="text-xs text-blue-600">Ready for assignments</div>
             </div>
             <div className="text-center p-3 bg-amber-50 rounded-lg">
               <div className="text-2xl font-bold text-amber-600">{openAssignments.length}</div>
-              <div className="text-sm text-gray-600">Öppna uppdrag</div>
-              <div className="text-xs text-gray-600">Väntar på matchning</div>
+              <div className="text-sm text-gray-600">Open assignments</div>
+              <div className="text-xs text-gray-600">Waiting for matching</div>
             </div>
           </div>
         </CardContent>

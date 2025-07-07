@@ -34,11 +34,11 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         id: 1,
         type: 'opportunity',
         icon: Star,
-        title: 'Underutnyttjade toppkonsulter',
-        description: `${highSkillAvailable.length} högkompetenta konsulter (4.5+ rating) väntar på uppdrag`,
-        action: 'Skapa premium uppdrag',
+        title: 'Underutilized top consultants',
+        description: `${highSkillAvailable.length} highly skilled consultants (4.5+ rating) waiting for assignments`,
+        action: 'Create premium assignment',
         priority: 'high',
-        impact: 'Hög intäkt & tillfredsställelse',
+        impact: 'High revenue & satisfaction',
         consultants: highSkillAvailable.slice(0, 3),
         onClick: onCreateAssignment
       });
@@ -56,11 +56,11 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         id: 2,
         type: 'gap',
         icon: Target,
-        title: 'Kompetensgap identifierat',
-        description: `${skillsGap.length} efterfrågade kompetenser saknas i nätverket`,
-        action: 'Rekrytera kompetens',
+        title: 'Skills gap identified',
+        description: `${skillsGap.length} demanded skills are missing in the network`,
+        action: 'Recruit expertise',
         priority: 'high',
-        impact: 'Täck marknadsbehov',
+        impact: 'Cover market needs',
         skills: skillsGap.slice(0, 5)
       });
     }
@@ -74,12 +74,12 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         id: 3,
         type: 'timing',
         icon: Clock,
-        title: 'Optimal matchningstid',
-        description: 'Konsulter är mest aktiva nu - perfekt för snabba matchningar',
-        action: 'Starta matchning',
+        title: 'Optimal matching time',
+        description: 'Consultants are most active now - perfect for quick matching',
+        action: 'Start matching',
         priority: 'medium',
-        impact: '3x snabbare respons',
-        timing: 'Nu'
+        impact: '3x faster response',
+        timing: 'Now'
       });
     }
 
@@ -90,11 +90,11 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         id: 4,
         type: 'growth',
         icon: Users,
-        title: 'Nätverkstillväxt',
-        description: `${networkConsultants.length} nya konsulter väntar på utvärdering`,
-        action: 'Granska profiler',
+        title: 'Network growth',
+        description: `${networkConsultants.length} new consultants waiting for evaluation`,
+        action: 'Review profiles',
         priority: 'medium',
-        impact: 'Utöka kapacitet',
+        impact: 'Expand capacity',
         growth: `+${Math.round(networkConsultants.length / consultants.length * 100)}%`
       });
     }
@@ -115,9 +115,9 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'high': return <Badge className="bg-red-100 text-red-800">Hög prioritet</Badge>;
-      case 'medium': return <Badge className="bg-yellow-100 text-yellow-800">Medium prioritet</Badge>;
-      case 'low': return <Badge className="bg-green-100 text-green-800">Låg prioritet</Badge>;
+      case 'high': return <Badge className="bg-red-100 text-red-800">High priority</Badge>;
+      case 'medium': return <Badge className="bg-yellow-100 text-yellow-800">Medium priority</Badge>;
+      case 'low': return <Badge className="bg-green-100 text-green-800">Low priority</Badge>;
       default: return null;
     }
   };
@@ -127,7 +127,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-indigo-600" />
-          Smarta rekommendationer
+          Smart Recommendations
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -160,7 +160,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
                     )}
                     {rec.growth && (
                       <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                        {rec.growth} tillväxt
+                        {rec.growth} growth
                       </Badge>
                     )}
                   </div>
@@ -176,7 +176,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
                 {/* Additional details */}
                 {rec.consultants && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
-                    <p className="text-xs text-gray-500 mb-2">Toppkonsulter:</p>
+                    <p className="text-xs text-gray-500 mb-2">Top consultants:</p>
                     <div className="flex gap-2">
                       {rec.consultants.map((consultant, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs">
@@ -189,7 +189,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
                 {rec.skills && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
-                    <p className="text-xs text-gray-500 mb-2">Kompetenser som saknas:</p>
+                    <p className="text-xs text-gray-500 mb-2">Missing skills:</p>
                     <div className="flex flex-wrap gap-1">
                       {rec.skills.map((skill, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs bg-red-50 text-red-700">
@@ -206,7 +206,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
           {recommendations.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               <Sparkles className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p>Inga rekommendationer just nu. Systemet analyserar data...</p>
+              <p>No recommendations right now. System is analyzing data...</p>
             </div>
           )}
         </div>

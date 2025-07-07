@@ -41,7 +41,7 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
     return Object.entries(skillSupply)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 5)
-      .map(([skill, count]) => ({ skill, supply: count, availability: count > 3 ? 'Hög' : count > 1 ? 'Medium' : 'Låg' }));
+      .map(([skill, count]) => ({ skill, supply: count, availability: count > 3 ? 'High' : count > 1 ? 'Medium' : 'Low' }));
   };
 
   const matchingPredictions = () => {
@@ -54,7 +54,7 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
       expectedMatches: Math.min(totalAssignments, totalConsultants),
       avgTimeToMatch: avgMatchTime,
       successProbability: successRate,
-      bottlenecks: totalAssignments > totalConsultants ? 'Fler konsulter behövs' : 'Balanserat'
+      bottlenecks: totalAssignments > totalConsultants ? 'More consultants needed' : 'Balanced'
     };
   };
 
@@ -69,7 +69,7 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-red-600" />
-            Mest efterfrågade kompetenser
+            Most In-Demand Skills
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -81,7 +81,7 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
                   <span className="font-medium">{skill}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{demand} uppdrag</Badge>
+                  <Badge variant="outline">{demand} assignments</Badge>
                   <Badge className="bg-green-100 text-green-800">{trend}</Badge>
                 </div>
               </div>
@@ -95,7 +95,7 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users2 className="h-5 w-5 text-blue-600" />
-            Kompetenslager
+            Skills Supply
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -107,9 +107,9 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
                   <span className="font-medium">{skill}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{supply} konsulter</Badge>
+                  <Badge variant="outline">{supply} consultants</Badge>
                   <Badge className={
-                    availability === 'Hög' ? 'bg-green-100 text-green-800' :
+                    availability === 'High' ? 'bg-green-100 text-green-800' :
                     availability === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-red-100 text-red-800'
                   }>
@@ -127,26 +127,26 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-purple-600" />
-            Matchningsprediktioner
+            Matching Predictions
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">{predictions.expectedMatches}</div>
-              <div className="text-sm text-gray-600">Förväntade matchningar</div>
+              <div className="text-sm text-gray-600">Expected matches</div>
             </div>
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">{predictions.avgTimeToMatch}s</div>
-              <div className="text-sm text-gray-600">Genomsnittlig matchningstid</div>
+              <div className="text-sm text-gray-600">Average matching time</div>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">{predictions.successProbability}%</div>
-              <div className="text-sm text-gray-600">Framgångssannolikhet</div>
+              <div className="text-sm text-gray-600">Success probability</div>
             </div>
             <div className="text-center p-4 bg-amber-50 rounded-lg">
               <div className="text-sm font-medium text-amber-800">{predictions.bottlenecks}</div>
-              <div className="text-xs text-gray-600">Systemanalys</div>
+              <div className="text-xs text-gray-600">System analysis</div>
             </div>
           </div>
         </CardContent>
