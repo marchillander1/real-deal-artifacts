@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConsultantsSection } from './dashboard/ConsultantsSection';
@@ -32,7 +31,10 @@ export const DashboardTabs: React.FC = () => {
     desiredCommunicationStyle: assignment.desired_communication_style || '',
     requiredValues: assignment.required_values || [],
     teamDynamics: assignment.team_dynamics || '',
-    leadershipLevel: assignment.leadership_level || 3
+    leadershipLevel: assignment.leadership_level || 3,
+    urgency: (assignment.urgency === 'Low' || assignment.urgency === 'Medium' || assignment.urgency === 'High') 
+      ? assignment.urgency 
+      : 'Medium' as 'Low' | 'Medium' | 'High'
   }));
 
   return (
