@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConsultantsSection } from './dashboard/ConsultantsSection';
@@ -24,7 +25,8 @@ export const DashboardTabs: React.FC = () => {
   // Convert assignments to the correct type format
   const formattedAssignments: Assignment[] = assignments.map(assignment => ({
     ...assignment,
-    duration: assignment.duration || '6 months', // Ensure duration is always present
+    duration: assignment.duration || '6 months',
+    budget: assignment.budget || 'Not specified',
     requiredSkills: assignment.required_skills || [],
     workload: assignment.workload || 'Full-time',
     teamCulture: assignment.team_culture || '',
