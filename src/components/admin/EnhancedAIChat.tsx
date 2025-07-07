@@ -109,7 +109,7 @@ export const EnhancedAIChat: React.FC<ChatProps> = ({
         }, {} as Record<string, number>);
       
       const sortedSkills = Object.entries(topSkills)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([,a], [,b]) => Number(b) - Number(a))
         .slice(0, 5);
 
       return `🔧 **Kompetensanalys**\n\nPopuläraste kompetenser:\n${sortedSkills.map(([skill, count], index) => `${index + 1}. ${skill} (${count} konsulter)`).join('\n')}\n\nDetta kan hjälpa dig att:\n• Identifiera kompetensbrister\n• Fokusera rekrytering\n• Förstå marknadstrender\n\nVill du se mer detaljerad kompetensfördelning?`;
