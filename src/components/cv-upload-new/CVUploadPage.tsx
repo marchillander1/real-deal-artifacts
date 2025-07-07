@@ -26,27 +26,20 @@ export const CVUploadPage: React.FC = () => {
     setPersonalTagline(tagline);
     setCurrentStep('analysis');
 
-    // Store file for analysis
+    // Store file info only (not the actual file data to avoid quota issues)
     sessionStorage.setItem(`cv-file-${token}`, JSON.stringify({
       name: file.name,
       size: file.size,
       type: file.type,
       lastModified: file.lastModified
     }));
-    
-    // Store actual file data as base64 for the analysis
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      if (e.target?.result) {
-        sessionStorage.setItem(`cv-data-${token}`, e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
 
     // Store personal tagline for enhanced analysis
     if (tagline) {
       sessionStorage.setItem(`cv-tagline-${token}`, tagline);
     }
+
+    console.log('✅ Session data stored, starting analysis...');
   };
 
   const handleAnalysisComplete = (results: any) => {
@@ -91,7 +84,6 @@ export const CVUploadPage: React.FC = () => {
     // Clear session storage
     if (sessionToken) {
       sessionStorage.removeItem(`cv-file-${sessionToken}`);
-      sessionStorage.removeItem(`cv-data-${sessionToken}`);
       sessionStorage.removeItem(`cv-tagline-${sessionToken}`);
     }
   };
@@ -134,6 +126,7 @@ export const CVUploadPage: React.FC = () => {
         <AnalysisProgress 
           sessionToken={sessionToken}
           personalTagline={personalTagline}
+          uploadedFile={uploadedFile}
           onAnalysisComplete={handleAnalysisComplete}
         />
       )}

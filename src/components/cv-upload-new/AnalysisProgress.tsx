@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,12 +7,14 @@ import { supabase } from '@/integrations/supabase/client';
 interface AnalysisProgressProps {
   sessionToken: string;
   personalTagline?: string;
+  uploadedFile: File | null;
   onAnalysisComplete: (results: any) => void;
 }
 
 export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
   sessionToken,
   personalTagline = '',
+  uploadedFile,
   onAnalysisComplete
 }) => {
   const [progress, setProgress] = useState(0);
@@ -100,44 +101,30 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
     const startAnalysis = async () => {
       console.log('🚀 Starting comprehensive CV analysis...');
       
-      // Get stored file data
-      const fileDataKey = `cv-data-${sessionToken}`;
-      const fileInfoKey = `cv-file-${sessionToken}`;
-      const taglineKey = `cv-tagline-${sessionToken}`;
-      
-      const fileDataUrl = sessionStorage.getItem(fileDataKey);
-      const fileInfo = sessionStorage.getItem(fileInfoKey);
-      const storedTagline = sessionStorage.getItem(taglineKey);
-      
-      console.log('📁 File data check:', {
-        hasFileData: !!fileDataUrl,
-        hasFileInfo: !!fileInfo,
-        hasTagline: !!storedTagline,
-        sessionToken
-      });
-      
-      if (!fileDataUrl || !fileInfo) {
-        console.error('❌ Missing file data for analysis');
+      // Check if we have the uploaded file directly
+      if (!uploadedFile) {
+        console.error('❌ No uploaded file available for analysis');
+        setCurrentAnalysis('Error: No file available for analysis');
         return;
       }
 
+      console.log('📄 Using uploaded file:', {
+        name: uploadedFile.name,
+        size: uploadedFile.size,
+        type: uploadedFile.type
+      });
+
+      // Get stored tagline
+      const taglineKey = `cv-tagline-${sessionToken}`;
+      const storedTagline = sessionStorage.getItem(taglineKey);
+      
+      console.log('📝 Tagline check:', {
+        hasStoredTagline: !!storedTagline,
+        hasPropsTagline: !!personalTagline,
+        sessionToken
+      });
+
       try {
-        const fileInfoParsed = JSON.parse(fileInfo);
-        
-        // Convert data URL back to File
-        const response = await fetch(fileDataUrl);
-        const blob = await response.blob();
-        const file = new File([blob], fileInfoParsed.name, { 
-          type: fileInfoParsed.type,
-          lastModified: fileInfoParsed.lastModified 
-        });
-
-        console.log('📄 File reconstructed:', {
-          name: file.name,
-          size: file.size,
-          type: file.type
-        });
-
         // Start progress simulation
         let currentProgress = 0;
         let stageIndex = 0;
@@ -179,9 +166,9 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         // Start with first analysis message
         setCurrentAnalysis(ongoingAnalyses[0]);
 
-        // Perform real analysis
+        // Perform real analysis with the uploaded file
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', uploadedFile);
         formData.append('personalTagline', storedTagline || personalTagline || '');
         formData.append('personalDescription', storedTagline || personalTagline || '');
 
@@ -204,14 +191,16 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
         if (analysisResponse.error) {
           console.error('❌ Analysis failed:', analysisResponse.error);
-          throw new Error(`Analysis failed: ${analysisResponse.error.message}`);
+          setCurrentAnalysis(`Analysis failed: ${analysisResponse.error.message}`);
+          return;
         }
 
         const result = analysisResponse.data;
         
         if (!result || !result.success) {
           console.error('❌ Analysis result invalid:', result);
-          throw new Error(result?.error || 'Analysis failed');
+          setCurrentAnalysis(result?.error || 'Analysis failed');
+          return;
         }
 
         console.log('✅ CV analysis completed successfully');
@@ -253,7 +242,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         clearInterval(analysisInterval);
         
         // Set error state
-        setCurrentAnalysis('Analysis failed. Please try again.');
+        setCurrentAnalysis(`Analysis failed: ${error.message}`);
       }
     };
 
@@ -264,7 +253,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       clearInterval(timeInterval);
       clearInterval(analysisInterval);
     };
-  }, [sessionToken, personalTagline, onAnalysisComplete]);
+  }, [sessionToken, personalTagline, uploadedFile, onAnalysisComplete]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
