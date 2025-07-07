@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,7 +57,7 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
           *,
           consultants (*)
         `)
-        .eq('assignment_id', assignment.id)
+        .eq('assignment_id', String(assignment.id))
         .order('match_score', { ascending: false });
 
       if (error) {
@@ -255,11 +254,11 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
                           <div>
                             <p className="text-sm font-medium text-gray-700 mb-2">Aligned Values</p>
                             <div className="flex flex-wrap gap-1">
-                              {match.matchedValues.map((value: string, idx: number) => (
+                              {match.matchedValues?.map((value: string, idx: number) => (
                                 <Badge key={idx} variant="outline" className="text-xs">
                                   {value}
                                 </Badge>
-                              ))}
+                              )) || <span className="text-xs text-gray-500">No values matched</span>}
                             </div>
                           </div>
                         </div>
