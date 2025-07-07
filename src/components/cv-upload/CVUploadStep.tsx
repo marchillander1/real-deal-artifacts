@@ -1,19 +1,30 @@
 
 import React, { useState } from 'react';
-import { Upload, FileText, Link as LinkIcon, MessageSquare } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
+import { Upload, FileText, Loader2, User, Link as LinkIcon } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface CVUploadStepProps {
-  onFileUpload: (file: File, linkedinUrl: string, personalDescription: string) => void;
+  onNext: (data: {
+    file: File;
+    linkedinUrl: string;
+    personalDescription: string;
+  }) => void;
 }
 
-export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
+export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onNext }) => {
   const [file, setFile] = useState<File | null>(null);
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [personalDescription, setPersonalDescription] = useState('');
   const [dragActive, setDragActive] = useState(false);
-  const [agreeToGDPR, setAgreeToGDPR] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const { toast } = useToast();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -34,6 +45,12 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
       const droppedFile = e.dataTransfer.files[0];
       if (isValidFileType(droppedFile)) {
         setFile(droppedFile);
+      } else {
+        toast({
+          title: "Ogiltigt filformat",
+          description: "Vänligen ladda upp en PDF, Word-dokument eller bild",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -43,6 +60,12 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
       const selectedFile = e.target.files[0];
       if (isValidFileType(selectedFile)) {
         setFile(selectedFile);
+      } else {
+        toast({
+          title: "Ogiltigt filformat",
+          description: "Vänligen ladda upp en PDF, Word-dokument eller bild",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -51,161 +74,180 @@ export const CVUploadStep: React.FC<CVUploadStepProps> = ({ onFileUpload }) => {
     const validTypes = [
       'application/pdf',
       'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png',
+      'image/jpg'
     ];
     return validTypes.includes(file.type);
   };
 
-  const handleStartAnalysis = () => {
-    if (file && agreeToGDPR) {
-      onFileUpload(file, linkedinUrl, personalDescription);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!file) {
+      toast({
+        title: "CV krävs",
+        description: "Vänligen ladda upp ditt CV",
+        variant: "destructive",
+      });
+      return;
     }
+
+    setIsProcessing(true);
+    
+    // Simulate processing with progress
+    for (let i = 0; i <= 100; i += 10) {
+      setProgress(i);
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    onNext({
+      file,
+      linkedinUrl,
+      personalDescription
+    });
   };
 
-  return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Let AI unlock your potential
-          </h1>
-          <p className="text-lg text-slate-600">
-            Start by uploading your latest CV (PDF or Word). You can also add your LinkedIn profile for improved analysis.
-          </p>
-        </div>
+  const hasValidLinkedIn = linkedinUrl && linkedinUrl.includes('linkedin.com');
 
-        <div className="space-y-8">
-          {/* File Upload */}
-          <div className="space-y-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Upload CV (PDF, DOC, DOCX) *
-            </label>
-            
-            <div
-              className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-200 ${
-                dragActive 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : file 
-                  ? 'border-green-500 bg-green-50' 
-                  : 'border-slate-300 hover:border-slate-400'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-              
-              <div className="text-center">
-                {file ? (
-                  <div className="flex items-center justify-center space-x-3">
-                    <FileText className="h-8 w-8 text-green-600" />
-                    <div>
-                      <p className="font-semibold text-green-700">{file.name}</p>
-                      <p className="text-sm text-green-600">Ready for analysis</p>
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Ladda upp ditt CV
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* File Upload */}
+            <div className="space-y-3">
+              <Label htmlFor="cv-upload" className="text-base font-medium flex items-center">
+                CV-fil <span className="text-red-500 ml-1">*</span>
+              </Label>
+              <div
+                className={`relative border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
+                  dragActive 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : file 
+                    ? 'border-green-500 bg-green-50' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <input
+                  id="cv-upload"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={isProcessing}
+                />
+                
+                <div className="text-center">
+                  {file ? (
+                    <div className="flex items-center justify-center space-x-3">
+                      <FileText className="h-8 w-8 text-green-600" />
+                      <div>
+                        <p className="font-medium text-green-700">{file.name}</p>
+                        <p className="text-sm text-green-600">Redo för uppladdning</p>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div>
-                    <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <p className="text-lg font-medium text-slate-700 mb-2">
-                      Drag and drop your CV here
-                    </p>
-                    <p className="text-slate-500">
-                      or click to browse files
-                    </p>
-                  </div>
-                )}
+                  ) : (
+                    <div className="space-y-3">
+                      <Upload className="h-12 w-12 text-gray-400 mx-auto" />
+                      <div>
+                        <p className="text-base font-medium text-gray-700 mb-1">
+                          Ladda upp ditt CV
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          PDF, Word eller bildformat
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* LinkedIn URL */}
-          <div className="space-y-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              LinkedIn URL (optional)
-            </label>
-            <div className="relative">
-              <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-              <input
+            {/* LinkedIn URL */}
+            <div className="space-y-3">
+              <Label htmlFor="linkedin" className="text-base font-medium flex items-center">
+                <LinkIcon className="h-4 w-4 mr-2" />
+                LinkedIn-profil (valfritt)
+              </Label>
+              <Input
+                id="linkedin"
                 type="url"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
-                placeholder="https://linkedin.com/in/your-profile"
-                className="w-full pl-12 pr-4 py-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="https://linkedin.com/in/dinprofil"
+                disabled={isProcessing}
               />
+              {hasValidLinkedIn && (
+                <p className="text-sm text-green-600">✓ Giltig LinkedIn-URL - förbättrar analysen</p>
+              )}
             </div>
-            <p className="text-sm text-slate-500">
-              Adding your LinkedIn profile improves analysis quality and provides better career insights.
-            </p>
-          </div>
 
-          {/* Personal Description */}
-          <div className="space-y-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Personal description (optional)
-            </label>
-            <div className="relative">
-              <MessageSquare className="absolute left-4 top-4 h-5 w-5 text-slate-400" />
+            {/* Personal Description */}
+            <div className="space-y-3">
+              <Label htmlFor="personal-description" className="text-base font-medium flex items-center">
+                <User className="h-4 w-4 mr-2" />
+                Personlig beskrivning (valfritt)
+              </Label>
               <Textarea
+                id="personal-description"
                 value={personalDescription}
                 onChange={(e) => setPersonalDescription(e.target.value)}
-                placeholder="Tell us a bit about yourself, your goals and ambitions..."
-                className="w-full pl-12 pr-4 py-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 min-h-[120px]"
+                placeholder="Berätta om dig själv, dina styrkor, intressen och vad som gör dig unik som konsult..."
+                className="h-24 resize-none"
+                maxLength={500}
+                disabled={isProcessing}
               />
-            </div>
-            <p className="text-sm text-slate-500">
-              A personal description helps the AI provide more tailored insights and recommendations.
-            </p>
-          </div>
-
-          {/* GDPR Consent */}
-          <div className="space-y-4">
-            <div className="flex items-start space-x-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <Checkbox
-                id="gdpr-consent"
-                checked={agreeToGDPR}
-                onCheckedChange={(checked) => setAgreeToGDPR(checked as boolean)}
-                className="mt-1"
-              />
-              <div className="text-sm text-slate-700">
-                <label htmlFor="gdpr-consent" className="cursor-pointer font-medium">
-                  I agree to let MatchWise analyze my CV and LinkedIn profile
-                </label>
-                <p className="mt-1 text-slate-600">
-                  By checking this box, I consent to MatchWise AI analyzing my CV and LinkedIn profile to create a personalized career report. 
-                  Your data is processed according to our privacy policy and will not be shared with third parties without your consent.
-                </p>
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Hjälper att förbättra AI-analysens kvalitet</span>
+                <span>{personalDescription.length}/500</span>
               </div>
             </div>
-          </div>
 
-          {/* Start Analysis Button */}
-          <div className="pt-4">
-            <button
-              onClick={handleStartAnalysis}
-              disabled={!file || !agreeToGDPR}
-              className={`w-full py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-200 transform ${
-                file && agreeToGDPR
-                  ? 'bg-gradient-to-r from-blue-600 to-green-600 text-white hover:shadow-lg hover:scale-105 active:scale-95'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
+            {/* Progress */}
+            {isProcessing && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-blue-600">Bearbetar CV...</span>
+                  <span className="text-blue-600">{progress}%</span>
+                </div>
+                <Progress value={progress} className="h-2" />
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <Button 
+              type="submit" 
+              disabled={!file || isProcessing}
+              className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              {!file 
-                ? 'Please upload your CV first' 
-                : !agreeToGDPR 
-                ? 'Please accept data processing consent'
-                : 'Start Analysis'
-              }
-            </button>
-          </div>
-        </div>
-      </div>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Bearbetar...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Starta AI-analys
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

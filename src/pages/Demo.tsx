@@ -4,50 +4,75 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import CreateAssignmentForm from '@/components/CreateAssignmentForm';
-import { useAiMatching } from '@/hooks/useAiMatching';
-import { Assignment } from '@/types/consultant';
+import { Assignment } from '@/types/assignment';
 import { ArrowLeft, Star, MapPin, Clock, CheckCircle, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
-import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+
+// Demo consultants data
+const demoConsultants = [
+  {
+    id: '1',
+    name: 'Consultant A',
+    email: 'contact@matchwiseai.com',
+    phone: 'Available after signup',
+    skills: ['React', 'TypeScript', 'Node.js', 'AWS'],
+    experience: '5+ years',
+    rating: 4.8,
+    roles: ['Senior Developer']
+  },
+  {
+    id: '2', 
+    name: 'Consultant B',
+    email: 'contact@matchwiseai.com',
+    phone: 'Available after signup',
+    skills: ['Python', 'Django', 'PostgreSQL', 'Docker'],
+    experience: '3+ years',
+    rating: 4.9,
+    roles: ['Full-Stack Developer']
+  },
+  {
+    id: '3',
+    name: 'Consultant C', 
+    email: 'contact@matchwiseai.com',
+    phone: 'Available after signup',
+    skills: ['Vue.js', 'JavaScript', 'CSS', 'Figma'],
+    experience: '4+ years',
+    rating: 4.7,
+    roles: ['Frontend Specialist']
+  }
+];
 
 export default function Demo() {
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [matches, setMatches] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const { performAiMatching, isMatching } = useAiMatching();
-  const { consultants } = useSupabaseConsultantsWithDemo();
+  const [isMatching, setIsMatching] = useState(false);
 
   const handleAssignmentCreated = async (newAssignment: Assignment) => {
     console.log('Demo: Assignment created:', newAssignment);
     setAssignment(newAssignment);
     setShowForm(false);
+    setIsMatching(true);
     
-    try {
-      // Use real consultants from the database for demo matching
-      const networkConsultants = consultants.filter(c => c.type === 'new');
-      
-      // Create mock matches using real consultant data
-      const mockMatches = networkConsultants.slice(0, 3).map((consultant, index) => ({
+    // Simulate AI matching process
+    setTimeout(() => {
+      const mockMatches = demoConsultants.map((consultant, index) => ({
         consultant: {
           ...consultant,
-          // Anonymize for demo
           name: `Consultant ${String.fromCharCode(65 + index)}`,
-          email: 'contact@matchwiseai.com',
-          phone: 'Available after signup',
         },
         matchScore: 95 - (index * 3),
-        matchedSkills: newAssignment.requiredSkills || [],
+        matchedSkills: newAssignment.requiredSkills?.slice(0, 3) || [],
         reasoning: `Strong match based on ${consultant.skills.slice(0, 3).join(', ')} experience and ${consultant.experience} in the field.`,
-        coverLetter: `Based on our AI analysis, this consultant is an excellent match for your ${newAssignment.title} position. Their technical expertise and experience align perfectly with your requirements.`
+        coverLetter: `Based on our AI analysis, this consultant is an excellent match for your ${newAssignment.title} position.`
       }));
 
       setMatches(mockMatches);
+      setIsMatching(false);
       setShowResults(true);
-    } catch (error) {
-      console.error('Demo matching error:', error);
-    }
+    }, 2000);
   };
 
   const handleStartOver = () => {
@@ -89,14 +114,6 @@ export default function Demo() {
             <p className="text-slate-300 text-lg mb-4">
               We found {matches.length} excellent matches for your assignment
             </p>
-            <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-4 max-w-2xl mx-auto">
-              <p className="text-blue-200 text-sm">
-                🎯 This is a demo showing anonymized consultant profiles. 
-                <Link to="/pricing-auth" className="text-blue-400 hover:underline ml-1">
-                  Sign up to see full profiles and contact information.
-                </Link>
-              </p>
-            </div>
           </div>
 
           {/* Assignment Summary */}
@@ -161,11 +178,6 @@ export default function Demo() {
                           {skill}
                         </Badge>
                       ))}
-                      {match.consultant.skills?.length > 4 && (
-                        <Badge variant="outline" className="text-xs text-slate-400 border-slate-500/30">
-                          +{match.consultant.skills.length - 4} more
-                        </Badge>
-                      )}
                     </div>
                   </div>
 
@@ -174,13 +186,13 @@ export default function Demo() {
                     <div>
                       <div className="flex items-center text-sm text-slate-300">
                         <Clock className="h-4 w-4 mr-1" />
-                        {match.consultant.experience || '5+'} years
+                        {match.consultant.experience}
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center text-sm text-slate-300">
                         <Star className="h-4 w-4 mr-1 text-yellow-400" />
-                        {match.consultant.rating || 4.8}/5.0
+                        {match.consultant.rating}/5.0
                       </div>
                     </div>
                   </div>
@@ -194,16 +206,6 @@ export default function Demo() {
                     <p className="text-xs text-slate-400">
                       {match.reasoning}
                     </p>
-                  </div>
-
-                  {/* Contact (Anonymized) */}
-                  <div className="pt-4 border-t border-slate-600">
-                    <p className="text-sm text-slate-400 mb-2">Contact Information</p>
-                    <div className="bg-slate-900/50 rounded-lg p-3">
-                      <p className="text-xs text-slate-500 text-center">
-                        Full contact details available after signup
-                      </p>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -228,7 +230,8 @@ export default function Demo() {
                 <Button 
                   onClick={handleStartOver} 
                   size="lg" 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  variant="outline"
+                  className="border-slate-600 text-white hover:bg-slate-800"
                 >
                   Try Another Search
                 </Button>
@@ -284,12 +287,6 @@ export default function Demo() {
             Test our AI matching platform by creating an assignment. We'll show you anonymized profiles 
             of consultants that match your requirements.
           </p>
-          <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-4 max-w-2xl mx-auto">
-            <p className="text-blue-200 text-sm">
-              🎯 This demo uses real consultant data but shows anonymized profiles. 
-              Sign up to access full profiles and contact information.
-            </p>
-          </div>
         </div>
 
         {/* Assignment Form Card */}

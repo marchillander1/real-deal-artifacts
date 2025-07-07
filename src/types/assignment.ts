@@ -1,22 +1,27 @@
 
 export interface Assignment {
-  id: string | number;
+  id: number | string;
   title: string;
   description: string;
   company: string;
-  clientLogo: string;
+  clientLogo?: string;
   requiredSkills: string[];
   workload: string;
   duration: string;
-  location: string;
-  urgency: "High" | "Medium" | "Low";
+  location?: string;
+  urgency: 'Low' | 'Medium' | 'High';
   budget: string;
-  hourlyRate: number;
-  status: "open" | "in_progress" | "completed" | "cancelled";
-  matchedConsultants: number;
+  hourlyRate?: number;
+  status: 'open' | 'in_progress' | 'completed' | 'cancelled';
+  matchedConsultants?: number;
   createdAt: string;
-  remote: string;
-  teamSize: string;
-  teamCulture: string;
-  industry: string;
+  remote?: string;
+  teamSize?: string;
+  teamCulture?: string;
+  industry?: string;
+  startDate?: string;
+  desiredCommunicationStyle?: string;
+  requiredValues?: string[];
+  leadershipLevel?: number;
+  teamDynamics?: string;
 }

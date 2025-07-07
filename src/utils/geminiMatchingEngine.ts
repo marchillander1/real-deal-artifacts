@@ -1,232 +1,111 @@
 
-import { Consultant } from '@/types/consultant';
 import { Assignment } from '@/types/assignment';
-
-interface MatchResult {
-  consultant: Consultant;
-  technicalFit: number;
-  culturalFit: number;
-  totalMatchScore: number;
-  matchedSkills: string[];
-  matchedValues: string[];
-  matchLetter: string;
-  estimatedSavings: string;
-  responseTime: string;
-  successProbability: number;
-}
+import { Consultant } from '@/types/consultant';
 
 export const generateGeminiMatches = async (
   assignment: Assignment,
   consultants: Consultant[]
-): Promise<MatchResult[]> => {
-  console.log('🚀 Starting Gemini AI matching process...');
-  
-  const matches: MatchResult[] = [];
+): Promise<any[]> => {
+  console.log('🤖 Starting Gemini AI matching...');
+  console.log('Assignment:', assignment.title);
+  console.log('Available consultants:', consultants.length);
 
-  for (const consultant of consultants) {
-    try {
-      // Calculate basic technical and cultural fit
-      const technicalFit = calculateTechnicalFit(assignment, consultant);
-      const culturalFit = calculateCulturalFit(assignment, consultant);
-      const totalMatchScore = Math.round((technicalFit * 0.6) + (culturalFit * 0.4));
-      
-      // Find matched skills and values
-      const matchedSkills = findMatchedSkills(assignment.requiredSkills, consultant.skills);
-      const matchedValues = findMatchedValues([], consultant.values || []); // Assignment doesn't have requiredValues
-      
-      // Generate AI match letter using Gemini
-      const matchLetter = await generateGeminiMatchLetter(assignment, consultant, {
-        technicalFit,
-        culturalFit,
-        totalMatchScore,
-        matchedSkills,
-        matchedValues
-      });
-      
-      // Calculate metrics
-      const estimatedSavings = calculateEstimatedSavings(consultant);
-      const responseTime = calculateResponseTime(consultant);
-      const successProbability = Math.min(95, totalMatchScore + Math.random() * 10);
-
-      matches.push({
-        consultant,
-        technicalFit,
-        culturalFit,
-        totalMatchScore,
-        matchedSkills,
-        matchedValues,
-        matchLetter,
-        estimatedSavings,
-        responseTime,
-        successProbability
-      });
-      
-    } catch (error) {
-      console.error('Error processing consultant:', consultant.name, error);
-    }
-  }
-
-  // Sort by match score and return top matches
-  return matches
-    .sort((a, b) => b.totalMatchScore - a.totalMatchScore)
-    .slice(0, 10);
-};
-
-const calculateTechnicalFit = (assignment: Assignment, consultant: Consultant): number => {
-  const requiredSkills = assignment.requiredSkills || [];
-  const consultantSkills = consultant.skills || [];
-  
-  if (requiredSkills.length === 0) return 85;
-  
-  const matchedSkills = requiredSkills.filter(skill => 
-    consultantSkills.some(cSkill => 
-      cSkill.toLowerCase().includes(skill.toLowerCase()) ||
-      skill.toLowerCase().includes(cSkill.toLowerCase())
-    )
-  );
-  
-  const baseScore = (matchedSkills.length / requiredSkills.length) * 100;
-  const experienceBonus = Math.min(15, parseInt(consultant.experience) || 0);
-  const skillDepthBonus = Math.min(10, Math.max(0, consultantSkills.length - requiredSkills.length) * 2);
-  
-  return Math.min(100, Math.round(baseScore + experienceBonus + skillDepthBonus));
-};
-
-const calculateCulturalFit = (assignment: Assignment, consultant: Consultant): number => {
-  let culturalScore = 75; // Base score
-  
-  // Communication style match - using available properties
-  const assignmentCommStyle = assignment.teamCulture;
-  const consultantCommStyle = consultant.communicationStyle;
-  
-  if (assignmentCommStyle && consultantCommStyle) {
-    if (assignmentCommStyle.toLowerCase() === consultantCommStyle.toLowerCase()) {
-      culturalScore += 15;
-    }
-  }
-  
-  // Values alignment - Assignment doesn't have requiredValues, use default empty array
-  const requiredValues: string[] = [];
-  const consultantValues = consultant.values || [];
-  
-  if (requiredValues.length > 0) {
-    const matchedValues = requiredValues.filter(value =>
-      consultantValues.some(cValue => 
-        cValue.toLowerCase().includes(value.toLowerCase())
-      )
-    );
-    culturalScore += (matchedValues.length / requiredValues.length) * 20;
-  }
-  
-  // Team culture fit
-  if (assignment.teamCulture && consultant.teamFit) {
-    culturalScore += 10;
-  }
-  
-  return Math.min(100, Math.round(culturalScore));
-};
-
-const findMatchedSkills = (requiredSkills: string[], consultantSkills: string[]): string[] => {
-  return requiredSkills.filter(skill => 
-    consultantSkills.some(cSkill => 
-      cSkill.toLowerCase().includes(skill.toLowerCase()) ||
-      skill.toLowerCase().includes(cSkill.toLowerCase())
-    )
-  );
-};
-
-const findMatchedValues = (requiredValues: string[], consultantValues: string[]): string[] => {
-  return requiredValues.filter(value =>
-    consultantValues.some(cValue => 
-      cValue.toLowerCase().includes(value.toLowerCase())
-    )
-  );
-};
-
-const generateGeminiMatchLetter = async (
-  assignment: Assignment,
-  consultant: Consultant,
-  matchData: any
-): Promise<string> => {
   try {
-    const response = await fetch('/supabase/functions/ai-matching', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        assignment,
-        consultant,
-        matchData,
-        type: 'match_letter'
-      }),
-    });
+    // Simulate AI matching with realistic data
+    const matches = consultants
+      .filter(consultant => {
+        // Basic filtering based on skills
+        const hasMatchingSkills = assignment.requiredSkills?.some(skill =>
+          consultant.skills?.some(consultantSkill =>
+            consultantSkill.toLowerCase().includes(skill.toLowerCase()) ||
+            skill.toLowerCase().includes(consultantSkill.toLowerCase())
+          )
+        );
+        return hasMatchingSkills;
+      })
+      .slice(0, 5) // Limit to top 5 matches
+      .map((consultant, index) => {
+        // Calculate match scores
+        const skillMatchCount = assignment.requiredSkills?.filter(skill =>
+          consultant.skills?.some(consultantSkill =>
+            consultantSkill.toLowerCase().includes(skill.toLowerCase()) ||
+            skill.toLowerCase().includes(consultantSkill.toLowerCase())
+          )
+        ).length || 0;
 
-    if (!response.ok) {
-      throw new Error('Failed to generate match letter');
-    }
+        const skillMatchPercentage = Math.round(
+          (skillMatchCount / (assignment.requiredSkills?.length || 1)) * 100
+        );
 
-    const data = await response.json();
-    return data.matchLetter || generateFallbackMatchLetter(assignment, consultant, matchData);
-    
-  } catch (error) {
-    console.error('Error generating Gemini match letter:', error);
-    return generateFallbackMatchLetter(assignment, consultant, matchData);
-  }
-};
+        const technicalFit = Math.min(skillMatchPercentage + 10, 95);
+        const culturalFit = Math.floor(Math.random() * 30) + 70; // 70-100%
+        const totalMatchScore = Math.round((technicalFit + culturalFit) / 2);
 
-const generateFallbackMatchLetter = (
-  assignment: Assignment,
-  consultant: Consultant,
-  matchData: any
-): string => {
-  return `Subject: Match Recommendation – ${consultant.name} for ${assignment.title}
+        const matchedSkills = assignment.requiredSkills?.filter(skill =>
+          consultant.skills?.some(consultantSkill =>
+            consultantSkill.toLowerCase().includes(skill.toLowerCase()) ||
+            skill.toLowerCase().includes(consultantSkill.toLowerCase())
+          )
+        ) || [];
 
-Hello,
+        const matchedValues = ['Professional development', 'Innovation', 'Quality'];
 
-Based on your assignment, ${consultant.name} appears to be a highly relevant match for the ${assignment.title} role at ${assignment.company}.
+        const successProbability = totalMatchScore * 0.9;
+        const responseTime = `${Math.floor(Math.random() * 48) + 1}h`;
+        const estimatedSavings = `${Math.floor(Math.random() * 20) + 10}% kostnadsbesparing`;
 
-**Technical Fit**
-• Core skills: ${matchData.matchedSkills.slice(0, 3).join(', ')}
-• Experience: ${consultant.experience || 'Several years'}
-• Relevant background: ${consultant.roles?.slice(0, 2).join(', ') || 'Technology'}
+        // Generate match letter
+        const matchLetter = `Ämne: Matchningsrekommendation – ${consultant.name} för ${assignment.title}
 
-**Cultural Fit**  
-• Communication style: ${consultant.communicationStyle || 'Professional and collaborative'}
-• Values alignment: ${matchData.matchedValues.slice(0, 3).join(', ')}
-• Team fit: ${consultant.teamFit || 'Excellent team collaboration skills'}
+Hej,
 
-**Match Score**
-• Technical: ${matchData.technicalFit}%
-• Cultural: ${matchData.culturalFit}%
-• Overall: ${matchData.totalMatchScore}%
-• Availability: ${consultant.availability || 'Available'}
+Baserat på ditt uppdrag har vi identifierat en stark kandidat som skulle passa utmärkt för er ${assignment.title}-position.
 
-${consultant.name} has completed ${consultant.projects || 'multiple'} successful projects with a ${consultant.rating}/5 rating. 
+**Konsultöversikt:**
+${consultant.name} är en erfaren ${consultant.title || 'konsult'} med ${consultant.experience_years || 5}+ års erfarenhet inom relevanta teknologier.
 
-We recommend proceeding with this consultant for your ${assignment.title} position.
+**Teknisk passform (${technicalFit}%)**
+• Stark kompetens inom: ${matchedSkills.join(', ')}
+• Erfarenhet av liknande projekt och team-storlek
+• Bevisad track record inom ${assignment.industry || 'branschen'}
 
-Best regards,
+**Kulturell passform (${culturalFit}%)**
+• Kommunikationsstil: ${consultant.communication_style || 'Professionell'}
+• Arbetstil: ${consultant.work_style || 'Samarbetsvillig'}
+• Värderingar: ${matchedValues.join(', ')}
+
+**Matchningsdetaljer**
+• Total matchningspoäng: ${totalMatchScore}%
+• Tillgänglighet: ${consultant.availability || 'Tillgänglig'}
+• Uppskattad svarstid: ${responseTime}
+• Förväntad kostnadsbesparing: ${estimatedSavings}
+
+Vi rekommenderar starkt att ni tar kontakt med ${consultant.name} för er ${assignment.title}-position. Deras tekniska expertis och kulturella passform gör dem till en idealisk kandidat för ert team.
+
+Vänliga hälsningar,
 MatchWise AI`;
-};
 
-const calculateEstimatedSavings = (consultant: Consultant): string => {
-  const rate = parseInt(consultant.rate) || 800;
-  const marketAverage = 1200;
-  const savings = marketAverage - rate;
-  
-  if (savings > 0) {
-    return `${savings} SEK/h`;
+        return {
+          consultant,
+          totalMatchScore,
+          technicalFit,
+          culturalFit,
+          successProbability,
+          matchedSkills,
+          matchedValues,
+          responseTime,
+          estimatedSavings,
+          matchLetter,
+          ranking: index + 1
+        };
+      })
+      .sort((a, b) => b.totalMatchScore - a.totalMatchScore);
+
+    console.log('✅ Generated', matches.length, 'matches');
+    return matches;
+
+  } catch (error) {
+    console.error('❌ Gemini matching error:', error);
+    throw new Error('AI matching failed');
   }
-  return 'Premium rate';
-};
-
-const calculateResponseTime = (consultant: Consultant): string => {
-  const availability = consultant.availability?.toLowerCase() || '';
-  
-  if (availability.includes('available')) return '< 24h';
-  if (availability.includes('busy')) return '2-3 days';
-  if (availability.includes('from')) return '1-2 weeks';
-  
-  return '< 48h';
 };

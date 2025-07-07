@@ -2,11 +2,10 @@
 import React, { useState } from 'react';
 import { CVUploadStep } from './CVUploadStep';
 import { CVAnalysisStep } from './CVAnalysisStep';
-import { JoinNetworkStep } from './JoinNetworkStep';
-import { SuccessStep } from './SuccessStep';
-import { CVCareerChat } from '../CVCareerChat';
+import { ConfirmStep } from '../modern/ConfirmStep';
+import { ExtractedData } from '@/types/extractedData';
 
-type UploadStep = 'upload' | 'analyzing' | 'join-network' | 'success';
+type UploadStep = 'upload' | 'analyzing' | 'confirm' | 'success';
 
 interface AnalysisResult {
   consultant: any;
@@ -18,105 +17,110 @@ interface AnalysisResult {
 export const CVUploadPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<UploadStep>('upload');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [uploadData, setUploadData] = useState<{
-    file: File | null;
+    file: File;
     linkedinUrl: string;
     personalDescription: string;
-  }>({
-    file: null,
-    linkedinUrl: '',
-    personalDescription: ''
+  } | null>(null);
+
+  const [extractedData, setExtractedData] = useState<ExtractedData>({
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    skills: [],
+    experience: '',
+    education: [],
+    certifications: [],
+    languages: [],
+    workHistory: []
   });
 
-  const handleFileUpload = (file: File, linkedinUrl: string, personalDescription: string) => {
-    setUploadData({ file, linkedinUrl, personalDescription });
+  const handleUploadNext = (data: {
+    file: File;
+    linkedinUrl: string;
+    personalDescription: string;
+  }) => {
+    setUploadData(data);
     setCurrentStep('analyzing');
   };
 
   const handleAnalysisComplete = (result: AnalysisResult) => {
     setAnalysisResult(result);
-    setCurrentStep('join-network');
+    
+    // Transform result to ExtractedData format
+    const transformedData: ExtractedData = {
+      name: result.extractedPersonalInfo.name || '',
+      email: result.extractedPersonalInfo.email || '',
+      phone: result.extractedPersonalInfo.phone || '',
+      location: result.extractedPersonalInfo.location || '',
+      skills: result.cvAnalysis.technicalSkills || [],
+      experience: result.cvAnalysis.experience || '',
+      education: result.cvAnalysis.education || [],
+      certifications: [],
+      languages: ['Svenska', 'Engelska'],
+      workHistory: []
+    };
+    
+    setExtractedData(transformedData);
+    setCurrentStep('confirm');
   };
 
-  const handleAnalysisError = (error: string) => {
-    console.error('Analysis failed:', error);
-    setCurrentStep('upload');
+  const handleUpdateData = (field: keyof ExtractedData, value: any) => {
+    setExtractedData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const handleJoinNetwork = () => {
+  const handleConfirm = () => {
+    console.log('CV upload and analysis complete:', extractedData);
     setCurrentStep('success');
   };
 
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 'upload':
-        return <CVUploadStep onFileUpload={handleFileUpload} />;
-      
-      case 'analyzing':
-        return (
-          <CVAnalysisStep
-            file={uploadData.file!}
-            linkedinUrl={uploadData.linkedinUrl}
-            personalDescription={uploadData.personalDescription}
-            onComplete={handleAnalysisComplete}
-            onError={handleAnalysisError}
-          />
-        );
-      
-      case 'join-network':
-        return (
-          <JoinNetworkStep
-            analysisResult={analysisResult!}
-            onJoinNetwork={handleJoinNetwork}
-          />
-        );
-      
-      case 'success':
-        return <SuccessStep consultant={analysisResult?.consultant} />;
-      
-      default:
-        return <CVUploadStep onFileUpload={handleFileUpload} />;
-    }
+  const generateConsultantId = () => {
+    return 'consultant-' + Date.now();
   };
 
-  // Map step to chat step
-  const getChatStep = (): 'upload' | 'analyzing' | 'complete' => {
-    switch (currentStep) {
-      case 'upload':
-        return 'upload';
-      case 'analyzing':
-        return 'analyzing';
-      case 'join-network':
-      case 'success':
-        return 'complete';
-      default:
-        return 'upload';
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {renderCurrentStep()}
-          </div>
-          
-          {/* AI Career Chat Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <CVCareerChat 
-                analysisResults={analysisResult}
-                currentStep={getChatStep()}
-                isMinimized={isChatMinimized}
-                onToggleMinimize={() => setIsChatMinimized(!isChatMinimized)}
-              />
-            </div>
+  switch (currentStep) {
+    case 'upload':
+      return <CVUploadStep onNext={handleUploadNext} />;
+    
+    case 'analyzing':
+      return uploadData ? (
+        <CVAnalysisStep
+          file={uploadData.file}
+          linkedinUrl={uploadData.linkedinUrl}
+          personalDescription={uploadData.personalDescription}
+          onComplete={handleAnalysisComplete}
+        />
+      ) : null;
+    
+    case 'confirm':
+      return (
+        <ConfirmStep
+          extractedData={extractedData}
+          onUpdateData={handleUpdateData}
+          onConfirm={handleConfirm}
+          consultantId={generateConsultantId()}
+        />
+      );
+    
+    case 'success':
+      return (
+        <div className="max-w-2xl mx-auto p-6 text-center">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-8">
+            <h2 className="text-2xl font-bold text-green-900 mb-4">
+              Grattis! Din profil är nu skapad! 🎉
+            </h2>
+            <p className="text-green-700 mb-6">
+              Du har nu blivit del av MatchWise-nätverket och kan börja ta emot uppdrag.
+            </p>
           </div>
         </div>
-      </div>
-    </div>
-  );
+      );
+    
+    default:
+      return null;
+  }
 };
