@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +19,6 @@ import {
 } from 'lucide-react';
 import { Assignment } from '@/types/assignment';
 import { Consultant } from '@/types/consultant';
-import { generateGeminiMatches } from '@/utils/geminiMatchingEngine';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -50,44 +50,50 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
     try {
       console.log('🔍 Fetching existing AI matches for assignment:', assignment.title);
       
-      // Fetch matches from database
-      const { data: dbMatches, error } = await supabase
-        .from('matches')
-        .select(`
-          *,
-          consultants (*)
-        `)
-        .eq('assignment_id', String(assignment.id))
-        .order('match_score', { ascending: false });
+      // Check if assignment ID is a UUID (from database) or demo ID
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(assignment.id));
+      
+      if (isUUID) {
+        // Fetch matches from database for real assignments
+        const { data: dbMatches, error } = await supabase
+          .from('matches')
+          .select(`
+            *,
+            consultants (*)
+          `)
+          .eq('assignment_id', String(assignment.id))
+          .order('match_score', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching matches:', error);
-        toast.error('Failed to load matches');
-        return;
-      }
+        if (error) {
+          console.error('Error fetching matches:', error);
+          toast.error('Failed to load matches');
+          return;
+        }
 
-      console.log('Found existing matches:', dbMatches);
+        if (dbMatches && dbMatches.length > 0) {
+          // Transform database matches to expected format
+          const formattedMatches = dbMatches.map(match => ({
+            consultant: match.consultants,
+            technicalFit: Math.round(match.match_score * 0.7),
+            culturalFit: match.cultural_match || Math.round(match.match_score * 0.3),
+            totalMatchScore: match.match_score,
+            matchedSkills: match.matched_skills || [],
+            matchLetter: match.cover_letter || 'No match letter available',
+            successProbability: Math.min(95, match.match_score + 5),
+            estimatedSavings: `${match.estimated_savings || 0} SEK/h`,
+            responseTime: `${match.response_time_hours || 24}h`,
+            communicationMatch: match.communication_match || 85,
+            valuesAlignment: match.values_alignment || 80
+          }));
 
-      if (dbMatches && dbMatches.length > 0) {
-        // Transform database matches to expected format
-        const formattedMatches = dbMatches.map(match => ({
-          consultant: match.consultants,
-          technicalFit: Math.round(match.match_score * 0.7), // Approximate technical score
-          culturalFit: match.cultural_match || Math.round(match.match_score * 0.3),
-          totalMatchScore: match.match_score,
-          matchedSkills: match.matched_skills || [],
-          matchLetter: match.cover_letter || 'No match letter available',
-          successProbability: Math.min(95, match.match_score + 5),
-          estimatedSavings: `${match.estimated_savings || 0} SEK/h`,
-          responseTime: `${match.response_time_hours || 24}h`,
-          communicationMatch: match.communication_match || 85,
-          valuesAlignment: match.values_alignment || 80
-        }));
-
-        setMatches(formattedMatches);
-        toast.success(`Loaded ${formattedMatches.length} AI matches!`);
+          setMatches(formattedMatches);
+          toast.success(`Loaded ${formattedMatches.length} AI matches!`);
+        } else {
+          // No existing matches, trigger new matching
+          await performNewMatching();
+        }
       } else {
-        // No existing matches, trigger new matching
+        // For demo assignments, perform new matching directly
         await performNewMatching();
       }
     } catch (error) {
@@ -239,7 +245,7 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
                           </div>
                         </div>
 
-                        {/* Matched Skills & Values */}
+                        {/* Matched Skills */}
                         <div className="grid md:grid-cols-2 gap-4 mb-4">
                           <div>
                             <p className="text-sm font-medium text-gray-700 mb-2">Matched Skills</p>
@@ -252,13 +258,13 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
                             </div>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Aligned Values</p>
+                            <p className="text-sm font-medium text-gray-700 mb-2">Key Strengths</p>
                             <div className="flex flex-wrap gap-1">
-                              {match.matchedValues?.map((value: string, idx: number) => (
+                              {match.consultant.skills?.slice(0, 3).map((skill: string, idx: number) => (
                                 <Badge key={idx} variant="outline" className="text-xs">
-                                  {value}
+                                  {skill}
                                 </Badge>
-                              )) || <span className="text-xs text-gray-500">No values matched</span>}
+                              )) || <span className="text-xs text-gray-500">No skills listed</span>}
                             </div>
                           </div>
                         </div>

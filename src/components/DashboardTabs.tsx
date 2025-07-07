@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConsultantsSection } from './dashboard/ConsultantsSection';
 import { AssignmentsSection } from './dashboard/AssignmentsSection';
 import { DashboardOverview } from './dashboard/DashboardOverview';
+import { AIMatchingResults } from './dashboard/AIMatchingResults';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useSupabaseAssignments } from '@/hooks/useSupabaseAssignments';
 import { demoAssignments } from '@/data/demoAssignments';
@@ -14,9 +15,11 @@ export const DashboardTabs: React.FC = () => {
   const { consultants, isLoading: consultantsLoading } = useSupabaseConsultantsWithDemo();
   const { assignments: dbAssignments, loading: assignmentsLoading } = useSupabaseAssignments();
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+  const [showAIMatching, setShowAIMatching] = useState(false);
 
   const handleMatch = (assignment: Assignment) => {
     setSelectedAssignment(assignment);
+    setShowAIMatching(true);
   };
 
   const handleSelectConsultant = (consultant: Consultant) => {
@@ -143,6 +146,15 @@ export const DashboardTabs: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* AI Matching Results Modal */}
+      {selectedAssignment && showAIMatching && (
+        <AIMatchingResults
+          assignment={selectedAssignment}
+          open={showAIMatching}
+          onOpenChange={setShowAIMatching}
+        />
+      )}
     </div>
   );
 };
