@@ -21,6 +21,7 @@ import { Assignment } from '@/types/assignment';
 import { Consultant } from '@/types/consultant';
 import { generateGeminiMatches } from '@/utils/geminiMatchingEngine';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface AIMatchingResultsProps {
