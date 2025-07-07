@@ -1,0 +1,113 @@
+
+-- Insert 3 demo assignments for the demo user (demo@matchwise.tech)
+-- First, let's get or create the demo user profile
+INSERT INTO public.profiles (id, email, full_name, company, role)
+VALUES (
+  '00000000-0000-0000-0000-000000000001'::uuid,
+  'demo@matchwise.tech',
+  'Demo User',
+  'MatchWise Demo',
+  'user'
+)
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email,
+  full_name = EXCLUDED.full_name,
+  company = EXCLUDED.company;
+
+-- Insert 3 demo assignments
+INSERT INTO public.assignments (
+  title,
+  description,
+  company,
+  industry,
+  required_skills,
+  duration,
+  workload,
+  budget_min,
+  budget_max,
+  budget_currency,
+  team_size,
+  remote_type,
+  urgency,
+  client_logo,
+  desired_communication_style,
+  team_culture,
+  required_values,
+  team_dynamics,
+  start_date,
+  leadership_level,
+  status,
+  created_by
+) VALUES 
+(
+  'Senior React Developer for E-commerce Platform',
+  'We are looking for an experienced React developer to build the next generation of our e-commerce platform. You will work with modern technologies like React 18, TypeScript, and GraphQL.',
+  'TechStart AB',
+  'E-commerce',
+  ARRAY['React', 'TypeScript', 'GraphQL', 'Node.js', 'PostgreSQL'],
+  '6 months',
+  'Full-time (40h/week)',
+  45000,
+  55000,
+  'SEK',
+  '4-6 developers',
+  'Hybrid (2-3 days in office)',
+  'High',
+  '🛒',
+  'Open and transparent communication',
+  'Agile, innovative and collaborative culture with focus on continuous improvement',
+  ARRAY['Innovation', 'Quality', 'Teamwork'],
+  'Close-knit team with flat hierarchies',
+  '2024-02-01',
+  3,
+  'open',
+  '00000000-0000-0000-0000-000000000001'::uuid
+),
+(
+  'DevOps Engineer for Fintech Startup',
+  'Help us scale our financial platform with robust infrastructure and automation. Experience with Kubernetes, AWS and CI/CD pipelines required.',
+  'FinanceFlow',
+  'Fintech',
+  ARRAY['Kubernetes', 'AWS', 'Docker', 'Terraform', 'Python'],
+  '12 months',
+  'Full-time',
+  50000,
+  65000,
+  'SEK',
+  '2-3 DevOps engineers',
+  'Fully Remote',
+  'Medium',
+  '💰',
+  'Direct and results-focused',
+  'Startup environment with fast decisions and high pace',
+  ARRAY['Speed', 'Quality', 'Innovation'],
+  'Self-organized team with high responsibility',
+  '2024-01-22',
+  4,
+  'open',
+  '00000000-0000-0000-0000-000000000001'::uuid
+),
+(
+  'AI/ML Engineer - Automotive Tech',
+  'Exciting opportunity to work with AI and machine learning in the automotive industry. We develop autonomous driving systems and need reinforcement.',
+  'AutoTech Innovation',
+  'Automotive/AI',
+  ARRAY['Python', 'TensorFlow', 'PyTorch', 'Computer Vision', 'ROS'],
+  '18 months',
+  'Full-time',
+  60000,
+  75000,
+  'SEK',
+  '3-4 AI engineers',
+  'On-site (Stockholm)',
+  'High',
+  '🚗',
+  'Technical depth and analytical',
+  'Research-oriented environment with high technical requirements',
+  ARRAY['Innovation', 'Precision', 'Safety'],
+  'Experts working with cutting-edge technology',
+  '2024-01-29',
+  5,
+  'open',
+  '00000000-0000-0000-0000-000000000001'::uuid
+);
