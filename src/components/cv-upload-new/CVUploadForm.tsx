@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 
 interface CVUploadFormProps {
-  onUploadComplete: (token: string) => void;
+  onUploadComplete: (file: File) => void;
 }
 
 export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) => {
@@ -56,9 +56,8 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
 
   const handleStartAnalysis = () => {
     if (file && agreeToGDPR) {
-      // Generate a session token for tracking
-      const sessionToken = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-      onUploadComplete(sessionToken);
+      console.log('🚀 Starting real AI analysis for file:', file.name);
+      onUploadComplete(file);
     }
   };
 
@@ -107,7 +106,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
                     <FileText className="h-8 w-8 text-green-600" />
                     <div>
                       <p className="font-semibold text-green-700">{file.name}</p>
-                      <p className="text-sm text-green-600">Ready for analysis</p>
+                      <p className="text-sm text-green-600">Ready for AI analysis</p>
                     </div>
                   </div>
                 ) : (
@@ -188,6 +187,16 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
               }
             </Button>
           </div>
+
+          {file && agreeToGDPR && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <h4 className="font-semibold text-blue-900 mb-2">🤖 Ready for AI Analysis</h4>
+              <p className="text-sm text-blue-700">
+                Your CV will be analyzed with advanced AI to extract skills, experience, and create market insights. 
+                This process takes 30-60 seconds for thorough analysis.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
