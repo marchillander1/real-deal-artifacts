@@ -41,10 +41,12 @@ export const HeroSection = () => {
                 </Button>
               </Link>
               
-              <Button variant="outline" size="lg" className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm">
-                <Users className="h-5 w-5 mr-2" />
-                Join Consultants
-              </Button>
+              <Link to="/cv-upload-new">
+                <Button variant="outline" size="lg" className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm">
+                  <Users className="h-5 w-5 mr-2" />
+                  Join Consultants
+                </Button>
+              </Link>
             </div>
 
             {/* Bottom Features */}
