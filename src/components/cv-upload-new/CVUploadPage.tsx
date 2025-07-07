@@ -13,6 +13,7 @@ export const CVUploadPage: React.FC = () => {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [personalTagline, setPersonalTagline] = useState<string>('');
+  const [consultantId, setConsultantId] = useState<string>('');
 
   const handleUploadComplete = async (file: File, tagline: string = '') => {
     console.log('🚀 Starting real CV analysis with file:', file.name);
@@ -58,11 +59,19 @@ export const CVUploadPage: React.FC = () => {
     setCurrentStep('confirmation');
   };
 
-  const handleConfirmationComplete = () => {
+  const handleFinalConfirm = async (finalData: any) => {
+    console.log('✅ Final confirmation with consultant data:', finalData);
+    if (finalData.consultantId) {
+      setConsultantId(finalData.consultantId);
+    }
     setCurrentStep('preview');
   };
 
-  const handlePreviewComplete = () => {
+  const handleProfileEdit = () => {
+    setCurrentStep('confirmation');
+  };
+
+  const handleProfileConfirm = () => {
     setCurrentStep('complete');
   };
 
@@ -72,6 +81,7 @@ export const CVUploadPage: React.FC = () => {
     setAnalysisData(null);
     setUploadedFile(null);
     setPersonalTagline('');
+    setConsultantId('');
     // Clear session storage
     if (sessionToken) {
       sessionStorage.removeItem(`cv-file-${sessionToken}`);
@@ -125,31 +135,28 @@ export const CVUploadPage: React.FC = () => {
       {currentStep === 'results' && analysisData && (
         <AnalysisResults 
           analysisData={analysisData}
-          onContinue={handleResultsReviewed}
+          onViewResults={handleResultsReviewed}
         />
       )}
 
       {currentStep === 'confirmation' && analysisData && (
         <SummaryConfirmation
           analysisData={analysisData}
-          uploadedFile={uploadedFile}
-          onConfirm={handleConfirmationComplete}
-          onEdit={() => setCurrentStep('results')}
+          onFinalConfirm={handleFinalConfirm}
         />
       )}
 
       {currentStep === 'preview' && analysisData && (
         <ProfilePreview
           analysisData={analysisData}
-          onComplete={handlePreviewComplete}
-          onEdit={() => setCurrentStep('confirmation')}
+          onEditProfile={handleProfileEdit}
+          onConfirmProfile={handleProfileConfirm}
         />
       )}
 
-      {currentStep === 'complete' && analysisData && (
+      {currentStep === 'complete' && consultantId && (
         <JoinNetworkSuccess
-          analysisData={analysisData}
-          onAnalyzeAnother={handleRestartProcess}
+          consultantId={consultantId}
         />
       )}
     </div>
