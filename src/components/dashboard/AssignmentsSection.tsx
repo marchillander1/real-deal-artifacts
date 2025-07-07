@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,12 +14,15 @@ import {
   Building2,
   Brain,
   Zap,
-  Plus
+  Plus,
+  Loader2
 } from 'lucide-react';
 import { Assignment } from '@/types/assignment';
 import { Consultant } from '@/types/consultant';
 import { AIMatchingResults } from './AIMatchingResults';
 import { CreateAssignmentForm } from '../assignments/CreateAssignmentForm';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AssignmentsSectionProps {
   assignments: Assignment[];
@@ -37,6 +39,7 @@ export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [showMatchResults, setShowMatchResults] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isMatching, setIsMatching] = useState(false);
 
   const filteredAssignments = assignments.filter(assignment =>
     assignment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,15 +58,44 @@ export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({
     }
   };
 
-  const handleAIMatch = (assignment: Assignment) => {
-    setSelectedAssignment(assignment);
-    setShowMatchResults(true);
-    onMatch(assignment);
-  };
-
   const handleCreateAssignment = (newAssignment: any) => {
     // This will be handled by the parent component's data refresh
     window.location.reload(); // Simple refresh for now
+  };
+
+  const handleAIMatches = async (assignment: Assignment) => {
+    setSelectedAssignment(assignment);
+    setIsMatching(true);
+    
+    try {
+      console.log('🤖 Starting AI matches for assignment:', assignment.title);
+      
+      const { data, error } = await supabase.functions.invoke('ai-matching', {
+        body: { assignment }
+      });
+
+      if (error) {
+        console.error('AI matching error:', error);
+        toast.error('Failed to find AI matches');
+        return;
+      }
+
+      console.log('AI matching results:', data);
+      
+      if (data.success && data.matches.length > 0) {
+        toast.success(`Found ${data.matches.length} AI matches!`);
+        setShowMatchResults(true);
+        onMatch(assignment);
+      } else {
+        toast.info('No suitable matches found for this assignment');
+      }
+      
+    } catch (error) {
+      console.error('Error during AI matching:', error);
+      toast.error('Failed to perform AI matching');
+    } finally {
+      setIsMatching(false);
+    }
   };
 
   return (
@@ -215,11 +247,21 @@ export const AssignmentsSection: React.FC<AssignmentsSectionProps> = ({
                   <span>Team Size: {assignment.teamSize}</span>
                 </div>
                 <Button 
-                  onClick={() => handleAIMatch(assignment)}
+                  onClick={() => handleAIMatches(assignment)}
+                  disabled={isMatching}
                   className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2"
                 >
-                  <Brain className="h-4 w-4" />
-                  AI Match Consultants
+                  {isMatching ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Finding AI Matches...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="h-4 w-4" />
+                      Find AI Matches
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>

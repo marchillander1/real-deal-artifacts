@@ -41,27 +41,86 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
 
   useEffect(() => {
     if (open && assignment) {
-      performMatching();
+      fetchExistingMatches();
     }
   }, [open, assignment]);
 
-  const performMatching = async () => {
+  const fetchExistingMatches = async () => {
     setIsLoading(true);
     try {
-      console.log('🤖 Starting AI matching for assignment:', assignment.title);
-      const matchResults = await generateGeminiMatches(assignment, consultants);
-      setMatches(matchResults);
+      console.log('🔍 Fetching existing AI matches for assignment:', assignment.title);
       
-      if (matchResults.length > 0) {
-        toast.success(`Found ${matchResults.length} potential matches!`);
+      // Fetch matches from database
+      const { data: dbMatches, error } = await supabase
+        .from('matches')
+        .select(`
+          *,
+          consultants (*)
+        `)
+        .eq('assignment_id', assignment.id)
+        .order('match_score', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching matches:', error);
+        toast.error('Failed to load matches');
+        return;
+      }
+
+      console.log('Found existing matches:', dbMatches);
+
+      if (dbMatches && dbMatches.length > 0) {
+        // Transform database matches to expected format
+        const formattedMatches = dbMatches.map(match => ({
+          consultant: match.consultants,
+          technicalFit: Math.round(match.match_score * 0.7), // Approximate technical score
+          culturalFit: match.cultural_match || Math.round(match.match_score * 0.3),
+          totalMatchScore: match.match_score,
+          matchedSkills: match.matched_skills || [],
+          matchLetter: match.cover_letter || 'No match letter available',
+          successProbability: Math.min(95, match.match_score + 5),
+          estimatedSavings: `${match.estimated_savings || 0} SEK/h`,
+          responseTime: `${match.response_time_hours || 24}h`,
+          communicationMatch: match.communication_match || 85,
+          valuesAlignment: match.values_alignment || 80
+        }));
+
+        setMatches(formattedMatches);
+        toast.success(`Loaded ${formattedMatches.length} AI matches!`);
       } else {
-        toast.info('No matches found for this assignment.');
+        // No existing matches, trigger new matching
+        await performNewMatching();
       }
     } catch (error) {
-      console.error('Error during matching:', error);
-      toast.error('Failed to generate matches. Please try again.');
+      console.error('Error loading matches:', error);
+      toast.error('Failed to load AI matches');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const performNewMatching = async () => {
+    try {
+      console.log('🤖 Performing new AI matching...');
+      
+      const { data, error } = await supabase.functions.invoke('ai-matching', {
+        body: { assignment }
+      });
+
+      if (error) {
+        console.error('AI matching error:', error);
+        throw error;
+      }
+
+      if (data.success && data.matches.length > 0) {
+        setMatches(data.matches);
+        toast.success(`Found ${data.matches.length} new AI matches!`);
+      } else {
+        toast.info('No suitable matches found for this assignment');
+      }
+      
+    } catch (error) {
+      console.error('Error during new matching:', error);
+      toast.error('Failed to perform AI matching');
     }
   };
 
