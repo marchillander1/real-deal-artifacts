@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConsultantsSection } from './dashboard/ConsultantsSection';
@@ -5,12 +6,13 @@ import { AssignmentsSection } from './dashboard/AssignmentsSection';
 import { DashboardOverview } from './dashboard/DashboardOverview';
 import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWithDemo';
 import { useSupabaseAssignments } from '@/hooks/useSupabaseAssignments';
+import { demoAssignments } from '@/data/demoAssignments';
 import { Assignment } from '@/types/assignment';
 import { Consultant } from '@/types/consultant';
 
 export const DashboardTabs: React.FC = () => {
   const { consultants, isLoading: consultantsLoading } = useSupabaseConsultantsWithDemo();
-  const { assignments, loading: assignmentsLoading } = useSupabaseAssignments();
+  const { assignments: dbAssignments, loading: assignmentsLoading } = useSupabaseAssignments();
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
   const handleMatch = (assignment: Assignment) => {
@@ -21,8 +23,8 @@ export const DashboardTabs: React.FC = () => {
     console.log('Selected consultant:', consultant);
   };
 
-  // Convert assignments to the correct type format
-  const formattedAssignments: Assignment[] = assignments.map(assignment => ({
+  // Convert database assignments and combine with demo assignments
+  const formattedDbAssignments: Assignment[] = dbAssignments.map(assignment => ({
     ...assignment,
     duration: assignment.duration || '6 months',
     budget: assignment.budget || 'Not specified',
@@ -42,6 +44,9 @@ export const DashboardTabs: React.FC = () => {
     createdAt: assignment.created_at || new Date().toISOString()
   }));
 
+  // Combine database assignments with demo assignments
+  const allAssignments = [...formattedDbAssignments, ...demoAssignments];
+
   return (
     <div className="w-full">
       <Tabs defaultValue="overview" className="w-full">
@@ -55,7 +60,7 @@ export const DashboardTabs: React.FC = () => {
         <TabsContent value="overview" className="space-y-6">
           <DashboardOverview 
             consultants={consultants}
-            assignments={formattedAssignments}
+            assignments={allAssignments}
             onCreateAssignment={() => {}}
           />
         </TabsContent>
@@ -68,7 +73,7 @@ export const DashboardTabs: React.FC = () => {
         
         <TabsContent value="assignments" className="space-y-6">
           <AssignmentsSection 
-            assignments={formattedAssignments}
+            assignments={allAssignments}
             onMatch={handleMatch}
             consultants={consultants}
           />
