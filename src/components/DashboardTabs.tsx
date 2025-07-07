@@ -11,7 +11,7 @@ import { Consultant } from '@/types/consultant';
 
 export const DashboardTabs: React.FC = () => {
   const { consultants, isLoading: consultantsLoading } = useSupabaseConsultantsWithDemo();
-  const { assignments, isLoading: assignmentsLoading } = useSupabaseAssignments();
+  const { assignments, loading: assignmentsLoading } = useSupabaseAssignments();
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
   const handleMatch = (assignment: Assignment) => {
@@ -34,16 +34,15 @@ export const DashboardTabs: React.FC = () => {
         
         <TabsContent value="overview" className="space-y-6">
           <DashboardOverview 
-            totalConsultants={consultants.length}
-            totalAssignments={assignments.length}
-            isLoading={consultantsLoading || assignmentsLoading}
+            consultants={consultants}
+            assignments={assignments}
+            onCreateAssignment={() => {}}
           />
         </TabsContent>
         
         <TabsContent value="consultants" className="space-y-6">
           <ConsultantsSection 
             consultants={consultants}
-            isLoading={consultantsLoading}
           />
         </TabsContent>
         
