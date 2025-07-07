@@ -29,29 +29,23 @@ export const DashboardTabs: React.FC = () => {
     title: assignment.title,
     description: assignment.description,
     company: assignment.company,
-    client_logo: assignment.client_logo || '🏢',
-    required_skills: assignment.required_skills || [],
+    clientLogo: assignment.clientLogo || '🏢',
+    requiredSkills: assignment.requiredSkills || [],
     workload: assignment.workload || 'Full-time',
     duration: assignment.duration || '6 months',
-    budget_min: assignment.budget_min || 0,
-    budget_max: assignment.budget_max || 0,
-    budget_currency: assignment.budget_currency || 'SEK',
-    remote_type: assignment.remote_type || 'Hybrid',
-    urgency: (assignment.urgency === 'Low' || assignment.urgency === 'Medium' || assignment.urgency === 'High') 
-      ? assignment.urgency 
-      : 'Medium' as 'Low' | 'Medium' | 'High',
-    team_size: assignment.team_size || '5-8 people',
-    team_culture: assignment.team_culture || '',
+    budget: assignment.budget || 'Not specified',
+    remote: assignment.remote || 'Hybrid',
+    urgency: assignment.urgency as 'Low' | 'Medium' | 'High',
+    teamSize: assignment.teamSize || '5-8 people',
+    teamCulture: assignment.teamCulture || '',
     industry: assignment.industry || 'Technology',
-    status: (assignment.status === 'open' || assignment.status === 'in_progress' || assignment.status === 'completed' || assignment.status === 'cancelled')
-      ? assignment.status as 'open' | 'in_progress' | 'completed' | 'cancelled'
-      : 'open' as 'open' | 'in_progress' | 'completed' | 'cancelled',
-    created_at: assignment.created_at || new Date().toISOString(),
-    start_date: assignment.start_date || new Date().toISOString().split('T')[0],
-    desired_communication_style: assignment.desired_communication_style || '',
-    required_values: assignment.required_values || [],
-    leadership_level: assignment.leadership_level || 3,
-    team_dynamics: assignment.team_dynamics || ''
+    status: assignment.status as 'open' | 'in_progress' | 'completed' | 'cancelled',
+    createdAt: assignment.createdAt || new Date().toISOString(),
+    startDate: assignment.startDate || new Date().toISOString().split('T')[0],
+    desiredCommunicationStyle: assignment.desiredCommunicationStyle || '',
+    requiredValues: assignment.requiredValues || [],
+    leadershipLevel: assignment.leadershipLevel || 3,
+    teamDynamics: assignment.teamDynamics || ''
   }));
 
   // Combine database assignments with demo assignments
