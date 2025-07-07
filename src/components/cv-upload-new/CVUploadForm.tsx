@@ -1,17 +1,18 @@
-
 import React, { useState } from 'react';
 import { Upload, FileText, Link as LinkIcon, Clock } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 interface CVUploadFormProps {
-  onUploadComplete: (file: File) => void;
+  onUploadComplete: (file: File, personalTagline?: string) => void;
 }
 
 export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) => {
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [agreeToGDPR, setAgreeToGDPR] = useState(false);
+  const [personalTagline, setPersonalTagline] = useState('');
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -56,8 +57,9 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
 
   const handleStartAnalysis = () => {
     if (file && agreeToGDPR) {
-      console.log('🚀 Starting real AI analysis for file:', file.name);
-      onUploadComplete(file);
+      console.log('🚀 Starting comprehensive AI analysis for file:', file.name);
+      console.log('📝 Personal tagline provided:', !!personalTagline);
+      onUploadComplete(file, personalTagline);
     }
   };
 
@@ -66,10 +68,10 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
       <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-            Let AI unlock your potential
+            Analyze your consultant profile with AI
           </h2>
           <p className="text-lg text-slate-600">
-            Start by uploading your latest CV (PDF or Word). AI analysis will begin automatically.
+            Get deep insights into your technical skills and market value
           </p>
         </div>
 
@@ -77,7 +79,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
           {/* File Upload */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Upload CV (PDF, DOC, DOCX) *
+              Upload your CV (PDF or DOCX) *
             </label>
             
             <div
@@ -116,7 +118,7 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
                       Drag and drop your CV here
                     </p>
                     <p className="text-slate-500">
-                      or click to browse files
+                      or click to browse files (max 10MB)
                     </p>
                   </div>
                 )}
@@ -127,24 +129,36 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
           {/* LinkedIn URL - Coming Soon */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              LinkedIn Profile URL
+              LinkedIn profile integration
             </label>
             <div className="relative">
-              <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-              <input
-                type="url"
-                placeholder="https://linkedin.com/in/your-profile"
-                className="w-full pl-12 pr-4 py-4 border border-slate-300 rounded-xl bg-slate-50 text-slate-400 cursor-not-allowed"
-                disabled
-              />
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-orange-500" />
-                <span className="text-sm font-medium text-orange-600">Coming Soon</span>
+              <div className="w-full p-4 border border-slate-300 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center space-x-2">
+                <LinkIcon className="h-5 w-5" />
+                <span>🚀 Coming soon - LinkedIn profile analysis</span>
               </div>
             </div>
             <p className="text-sm text-slate-500">
-              LinkedIn integration will be available soon to enhance analysis quality.
+              LinkedIn integration will be available soon to provide even more comprehensive analysis.
             </p>
+          </div>
+
+          {/* Personal Tagline */}
+          <div className="space-y-4">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Personal tagline (optional, improves AI analysis)
+            </label>
+            <Textarea
+              placeholder="Briefly describe what drives you as a consultant and your career goals..."
+              value={personalTagline}
+              onChange={(e) => setPersonalTagline(e.target.value)}
+              className="w-full p-4 border border-slate-300 rounded-xl resize-none"
+              rows={3}
+              maxLength={200}
+            />
+            <div className="flex justify-between text-sm text-slate-500">
+              <span>A personal description helps the AI provide more tailored recommendations</span>
+              <span>{personalTagline.length}/200 characters</span>
+            </div>
           </div>
 
           {/* GDPR Consent */}
@@ -158,12 +172,16 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
               />
               <div className="text-sm text-slate-700">
                 <label htmlFor="gdpr-consent" className="cursor-pointer font-medium">
-                  I agree to let MatchWise analyze my CV
+                  I agree to let MatchWise analyze my CV *
                 </label>
                 <p className="mt-1 text-slate-600">
                   By checking this box, I consent to MatchWise AI analyzing my CV to create a personalized career report. 
                   Your data is processed according to our privacy policy and will not be shared with third parties without your consent.
                 </p>
+                <div className="mt-2 flex items-center space-x-2 text-blue-600">
+                  <span className="text-xs">🔒</span>
+                  <span className="text-xs font-medium">GDPR-compliant data processing</span>
+                </div>
               </div>
             </div>
           </div>
@@ -175,26 +193,30 @@ export const CVUploadForm: React.FC<CVUploadFormProps> = ({ onUploadComplete }) 
               disabled={!file || !agreeToGDPR}
               className={`w-full py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-200 transform ${
                 file && agreeToGDPR
-                  ? 'bg-gradient-to-r from-blue-600 to-green-600 text-white hover:shadow-lg hover:scale-105 active:scale-95'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-105 active:scale-95'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
               {!file 
-                ? 'Please upload your CV first' 
+                ? 'Upload CV first' 
                 : !agreeToGDPR 
                 ? 'Please accept data processing consent'
-                : 'Start AI Analysis'
+                : 'Upload CV'
               }
             </Button>
           </div>
 
           {file && agreeToGDPR && (
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <h4 className="font-semibold text-blue-900 mb-2">🤖 Ready for AI Analysis</h4>
-              <p className="text-sm text-blue-700">
-                Your CV will be analyzed with advanced AI to extract skills, experience, and create market insights. 
-                This process takes 30-60 seconds for thorough analysis.
-              </p>
+              <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+                💡 Tips for best results:
+              </h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Use your latest CV with updated skills</li>
+                <li>• Write a personal tagline describing your goals</li>
+                <li>• Analysis takes 2-3 minutes and is fully automated</li>
+                <li>• LinkedIn integration coming soon for deeper analysis</li>
+              </ul>
             </div>
           )}
         </div>
