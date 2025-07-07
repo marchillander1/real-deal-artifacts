@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, FileText, Search, Zap, CheckCircle2, TrendingUp, User } from 'lucide-react';
+import { Brain, FileText, CheckCircle2, TrendingUp, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnalysisProgressProps {
@@ -109,6 +109,13 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       const fileInfo = sessionStorage.getItem(fileInfoKey);
       const storedTagline = sessionStorage.getItem(taglineKey);
       
+      console.log('📁 File data check:', {
+        hasFileData: !!fileDataUrl,
+        hasFileInfo: !!fileInfo,
+        hasTagline: !!storedTagline,
+        sessionToken
+      });
+      
       if (!fileDataUrl || !fileInfo) {
         console.error('❌ Missing file data for analysis');
         return;
@@ -123,6 +130,12 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         const file = new File([blob], fileInfoParsed.name, { 
           type: fileInfoParsed.type,
           lastModified: fileInfoParsed.lastModified 
+        });
+
+        console.log('📄 File reconstructed:', {
+          name: file.name,
+          size: file.size,
+          type: file.type
         });
 
         // Start progress simulation
@@ -178,6 +191,11 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           body: formData
         });
 
+        console.log('📥 Analysis response received:', {
+          hasError: !!analysisResponse.error,
+          hasData: !!analysisResponse.data
+        });
+
         // Stop intervals
         analysisComplete = true;
         clearInterval(progressInterval);
@@ -191,11 +209,18 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
         const result = analysisResponse.data;
         
-        if (!result.success) {
-          throw new Error(result.error || 'Analysis failed');
+        if (!result || !result.success) {
+          console.error('❌ Analysis result invalid:', result);
+          throw new Error(result?.error || 'Analysis failed');
         }
 
         console.log('✅ CV analysis completed successfully');
+        console.log('📊 Analysis results preview:', {
+          hasAnalysis: !!result.analysis,
+          hasConsultant: !!result.consultant,
+          hasDetectedInfo: !!result.detectedInformation,
+          hasStats: !!result.extractionStats
+        });
         
         // Complete all stages
         setProgress(100);
@@ -216,6 +241,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
         // Wait a moment to show completion, then proceed
         setTimeout(() => {
+          console.log('🎯 Calling onAnalysisComplete with results');
           onAnalysisComplete(resultsData);
         }, 2000);
 
@@ -225,6 +251,9 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         clearInterval(progressInterval);
         clearInterval(timeInterval);
         clearInterval(analysisInterval);
+        
+        // Set error state
+        setCurrentAnalysis('Analysis failed. Please try again.');
       }
     };
 
