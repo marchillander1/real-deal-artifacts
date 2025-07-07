@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,10 +21,11 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
   const [overallProgress, setOverallProgress] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(120); // 2 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(120);
   const [isComplete, setIsComplete] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const stages = [
     { 
@@ -60,29 +62,6 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
     }
   ];
 
-  const analysisDetails = {
-    technical: [
-      'Programming languages & frameworks',
-      'Certifications & education', 
-      'Project examples & portfolio'
-    ],
-    soft: [
-      'Communication style',
-      'Leadership abilities',
-      'Teamwork & cultural fit'
-    ],
-    market: [
-      'Optimal hourly rate',
-      'Competitive advantages',
-      'Market demand & trends'
-    ],
-    career: [
-      'Development areas',
-      'Recommended courses',
-      'Next career step'
-    ]
-  };
-
   const ongoingAnalyses = [
     'Identifying your unique strengths...',
     'Analyzing technical expertise depth...',
@@ -100,10 +79,11 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
     const startAnalysis = async () => {
       console.log('🚀 Starting comprehensive CV analysis...');
+      setErrorMessage('');
       
-      // Check if we have the uploaded file directly
       if (!uploadedFile) {
         console.error('❌ No uploaded file available for analysis');
+        setErrorMessage('No file available for analysis');
         setCurrentAnalysis('Error: No file available for analysis');
         return;
       }
@@ -114,15 +94,19 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         type: uploadedFile.type
       });
 
-      // Get stored tagline
-      const taglineKey = `cv-tagline-${sessionToken}`;
-      const storedTagline = sessionStorage.getItem(taglineKey);
-      
-      console.log('📝 Tagline check:', {
-        hasStoredTagline: !!storedTagline,
-        hasPropsTagline: !!personalTagline,
-        sessionToken
-      });
+      // Validate file
+      if (uploadedFile.size > 5 * 1024 * 1024) {
+        setErrorMessage('File too large. Maximum size is 5MB.');
+        setCurrentAnalysis('Error: File too large');
+        return;
+      }
+
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(uploadedFile.type)) {
+        setErrorMessage('Invalid file type. Please upload a PDF or Word document.');
+        setCurrentAnalysis('Error: Invalid file type');
+        return;
+      }
 
       try {
         // Start progress simulation
@@ -169,10 +153,21 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         // Perform real analysis with the uploaded file
         const formData = new FormData();
         formData.append('file', uploadedFile);
-        formData.append('personalTagline', storedTagline || personalTagline || '');
-        formData.append('personalDescription', storedTagline || personalTagline || '');
+        
+        // Add personal tagline if available
+        const storedTagline = sessionStorage.getItem(`cv-tagline-${sessionToken}`);
+        const taglineToUse = storedTagline || personalTagline || '';
+        
+        if (taglineToUse) {
+          formData.append('personalTagline', taglineToUse);
+          formData.append('personalDescription', taglineToUse);
+        }
 
-        console.log('📤 Sending CV for AI analysis...');
+        console.log('📤 Sending CV for AI analysis...', {
+          fileName: uploadedFile.name,
+          fileSize: uploadedFile.size,
+          hasTagline: !!taglineToUse
+        });
         
         const analysisResponse = await supabase.functions.invoke('parse-cv', {
           body: formData
@@ -180,7 +175,8 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
         console.log('📥 Analysis response received:', {
           hasError: !!analysisResponse.error,
-          hasData: !!analysisResponse.data
+          hasData: !!analysisResponse.data,
+          error: analysisResponse.error
         });
 
         // Stop intervals
@@ -191,7 +187,8 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
         if (analysisResponse.error) {
           console.error('❌ Analysis failed:', analysisResponse.error);
-          setCurrentAnalysis(`Analysis failed: ${analysisResponse.error.message}`);
+          setErrorMessage(`Analysis failed: ${analysisResponse.error.message || 'Unknown error'}`);
+          setCurrentAnalysis(`Analysis failed: ${analysisResponse.error.message || 'Unknown error'}`);
           return;
         }
 
@@ -199,7 +196,9 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         
         if (!result || !result.success) {
           console.error('❌ Analysis result invalid:', result);
-          setCurrentAnalysis(result?.error || 'Analysis failed');
+          const errorMsg = result?.error || 'Analysis failed - invalid response';
+          setErrorMessage(errorMsg);
+          setCurrentAnalysis(errorMsg);
           return;
         }
 
@@ -241,8 +240,9 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         clearInterval(timeInterval);
         clearInterval(analysisInterval);
         
-        // Set error state
-        setCurrentAnalysis(`Analysis failed: ${error.message}`);
+        const errorMsg = error.message || 'Analysis failed';
+        setErrorMessage(errorMsg);
+        setCurrentAnalysis(`Analysis failed: ${errorMsg}`);
       }
     };
 
@@ -277,6 +277,19 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         </CardHeader>
 
         <CardContent className="p-8">
+          {/* Error Display */}
+          {errorMessage && (
+            <div className="mb-8 p-4 bg-red-50 rounded-xl border border-red-200">
+              <div className="flex items-center space-x-3">
+                <div className="text-red-600">❌</div>
+                <div>
+                  <h4 className="font-semibold text-red-900">Analysis Error:</h4>
+                  <p className="text-red-700">{errorMessage}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Overall Progress */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-3">
@@ -290,39 +303,43 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           </div>
 
           {/* Current Analysis */}
-          <div className="mb-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <div className="flex items-center space-x-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <div>
-                <h4 className="font-semibold text-blue-900">🔍 Ongoing analysis:</h4>
-                <p className="text-blue-700">{currentAnalysis}</p>
+          {!errorMessage && (
+            <div className="mb-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <div>
+                  <h4 className="font-semibold text-blue-900">🔍 Ongoing analysis:</h4>
+                  <p className="text-blue-700">{currentAnalysis}</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Active Stage Detail */}
-          <div className="mb-8">
-            <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200">
-              <div className="flex items-center space-x-4 mb-4">
-                {React.createElement(stages[currentStage]?.icon || Brain, { 
-                  className: "h-8 w-8 text-blue-600 animate-pulse" 
-                })}
-                <div className="flex-grow">
-                  <h3 className="text-xl font-bold text-blue-900">
-                    {stages[currentStage]?.title}
-                  </h3>
-                  <p className="text-blue-700">
-                    {stages[currentStage]?.description}
-                  </p>
+          {!errorMessage && (
+            <div className="mb-8">
+              <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200">
+                <div className="flex items-center space-x-4 mb-4">
+                  {React.createElement(stages[currentStage]?.icon || Brain, { 
+                    className: "h-8 w-8 text-blue-600 animate-pulse" 
+                  })}
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-bold text-blue-900">
+                      {stages[currentStage]?.title}
+                    </h3>
+                    <p className="text-blue-700">
+                      {stages[currentStage]?.description}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-600">{progress}%</div>
+                    <div className="text-sm text-blue-500">Progress</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">{progress}%</div>
-                  <div className="text-sm text-blue-500">Progress</div>
-                </div>
+                <Progress value={progress} className="h-2" />
               </div>
-              <Progress value={progress} className="h-2" />
             </div>
-          </div>
+          )}
 
           {/* All Stages Overview */}
           <div className="space-y-3 mb-8">
@@ -379,7 +396,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
                   </div>
 
                   <div className="flex-shrink-0 ml-4">
-                    {isActive && (
+                    {isActive && !errorMessage && (
                       <div className="flex items-center space-x-2">
                         <div className="animate-pulse h-2 w-2 bg-blue-600 rounded-full"></div>
                         <span className="text-sm text-blue-600 font-medium">In progress...</span>
@@ -397,61 +414,8 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
             })}
           </div>
 
-          {/* What's Being Analyzed */}
-          <div className="p-6 bg-purple-50 rounded-xl border border-purple-200">
-            <h4 className="font-bold text-purple-900 mb-4 text-lg flex items-center">
-              🎯 What's being analyzed right now:
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h5 className="font-semibold text-purple-800 mb-2">Technical skills:</h5>
-                <ul className="text-sm text-purple-700 space-y-1">
-                  {analysisDetails.technical.map((item, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h5 className="font-semibold text-purple-800 mb-2">Soft skills:</h5>
-                <ul className="text-sm text-purple-700 space-y-1">
-                  {analysisDetails.soft.map((item, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h5 className="font-semibold text-purple-800 mb-2">Market valuation:</h5>
-                <ul className="text-sm text-purple-700 space-y-1">
-                  {analysisDetails.market.map((item, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h5 className="font-semibold text-purple-800 mb-2">Career development:</h5>
-                <ul className="text-sm text-purple-700 space-y-1">
-                  {analysisDetails.career.map((item, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
           {/* Enhanced Analysis Notice */}
-          {personalTagline && (
+          {personalTagline && !errorMessage && (
             <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
               <h4 className="font-semibold text-green-900 mb-2">
                 🚀 Enhanced Analysis Active
@@ -463,7 +427,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           )}
 
           {/* Completion Status */}
-          {isComplete && analysisResults && (
+          {isComplete && analysisResults && !errorMessage && (
             <div className="mt-6 p-6 bg-green-50 rounded-xl border border-green-200">
               <h4 className="font-semibold text-green-900 mb-3 flex items-center">
                 🎉 Analysis Complete!
