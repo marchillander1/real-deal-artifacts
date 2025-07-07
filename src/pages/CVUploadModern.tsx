@@ -1,50 +1,20 @@
 
-import React from 'react';
-import { CVUploadPage } from '@/components/cv-upload-new/CVUploadPage';
-import Logo from '@/components/Logo';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CVUploadModern = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Enhanced Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Logo size="md" />
-            <div className="flex items-center space-x-6">
-              <div className="hidden md:flex items-center space-x-4 text-sm text-slate-600">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>AI-Driven Konsultanalys</span>
-                </div>
-                <span>•</span>
-                <span>GDPR-säker</span>
-                <span>•</span>
-                <span>2-3 min analys</span>
-              </div>
-              <div className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                Beta v2.0
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  const navigate = useNavigate();
 
-      {/* Main Content */}
-      <CVUploadPage />
-      
-      {/* Footer */}
-      <div className="border-t bg-white mt-16">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-sm text-slate-600">
-            <p>© 2024 MatchWise AI. Alla rättigheter förbehållna.</p>
-            <div className="flex justify-center space-x-6 mt-4">
-              <a href="/privacy" className="hover:text-blue-600 transition-colors">Integritetspolicy</a>
-              <a href="/terms" className="hover:text-blue-600 transition-colors">Användarvillkor</a>
-              <a href="/support" className="hover:text-blue-600 transition-colors">Support</a>
-            </div>
-          </div>
-        </div>
+  useEffect(() => {
+    // Redirect to the main cv-upload page
+    navigate('/cv-upload', { replace: true });
+  }, [navigate]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-slate-600">Redirecting to CV Upload...</p>
       </div>
     </div>
   );
