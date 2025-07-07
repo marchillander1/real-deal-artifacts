@@ -27,35 +27,35 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
       title: 'CV Upload Processing', 
       description: 'Extracting text and structure from your CV', 
       icon: FileText,
-      duration: 20000 // 20 seconds
+      duration: 25000 // 25 seconds
     },
     { 
       id: 2, 
       title: 'AI Analysis Engine', 
       description: 'Advanced AI analyzing your skills, experience, and potential', 
       icon: Brain,
-      duration: 45000 // 45 seconds  
+      duration: 60000 // 60 seconds  
     },
     { 
       id: 3, 
       title: 'Market Intelligence', 
       description: 'Comparing your profile against market demand and opportunities', 
       icon: Search,
-      duration: 30000 // 30 seconds
+      duration: 40000 // 40 seconds
     },
     { 
       id: 4, 
       title: 'Profile Enhancement', 
       description: 'Optimizing your profile for maximum market appeal', 
       icon: Zap,
-      duration: 25000 // 25 seconds
+      duration: 30000 // 30 seconds
     },
     { 
       id: 5, 
       title: 'Network Integration', 
       description: 'Adding you to the MatchWise consultant network', 
       icon: CheckCircle2,
-      duration: 15000 // 15 seconds
+      duration: 20000 // 20 seconds
     },
     { 
       id: 6, 
@@ -95,26 +95,30 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
           lastModified: fileInfoParsed.lastModified 
         });
 
-        // Start progress simulation
+        // Start progress simulation with proper variable scoping
         let currentProgress = 0;
         let stageIndex = 0;
+        let analysisComplete = false;
         
-        const progressInterval = setInterval(() => {
-          const stage = stages[stageIndex];
-          const stageProgress = Math.min(100, currentProgress + (100 / stage.duration) * 1000);
+        const updateProgress = () => {
+          if (analysisComplete) return;
           
-          setProgress(Math.floor(stageProgress));
+          const stage = stages[stageIndex];
+          const increment = (100 / stage.duration) * 1000;
+          currentProgress += increment;
+          
+          setProgress(Math.min(100, Math.floor(currentProgress)));
           setCurrentStage(stageIndex);
           
-          if (stageProgress >= 100 && stageIndex < stages.length - 1) {
+          if (currentProgress >= 100 && stageIndex < stages.length - 1) {
             stageIndex++;
             currentProgress = 0;
-          } else {
-            currentProgress = stageProgress;
           }
-        }, 1000);
+        };
 
-        // Perform real analysis
+        const progressInterval = setInterval(updateProgress, 1000);
+
+        // Perform real analysis - this will take the full duration
         const formData = new FormData();
         formData.append('file', file);
         formData.append('personalTagline', storedTagline || personalTagline || '');
@@ -122,10 +126,13 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
 
         console.log('📤 Sending CV for AI analysis...');
         
+        // Wait for the analysis to complete (this should take the full 3 minutes)
         const analysisResponse = await supabase.functions.invoke('parse-cv', {
           body: formData
         });
 
+        // Stop the progress simulation
+        analysisComplete = true;
         clearInterval(progressInterval);
 
         if (analysisResponse.error) {
@@ -147,26 +154,23 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
         setProgress(100);
         setCurrentStage(stages.length - 1);
         setIsComplete(true);
-        setAnalysisResults({
+        
+        const resultsData = {
           analysis: result.analysis,
           consultant: result.consultant,
           detectedInformation: result.detectedInformation,
           extractionStats: result.extractionStats
-        });
+        };
+        
+        setAnalysisResults(resultsData);
 
         // Wait a moment to show completion, then proceed
         setTimeout(() => {
-          onAnalysisComplete({
-            analysis: result.analysis,
-            consultant: result.consultant,
-            detectedInformation: result.detectedInformation,
-            extractionStats: result.extractionStats
-          });
+          onAnalysisComplete(resultsData);
         }, 2000);
 
       } catch (error: any) {
         console.error('❌ Analysis error:', error);
-        clearInterval(progressInterval);
         // Handle error appropriately
       }
     };

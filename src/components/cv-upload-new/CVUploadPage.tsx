@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { CVUploadForm } from './CVUploadForm';
 import { AnalysisProgress } from './AnalysisProgress';
 import { AnalysisResults } from './AnalysisResults';
-import { SummaryConfirmation } from './SummaryConfirmation';
 import { ProfilePreview } from './ProfilePreview';
+import { SummaryConfirmation } from './SummaryConfirmation';
 import { JoinNetworkSuccess } from './JoinNetworkSuccess';
 
 export const CVUploadPage: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<'upload' | 'analysis' | 'results' | 'confirmation' | 'preview' | 'complete'>('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'analysis' | 'results' | 'preview' | 'confirmation' | 'complete'>('upload');
   const [sessionToken, setSessionToken] = useState<string>('');
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -62,6 +62,14 @@ export const CVUploadPage: React.FC = () => {
   };
 
   const handleResultsReviewed = () => {
+    setCurrentStep('preview');
+  };
+
+  const handleProfileEdit = () => {
+    setCurrentStep('results');
+  };
+
+  const handleProfileConfirmed = () => {
     setCurrentStep('confirmation');
   };
 
@@ -70,14 +78,6 @@ export const CVUploadPage: React.FC = () => {
     if (finalData.consultantId) {
       setConsultantId(finalData.consultantId);
     }
-    setCurrentStep('preview');
-  };
-
-  const handleProfileEdit = () => {
-    setCurrentStep('confirmation');
-  };
-
-  const handleProfileConfirm = () => {
     setCurrentStep('complete');
   };
 
@@ -105,15 +105,15 @@ export const CVUploadPage: React.FC = () => {
             { step: 1, label: 'Upload', key: 'upload' },
             { step: 2, label: 'Analysis', key: 'analysis' },
             { step: 3, label: 'Results', key: 'results' },
-            { step: 4, label: 'Confirmation', key: 'confirmation' },
-            { step: 5, label: 'Preview', key: 'preview' },
+            { step: 4, label: 'Preview', key: 'preview' },
+            { step: 5, label: 'Confirmation', key: 'confirmation' },
             { step: 6, label: 'Complete', key: 'complete' }
           ].map((item) => (
             <div key={item.key} className="flex flex-col items-center">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
                 currentStep === item.key 
                   ? 'bg-blue-600 text-white' 
-                  : ['upload', 'analysis', 'results', 'confirmation', 'preview'].indexOf(currentStep) > ['upload', 'analysis', 'results', 'confirmation', 'preview'].indexOf(item.key)
+                  : ['upload', 'analysis', 'results', 'preview', 'confirmation'].indexOf(currentStep) > ['upload', 'analysis', 'results', 'preview', 'confirmation'].indexOf(item.key)
                   ? 'bg-green-600 text-white'
                   : 'bg-gray-200 text-gray-600'
               }`}>
@@ -145,18 +145,18 @@ export const CVUploadPage: React.FC = () => {
         />
       )}
 
-      {currentStep === 'confirmation' && analysisData && (
-        <SummaryConfirmation
-          analysisData={analysisData}
-          onFinalConfirm={handleFinalConfirm}
-        />
-      )}
-
       {currentStep === 'preview' && analysisData && (
         <ProfilePreview
           analysisData={analysisData}
           onEditProfile={handleProfileEdit}
-          onConfirmProfile={handleProfileConfirm}
+          onConfirmProfile={handleProfileConfirmed}
+        />
+      )}
+
+      {currentStep === 'confirmation' && analysisData && (
+        <SummaryConfirmation
+          analysisData={analysisData}
+          onFinalConfirm={handleFinalConfirm}
         />
       )}
 
