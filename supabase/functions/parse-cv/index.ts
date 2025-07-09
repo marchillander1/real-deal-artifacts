@@ -22,6 +22,16 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(result);
 }
 
+// Helper function to extract numeric value from rate string
+function extractRateValue(rateString: any): number {
+  if (typeof rateString === 'number') return rateString;
+  if (typeof rateString !== 'string') return 950; // Default fallback
+  
+  // Extract first number from strings like "900-1100 SEK", "950 SEK/h", etc.
+  const match = rateString.match(/(\d+)/);
+  return match ? parseInt(match[1]) : 950;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -99,6 +109,7 @@ CRITICAL REQUIREMENTS:
 - Use personal context to enhance career development recommendations
 - Focus on actionable career advice and market positioning
 - Return ONLY valid JSON without markdown formatting
+- For hourly rates, provide ONLY numeric values (no currency symbols, no ranges)
 
 COMPREHENSIVE CAREER ANALYSIS JSON STRUCTURE:
 
@@ -163,8 +174,8 @@ COMPREHENSIVE CAREER ANALYSIS JSON STRUCTURE:
   },
   "marketAnalysis": {
     "hourlyRate": {
-      "current": "Estimated current market rate in SEK based on experience and location",
-      "optimized": "Recommended optimized rate in SEK based on skills and experience",
+      "current": 800,
+      "optimized": 950,
       "explanation": "DETAILED explanation of rate calculation factors and market positioning"
     },
     "competitiveAdvantages": ["SPECIFIC advantages this consultant has over competitors"],
@@ -208,7 +219,7 @@ IMPORTANT:
 - Use the personal context to enhance accuracy where available
 - ALL content must be in English
 - Be specific rather than generic in all descriptions
-- Calculate realistic market rates for Swedish consulting market
+- For hourly rates, provide ONLY integer values (no strings, no currency symbols)
 - Focus on actionable career coaching insights`;
 
     console.log('🤖 Calling Google Gemini for comprehensive career analysis...');
@@ -318,6 +329,12 @@ IMPORTANT:
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Extract and validate hourly rates with fallbacks
+    const currentRate = extractRateValue(analysis.marketAnalysis?.hourlyRate?.current);
+    const optimizedRate = extractRateValue(analysis.marketAnalysis?.hourlyRate?.optimized);
+    
+    console.log('💰 Extracted rates:', { currentRate, optimizedRate });
+
     // Save consultant to database as network consultant with career coaching data
     const consultantData = {
       name: detectedInfo.names[0] || personalInfo.name || 'Network Consultant',
@@ -329,7 +346,7 @@ IMPORTANT:
       title: analysis.experience?.currentRole || 'Consultant',
       roles: [analysis.experience?.currentRole || 'Consultant'],
       availability: 'Available',
-      hourly_rate: analysis.marketAnalysis?.hourlyRate?.optimized || 950,
+      hourly_rate: optimizedRate,
       rating: 4.5,
       analysis_results: analysis,
       user_id: null, // Network consultant
@@ -337,8 +354,8 @@ IMPORTANT:
       self_description: personalDescription,
       tagline: personalTagline,
       is_published: true,
-      market_rate_current: analysis.marketAnalysis?.hourlyRate?.current || 800,
-      market_rate_optimized: analysis.marketAnalysis?.hourlyRate?.optimized || 950,
+      market_rate_current: currentRate,
+      market_rate_optimized: optimizedRate,
       visibility_status: 'public',
       
       // Enhanced soft skills mapping from career coaching analysis
