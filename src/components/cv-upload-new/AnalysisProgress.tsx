@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, FileText, CheckCircle2, TrendingUp, User } from 'lucide-react';
+import { Brain, FileText, CheckCircle2, TrendingUp, User, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnalysisProgressProps {
@@ -301,6 +301,54 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
               {stages[currentStage]?.title || 'Completing analysis...'}
             </div>
           </div>
+
+          {/* What's being analyzed right now section */}
+          {!errorMessage && (
+            <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+              <div className="flex items-center space-x-3 mb-4">
+                <Target className="h-6 w-6 text-blue-600" />
+                <h3 className="text-xl font-bold text-blue-900">What's being analyzed right now:</h3>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold text-blue-800 mb-3">Technical skills:</h4>
+                  <ul className="space-y-1 text-blue-700">
+                    <li>• Programming languages & frameworks</li>
+                    <li>• Certifications & education</li>
+                    <li>• Project examples & portfolio</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-blue-800 mb-3">Soft skills:</h4>
+                  <ul className="space-y-1 text-blue-700">
+                    <li>• Communication style</li>
+                    <li>• Leadership abilities</li>
+                    <li>• Teamwork & cultural fit</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-blue-800 mb-3">Market valuation:</h4>
+                  <ul className="space-y-1 text-blue-700">
+                    <li>• Optimal hourly rate</li>
+                    <li>• Competitive advantages</li>
+                    <li>• Demand & trends</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-blue-800 mb-3">Career development:</h4>
+                  <ul className="space-y-1 text-blue-700">
+                    <li>• Development areas</li>
+                    <li>• Recommended courses</li>
+                    <li>• Next career step</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Current Analysis */}
           {!errorMessage && (
