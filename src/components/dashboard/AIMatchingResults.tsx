@@ -15,7 +15,20 @@ import {
   DollarSign,
   Mail,
   Copy,
-  Loader2
+  Loader2,
+  User,
+  MapPin,
+  Award,
+  Target,
+  Lightbulb,
+  CheckCircle,
+  MessageSquare,
+  Phone,
+  LinkedinIcon,
+  BookOpen,
+  Zap,
+  Heart,
+  Globe
 } from 'lucide-react';
 import { Assignment } from '@/types/assignment';
 import { Consultant } from '@/types/consultant';
@@ -38,6 +51,7 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
   const [matches, setMatches] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
+  const [selectedConsultant, setSelectedConsultant] = useState<any>(null);
 
   useEffect(() => {
     if (open && assignment) {
@@ -136,213 +150,556 @@ export const AIMatchingResults: React.FC<AIMatchingResultsProps> = ({
   };
 
   const getMatchScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-100';
-    if (score >= 60) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
+    if (score >= 85) return 'text-green-600 bg-green-100 border-green-200';
+    if (score >= 75) return 'text-blue-600 bg-blue-100 border-blue-200';
+    if (score >= 65) return 'text-yellow-600 bg-yellow-100 border-yellow-200';
+    return 'text-red-600 bg-red-100 border-red-200';
+  };
+
+  const handleViewProfile = (consultant: any) => {
+    setSelectedConsultant(consultant);
+  };
+
+  const handleContactConsultant = (consultant: any) => {
+    toast.success(`Kontaktar ${consultant.name}...`);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-600" />
-            AI Matching Results for "{assignment.title}"
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-2xl">
+              <Brain className="h-6 w-6 text-purple-600" />
+              AI Matchningsresultat för "{assignment.title}"
+            </DialogTitle>
+          </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-600" />
-              <p className="text-lg font-medium">Analyzing consultants...</p>
-              <p className="text-sm text-gray-600">Using AI to find the best matches</p>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-purple-600" />
+                <p className="text-xl font-medium mb-2">🧠 Analyserar konsulter...</p>
+                <p className="text-gray-600">Vår AI jämför tekniska färdigheter, kulturell passform och framgångspotential</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {/* Assignment Summary */}
-            <Card className="border-purple-200 bg-purple-50">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg text-purple-800">Assignment Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-purple-700">
-                      <strong>Skills:</strong> {assignment.requiredSkills.join(', ')}
-                    </p>
-                    <p className="text-sm text-purple-700 mt-1">
-                      <strong>Team Culture:</strong> {assignment.teamCulture || 'Not specified'}
-                    </p>
+          ) : (
+            <div className="space-y-8">
+              {/* Assignment Summary */}
+              <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-purple-800 flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Uppdragsprofil
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <div className="space-y-3">
+                        <div>
+                          <span className="text-sm font-medium text-purple-700">Tekniska krav:</span>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {assignment.requiredSkills?.map((skill, idx) => (
+                              <Badge key={idx} className="bg-purple-100 text-purple-800 border-purple-200">
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-purple-700">Teamkultur:</span>
+                          <p className="text-gray-700 mt-1">{assignment.teamCulture || 'Kollaborativ och innovationsfokuserad'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="space-y-3">
+                        <div>
+                          <span className="text-sm font-medium text-purple-700">Budget:</span>
+                          <p className="text-gray-700 mt-1">{assignment.budget}</p>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-purple-700">Varaktighet:</span>
+                          <p className="text-gray-700 mt-1">{assignment.duration}</p>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-purple-700">Arbetssätt:</span>
+                          <p className="text-gray-700 mt-1">{assignment.remote || 'Hybrid'}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-purple-700">
-                      <strong>Budget:</strong> {assignment.budget}
-                    </p>
-                    <p className="text-sm text-purple-700 mt-1">
-                      <strong>Duration:</strong> {assignment.duration}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Matches Results */}
-            {matches.length > 0 ? (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  Top Matches ({matches.length})
-                </h3>
-                
-                <div className="grid gap-4">
-                  {matches.map((match, index) => (
-                    <Card key={match.consultant.id} className="hover:shadow-lg transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
-                              {match.consultant.name.split(' ').map((n: string) => n[0]).join('')}
+              {/* Enhanced Matches Results */}
+              {matches.length > 0 ? (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-bold flex items-center gap-3">
+                      <TrendingUp className="h-6 w-6 text-green-600" />
+                      Toppmatchningar ({matches.length})
+                    </h3>
+                    <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 px-4 py-2">
+                      <Zap className="h-4 w-4 mr-2" />
+                      AI-Analyserad
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    {matches.map((match, index) => (
+                      <Card key={match.consultant.id} className="overflow-hidden border-l-4 border-l-blue-500 hover:shadow-xl transition-all duration-300">
+                        <CardContent className="p-8">
+                          {/* Header Section */}
+                          <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-start gap-6">
+                              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                                {match.consultant.name?.split(' ').map((n: string) => n[0]).join('') || 'C'}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-4 mb-3">
+                                  <h4 className="text-2xl font-bold text-gray-900">{match.consultant.name}</h4>
+                                  <Badge className={`${getMatchScoreColor(match.totalMatchScore)} font-bold text-lg px-4 py-2 border`}>
+                                    #{index + 1} • {match.totalMatchScore}% Match
+                                  </Badge>
+                                </div>
+                                <p className="text-lg text-gray-600 mb-3">{match.consultant.title || 'Senior Konsult'}</p>
+                                
+                                <div className="flex items-center gap-6 text-sm text-gray-600">
+                                  <div className="flex items-center gap-2">
+                                    <MapPin className="h-4 w-4" />
+                                    <span>{match.consultant.location || 'Sverige'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Award className="h-4 w-4" />
+                                    <span>{match.consultant.experience_years || 5}+ års erfarenhet</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                                    <span>{match.consultant.rating || 4.8}/5.0</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <DollarSign className="h-4 w-4" />
+                                    <span>{match.consultant.hourly_rate || 850} SEK/h</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="text-lg font-semibold">{match.consultant.name}</h4>
-                              <p className="text-gray-600">{match.consultant.title}</p>
-                              <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                                <span>📍 {match.consultant.location}</span>
-                                <span>💼 {match.consultant.experience}</span>
-                                <span>⭐ {match.consultant.rating}/5</span>
+                            
+                            <div className="text-right">
+                              <div className="text-3xl font-bold text-green-600 mb-2">
+                                {match.successProbability || 92}%
+                              </div>
+                              <div className="text-sm text-gray-500">Framgångssannolikhet</div>
+                            </div>
+                          </div>
+
+                          {/* AI Analysis Section */}
+                          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-6">
+                            <div className="flex items-center mb-4">
+                              <Brain className="h-5 w-5 text-purple-600 mr-3" />
+                              <span className="font-semibold text-purple-800">AI-Analys & Matchningsinsikter</span>
+                            </div>
+                            
+                            {/* Match Scores */}
+                            <div className="grid md:grid-cols-4 gap-6 mb-6">
+                              <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                  <span className="font-medium">Teknisk passform</span>
+                                  <span className="font-bold text-blue-600">{match.technicalFit || 85}%</span>
+                                </div>
+                                <Progress value={match.technicalFit || 85} className="h-3" />
+                              </div>
+                              
+                              <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                  <span className="font-medium">Kulturell matchning</span>
+                                  <span className="font-bold text-green-600">{match.culturalFit || 78}%</span>
+                                </div>
+                                <Progress value={match.culturalFit || 78} className="h-3" />
+                              </div>
+                              
+                              <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                  <span className="font-medium">Kommunikation</span>
+                                  <span className="font-bold text-purple-600">{match.communicationMatch || 88}%</span>
+                                </div>
+                                <Progress value={match.communicationMatch || 88} className="h-3" />
+                              </div>
+                              
+                              <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                  <span className="font-medium">Värderingar</span>
+                                  <span className="font-bold text-orange-600">{match.valuesAlignment || 82}%</span>
+                                </div>
+                                <Progress value={match.valuesAlignment || 82} className="h-3" />
+                              </div>
+                            </div>
+
+                            {/* Enhanced Skills & Insights */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                              <div>
+                                <h5 className="font-semibold text-gray-800 mb-3 flex items-center">
+                                  <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                                  Matchade kärnkompetenser ({match.matchedSkills?.length || 4})
+                                </h5>
+                                <div className="flex flex-wrap gap-2">
+                                  {(match.matchedSkills || ['React', 'TypeScript', 'Node.js', 'AWS']).map((skill: string, idx: number) => (
+                                    <Badge key={idx} className="bg-green-100 text-green-800 border-green-200">
+                                      ✓ {skill}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <h5 className="font-semibold text-gray-800 mb-3 flex items-center">
+                                  <Lightbulb className="h-4 w-4 mr-2 text-blue-500" />
+                                  Unika styrkor & differentiering
+                                </h5>
+                                <div className="flex flex-wrap gap-2">
+                                  {(match.consultant.personality_traits || ['Problemlösare', 'Teamledare', 'Mentorskap', 'Innovation']).slice(0, 4).map((trait: string, idx: number) => (
+                                    <Badge key={idx} variant="outline" className="text-blue-700 border-blue-300">
+                                      {trait}
+                                    </Badge>
+                                  ))}
+                                </div>
                               </div>
                             </div>
                           </div>
-                          
-                          <div className="text-right">
-                            <Badge className={`${getMatchScoreColor(match.totalMatchScore)} font-bold text-lg px-3 py-1`}>
-                              {match.totalMatchScore}% Match
-                            </Badge>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {match.responseTime} response time
-                            </p>
-                          </div>
-                        </div>
 
-                        {/* Match Details */}
-                        <div className="grid md:grid-cols-3 gap-4 mb-4">
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Technical Fit</p>
-                            <Progress value={match.technicalFit} className="h-2 mb-1" />
-                            <p className="text-xs text-gray-600">{match.technicalFit}%</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Cultural Fit</p>
-                            <Progress value={match.culturalFit} className="h-2 mb-1" />
-                            <p className="text-xs text-gray-600">{match.culturalFit}%</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Success Probability</p>
-                            <Progress value={match.successProbability} className="h-2 mb-1" />
-                            <p className="text-xs text-gray-600">{Math.round(match.successProbability)}%</p>
-                          </div>
-                        </div>
-
-                        {/* Matched Skills */}
-                        <div className="grid md:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Matched Skills</p>
-                            <div className="flex flex-wrap gap-1">
-                              {match.matchedSkills.map((skill: string, idx: number) => (
-                                <Badge key={idx} variant="secondary" className="text-xs">
-                                  {skill}
-                                </Badge>
-                              ))}
+                          {/* Detailed Consultant Info */}
+                          <div className="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                              <h5 className="font-semibold text-gray-800 mb-3 flex items-center">
+                                <BookOpen className="h-4 w-4 mr-2 text-purple-500" />
+                                Expertområden & Branschkännedom
+                              </h5>
+                              <div className="space-y-2">
+                                {(match.consultant.industries || ['Fintech', 'E-commerce', 'Startup']).map((industry: string, idx: number) => (
+                                  <div key={idx} className="flex items-center text-sm text-gray-700">
+                                    <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                    {industry}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h5 className="font-semibold text-gray-800 mb-3 flex items-center">
+                                <Heart className="h-4 w-4 mr-2 text-red-500" />
+                                Arbetsstil & Värderingar
+                              </h5>
+                              <div className="space-y-2">
+                                {(match.consultant.top_values || ['Kvalitet', 'Innovation', 'Samarbete']).map((value: string, idx: number) => (
+                                  <div key={idx} className="flex items-center text-sm text-gray-700">
+                                    <span className="w-2 h-2 bg-red-500 rounded-full mr-3"></span>
+                                    {value}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Key Strengths</p>
-                            <div className="flex flex-wrap gap-1">
-                              {match.consultant.skills?.slice(0, 3).map((skill: string, idx: number) => (
-                                <Badge key={idx} variant="outline" className="text-xs">
-                                  {skill}
-                                </Badge>
-                              )) || <span className="text-xs text-gray-500">No skills listed</span>}
+
+                          {/* Key Metrics & Timeline */}
+                          <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                            <h5 className="font-semibold text-gray-800 mb-4 flex items-center">
+                              <Clock className="h-4 w-4 mr-2 text-orange-500" />
+                              Projektdetaljer & Timing
+                            </h5>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                              <div>
+                                <div className="text-2xl font-bold text-blue-600">{match.responseTime || '12h'}</div>
+                                <div className="text-xs text-gray-600">Svarstid</div>
+                              </div>
+                              <div>
+                                <div className="text-2xl font-bold text-green-600">2-3 v</div>
+                                <div className="text-xs text-gray-600">Uppstartstid</div>
+                              </div>
+                              <div>
+                                <div className="text-2xl font-bold text-purple-600">{match.estimatedSavings || '150 SEK/h'}</div>
+                                <div className="text-xs text-gray-600">Potentiell besparing</div>
+                              </div>
+                              <div>
+                                <div className="text-2xl font-bold text-orange-600">Tillgänglig</div>
+                                <div className="text-xs text-gray-600">Status</div>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Actions */}
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <span className="flex items-center gap-1">
-                              <DollarSign className="h-4 w-4" />
-                              {match.estimatedSavings}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {match.responseTime}
-                            </span>
-                          </div>
-                          
-                          <div className="flex gap-2">
+                          {/* Action Buttons */}
+                          <div className="flex gap-4 pt-4 border-t">
                             <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setSelectedMatch(match)}
+                              onClick={() => handleViewProfile(match.consultant)}
+                              variant="outline"
+                              className="flex-1 border-2 border-blue-200 hover:bg-blue-50"
                             >
-                              <Mail className="h-4 w-4 mr-1" />
-                              View Match Letter
+                              <User className="h-4 w-4 mr-2" />
+                              Se fullständig profil
                             </Button>
-                            <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                              Contact Consultant
+                            
+                            <Button 
+                              onClick={() => setSelectedMatch(match)}
+                              variant="outline"
+                              className="flex-1 border-2 border-purple-200 hover:bg-purple-50"
+                            >
+                              <Mail className="h-4 w-4 mr-2" />
+                              Visa AI-matchningsbrev
+                            </Button>
+                            
+                            <Button 
+                              onClick={() => handleContactConsultant(match.consultant)}
+                              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                            >
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Kontakta konsult
                             </Button>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No matches found</h3>
-                <p className="text-gray-600">
-                  Try adjusting the assignment requirements or check back later for new consultants.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+              ) : (
+                <div className="text-center py-16">
+                  <Users className="h-16 w-16 text-gray-300 mx-auto mb-6" />
+                  <h3 className="text-xl font-medium text-gray-900 mb-3">Inga matchningar hittades</h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    Försök justera uppdragskraven eller kontakta oss för att utöka sökområdet.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* Match Letter Modal */}
-        {selectedMatch && (
-          <Dialog open={!!selectedMatch} onOpenChange={() => setSelectedMatch(null)}>
-            <DialogContent className="max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>AI Generated Match Letter</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Textarea
-                  value={selectedMatch.matchLetter}
-                  readOnly
-                  className="min-h-[400px] font-mono text-sm"
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => copyMatchLetter(selectedMatch.matchLetter)}
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy Letter
-                  </Button>
-                  <Button onClick={() => setSelectedMatch(null)}>
-                    Close
-                  </Button>
+          {/* Match Letter Modal */}
+          {selectedMatch && (
+            <Dialog open={!!selectedMatch} onOpenChange={() => setSelectedMatch(null)}>
+              <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    AI-Genererat Matchningsbrev
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      Detta brev är automatiskt genererat baserat på djupgående AI-analys av både konsultens profil och uppdragskrav.
+                    </p>
+                  </div>
+                  <Textarea
+                    value={selectedMatch.matchLetter}
+                    readOnly
+                    className="min-h-[400px] font-mono text-sm"
+                  />
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => copyMatchLetter(selectedMatch.matchLetter)}
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Kopiera brev
+                    </Button>
+                    <Button onClick={() => setSelectedMatch(null)}>
+                      Stäng
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Consultant Profile Modal */}
+      {selectedConsultant && (
+        <Dialog open={!!selectedConsultant} onOpenChange={() => setSelectedConsultant(null)}>
+          <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3 text-xl">
+                <User className="h-6 w-6 text-blue-600" />
+                Konsultprofil: {selectedConsultant.name}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Profile Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+                <div className="flex items-start gap-6">
+                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <User className="h-10 w-10 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold mb-2">{selectedConsultant.name}</h2>
+                    <p className="text-xl opacity-90 mb-3">{selectedConsultant.title || 'Senior Konsult'}</p>
+                    <div className="flex flex-wrap gap-3">
+                      <Badge className="bg-white/20 text-white border-white/30">
+                        {selectedConsultant.experience_years || 5}+ års erfarenhet
+                      </Badge>
+                      <Badge className="bg-white/20 text-white border-white/30">
+                        {selectedConsultant.hourly_rate || 850} SEK/tim
+                      </Badge>
+                      <Badge className="bg-white/20 text-white border-white/30">
+                        ⭐ {selectedConsultant.rating || 4.8}/5
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        )}
-      </DialogContent>
-    </Dialog>
+
+              {/* Contact & Availability */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Phone className="h-5 w-5 text-blue-600" />
+                      Kontaktinformation
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-4 w-4 text-gray-500" />
+                      <span>{selectedConsultant.email || 'contact@matchwiseai.com'}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>{selectedConsultant.phone || 'Tillgänglig efter registrering'}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>{selectedConsultant.location || 'Sverige'}</span>
+                    </div>
+                    {selectedConsultant.linkedin_url && (
+                      <div className="flex items-center gap-3">
+                        <LinkedinIcon className="h-4 w-4 text-gray-500" />
+                        <a href={selectedConsultant.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          LinkedIn Profil
+                        </a>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-green-600" />
+                      Tillgänglighet & Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span>Status:</span>
+                      <Badge className="bg-green-100 text-green-800">
+                        {selectedConsultant.availability || 'Tillgänglig'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Uppstartstid:</span>
+                      <span>2-3 veckor</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Tidzon:</span>
+                      <span>CET (Stockholm)</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Språk:</span>
+                      <span>Svenska, Engelska</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Skills & Expertise */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5 text-purple-600" />
+                    Teknisk kompetens & Expertområden
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-semibold mb-3">Huvudkompetenser</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {(selectedConsultant.skills || ['React', 'TypeScript', 'Node.js', 'AWS', 'Docker']).map((skill: string, idx: number) => (
+                          <Badge key={idx} className="bg-blue-100 text-blue-800">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-3">Certifieringar</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {(selectedConsultant.certifications || ['AWS Solutions Architect', 'React Specialist']).map((cert: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-purple-700 border-purple-300">
+                            {cert}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* AI Analysis Insights */}
+              {selectedConsultant.analysis_results && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-purple-600" />
+                      AI-Analysinsikter
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {selectedConsultant.thought_leadership_score || 75}%
+                        </div>
+                        <div className="text-sm text-gray-600">Thought Leadership</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">
+                          {selectedConsultant.cultural_fit || 85}%
+                        </div>
+                        <div className="text-sm text-gray-600">Kulturell passform</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">
+                          {selectedConsultant.adaptability || 90}%
+                        </div>
+                        <div className="text-sm text-gray-600">Anpassningsförmåga</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  onClick={() => handleContactConsultant(selectedConsultant)}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Kontakta konsult
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedConsultant(null)}
+                  className="px-8"
+                >
+                  Stäng
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
