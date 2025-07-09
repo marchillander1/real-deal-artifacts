@@ -63,11 +63,24 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Create comprehensive career coaching analysis prompt
+    // Enhanced comprehensive career coaching analysis prompt
     const analysisPrompt = `
 You are an AI career coach built into MatchWise.tech, an AI-powered consultant matching platform specializing in IT freelancers and consultants.
 
 Your role is to help IT freelancers and consultants understand and act on their AI-generated profile analysis to maximize their career potential and market value.
+
+Each consultant has uploaded a CV. The AI system analyzes:
+- Technical skills
+- Certifications  
+- Years of experience
+- Suggested learning paths
+- Market value range
+- CV optimization tips
+- Personality traits
+- Communication style
+- Top personal values
+- Tone of voice
+- Thought leadership score
 
 ${personalDescription ? `
 PERSONAL CONTEXT FROM CONSULTANT: "${personalDescription}"
@@ -323,7 +336,6 @@ IMPORTANT:
       linkedin_url: linkedinUrl,
       self_description: personalDescription,
       tagline: personalTagline,
-      source: 'cv_upload_network',
       is_published: true,
       market_rate_current: analysis.marketAnalysis?.hourlyRate?.current || 800,
       market_rate_optimized: analysis.marketAnalysis?.hourlyRate?.optimized || 950,
@@ -340,7 +352,6 @@ IMPORTANT:
       
       // Career coaching specific fields
       certifications: analysis.certifications || [],
-      suggested_learning_paths: analysis.suggestedLearningPaths?.map(path => path.path) || [],
       cv_tips: analysis.careerCoaching?.cvOptimizationTips || [],
       tone_of_voice: analysis.softSkills?.toneOfVoice || 'Professional and collaborative',
       thought_leadership_score: analysis.softSkills?.thoughtLeadershipScore || 5,
