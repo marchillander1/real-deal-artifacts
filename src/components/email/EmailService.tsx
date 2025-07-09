@@ -10,7 +10,7 @@ interface WelcomeEmailParams {
 
 export class EmailService {
   static async sendWelcomeEmail({ consultantId, email, name, isMyConsultant = false }: WelcomeEmailParams) {
-    console.log('📧 Sending welcome email to:', email, 'for consultant:', name);
+    console.log('📧 Sending welcome email to consultant:', email, 'Name:', name);
     
     try {
       const response = await supabase.functions.invoke('send-welcome-email', {
@@ -21,7 +21,7 @@ export class EmailService {
         }
       });
 
-      console.log('📨 Supabase function response:', response);
+      console.log('📨 Welcome email function response:', response);
 
       if (response.error) {
         console.error('❌ Welcome email failed:', response.error);
@@ -33,17 +33,17 @@ export class EmailService {
         throw new Error(response.data?.error || 'Email sending failed');
       }
 
-      console.log('✅ Welcome email sent successfully:', response.data.messageId);
+      console.log('✅ Welcome email sent successfully to consultant:', response.data.messageId);
       return { success: true, data: response.data };
 
     } catch (error: any) {
-      console.error('❌ Email service error:', error);
+      console.error('❌ Welcome email service error:', error);
       throw error;
     }
   }
 
   static async sendAdminNotification({ name, email, isMyConsultant = false }: { name: string; email: string; isMyConsultant?: boolean }) {
-    console.log('📧 Sending admin notification for:', name);
+    console.log('📧 Sending admin notification for consultant:', name, 'to marc@matchwise.tech');
     
     try {
       const response = await supabase.functions.invoke('send-registration-notification', {
@@ -54,13 +54,15 @@ export class EmailService {
         }
       });
 
+      console.log('📨 Admin notification function response:', response);
+
       if (response.error) {
         console.warn('⚠️ Admin notification failed:', response.error);
         // Don't throw here - admin notification failure shouldn't block user flow
         return { success: false, error: response.error };
       }
 
-      console.log('✅ Admin notification sent successfully');
+      console.log('✅ Admin notification sent successfully to marc@matchwise.tech');
       return { success: true, data: response.data };
 
     } catch (error: any) {

@@ -63,86 +63,107 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Create enhanced analysis prompt
+    // Create enhanced analysis prompt with detailed instructions
     const analysisPrompt = `
-Analyze this CV very carefully and extract ALL information according to the JSON structure below.
+You are an expert HR consultant and career analyst. Analyze this CV/resume extremely thoroughly and provide a comprehensive analysis.
 
 ${personalDescription ? `
-PERSONAL DESCRIPTION FROM USER: "${personalDescription}"
-Use this information to enhance the analysis of personality traits, work style, values, and career goals.
+PERSONAL CONTEXT FROM CONSULTANT: "${personalDescription}"
+Use this information to enhance personality analysis, work style assessment, and career trajectory insights.
 ` : ''}
 
 ${personalTagline ? `
-PERSONAL TAGLINE FROM USER: "${personalTagline}"
-This tagline represents how the consultant sees themselves and their career aspirations.
+CONSULTANT'S PROFESSIONAL TAGLINE: "${personalTagline}"
+This represents their professional identity and career aspirations.
 ` : ''}
 
-IMPORTANT INSTRUCTIONS:
-- Use the personal description and tagline to provide more accurate personality and career insights
-- Return ONLY valid JSON without any extra text before or after
-- Never use "Not specified" for name or email - extract from CV
+CRITICAL REQUIREMENTS:
+- ALL TEXT MUST BE IN ENGLISH ONLY - no Swedish, no other languages
+- Provide DETAILED analysis in each section - not generic descriptions
+- Extract ALL available information from the CV
+- Use personal context to enhance insights where provided
+- Return ONLY valid JSON without markdown formatting
+
+DETAILED JSON STRUCTURE REQUIRED:
 
 {
   "personalInfo": {
-    "name": "Full name from CV (NEVER 'Not specified')",
-    "email": "Email address from CV (NEVER 'Not specified')", 
-    "phone": "Phone number from CV",
-    "location": "City/location from CV"
+    "name": "Extract full name from CV (never use 'Not specified')",
+    "email": "Extract email from CV (never use 'Not specified')", 
+    "phone": "Extract phone number from CV",
+    "location": "Extract city/location from CV"
   },
   "experience": {
-    "years": "Years of experience as integer",
-    "currentRole": "Current/latest role",
-    "level": "Junior/Mid/Senior/Lead"
+    "years": "Calculate total years of professional experience as integer",
+    "currentRole": "Most recent/current position title",
+    "level": "Assess as Junior (0-2 years), Mid (3-5 years), Senior (6-10 years), or Lead (10+ years)"
   },
   "skills": {
-    "technical": ["List technical skills from CV"],
-    "languages": ["Programming languages from CV"],
-    "tools": ["Tools and platforms from CV"]
+    "technical": ["Extract ALL technical skills, programming languages, frameworks, tools"],
+    "languages": ["Extract ALL spoken/written languages mentioned"],
+    "tools": ["Extract ALL software tools, platforms, applications mentioned"]
   },
   "workHistory": [
-    {"role": "Job title", "company": "Company", "period": "Period", "description": "Short description"}
+    {
+      "role": "Job title",
+      "company": "Company name", 
+      "period": "Employment period",
+      "description": "Detailed description of responsibilities and achievements"
+    }
   ],
   "education": [
-    {"degree": "Degree/education", "school": "School/university", "year": "Year", "field": "Field"}
+    {
+      "degree": "Degree or certification name",
+      "school": "Institution name",
+      "year": "Graduation year or period",
+      "field": "Field of study"
+    }
   ],
   "softSkills": {
-    "communicationStyle": "Description enhanced by personal description/tagline",
-    "leadershipStyle": "Description enhanced by personal context", 
-    "workStyle": "Description enhanced by personal insights",
-    "values": ["Values from CV and personal description"],
-    "personalityTraits": ["Traits from CV and personal context"]
+    "communicationStyle": "DETAILED assessment of communication approach based on CV content and personal context - IN ENGLISH",
+    "leadershipStyle": "DETAILED analysis of leadership qualities and management approach - IN ENGLISH", 
+    "workStyle": "DETAILED description of work methodology and approach - IN ENGLISH",
+    "values": ["Core professional values extracted from CV and context - IN ENGLISH"],
+    "personalityTraits": ["Personality characteristics based on CV analysis - IN ENGLISH"]
   },
   "scores": {
-    "leadership": 4,
-    "innovation": 4,
-    "adaptability": 4,
-    "culturalFit": 4,
-    "communication": 4,
-    "teamwork": 4
+    "leadership": "Rate 1-5 based on management experience and leadership indicators",
+    "innovation": "Rate 1-5 based on creative projects and problem-solving",
+    "adaptability": "Rate 1-5 based on diverse experiences and learning",
+    "culturalFit": "Rate 1-5 based on team collaboration and values alignment",
+    "communication": "Rate 1-5 based on presentation skills and client interaction",
+    "teamwork": "Rate 1-5 based on collaborative project experience"
   },
   "marketAnalysis": {
     "hourlyRate": {
-      "current": 800,
-      "optimized": 950,
-      "explanation": "Explanation of market valuation"
+      "current": "Estimated current market rate in SEK based on experience and location",
+      "optimized": "Recommended optimized rate in SEK based on skills and experience",
+      "explanation": "DETAILED explanation of rate calculation factors and market positioning"
     },
-    "competitiveAdvantages": ["Competitive advantages including personal strengths"],
-    "marketDemand": "Assessment of market demand",
-    "recommendedFocus": "Recommendations considering personal goals"
+    "competitiveAdvantages": ["SPECIFIC advantages this consultant has over competitors"],
+    "marketDemand": "DETAILED assessment of market demand for this profile",
+    "recommendedFocus": "SPECIFIC recommendations for skill development and market positioning"
   },
   "analysisInsights": {
-    "strengths": ["Strengths from CV and personal description"],
-    "developmentAreas": ["Development areas"],
-    "careerTrajectory": "Career path considering personal goals and tagline",
-    "consultingReadiness": "Assessment enhanced by personal context"
+    "strengths": ["SPECIFIC strengths identified from CV analysis"],
+    "developmentAreas": ["SPECIFIC areas for professional development"],
+    "careerTrajectory": "DETAILED analysis of potential career path and growth opportunities",
+    "consultingReadiness": "COMPREHENSIVE assessment of readiness for consulting work with specific reasoning"
   }
-}`;
+}
 
-    console.log('🤖 Calling Google Gemini for analysis...');
+IMPORTANT: 
+- Provide substantive, detailed content in every field
+- Use the personal context to enhance accuracy where available
+- ALL content must be in English
+- Be specific rather than generic in all descriptions
+- Calculate realistic market rates for Swedish consulting market`;
 
-    // Call Google Gemini API
+    console.log('🤖 Calling Google Gemini for enhanced analysis...');
+
+    // Call Google Gemini API with enhanced prompt
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // Increased timeout
 
     let analysis;
     try {
@@ -164,8 +185,8 @@ IMPORTANT INSTRUCTIONS:
             ]
           }],
           generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 4000
+            temperature: 0.2, // Lower temperature for more consistent results
+            maxOutputTokens: 6000 // Increased for more detailed analysis
           }
         }),
         signal: controller.signal
@@ -184,63 +205,39 @@ IMPORTANT INSTRUCTIONS:
 
       try {
         const content = geminiData.candidates[0].content.parts[0].text;
-        console.log('📋 Raw response preview:', content.substring(0, 200));
+        console.log('📋 Raw response preview:', content.substring(0, 300));
         
-        // Clean and parse JSON
+        // Clean and parse JSON more carefully
         let cleanContent = content.trim();
         
+        // Remove markdown formatting
         if (cleanContent.startsWith('```json')) {
           cleanContent = cleanContent.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
         } else if (cleanContent.startsWith('```')) {
           cleanContent = cleanContent.replace(/```\n?/g, '').replace(/```\n?$/g, '');
         }
         
+        // Find JSON boundaries
         const jsonStart = cleanContent.indexOf('{');
         const jsonEnd = cleanContent.lastIndexOf('}') + 1;
         
         if (jsonStart >= 0 && jsonEnd > jsonStart) {
           const jsonStr = cleanContent.substring(jsonStart, jsonEnd);
           analysis = JSON.parse(jsonStr);
-          console.log('✅ Successfully parsed analysis JSON');
+          console.log('✅ Successfully parsed enhanced analysis JSON');
+          
+          // Validate that soft skills are in English
+          if (analysis.softSkills) {
+            console.log('🔍 Validating soft skills language...');
+            console.log('Communication style:', analysis.softSkills.communicationStyle);
+            console.log('Leadership style:', analysis.softSkills.leadershipStyle);
+          }
         } else {
           throw new Error('No valid JSON found in response');
         }
       } catch (parseError) {
         console.error('❌ JSON parsing failed:', parseError);
-        
-        // Provide fallback analysis
-        analysis = {
-          personalInfo: {
-            name: "Professional Consultant",
-            email: "consultant@example.com",
-            phone: "",
-            location: "Sweden"
-          },
-          experience: { years: 5, currentRole: "Senior Consultant", level: "Senior" },
-          skills: { technical: ["Problem Solving"], languages: ["Swedish", "English"], tools: ["Microsoft Office"] },
-          workHistory: [{"role": "Consultant", "company": "Various", "period": "Recent years", "description": "Professional consulting work"}],
-          education: [{"degree": "Professional Education", "school": "University", "year": "2020", "field": "Business"}],
-          softSkills: {
-            communicationStyle: personalTagline ? `Professional communication style influenced by: ${personalTagline}` : "Professional and clear communication",
-            leadershipStyle: "Collaborative leadership approach",
-            workStyle: personalDescription ? `Work style informed by personal goals: ${personalDescription.substring(0, 100)}...` : "Structured and goal-oriented",
-            values: ["Quality", "Reliability", "Innovation"],
-            personalityTraits: ["Analytical", "Dedicated", "Professional"]
-          },
-          scores: { leadership: 4, innovation: 4, adaptability: 4, culturalFit: 4, communication: 4, teamwork: 4 },
-          marketAnalysis: {
-            hourlyRate: { current: 800, optimized: 950, explanation: "Competitive market rate" },
-            competitiveAdvantages: ["Strong experience", "Professional approach"],
-            marketDemand: "Good demand for experienced consultants",
-            recommendedFocus: "Continue developing expertise"
-          },
-          analysisInsights: {
-            strengths: ["Professional experience", "Strong work ethic"],
-            developmentAreas: ["Market positioning"],
-            careerTrajectory: personalTagline ? `Strong potential aligned with: ${personalTagline}` : "Strong potential for senior roles",
-            consultingReadiness: "Well-positioned for consulting opportunities"
-          }
-        };
+        throw new Error('Failed to parse analysis results');
       }
 
     } catch (fetchError) {
@@ -248,7 +245,7 @@ IMPORTANT INSTRUCTIONS:
       throw fetchError;
     }
 
-    // Extract personal info
+    // Extract and validate personal info
     const personalInfo = analysis.personalInfo || {};
     const detectedInfo = {
       names: [personalInfo.name].filter(name => name && name !== 'Not specified' && name !== 'Professional Consultant'),
@@ -275,20 +272,43 @@ IMPORTANT INSTRUCTIONS:
       phone: detectedInfo.phones[0] || '',
       location: personalInfo.location || 'Sweden',
       skills: [...(analysis.skills?.technical || []), ...(analysis.skills?.languages || []), ...(analysis.skills?.tools || [])],
-      experience: `${analysis.experience?.years || 5} years`,
+      experience_years: analysis.experience?.years || 5,
+      title: analysis.experience?.currentRole || 'Consultant',
       roles: [analysis.experience?.currentRole || 'Consultant'],
       availability: 'Available',
-      rate: `${analysis.marketAnalysis?.hourlyRate?.optimized || 950} SEK/h`,
+      hourly_rate: analysis.marketAnalysis?.hourlyRate?.optimized || 950,
       rating: 4.5,
-      cv_analysis: analysis,
-      is_my_consultant: false, // This makes it a network consultant
+      analysis_results: analysis,
+      user_id: null, // Network consultant
       linkedin_url: linkedinUrl,
-      personal_description: personalDescription,
-      personal_tagline: personalTagline,
-      source: 'cv_upload_network'
+      self_description: personalDescription,
+      tagline: personalTagline,
+      source: 'cv_upload_network',
+      is_published: true,
+      market_rate_current: analysis.marketAnalysis?.hourlyRate?.current || 800,
+      market_rate_optimized: analysis.marketAnalysis?.hourlyRate?.optimized || 950,
+      visibility_status: 'public',
+      
+      // Enhanced soft skills mapping
+      communication_style: analysis.softSkills?.communicationStyle || 'Professional communication approach',
+      work_style: analysis.softSkills?.workStyle || 'Structured and goal-oriented work approach',
+      personality_traits: analysis.softSkills?.personalityTraits || ['Professional', 'Dedicated'],
+      values: analysis.softSkills?.values || ['Quality', 'Reliability'],
+      cultural_fit: analysis.scores?.culturalFit || 4,
+      adaptability: analysis.scores?.adaptability || 4,
+      leadership: analysis.scores?.leadership || 3,
+      
+      // Additional fields
+      certifications: [],
+      languages: analysis.skills?.languages || ['English', 'Swedish'],
+      primary_tech_stack: analysis.skills?.technical?.slice(0, 5) || [],
+      secondary_tech_stack: analysis.skills?.tools || [],
+      industries: [],
+      type: 'consultant',
+      last_active: 'Today'
     };
 
-    console.log('💾 Saving network consultant to database...');
+    console.log('💾 Saving enhanced consultant profile to database...');
     
     const { data: savedConsultant, error: saveError } = await supabase
       .from('consultants')
@@ -301,11 +321,12 @@ IMPORTANT INSTRUCTIONS:
       throw new Error(`Failed to save consultant: ${saveError.message}`);
     }
 
-    console.log('✅ Network consultant saved:', savedConsultant.id);
+    console.log('✅ Enhanced consultant profile saved:', savedConsultant.id);
 
-    // Send welcome email
+    // Send welcome email with proper error handling
     try {
-      console.log('📧 Sending welcome email...');
+      console.log('📧 Sending welcome email to:', consultantData.email);
+      console.log('📧 Also sending notification to: marc@matchwise.tech');
       
       const emailResponse = await supabase.functions.invoke('send-welcome-email', {
         body: {
@@ -316,15 +337,32 @@ IMPORTANT INSTRUCTIONS:
       });
 
       if (emailResponse.error) {
-        console.warn('⚠️ Welcome email failed:', emailResponse.error);
+        console.error('❌ Welcome email failed:', emailResponse.error);
       } else {
-        console.log('✅ Welcome email sent successfully');
+        console.log('✅ Welcome email sent successfully to consultant');
       }
+
+      // Send notification to marc@matchwise.tech
+      const adminEmailResponse = await supabase.functions.invoke('send-registration-notification', {
+        body: {
+          consultantName: consultantData.name,
+          consultantEmail: consultantData.email,
+          isMyConsultant: false
+        }
+      });
+
+      if (adminEmailResponse.error) {
+        console.error('❌ Admin notification failed:', adminEmailResponse.error);
+      } else {
+        console.log('✅ Admin notification sent successfully to marc@matchwise.tech');
+      }
+
     } catch (emailError) {
-      console.warn('⚠️ Email sending failed:', emailError);
+      console.error('❌ Email sending failed:', emailError);
+      // Don't throw here - consultant creation succeeded
     }
 
-    console.log('✅ CV analysis and consultant creation completed successfully');
+    console.log('✅ Enhanced CV analysis and consultant creation completed successfully');
 
     return new Response(JSON.stringify({
       success: true,
@@ -337,14 +375,15 @@ IMPORTANT INSTRUCTIONS:
         detectedEmails: detectedInfo.emails.length,
         detectedSkills: analysis.skills?.technical?.length || 0,
         personalDescriptionUsed: !!personalDescription,
-        personalTaglineUsed: !!personalTagline
+        personalTaglineUsed: !!personalTagline,
+        analysisEnhanced: true
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('❌ Parse CV error:', error.message);
+    console.error('❌ Enhanced parse CV error:', error.message);
     
     return new Response(JSON.stringify({
       success: false,
