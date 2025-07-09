@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { UnifiedCVUpload } from '../cv-upload/UnifiedCVUpload';
+import { ConsultantFullAnalysisModal } from '@/components/ConsultantFullAnalysisModal';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ConsultantsSectionProps {
@@ -30,6 +30,8 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<'all' | 'my' | 'network'>('all');
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
+  const [showFullAnalysisModal, setShowFullAnalysisModal] = useState(false);
 
   // Separate consultants by type
   const myTeamConsultants = consultants.filter(c => c.type === 'existing' || c.type === 'my');
@@ -95,6 +97,12 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
     setTimeout(() => {
       window.location.reload();
     }, 1000);
+  };
+
+  const handleViewProfile = (consultant: Consultant) => {
+    console.log('👤 Opening full profile for consultant:', consultant.name);
+    setSelectedConsultant(consultant);
+    setShowFullAnalysisModal(true);
   };
 
   return (
@@ -291,7 +299,10 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
                       </Button>
                     </>
                   )}
-                  <Button size="sm">
+                  <Button 
+                    size="sm"
+                    onClick={() => handleViewProfile(consultant)}
+                  >
                     <Eye className="h-4 w-4 mr-1" />
                     View Profile
                   </Button>
@@ -323,6 +334,15 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
           />
         </DialogContent>
       </Dialog>
+
+      {/* Full Analysis Modal */}
+      {selectedConsultant && (
+        <ConsultantFullAnalysisModal
+          consultant={selectedConsultant}
+          isOpen={showFullAnalysisModal}
+          onClose={() => setShowFullAnalysisModal(false)}
+        />
+      )}
     </div>
   );
 };
