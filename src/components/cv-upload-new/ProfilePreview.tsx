@@ -24,8 +24,13 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
 
   const handleSave = () => {
     setIsEditing(false);
-    // Update the analysis data with edited values
+    // Update the analysis data with edited values, including the updated email
     Object.assign(analysisData, editedData);
+    
+    // Specifically ensure the email change is reflected in personalInfo
+    if (editedData.personalInfo?.email) {
+      analysisData.personalInfo.email = editedData.personalInfo.email;
+    }
   };
 
   const handleCancel = () => {
