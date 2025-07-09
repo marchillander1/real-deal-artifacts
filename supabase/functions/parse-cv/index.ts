@@ -63,9 +63,11 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    // Create enhanced analysis prompt with detailed instructions
+    // Create comprehensive career coaching analysis prompt
     const analysisPrompt = `
-You are an expert HR consultant and career analyst. Analyze this CV/resume extremely thoroughly and provide a comprehensive analysis.
+You are an AI career coach built into MatchWise.tech, an AI-powered consultant matching platform specializing in IT freelancers and consultants.
+
+Your role is to help IT freelancers and consultants understand and act on their AI-generated profile analysis to maximize their career potential and market value.
 
 ${personalDescription ? `
 PERSONAL CONTEXT FROM CONSULTANT: "${personalDescription}"
@@ -79,12 +81,13 @@ This represents their professional identity and career aspirations.
 
 CRITICAL REQUIREMENTS:
 - ALL TEXT MUST BE IN ENGLISH ONLY - no Swedish, no other languages
-- Provide DETAILED analysis in each section - not generic descriptions
+- Provide DETAILED career coaching insights in each section
 - Extract ALL available information from the CV
-- Use personal context to enhance insights where provided
+- Use personal context to enhance career development recommendations
+- Focus on actionable career advice and market positioning
 - Return ONLY valid JSON without markdown formatting
 
-DETAILED JSON STRUCTURE REQUIRED:
+COMPREHENSIVE CAREER ANALYSIS JSON STRUCTURE:
 
 {
   "personalInfo": {
@@ -119,12 +122,23 @@ DETAILED JSON STRUCTURE REQUIRED:
       "field": "Field of study"
     }
   ],
+  "certifications": ["All professional certifications and credentials mentioned"],
+  "suggestedLearningPaths": [
+    {
+      "path": "Technology/skill area to focus on",
+      "reasoning": "Why this learning path will advance their career",
+      "timeframe": "Recommended timeframe for completion",
+      "priority": "High/Medium/Low based on market demand and career goals"
+    }
+  ],
   "softSkills": {
     "communicationStyle": "DETAILED assessment of communication approach based on CV content and personal context - IN ENGLISH",
     "leadershipStyle": "DETAILED analysis of leadership qualities and management approach - IN ENGLISH", 
     "workStyle": "DETAILED description of work methodology and approach - IN ENGLISH",
-    "values": ["Core professional values extracted from CV and context - IN ENGLISH"],
-    "personalityTraits": ["Personality characteristics based on CV analysis - IN ENGLISH"]
+    "personalityTraits": ["Personality characteristics based on CV analysis - IN ENGLISH"],
+    "toneOfVoice": "Professional tone and communication style assessment - IN ENGLISH",
+    "thoughtLeadershipScore": "Rate 1-10 based on publications, speaking, thought leadership activities",
+    "values": ["Core professional values extracted from CV and context - IN ENGLISH"]
   },
   "scores": {
     "leadership": "Rate 1-5 based on management experience and leadership indicators",
@@ -144,26 +158,51 @@ DETAILED JSON STRUCTURE REQUIRED:
     "marketDemand": "DETAILED assessment of market demand for this profile",
     "recommendedFocus": "SPECIFIC recommendations for skill development and market positioning"
   },
+  "careerCoaching": {
+    "cvOptimizationTips": [
+      "Specific actionable tips to improve CV presentation and impact",
+      "Focus on quantifiable achievements and results",
+      "Industry-specific keyword optimization recommendations"
+    ],
+    "careerTrajectory": "DETAILED analysis of potential career path and growth opportunities",
+    "consultingReadiness": "COMPREHENSIVE assessment of readiness for consulting work with specific reasoning",
+    "brandingRecommendations": [
+      "Personal brand development suggestions",
+      "Professional positioning strategies",
+      "Thought leadership opportunities"
+    ],
+    "networkingStrategy": "Recommendations for building professional network and visibility"
+  },
   "analysisInsights": {
     "strengths": ["SPECIFIC strengths identified from CV analysis"],
-    "developmentAreas": ["SPECIFIC areas for professional development"],
-    "careerTrajectory": "DETAILED analysis of potential career path and growth opportunities",
-    "consultingReadiness": "COMPREHENSIVE assessment of readiness for consulting work with specific reasoning"
+    "developmentAreas": ["SPECIFIC areas for professional development with actionable steps"],
+    "uniqueValueProposition": "What makes this consultant stand out in the market",
+    "riskFactors": ["Potential career risks or gaps to address"],
+    "opportunityAreas": ["Market opportunities this consultant should pursue"]
   }
 }
+
+COACHING FOCUS AREAS:
+- Provide actionable career development advice
+- Identify specific skill gaps and learning opportunities  
+- Assess market positioning and competitive advantages
+- Recommend concrete steps for career advancement
+- Evaluate consulting readiness and specialization potential
+- Suggest personal branding and thought leadership strategies
 
 IMPORTANT: 
 - Provide substantive, detailed content in every field
 - Use the personal context to enhance accuracy where available
 - ALL content must be in English
 - Be specific rather than generic in all descriptions
-- Calculate realistic market rates for Swedish consulting market`;
+- Calculate realistic market rates for Swedish consulting market
+- Focus on actionable career coaching insights`;
 
-    console.log('🤖 Calling Google Gemini for enhanced analysis...');
+    console.log('🤖 Calling Google Gemini for comprehensive career analysis...');
 
-    // Call Google Gemini API with enhanced prompt
+    // Call Google Gemini API with enhanced career coaching prompt
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // Increased timeout
+    const timeoutId = setTimeout(() => controller.abort(), 50000); // Increased timeout for comprehensive analysis
 
     let analysis;
     try {
@@ -185,8 +224,8 @@ IMPORTANT:
             ]
           }],
           generationConfig: {
-            temperature: 0.2, // Lower temperature for more consistent results
-            maxOutputTokens: 6000 // Increased for more detailed analysis
+            temperature: 0.2, // Lower temperature for more consistent career advice
+            maxOutputTokens: 8000 // Increased for comprehensive career analysis
           }
         }),
         signal: controller.signal
@@ -224,20 +263,21 @@ IMPORTANT:
         if (jsonStart >= 0 && jsonEnd > jsonStart) {
           const jsonStr = cleanContent.substring(jsonStart, jsonEnd);
           analysis = JSON.parse(jsonStr);
-          console.log('✅ Successfully parsed enhanced analysis JSON');
+          console.log('✅ Successfully parsed comprehensive career analysis JSON');
           
           // Validate that soft skills are in English
           if (analysis.softSkills) {
-            console.log('🔍 Validating soft skills language...');
+            console.log('🔍 Validating career coaching content language...');
             console.log('Communication style:', analysis.softSkills.communicationStyle);
             console.log('Leadership style:', analysis.softSkills.leadershipStyle);
+            console.log('CV optimization tips:', analysis.careerCoaching?.cvOptimizationTips);
           }
         } else {
           throw new Error('No valid JSON found in response');
         }
       } catch (parseError) {
         console.error('❌ JSON parsing failed:', parseError);
-        throw new Error('Failed to parse analysis results');
+        throw new Error('Failed to parse career analysis results');
       }
 
     } catch (fetchError) {
@@ -265,7 +305,7 @@ IMPORTANT:
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Save consultant to database as network consultant
+    // Save consultant to database as network consultant with career coaching data
     const consultantData = {
       name: detectedInfo.names[0] || personalInfo.name || 'Network Consultant',
       email: detectedInfo.emails[0] || personalInfo.email || 'temp@example.com',
@@ -289,7 +329,7 @@ IMPORTANT:
       market_rate_optimized: analysis.marketAnalysis?.hourlyRate?.optimized || 950,
       visibility_status: 'public',
       
-      // Enhanced soft skills mapping
+      // Enhanced soft skills mapping from career coaching analysis
       communication_style: analysis.softSkills?.communicationStyle || 'Professional communication approach',
       work_style: analysis.softSkills?.workStyle || 'Structured and goal-oriented work approach',
       personality_traits: analysis.softSkills?.personalityTraits || ['Professional', 'Dedicated'],
@@ -298,8 +338,14 @@ IMPORTANT:
       adaptability: analysis.scores?.adaptability || 4,
       leadership: analysis.scores?.leadership || 3,
       
+      // Career coaching specific fields
+      certifications: analysis.certifications || [],
+      suggested_learning_paths: analysis.suggestedLearningPaths?.map(path => path.path) || [],
+      cv_tips: analysis.careerCoaching?.cvOptimizationTips || [],
+      tone_of_voice: analysis.softSkills?.toneOfVoice || 'Professional and collaborative',
+      thought_leadership_score: analysis.softSkills?.thoughtLeadershipScore || 5,
+      
       // Additional fields
-      certifications: [],
       languages: analysis.skills?.languages || ['English', 'Swedish'],
       primary_tech_stack: analysis.skills?.technical?.slice(0, 5) || [],
       secondary_tech_stack: analysis.skills?.tools || [],
@@ -308,7 +354,7 @@ IMPORTANT:
       last_active: 'Today'
     };
 
-    console.log('💾 Saving enhanced consultant profile to database...');
+    console.log('💾 Saving comprehensive career analysis to database...');
     
     const { data: savedConsultant, error: saveError } = await supabase
       .from('consultants')
@@ -321,7 +367,7 @@ IMPORTANT:
       throw new Error(`Failed to save consultant: ${saveError.message}`);
     }
 
-    console.log('✅ Enhanced consultant profile saved:', savedConsultant.id);
+    console.log('✅ Comprehensive career analysis saved:', savedConsultant.id);
 
     // Send welcome email with proper error handling
     try {
@@ -362,7 +408,7 @@ IMPORTANT:
       // Don't throw here - consultant creation succeeded
     }
 
-    console.log('✅ Enhanced CV analysis and consultant creation completed successfully');
+    console.log('✅ Comprehensive career coaching analysis completed successfully');
 
     return new Response(JSON.stringify({
       success: true,
@@ -376,6 +422,7 @@ IMPORTANT:
         detectedSkills: analysis.skills?.technical?.length || 0,
         personalDescriptionUsed: !!personalDescription,
         personalTaglineUsed: !!personalTagline,
+        careerCoachingAnalysis: true,
         analysisEnhanced: true
       }
     }), {
@@ -383,7 +430,7 @@ IMPORTANT:
     });
 
   } catch (error) {
-    console.error('❌ Enhanced parse CV error:', error.message);
+    console.error('❌ Enhanced career coaching analysis error:', error.message);
     
     return new Response(JSON.stringify({
       success: false,
