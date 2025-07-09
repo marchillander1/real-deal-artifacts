@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { CVParser } from './CVParser';
-import { LinkedInAnalyzer } from './LinkedInAnalyzer';
+import { CVParser } from '../cv-analysis/CVParser';
+import { LinkedInAnalyzer } from '../cv-analysis/LinkedInAnalyzer';
 import { ConsultantService } from '../database/ConsultantService';
 import { EmailService } from '../email/EmailService';
 import { NavigationService } from '../routing/NavigationService';
