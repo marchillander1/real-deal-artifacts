@@ -4,6 +4,7 @@ import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWi
 import { useRealTimeTeamNotifications } from '@/hooks/useRealTimeTeamNotifications';
 import { useFavoritesAndNotes } from '@/hooks/useFavoritesAndNotes';
 import { ConsultantAnalysisModal } from '@/components/ConsultantAnalysisModal';
+import { ConsultantFullAnalysisModal } from '@/components/ConsultantFullAnalysisModal';
 import { ConsultantStats } from '@/components/consultant/ConsultantStats';
 import { ConsultantFilters } from '@/components/consultant/ConsultantFilters';
 import { ConsultantGrid } from '@/components/consultant/ConsultantGrid';
@@ -39,6 +40,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [showFullAnalysisModal, setShowFullAnalysisModal] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [notesDialogConsultant, setNotesDialogConsultant] = useState<Consultant | null>(null);
   const { toast } = useToast();
@@ -81,6 +83,12 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
     console.log('🔍 Opening analysis for consultant:', consultant.name);
     setSelectedConsultant(consultant);
     setShowAnalysisModal(true);
+  };
+
+  const handleViewProfile = (consultant: Consultant) => {
+    console.log('👤 Opening full profile for consultant:', consultant.name);
+    setSelectedConsultant(consultant);
+    setShowFullAnalysisModal(true);
   };
 
   const handleOpenNotes = (consultant: Consultant) => {
@@ -197,6 +205,7 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
             <Button
               size="sm"
               variant="outline"
+              onClick={() => handleViewProfile(consultant)}
               className="flex-1 text-xs"
             >
               <Eye className="h-3 w-3 mr-1" />
@@ -338,6 +347,15 @@ export const ConsultantsTab: React.FC<ConsultantsTabProps> = ({
           consultant={selectedConsultant}
           isOpen={showAnalysisModal}
           onClose={() => setShowAnalysisModal(false)}
+        />
+      )}
+
+      {/* Full Analysis Modal */}
+      {selectedConsultant && (
+        <ConsultantFullAnalysisModal
+          consultant={selectedConsultant}
+          isOpen={showFullAnalysisModal}
+          onClose={() => setShowFullAnalysisModal(false)}
         />
       )}
 
