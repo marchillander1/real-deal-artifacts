@@ -61,6 +61,10 @@ export interface Consultant {
   user_id?: string;
   company_id?: string;
   
+  // Company contact fields (when consultant is uploaded by company)
+  contactPerson?: string;
+  isCompanyConsultant?: boolean;
+  
   // Additional fields
   industries?: string[];
 }

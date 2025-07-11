@@ -14,6 +14,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { CompanyContactDisplay } from '@/components/CompanyContactDisplay';
 
 interface ProfileOverviewProps {
   consultant: any;
@@ -94,40 +95,37 @@ export const ProfileOverview: React.FC<ProfileOverviewProps> = ({
               Kontaktinformation
             </h3>
             <div className="space-y-3">
-              {canViewContactInfo ? (
-                <>
-                  <div className="flex items-center">
-                    <Mail className="h-4 w-4 text-gray-500 mr-3" />
-                    <span>{consultant.email}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Phone className="h-4 w-4 text-gray-500 mr-3" />
-                    <span>{consultant.phone}</span>
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center text-gray-500">
-                  <Mail className="h-4 w-4 mr-3" />
-                  <span className="italic">Kontaktuppgifter döljs för allmänheten</span>
-                </div>
-              )}
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 text-gray-500 mr-3" />
-                <span>{consultant.location}</span>
-              </div>
-              {consultant.linkedin_url && (
+            {canViewContactInfo ? (
+              <div className="space-y-3">
                 <div className="flex items-center">
-                  <Globe className="h-4 w-4 text-gray-500 mr-3" />
-                  <a 
-                    href={consultant.linkedin_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    LinkedIn Profil
-                  </a>
+                  <Mail className="h-4 w-4 text-gray-500 mr-3" />
+                  <span>{consultant.email}</span>
                 </div>
-              )}
+                <div className="flex items-center">
+                  <Phone className="h-4 w-4 text-gray-500 mr-3" />
+                  <span>{consultant.phone}</span>
+                </div>
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 text-gray-500 mr-3" />
+                  <span>{consultant.location}</span>
+                </div>
+                {consultant.linkedin_url && (
+                  <div className="flex items-center">
+                    <Globe className="h-4 w-4 text-gray-500 mr-3" />
+                    <a 
+                      href={consultant.linkedin_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      LinkedIn Profil
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <CompanyContactDisplay consultant={consultant} />
+            )}
             </div>
           </div>
 

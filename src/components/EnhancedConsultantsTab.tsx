@@ -21,6 +21,7 @@ import { Consultant } from '@/types/consultant';
 import { useNavigate } from 'react-router-dom';
 import { ConsultantAnalysisModal } from './ConsultantAnalysisModal';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export const EnhancedConsultantsTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,8 +32,11 @@ export const EnhancedConsultantsTab: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Filter consultants to hide email and phone from non-company users
+  // Filter consultants to handle contact information properly
   const filterSensitiveData = (consultant: Consultant): Consultant => {
+    // If consultant has company_id, we'll show company contact instead of consultant's personal contact
+    // This will be handled in the UI display, not here to avoid async complexity
+    
     // If consultant has no company_id or user_id, it's a demo/network consultant - hide contact info
     if (!consultant.company_id && !consultant.user_id) {
       return {
@@ -45,6 +49,16 @@ export const EnhancedConsultantsTab: React.FC = () => {
     // If the current user is the same as consultant's user_id, show all data
     if (user?.id === consultant.user_id) {
       return consultant;
+    }
+    
+    // For company consultants (has company_id), show placeholder indicating company contact
+    if (consultant.company_id) {
+      return {
+        ...consultant,
+        email: 'Kontakta via företag',
+        phone: 'Kontakta via företag',
+        isCompanyConsultant: true
+      };
     }
     
     // Otherwise, hide sensitive contact information
