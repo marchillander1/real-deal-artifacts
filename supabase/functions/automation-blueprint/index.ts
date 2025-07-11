@@ -25,48 +25,49 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY not configured');
     }
 
-    const prompt = `Du är en expert på automation och processoptimering. Skapa en detaljerad automation blueprint baserat på följande information:
+    const prompt = `You are an automation and process optimization expert. Create a detailed automation blueprint based on the following information:
 
-**Beskrivning:** ${automationData.description}
+**Description:** ${automationData.description}
 **Trigger:** ${automationData.trigger}
-**Steg:** ${automationData.steps}
-**System:** ${automationData.systems}
-**Felhantering:** ${automationData.errorHandling}
-**Förväntat resultat:** ${automationData.output}
-${automationData.notifications ? `**Notifieringar:** ${automationData.notifications}` : ''}
-${automationData.conditions ? `**Villkor:** ${automationData.conditions}` : ''}
+**Steps:** ${automationData.steps}
+**Systems:** ${automationData.systems}
+**Error Handling:** ${automationData.errorHandling}
+**Expected Output:** ${automationData.output}
+${automationData.notifications ? `**Notifications:** ${automationData.notifications}` : ''}
+${automationData.conditions ? `**Conditions:** ${automationData.conditions}` : ''}
 
-Skapa en strukturerad analys på svenska med följande format:
+Create a structured analysis in English with the following format:
 
 ## 🎯 AUTOMATION BLUEPRINT
 
-### Sammanfattning
-[Kort beskrivning av automationen och dess värde]
+### Executive Summary
+[Brief description of the automation and its value proposition]
 
-### 🔍 Procesanalys
-**Nuvarande situation:** [Analysera nuvarande process]
-**Automation potential:** [Vad som kan automatiseras]
+### 🔍 Process Analysis
+**Current State:** [Analyze the current manual process]
+**Automation Potential:** [What can be automated and feasibility assessment]
 
-### ⚙️ Teknisk Implementation
-**Verktyg:** [Konkreta verktyg som Zapier, Make, Power Automate]
-**Steg-för-steg:**
-1. [Specifikt steg 1]
-2. [Specifikt steg 2]
-3. [Specifikt steg 3]
+### ⚙️ Technical Approach
+**Implementation Strategy:** [High-level approach without specific tool names]
+**Key Components:**
+1. [Specific component 1]
+2. [Specific component 2]
+3. [Specific component 3]
 
-### 📊 Förväntad ROI
-**Tidsbesparingar:** [Uppskattning per vecka/månad]
-**Kvalitetsförbättringar:** [Mindre fel, snabbare processing]
+### 📊 Expected Benefits
+**Time Savings:** [Estimate per week/month]
+**Quality Improvements:** [Reduced errors, faster processing]
+**Scalability:** [How this improves as volume grows]
 
-### 🚀 Implementation Plan
-**Fas 1:** [Första konkreta steg]
-**Fas 2:** [Nästa konkreta steg]
-**Uppskattat genomförande:** [Tidsram]
+### 🚀 Implementation Roadmap
+**Phase 1:** [First concrete steps]
+**Phase 2:** [Next concrete steps]
+**Estimated Timeline:** [Timeframe for completion]
 
-### 🎯 Nästa Steg
-[3-5 konkreta åtgärder för att komma igång]
+### 🎯 Next Actions
+[3-5 concrete actionable steps to get started]
 
-Var specifik och praktisk. Fokusera på konkreta verktyg och åtgärder.`;
+Be specific and practical. Focus on feasibility and actionable insights rather than specific tools.`;
 
     console.log('Calling Gemini API...');
     
@@ -123,37 +124,37 @@ Var specifik och praktisk. Fokusera på konkreta verktyg och åtgärder.`;
     // Return a fallback response if API fails
     const fallbackBlueprint = `## 🎯 AUTOMATION BLUEPRINT
 
-### Sammanfattning
-Baserat på din beskrivning "${automationData?.description || 'automation'}" har vi identifierat flera möjligheter för automation.
+### Executive Summary
+Based on your description "${automationData?.description || 'automation'}", we have identified several automation opportunities.
 
-### 🔍 Procesanalys
-**Nuvarande situation:** Manuella processer som tar tid och kan innehålla fel
-**Automation potential:** Genom automation kan vi eliminera repetitiva uppgifter
+### 🔍 Process Analysis
+**Current State:** Manual processes that consume time and may contain errors
+**Automation Potential:** Through automation, we can eliminate repetitive tasks
 
-### ⚙️ Teknisk Implementation
-**Verktyg:** Zapier, Microsoft Power Automate, eller Make (tidigare Integromat)
-**Steg-för-steg:**
-1. Konfigurera triggers baserat på dina specificationer
-2. Sätt upp åtgärder och integrationer
-3. Testa och verifiera flödet
+### ⚙️ Technical Approach
+**Implementation Strategy:** Workflow automation using integration platforms
+**Key Components:**
+1. Configure triggers based on your specifications
+2. Set up actions and integrations
+3. Test and verify the workflow
 
-### 📊 Förväntad ROI
-**Tidsbesparingar:** Uppskattningsvis 2-5 timmar per vecka
-**Kvalitetsförbättringar:** Minskade fel och snabbare processning
+### 📊 Expected Benefits
+**Time Savings:** Estimated 2-5 hours per week
+**Quality Improvements:** Reduced errors and faster processing
 
-### 🚀 Implementation Plan
-**Fas 1:** Pilotprojekt med grundläggande automation
-**Fas 2:** Utöka med fler integrationer
-**Uppskattat genomförande:** 2-4 veckor
+### 🚀 Implementation Roadmap
+**Phase 1:** Pilot project with basic automation
+**Phase 2:** Expand with additional integrations
+**Estimated Timeline:** 2-4 weeks
 
-### 🎯 Nästa Steg
-1. Välj automation-plattform (rekommenderar Zapier för enkelhet)
-2. Kartlägg exakta triggers och åtgärder
-3. Sätt upp ett testflöde
-4. Testa och iterera
-5. Lansera i produktion
+### 🎯 Next Actions
+1. Choose an automation platform
+2. Map exact triggers and actions
+3. Set up a test workflow
+4. Test and iterate
+5. Launch into production
 
-*Observera: Detta är en förenklad analys då AI-tjänsten inte var tillgänglig.*`;
+*Note: This is a simplified analysis as the AI service was not available.*`;
 
     return new Response(JSON.stringify({ 
       blueprint: fallbackBlueprint,
