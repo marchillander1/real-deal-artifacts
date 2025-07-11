@@ -124,81 +124,81 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-gray-200">
         <DialogHeader>
-          <DialogTitle className="text-white">Edit Consultant Profile</DialogTitle>
+          <DialogTitle className="text-gray-900">Edit Consultant Profile</DialogTitle>
         </DialogHeader>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Basic Information */}
-          <Card className="bg-slate-700/50 border-slate-600">
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-white">Basic Information</h3>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="p-4 space-y-4">
+              <h3 className="font-semibold text-gray-900">Basic Information</h3>
               
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-white">Full Name *</Label>
+                <Label htmlFor="name" className="text-gray-700">Full Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-white">Job Title</Label>
+                <Label htmlFor="title" className="text-gray-700">Job Title</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email *</Label>
+                <Label htmlFor="email" className="text-gray-700">Email *</Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-white">Phone</Label>
+                <Label htmlFor="phone" className="text-gray-700">Phone</Label>
                 <Input
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location" className="text-white">Location</Label>
+                <Label htmlFor="location" className="text-gray-700">Location</Label>
                 <Input
                   id="location"
                   value={formData.location}
                   onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Professional Details */}
-          <Card className="bg-slate-700/50 border-slate-600">
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-white">Professional Details</h3>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="p-4 space-y-4">
+              <h3 className="font-semibold text-gray-900">Professional Details</h3>
               
               <div className="space-y-2">
-                <Label htmlFor="availability" className="text-white">Availability</Label>
+                <Label htmlFor="availability" className="text-gray-700">Availability</Label>
                 <Select value={formData.availability} onValueChange={(value) => setFormData({...formData, availability: value})}>
-                  <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                  <SelectTrigger className="bg-white border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -210,42 +210,42 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="hourly_rate" className="text-white">Hourly Rate (SEK)</Label>
+                <Label htmlFor="hourly_rate" className="text-gray-700">Hourly Rate (SEK)</Label>
                 <Input
                   id="hourly_rate"
                   type="number"
                   value={formData.hourly_rate}
                   onChange={(e) => setFormData({...formData, hourly_rate: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="experience_years" className="text-white">Years of Experience</Label>
+                <Label htmlFor="experience_years" className="text-gray-700">Years of Experience</Label>
                 <Input
                   id="experience_years"
                   type="number"
                   value={formData.experience_years}
                   onChange={(e) => setFormData({...formData, experience_years: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tagline" className="text-white">Professional Tagline</Label>
+                <Label htmlFor="tagline" className="text-gray-700">Professional Tagline</Label>
                 <Textarea
                   id="tagline"
                   value={formData.tagline}
                   onChange={(e) => setFormData({...formData, tagline: e.target.value})}
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="visibility" className="text-white">Visibility</Label>
+                <Label htmlFor="visibility" className="text-gray-700">Visibility</Label>
                 <Select value={formData.visibility_status} onValueChange={(value) => setFormData({...formData, visibility_status: value})}>
-                  <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                  <SelectTrigger className="bg-white border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -254,20 +254,20 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Skills */}
-          <Card className="bg-slate-700/50 border-slate-600">
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-white">Skills</h3>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="p-4 space-y-4">
+              <h3 className="font-semibold text-gray-900">Skills</h3>
               
               <div className="flex gap-2">
                 <Input
                   value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
                   placeholder="Add skill"
-                  className="bg-slate-600 border-slate-500 text-white"
+                  className="bg-white border-gray-300"
                   onKeyPress={(e) => e.key === 'Enter' && addItem('skills', newSkill)}
                 />
                 <Button
@@ -281,7 +281,7 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
 
               <div className="flex flex-wrap gap-2">
                 {formData.skills.map((skill, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1 bg-blue-50 text-blue-700 border-blue-200">
                     {skill}
                     <X 
                       className="h-3 w-3 cursor-pointer" 
@@ -290,22 +290,22 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
                   </Badge>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Certifications & Languages */}
-          <Card className="bg-slate-700/50 border-slate-600">
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-white">Certifications & Languages</h3>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="p-4 space-y-4">
+              <h3 className="font-semibold text-gray-900">Certifications & Languages</h3>
               
               <div>
-                <Label className="text-white">Certifications</Label>
+                <Label className="text-gray-700">Certifications</Label>
                 <div className="flex gap-2 mt-2">
                   <Input
                     value={newCertification}
                     onChange={(e) => setNewCertification(e.target.value)}
                     placeholder="Add certification"
-                    className="bg-slate-600 border-slate-500 text-white"
+                    className="bg-white border-gray-300"
                     onKeyPress={(e) => e.key === 'Enter' && addItem('certifications', newCertification)}
                   />
                   <Button
@@ -318,7 +318,7 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {formData.certifications.map((cert, index) => (
-                    <Badge key={index} variant="outline" className="flex items-center gap-1">
+                    <Badge key={index} variant="outline" className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border-emerald-200">
                       {cert}
                       <X 
                         className="h-3 w-3 cursor-pointer" 
@@ -330,13 +330,13 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
               </div>
 
               <div>
-                <Label className="text-white">Languages</Label>
+                <Label className="text-gray-700">Languages</Label>
                 <div className="flex gap-2 mt-2">
                   <Input
                     value={newLanguage}
                     onChange={(e) => setNewLanguage(e.target.value)}
                     placeholder="Add language"
-                    className="bg-slate-600 border-slate-500 text-white"
+                    className="bg-white border-gray-300"
                     onKeyPress={(e) => e.key === 'Enter' && addItem('languages', newLanguage)}
                   />
                   <Button
@@ -349,7 +349,7 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {formData.languages.map((lang, index) => (
-                    <Badge key={index} variant="outline" className="flex items-center gap-1">
+                    <Badge key={index} variant="outline" className="flex items-center gap-1 bg-purple-50 text-purple-700 border-purple-200">
                       {lang}
                       <X 
                         className="h-3 w-3 cursor-pointer" 
@@ -359,12 +359,12 @@ export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
                   ))}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-700">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="text-white border-slate-600">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={loading}>

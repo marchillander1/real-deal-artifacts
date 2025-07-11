@@ -79,44 +79,48 @@ export const CompanyConsultantsList: React.FC<CompanyConsultantsListProps> = ({
 
   if (consultants.length === 0) {
     return (
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-12 text-center">
-          <Users className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">No consultants yet</h3>
-          <p className="text-slate-400 mb-6">Upload your first consultant CVs to get started</p>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-12 text-center">
+          <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No consultants yet</h3>
+          <p className="text-gray-600 mb-6">Upload your first consultant CVs to get started</p>
           <Button onClick={() => window.location.reload()}>
             Refresh
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">Your Consultants</h2>
-        <div className="text-slate-400">
+        <h2 className="text-2xl font-bold text-gray-900">Your Consultants</h2>
+        <div className="text-gray-600">
           {consultants.filter(c => c.is_published).length} of {consultants.length} published
         </div>
       </div>
 
       <div className="grid gap-6">
         {consultants.map((consultant) => (
-          <Card key={consultant.id} className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+          <div key={consultant.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold text-white">{consultant.name}</h3>
-                    <Badge variant={consultant.is_published ? "default" : "secondary"}>
+                    <h3 className="text-xl font-semibold text-gray-900">{consultant.name}</h3>
+                    <Badge variant={consultant.is_published ? "default" : "secondary"} className={
+                      consultant.is_published 
+                        ? "bg-emerald-100 text-emerald-800 border-emerald-200" 
+                        : "bg-gray-100 text-gray-800 border-gray-200"
+                    }>
                       {consultant.is_published ? "Published" : "Private"}
                     </Badge>
                   </div>
                   
-                  <p className="text-slate-300 mb-2">{consultant.title}</p>
+                  <p className="text-gray-700 mb-2">{consultant.title}</p>
                   
-                  <div className="flex flex-wrap gap-4 text-sm text-slate-400 mb-3">
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
                     {consultant.location && (
                       <span className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
@@ -149,12 +153,12 @@ export const CompanyConsultantsList: React.FC<CompanyConsultantsListProps> = ({
                     <div className="mb-3">
                       <div className="flex flex-wrap gap-2">
                         {consultant.skills.slice(0, 5).map((skill: string, index: number) => (
-                          <Badge key={index} variant="outline" className="text-xs">
+                          <Badge key={index} variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
                             {skill}
                           </Badge>
                         ))}
                         {consultant.skills.length > 5 && (
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
                             +{consultant.skills.length - 5} more
                           </Badge>
                         )}
@@ -168,7 +172,6 @@ export const CompanyConsultantsList: React.FC<CompanyConsultantsListProps> = ({
                     onClick={() => handleEditConsultant(consultant)}
                     variant="outline"
                     size="sm"
-                    className="text-white border-slate-600"
                   >
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
@@ -178,7 +181,6 @@ export const CompanyConsultantsList: React.FC<CompanyConsultantsListProps> = ({
                     onClick={() => handleDownloadProfile(consultant)}
                     variant="outline"
                     size="sm"
-                    className="text-white border-slate-600"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download
@@ -187,34 +189,34 @@ export const CompanyConsultantsList: React.FC<CompanyConsultantsListProps> = ({
               </div>
 
               {/* Publish Toggle */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                 <div className="flex items-center gap-3">
                   <Switch
                     id={`publish-${consultant.id}`}
                     checked={consultant.is_published}
                     onCheckedChange={() => togglePublishStatus(consultant)}
                   />
-                  <Label htmlFor={`publish-${consultant.id}`} className="text-white flex items-center gap-2">
+                  <Label htmlFor={`publish-${consultant.id}`} className="text-gray-700 flex items-center gap-2">
                     {consultant.is_published ? (
                       <>
-                        <Globe className="h-4 w-4 text-emerald-400" />
+                        <Globe className="h-4 w-4 text-emerald-600" />
                         Published to Network
                       </>
                     ) : (
                       <>
-                        <EyeOff className="h-4 w-4 text-slate-400" />
+                        <EyeOff className="h-4 w-4 text-gray-500" />
                         Private (Internal Only)
                       </>
                     )}
                   </Label>
                 </div>
 
-                <div className="text-sm text-slate-400">
+                <div className="text-sm text-gray-500">
                   Updated {new Date(consultant.updated_at).toLocaleDateString()}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
