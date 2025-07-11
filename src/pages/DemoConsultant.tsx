@@ -39,7 +39,7 @@ export default function DemoConsultant() {
     phone: '',
     personal_tagline: '',
     rate_preference: '',
-    availability: 'Tillgänglig',
+    availability: 'Available',
     skills: [] as string[],
     certifications: [] as string[]
   });
@@ -71,7 +71,7 @@ export default function DemoConsultant() {
           phone: consultantData.phone || '',
           personal_tagline: consultantData.tagline || '',
           rate_preference: consultantData.hourly_rate?.toString() || '',
-          availability: consultantData.availability || 'Tillgänglig',
+          availability: consultantData.availability || 'Available',
           skills: consultantData.skills || [],
           certifications: consultantData.certifications || []
         });
@@ -79,8 +79,8 @@ export default function DemoConsultant() {
     } catch (error) {
       console.error('Error loading demo consultant:', error);
       toast({
-        title: "Demo data ej tillgänglig",
-        description: "Kunde inte ladda demo-konsulten.",
+        title: "Demo data not available",
+        description: "Could not load demo consultant.",
         variant: "destructive",
       });
     } finally {
@@ -91,17 +91,17 @@ export default function DemoConsultant() {
   const handleSaveChanges = () => {
     toast({
       title: "Demo Mode",
-      description: "I demo-läget sparas inga ändringar permanent.",
+      description: "No changes are saved permanently in demo mode.",
     });
   };
 
   const handleToggleVisibility = () => {
     setIsPublished(!isPublished);
     toast({
-      title: isPublished ? "Profil dold (Demo)" : "Profil publicerad (Demo)",
+      title: isPublished ? "Profile Hidden (Demo)" : "Profile Published (Demo)",
       description: isPublished 
-        ? "I riktig användning skulle din profil nu vara dold" 
-        : "I riktig användning skulle din profil nu vara synlig i MatchWise-nätverket",
+        ? "In real usage, your profile would now be hidden" 
+        : "In real usage, your profile would now be visible in the MatchWise network",
     });
   };
 
@@ -155,17 +155,17 @@ export default function DemoConsultant() {
           <div className="flex items-center space-x-4">
             <Logo size="md" variant="full" />
             <Badge className="bg-blue-600/20 text-blue-600 border-blue-500/30">
-              Demo - Konsult Vy
+              Demo - Consultant View
             </Badge>
           </div>
-          <h1 className="text-xl font-semibold">Min Profil (Demo)</h1>
+          <h1 className="text-xl font-semibold">My Profile (Demo)</h1>
           <Link to="/">
             <Button 
               variant="outline" 
               className="border-slate-300 text-slate-700 hover:bg-slate-50 font-medium px-4"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Tillbaka till Startsidan
+              Back to Homepage
             </Button>
           </Link>
         </div>
@@ -182,9 +182,9 @@ export default function DemoConsultant() {
                   <span className="text-xl">👋</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-blue-900">Demo: Konsult Profil</h3>
+                  <h3 className="font-semibold text-blue-900">Demo: Consultant Profile</h3>
                   <p className="text-sm text-blue-700">
-                    Detta är hur konsult-vyn ser ut efter CV-uppladdning och AI-analys. Alla ändringar är temporära i demo-läget.
+                    This is how the consultant view looks after CV upload and AI analysis. All changes are temporary in demo mode.
                   </p>
                 </div>
               </div>
@@ -196,33 +196,33 @@ export default function DemoConsultant() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Profilinformation
+                Profile Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Fullständigt namn</label>
+                  <label className="text-sm font-medium mb-1 block">Full Name</label>
                   <Input
                     value={formData.full_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                    placeholder="Ditt fullständiga namn"
+                    placeholder="Your full name"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">E-post</label>
+                  <label className="text-sm font-medium mb-1 block">Email</label>
                   <Input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="din@email.com"
+                    placeholder="your@email.com"
                   />
                 </div>
               </div>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Telefonnummer</label>
+                  <label className="text-sm font-medium mb-1 block">Phone Number</label>
                   <Input
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -230,26 +230,26 @@ export default function DemoConsultant() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Tillgänglighet</label>
+                  <label className="text-sm font-medium mb-1 block">Availability</label>
                   <Input
                     value={formData.availability}
                     onChange={(e) => setFormData(prev => ({ ...prev, availability: e.target.value }))}
-                    placeholder="Tillgänglig"
+                    placeholder="Available"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1 block">Personlig tagline (max 150 tecken)</label>
+                <label className="text-sm font-medium mb-1 block">Personal tagline (max 150 characters)</label>
                 <Textarea
                   value={formData.personal_tagline}
                   onChange={(e) => setFormData(prev => ({ ...prev, personal_tagline: e.target.value }))}
-                  placeholder="Beskriv dig själv kort..."
+                  placeholder="Describe yourself briefly..."
                   maxLength={150}
                   className="resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.personal_tagline.length}/150 tecken
+                  {formData.personal_tagline.length}/150 characters
                 </p>
               </div>
             </CardContent>
@@ -260,12 +260,12 @@ export default function DemoConsultant() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Tag className="h-5 w-5" />
-                Kompetenser & Tech Stack
+                Skills & Tech Stack
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Dina kompetenser</label>
+                <label className="text-sm font-medium mb-2 block">Your skills</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.skills.map((skill, index) => (
                     <Badge key={index} variant="secondary" className="flex items-center gap-1">
@@ -281,7 +281,7 @@ export default function DemoConsultant() {
                   <Input
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
-                    placeholder="Lägg till kompetens..."
+                    placeholder="Add skill..."
                     onKeyPress={(e) => e.key === 'Enter' && addSkill()}
                   />
                   <Button onClick={addSkill} size="sm">
@@ -297,12 +297,12 @@ export default function DemoConsultant() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Star className="h-5 w-5" />
-                Certifieringar
+                Certifications
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Dina certifieringar</label>
+                <label className="text-sm font-medium mb-2 block">Your certifications</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.certifications.map((cert, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-1">
@@ -318,7 +318,7 @@ export default function DemoConsultant() {
                   <Input
                     value={newCertification}
                     onChange={(e) => setNewCertification(e.target.value)}
-                    placeholder="Lägg till certifiering..."
+                    placeholder="Add certification..."
                     onKeyPress={(e) => e.key === 'Enter' && addCertification()}
                   />
                   <Button onClick={addCertification} size="sm">
@@ -334,12 +334,12 @@ export default function DemoConsultant() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
-                Pris & Tillgänglighet
+                Rate & Availability
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div>
-                <label className="text-sm font-medium mb-1 block">Önskad timtaxa (SEK)</label>
+                <label className="text-sm font-medium mb-1 block">Preferred hourly rate (SEK)</label>
                 <Input
                   type="number"
                   value={formData.rate_preference}
@@ -355,15 +355,15 @@ export default function DemoConsultant() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {isPublished ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                Synlighet
+                Visibility
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium">Visa min profil publikt i MatchWise-nätverket</h3>
+                  <h3 className="font-medium">Show my profile publicly in the MatchWise network</h3>
                   <p className="text-sm text-gray-600">
-                    När aktiverad kommer din profil att synas för potentiella klienter
+                    When enabled, your profile will be visible to potential clients
                   </p>
                 </div>
                 <Switch
@@ -379,13 +379,13 @@ export default function DemoConsultant() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="h-5 w-5" />
-                AI-analys & Insikter
+                AI Analysis & Insights
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium">Topvärden</p>
+                  <p className="text-sm font-medium">Top values</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {consultant?.top_values?.map((value: string, index: number) => (
                       <Badge key={index} variant="secondary">{value}</Badge>
@@ -393,7 +393,7 @@ export default function DemoConsultant() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Personlighetsdrag</p>
+                  <p className="text-sm font-medium">Personality traits</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {consultant?.personality_traits?.map((trait: string, index: number) => (
                       <Badge key={index} variant="outline">{trait}</Badge>
@@ -404,20 +404,20 @@ export default function DemoConsultant() {
               
               {consultant?.communication_style && (
                 <div>
-                  <p className="text-sm font-medium">Kommunikationsstil</p>
+                  <p className="text-sm font-medium">Communication style</p>
                   <p className="text-sm text-gray-600 mt-1">{consultant.communication_style}</p>
                 </div>
               )}
               
               {consultant?.thought_leadership_score && (
                 <div>
-                  <p className="text-sm font-medium">Thought Leadership-poäng</p>
+                  <p className="text-sm font-medium">Thought Leadership score</p>
                   <p className="text-lg font-semibold text-blue-600">{consultant.thought_leadership_score}/100</p>
                 </div>
               )}
               
               <Button variant="outline" className="w-full" disabled>
-                Visa fullständig AI-analys (Demo)
+                View full AI analysis (Demo)
               </Button>
             </CardContent>
           </Card>
@@ -432,13 +432,13 @@ export default function DemoConsultant() {
                   disabled
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  Ladda upp nytt CV & LinkedIn (Demo)
+                  Upload new CV & LinkedIn (Demo)
                 </Button>
                 <Button 
                   onClick={handleSaveChanges}
                   className="w-full"
                 >
-                  Spara ändringar (Demo)
+                  Save changes (Demo)
                 </Button>
               </div>
             </CardContent>
@@ -447,8 +447,8 @@ export default function DemoConsultant() {
           {/* Privacy Notice */}
           <div className="text-center text-sm text-gray-600 bg-white rounded-lg p-4 border">
             <p>
-              Din data lagras säkert och är endast synlig för dig och MatchWise-administratörer 
-              om du inte väljer att publicera den. Du kan uppdatera eller ta bort dina data när som helst.
+              Your data is stored securely and is only visible to you and MatchWise administrators 
+              unless you choose to publish it. You can update or delete your data at any time.
             </p>
           </div>
         </div>
