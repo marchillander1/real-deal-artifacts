@@ -193,7 +193,7 @@ export default function PricingSection() {
                 </li>
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                  Add-on: Whitelabel portal (offer your own branded experience)
+                  <span><strong className="text-white">Add-on:</strong> Whitelabel portal (offer your own branded experience)</span>
                 </li>
               </ul>
 
