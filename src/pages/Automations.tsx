@@ -317,62 +317,55 @@ This automation will streamline the process for ${automationData.description.toL
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card className="p-8 hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/20">
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3">
-                      <UserCheck className="h-8 w-8 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground">Smart Consultant Matching</h3>
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Automatically match the right consultants to the right assignments based on skills, experience, and cultural fit.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="p-8 hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/20">
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3">
-                      <Mail className="h-8 w-8 text-green-600" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground">Personalized Introductions</h3>
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Send personalized intro emails between consultants and clients without any manual work.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="p-8 hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/20">
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-3">
-                      <Settings className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground">Real-time System Updates</h3>
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Keep your CRM, project management tools, and databases updated in real-time across all platforms.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="p-8 hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/20">
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-3">
-                      <BarChart3 className="h-8 w-8 text-orange-600" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground">Automated Reporting</h3>
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Weekly automated reports with key metrics sent directly to your inbox, no manual data gathering required.
-                  </p>
-                </CardContent>
-              </Card>
+            <div className="max-w-4xl mx-auto space-y-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <span className="text-lg text-foreground leading-relaxed">
+                  Automatically send personalized welcome emails to new leads — no manual follow-ups needed.
+                </span>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <span className="text-lg text-foreground leading-relaxed">
+                  Move new form submissions or signups directly into your CRM, project management tool, or Slack — instantly.
+                </span>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <span className="text-lg text-foreground leading-relaxed">
+                  Auto-generate weekly reports (e.g., sales, marketing, or project status) and send them to your team on Monday mornings.
+                </span>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <span className="text-lg text-foreground leading-relaxed">
+                  Collect feedback from customers after meetings or projects, and automatically summarize it into a simple report.
+                </span>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <span className="text-lg text-foreground leading-relaxed">
+                  Schedule and publish social media posts across different platforms in one click.
+                </span>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <span className="text-lg text-foreground leading-relaxed">
+                  Sync invoices or payment confirmations to your finance tool without needing to touch Excel manually.
+                </span>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <span className="text-lg text-foreground leading-relaxed">
+                  Create daily task lists or priority boards automatically based on data from different systems.
+                </span>
+              </div>
             </div>
           </div>
         </div>
