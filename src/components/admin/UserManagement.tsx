@@ -78,7 +78,9 @@ export const UserManagement: React.FC = () => {
       toast.success('Användare har lagts till');
     },
     onError: (error) => {
-      toast.error('Fel vid tillägg av användare: ' + error.message);
+      // Try to extract the actual error message from the edge function response
+      const errorMessage = error?.message || 'Okänt fel uppstod';
+      toast.error('Fel vid tillägg av användare: ' + errorMessage);
     }
   });
 
