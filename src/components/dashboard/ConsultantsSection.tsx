@@ -15,10 +15,12 @@ import {
   MessageSquare,
   Filter,
   Eye,
-  Plus
+  Plus,
+  Upload
 } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { UnifiedCVUpload } from '../cv-upload/UnifiedCVUpload';
+import { BulkConsultantUpload } from '@/components/BulkConsultantUpload';
 import { ConsultantFullAnalysisModal } from '@/components/ConsultantFullAnalysisModal';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,6 +32,7 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<'all' | 'my' | 'network'>('all');
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showBulkUploadDialog, setShowBulkUploadDialog] = useState(false);
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
   const [showFullAnalysisModal, setShowFullAnalysisModal] = useState(false);
 
@@ -99,6 +102,16 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
     }, 1000);
   };
 
+  const handleBulkUploadComplete = () => {
+    console.log('✅ Bulk upload completed');
+    setShowBulkUploadDialog(false);
+    
+    // Refresh the page to show the new consultants
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  };
+
   const handleViewProfile = (consultant: Consultant) => {
     console.log('👤 Opening full profile for consultant:', consultant.name);
     setSelectedConsultant(consultant);
@@ -113,13 +126,23 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
           <h2 className="text-2xl font-bold text-gray-900">Consultants</h2>
           <p className="text-gray-600">Browse and manage your consultant network</p>
         </div>
-        <Button 
-          onClick={() => setShowUploadDialog(true)}
-          className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Consultant
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setShowBulkUploadDialog(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Bulk Upload
+          </Button>
+          <Button 
+            onClick={() => setShowUploadDialog(true)}
+            className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Consultant
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -331,6 +354,19 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
             isMyConsultant={true}
             onComplete={handleUploadComplete}
             onClose={() => setShowUploadDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Upload Dialog */}
+      <Dialog open={showBulkUploadDialog} onOpenChange={setShowBulkUploadDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Bulk Upload Consultants</DialogTitle>
+          </DialogHeader>
+          <BulkConsultantUpload
+            onComplete={handleBulkUploadComplete}
+            onClose={() => setShowBulkUploadDialog(false)}
           />
         </DialogContent>
       </Dialog>
