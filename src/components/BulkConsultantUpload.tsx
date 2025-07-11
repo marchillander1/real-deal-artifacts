@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Upload, FileText, Check, X, AlertCircle, Download } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Upload, FileText, Check, X, AlertCircle, Download, Files } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,8 +26,21 @@ interface ConsultantRow {
   phone?: string;
 }
 
+interface CVFile {
+  file: File;
+  name: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  error?: string;
+}
+
 export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onComplete, onClose }) => {
+  // CSV Upload states
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  
+  // CV Upload states
+  const [cvFiles, setCvFiles] = useState<CVFile[]>([]);
+  
+  // Shared states
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<{ success: number; failed: number; errors: string[] }>({
@@ -36,6 +50,7 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
   });
   const [isComplete, setIsComplete] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cvFileInputRef = useRef<HTMLInputElement>(null);
 
   const downloadTemplate = () => {
     const template = `name,email,title,skills,location,rate,experience,phone
@@ -112,6 +127,140 @@ Jane Smith,jane@example.com,UX Designer,"Figma,Sketch,User Research",Göteborg,7
     }
   };
 
+  const handleCVFilesSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const pdfFiles = files.filter(file => file.type === 'application/pdf');
+    
+    if (pdfFiles.length !== files.length) {
+      toast.error('Please select only PDF files');
+      return;
+    }
+
+    const newCVFiles: CVFile[] = pdfFiles.map(file => ({
+      file,
+      name: file.name,
+      status: 'pending'
+    }));
+
+    setCvFiles(prev => [...prev, ...newCVFiles]);
+  };
+
+  const removeCVFile = (index: number) => {
+    setCvFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const processCVFile = async (cvFile: CVFile): Promise<boolean> => {
+    try {
+      // Upload CV file first
+      const fileName = `cv_${Date.now()}_${cvFile.file.name}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('consultant-cvs')
+        .upload(fileName, cvFile.file);
+
+      if (uploadError) throw uploadError;
+
+      // Call CV parsing edge function
+      const { data, error } = await supabase.functions.invoke('parse-cv-enhanced', {
+        body: {
+          file_path: uploadData.path,
+          file_name: cvFile.file.name
+        }
+      });
+
+      if (error) throw error;
+
+      // Create consultant from parsed CV data
+      const consultantData = data.consultant_data || {};
+      
+      const { error: insertError } = await supabase
+        .from('consultants')
+        .insert({
+          name: consultantData.name || `Consultant from ${cvFile.name}`,
+          email: consultantData.email || '',
+          title: consultantData.title || '',
+          skills: consultantData.skills || [],
+          location: consultantData.location || '',
+          hourly_rate: consultantData.hourly_rate || null,
+          experience_years: consultantData.experience_years || null,
+          phone: consultantData.phone || null,
+          cv_file_path: uploadData.path,
+          availability: 'Available',
+          rating: 5.0,
+          projects_completed: 0,
+          type: 'existing',
+          is_published: true,
+          cv_analysis_data: data.analysis || null
+        });
+
+      if (insertError) throw insertError;
+
+      return true;
+    } catch (error) {
+      console.error('Error processing CV:', error);
+      return false;
+    }
+  };
+
+  const handleCVUpload = async () => {
+    if (cvFiles.length === 0) return;
+
+    setIsProcessing(true);
+    setProgress(0);
+    setResults({ success: 0, failed: 0, errors: [] });
+
+    let success = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < cvFiles.length; i++) {
+      const cvFile = cvFiles[i];
+      
+      // Update status to processing
+      setCvFiles(prev => prev.map((file, index) => 
+        index === i ? { ...file, status: 'processing' } : file
+      ));
+
+      try {
+        const result = await processCVFile(cvFile);
+        
+        if (result) {
+          success++;
+          setCvFiles(prev => prev.map((file, index) => 
+            index === i ? { ...file, status: 'completed' } : file
+          ));
+        } else {
+          failed++;
+          errors.push(`${cvFile.name}: Failed to process CV`);
+          setCvFiles(prev => prev.map((file, index) => 
+            index === i ? { ...file, status: 'failed', error: 'Failed to process' } : file
+          ));
+        }
+      } catch (error: any) {
+        failed++;
+        errors.push(`${cvFile.name}: ${error.message}`);
+        setCvFiles(prev => prev.map((file, index) => 
+          index === i ? { ...file, status: 'failed', error: error.message } : file
+        ));
+      }
+
+      // Update progress
+      setProgress(((i + 1) / cvFiles.length) * 100);
+      setResults({ success, failed, errors });
+    }
+
+    setIsComplete(true);
+    
+    if (success > 0) {
+      toast.success(`Successfully processed ${success} CVs!`);
+    }
+    
+    if (failed > 0) {
+      toast.error(`Failed to process ${failed} CVs. Check the details below.`);
+    }
+
+    setIsProcessing(false);
+  };
+
   const handleUpload = async () => {
     if (!csvFile) return;
 
@@ -173,74 +322,168 @@ Jane Smith,jane@example.com,UX Designer,"Figma,Sketch,User Research",Göteborg,7
     onClose();
   };
 
+  const resetState = () => {
+    setIsComplete(false);
+    setCsvFile(null);
+    setCvFiles([]);
+    setResults({ success: 0, failed: 0, errors: [] });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    if (cvFileInputRef.current) {
+      cvFileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-2">Bulk Upload Consultants</h3>
         <p className="text-gray-600 text-sm">
-          Upload multiple consultants at once using a CSV file. Download the template to get started.
+          Upload multiple consultants at once using CSV data or CV files with AI analysis.
         </p>
       </div>
 
-      {/* Template Download */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Download Template
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-600 mb-3">
-            Download the CSV template with the correct format and example data.
-          </p>
-          <Button onClick={downloadTemplate} variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Download Template
-          </Button>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="csv" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="csv">CSV Upload</TabsTrigger>
+          <TabsTrigger value="cvs">CV Upload</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="csv" className="space-y-6">
+          {/* Template Download */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Download Template
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-3">
+                Download the CSV template with the correct format and example data.
+              </p>
+              <Button onClick={downloadTemplate} variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Download Template
+              </Button>
+            </CardContent>
+          </Card>
 
-      {/* File Upload */}
-      {!isComplete && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Upload CSV File
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="csv-file">Select CSV File</Label>
-              <Input
-                id="csv-file"
-                type="file"
-                accept=".csv"
-                onChange={handleFileSelect}
-                ref={fileInputRef}
-                className="mt-1"
-              />
-            </div>
+          {/* CSV File Upload */}
+          {!isComplete && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Upload CSV File
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="csv-file">Select CSV File</Label>
+                  <Input
+                    id="csv-file"
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileSelect}
+                    ref={fileInputRef}
+                    className="mt-1"
+                  />
+                </div>
 
-            {csvFile && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <FileText className="h-4 w-4" />
-                <span>{csvFile.name}</span>
-                <span>({(csvFile.size / 1024).toFixed(1)} KB)</span>
-              </div>
-            )}
+                {csvFile && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <FileText className="h-4 w-4" />
+                    <span>{csvFile.name}</span>
+                    <span>({(csvFile.size / 1024).toFixed(1)} KB)</span>
+                  </div>
+                )}
 
-            <Button 
-              onClick={handleUpload} 
-              disabled={!csvFile || isProcessing}
-              className="w-full"
-            >
-              {isProcessing ? 'Processing...' : 'Upload Consultants'}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+                <Button 
+                  onClick={handleUpload} 
+                  disabled={!csvFile || isProcessing}
+                  className="w-full"
+                >
+                  {isProcessing ? 'Processing...' : 'Upload Consultants'}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="cvs" className="space-y-6">
+          {/* CV Files Upload */}
+          {!isComplete && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Files className="h-4 w-4" />
+                  Upload CV Files
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="cv-files">Select CV Files (PDF)</Label>
+                  <Input
+                    id="cv-files"
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={handleCVFilesSelect}
+                    ref={cvFileInputRef}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Select multiple PDF files. Each CV will be analyzed with AI to extract consultant information.
+                  </p>
+                </div>
+
+                {/* CV Files List */}
+                {cvFiles.length > 0 && (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    <div className="text-sm font-medium">Selected Files ({cvFiles.length}):</div>
+                    {cvFiles.map((cvFile, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          <span className="text-sm">{cvFile.name}</span>
+                          {cvFile.status === 'processing' && (
+                            <div className="text-xs text-blue-600">Processing...</div>
+                          )}
+                          {cvFile.status === 'completed' && (
+                            <Check className="h-4 w-4 text-green-600" />
+                          )}
+                          {cvFile.status === 'failed' && (
+                            <X className="h-4 w-4 text-red-600" />
+                          )}
+                        </div>
+                        {cvFile.status === 'pending' && (
+                          <Button
+                            onClick={() => removeCVFile(index)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <Button 
+                  onClick={handleCVUpload} 
+                  disabled={cvFiles.length === 0 || isProcessing}
+                  className="w-full"
+                >
+                  {isProcessing ? 'Processing CVs...' : `Process ${cvFiles.length} CV${cvFiles.length !== 1 ? 's' : ''}`}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Progress */}
       {isProcessing && (
@@ -248,7 +491,7 @@ Jane Smith,jane@example.com,UX Designer,"Figma,Sketch,User Research",Göteborg,7
           <CardContent className="pt-6">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Processing consultants...</span>
+                <span>Processing...</span>
                 <span>{Math.round(progress)}%</span>
               </div>
               <Progress value={progress} className="h-2" />
@@ -302,14 +545,7 @@ Jane Smith,jane@example.com,UX Designer,"Figma,Sketch,User Research",Göteborg,7
                 Done
               </Button>
               <Button 
-                onClick={() => {
-                  setIsComplete(false);
-                  setCsvFile(null);
-                  setResults({ success: 0, failed: 0, errors: [] });
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
-                }} 
+                onClick={resetState} 
                 variant="outline"
               >
                 Upload More
