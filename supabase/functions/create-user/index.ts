@@ -61,6 +61,21 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Profile creation error:', profileError);
     }
 
+    // Add to user_management table using admin client to bypass RLS
+    const { error: userMgmtError } = await supabaseAdmin
+      .from('user_management')
+      .insert({
+        email,
+        full_name,
+        company: company || null,
+        role: 'user',
+        created_by: authData.user.id
+      });
+
+    if (userMgmtError) {
+      console.error('User management insertion error:', userMgmtError);
+    }
+
     // Send welcome email with login details
     await resend.emails.send({
       from: "MatchWise AI <onboarding@resend.dev>",

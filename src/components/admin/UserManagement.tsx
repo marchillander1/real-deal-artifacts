@@ -52,7 +52,7 @@ export const UserManagement: React.FC = () => {
   // Add user mutation
   const addUserMutation = useMutation({
     mutationFn: async (userData: typeof formData) => {
-      // Use the create-user edge function
+      // Use the create-user edge function which handles everything
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
           email: userData.email,
@@ -63,20 +63,6 @@ export const UserManagement: React.FC = () => {
       });
 
       if (error) throw error;
-
-      // Add to user management table
-      const { data: currentUser } = await supabase.auth.getUser();
-      const { error: dbError } = await supabase
-        .from('user_management')
-        .insert({
-          email: userData.email,
-          full_name: userData.full_name,
-          company: userData.company || null,
-          role: userData.role,
-          created_by: currentUser.user?.id || ''
-        });
-
-      if (dbError) throw dbError;
       return data;
     },
     onSuccess: () => {
