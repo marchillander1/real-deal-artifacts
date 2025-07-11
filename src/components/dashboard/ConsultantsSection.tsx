@@ -16,7 +16,8 @@ import {
   Filter,
   Eye,
   Plus,
-  Upload
+  Upload,
+  Trash2
 } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { UnifiedCVUpload } from '../cv-upload/UnifiedCVUpload';
@@ -116,6 +117,23 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
     console.log('👤 Opening full profile for consultant:', consultant.name);
     setSelectedConsultant(consultant);
     setShowFullAnalysisModal(true);
+  };
+
+  const handleDeleteConsultant = async (consultantId: string) => {
+    try {
+      const { error } = await supabase
+        .from('consultants')
+        .delete()
+        .eq('id', consultantId);
+      
+      if (error) throw error;
+      
+      console.log('✅ Consultant deleted successfully');
+      // Refresh to show updated list
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting consultant:', error);
+    }
   };
 
   return (
@@ -321,6 +339,17 @@ export const ConsultantsSection: React.FC<ConsultantsSectionProps> = ({ consulta
                         Contact
                       </Button>
                     </>
+                  )}
+                  {(consultant.type === 'existing' || consultant.type === 'my') && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDeleteConsultant(String(consultant.id))}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Ta bort
+                    </Button>
                   )}
                   <Button 
                     size="sm"
