@@ -78,28 +78,32 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send welcome email with login details
     await resend.emails.send({
-      from: "MatchWise AI <onboarding@resend.dev>",
+      from: "MatchWise <onboarding@resend.dev>",
       to: [email],
-      subject: "Welcome to MatchWise AI - Your Account is Ready!",
+      subject: "Welcome to MatchWise — Let's get you matched!",
       html: `
-        <h1>Welcome to MatchWise AI, ${full_name}!</h1>
-        <p>Your account has been created and is ready to use.</p>
+        <p>Hi ${full_name.split(' ')[0]},</p>
         <br>
-        <p><strong>Login Details:</strong></p>
-        <p>Email: ${email}</p>
-        <p>Password: ${password}</p>
+        <p>Welcome to MatchWise! 🎉</p>
         <br>
-        <p><strong>Login URL:</strong> <a href="https://your-app-url.com/auth">Login to MatchWise AI</a></p>
+        <p>We're excited to have you join a smarter, more human way to connect top consultants with the right opportunities.</p>
         <br>
-        <p>Get started:</p>
-        <ul>
-          <li>Upload your first consultant CVs</li>
-          <li>Create assignment profiles</li>
-          <li>Experience AI-powered matching</li>
-        </ul>
+        <p><strong>👉 Get started right away here:</strong><br>
+        <a href="https://matchwise.tech/matchwiseai">matchwise.tech/matchwiseai</a></p>
         <br>
-        <p>For support, reply to this email or contact us directly.</p>
-        <p>Best regards,<br>The MatchWise AI Team</p>
+        <p>Inside, you'll find your personalized dashboard where you can explore matches, update your profile, and manage your preferences.</p>
+        <br>
+        <p><strong>Your login details:</strong><br>
+        Email: ${email}<br>
+        Password: ${password}</p>
+        <br>
+        <p>If you have any questions or need a hand, just reach out — we're here to help!</p>
+        <br>
+        <p><strong>📩 Contact:</strong> marc@matchwise.tech</p>
+        <br>
+        <p>Thanks for joining us — let's make magic happen together. 🚀</p>
+        <br>
+        <p>Warm regards,<br>The MatchWise Team</p>
       `,
     });
 
