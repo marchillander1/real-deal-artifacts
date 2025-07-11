@@ -3,13 +3,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import CreateAssignmentForm from '@/components/CreateAssignmentForm';
 import { Assignment } from '@/types/assignment';
-import { ArrowLeft, Star, MapPin, Clock, CheckCircle, Brain, Users, User } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Clock, CheckCircle, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
-import MyProfile from './MyProfile';
 
 // Demo consultants data
 const demoConsultants = [
@@ -51,7 +49,6 @@ export default function Demo() {
   const [showResults, setShowResults] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isMatching, setIsMatching] = useState(false);
-  const [isConsultantView, setIsConsultantView] = useState(false);
 
   const handleAssignmentCreated = async (newAssignment: Assignment) => {
     console.log('Demo: Assignment created:', newAssignment);
@@ -83,7 +80,6 @@ export default function Demo() {
     setMatches([]);
     setShowResults(false);
     setShowForm(false);
-    setIsConsultantView(false);
   };
 
   if (showResults) {
@@ -259,186 +255,6 @@ export default function Demo() {
     );
   }
 
-  // Show consultant demo view
-  if (isConsultantView) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-        {/* Demo Header for Consultant View */}
-        <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-16">
-              <Logo size="md" variant="full" />
-              <div className="flex items-center space-x-4">
-                {/* View Toggle */}
-                <div className="flex items-center space-x-3 bg-slate-100 rounded-lg p-2">
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-4 w-4 text-slate-600" />
-                    <span className="text-sm font-medium text-slate-600">Företag</span>
-                  </div>
-                  <Switch
-                    checked={isConsultantView}
-                    onCheckedChange={setIsConsultantView}
-                  />
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-600">Konsult</span>
-                  </div>
-                </div>
-                
-                <Badge className="bg-blue-600/20 text-blue-600 border-blue-500/30">
-                  Demo - Konsult Vy
-                </Badge>
-                
-                <Link to="/">
-                  <Button 
-                    variant="outline" 
-                    className="border-slate-300 text-slate-700 hover:bg-slate-50 font-medium px-4"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Tillbaka till Startsidan
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        {/* Mock MyProfile with demo data - avoiding auth checks */}
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="space-y-6">
-            {/* Demo Notice */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-xl">👋</span>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-blue-900">Demo: Konsult Profil</h3>
-                    <p className="text-sm text-blue-700">Detta är hur konsult-vyn ser ut efter CV-uppladdning och AI-analys.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Profile Info Block */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Profilinformation
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Fullständigt namn</label>
-                    <div className="p-2 bg-slate-50 rounded border text-slate-700">Anna Lindström</div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">E-post</label>
-                    <div className="p-2 bg-slate-50 rounded border text-slate-700">anna.lindstrom@email.com</div>
-                  </div>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Telefonnummer</label>
-                    <div className="p-2 bg-slate-50 rounded border text-slate-700">+46 70 123 45 67</div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Tillgänglighet</label>
-                    <div className="p-2 bg-slate-50 rounded border text-slate-700">Tillgänglig</div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Personlig tagline</label>
-                  <div className="p-2 bg-slate-50 rounded border text-slate-700">
-                    Passionerad utvecklare med fokus på modern webbutveckling och användarupplevelse
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Skills & Tech Stack */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5" />
-                  Kompetenser & Tech Stack
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Dina kompetenser</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['React', 'TypeScript', 'Node.js', 'Python', 'AWS', 'Docker', 'PostgreSQL'].map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* AI Analysis & Insights */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  AI-analys & Insikter
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium">Topvärden</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {['Innovation', 'Kvalitet', 'Teamwork'].map((value, index) => (
-                        <Badge key={index} variant="secondary">{value}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Personlighetsdrag</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {['Analytisk', 'Problemlösare', 'Empatisk'].map((trait, index) => (
-                        <Badge key={index} variant="outline">{trait}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <p className="text-sm font-medium">Kommunikationsstil</p>
-                  <p className="text-sm text-gray-600 mt-1">Tydlig och direkt kommunikation med fokus på samarbete</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm font-medium">Thought Leadership-poäng</p>
-                  <p className="text-lg font-semibold text-blue-600">85/100</p>
-                </div>
-                
-                <Button variant="outline" className="w-full" disabled>
-                  Visa fullständig AI-analys (Demo)
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Privacy Notice */}
-            <div className="text-center text-sm text-gray-600 bg-white rounded-lg p-4 border">
-              <p>
-                Din data lagras säkert och är endast synlig för dig och MatchWise-administratörer 
-                om du inte väljer att publicera den. Du kan uppdatera eller ta bort dina data när som helst.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -448,22 +264,6 @@ export default function Demo() {
           <div className="flex items-center justify-between h-16">
             <Logo size="md" variant="full" />
             <div className="flex items-center space-x-4">
-              {/* View Toggle */}
-              <div className="flex items-center space-x-3 bg-slate-800 rounded-lg p-2">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-blue-400" />
-                  <span className="text-sm font-medium text-blue-400">Företag</span>
-                </div>
-                <Switch
-                  checked={isConsultantView}
-                  onCheckedChange={setIsConsultantView}
-                />
-                <div className="flex items-center space-x-2">
-                  <User className="h-4 w-4 text-slate-400" />
-                  <span className="text-sm font-medium text-slate-400">Konsult</span>
-                </div>
-              </div>
-              
               <Badge className="bg-blue-600/20 text-blue-300 border-blue-500/30">
                 Demo Mode
               </Badge>
