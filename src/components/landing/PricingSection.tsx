@@ -13,21 +13,21 @@ export default function PricingSection() {
           <p className="text-xl text-slate-300">💎 No risk. No lock-ins. Just 2 % when you land the right consultant.</p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Performance Plan */}
           <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <Badge className="bg-emerald-600 text-white">🎯 Performance Plan</Badge>
             </div>
             <CardContent className="p-8">
-              <h3 className="text-xl font-bold text-white mb-2">Performance Plan</h3>
-              <p className="text-slate-400 mb-6">For companies that want to win in the open market</p>
+              <h3 className="text-xl font-bold text-white mb-2">Win in the open market</h3>
+              <p className="text-slate-400 mb-6">Tap into our external network and only pay when you succeed.</p>
               <div className="text-3xl font-bold text-white mb-6">💰 2 % success fee<span className="text-lg text-slate-400 block">Only pay when you actually place a consultant.</span></div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                  Access to MatchWise external network & market consultants
+                  Access to the MatchWise external network & market consultants
                 </li>
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
@@ -78,15 +78,88 @@ export default function PricingSection() {
             </CardContent>
           </Card>
 
+          {/* Talent Activation Plan */}
+          <Card className="bg-slate-800/50 border-purple-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-purple-600 text-white">🧩 Talent Activation Plan</Badge>
+            </div>
+            <CardContent className="p-8">
+              <h3 className="text-xl font-bold text-white mb-2">Activate your talent</h3>
+              <p className="text-slate-400 mb-6">Get your consultants market-ready and visible, instantly.</p>
+              <div className="text-2xl font-bold text-white mb-6">Start Free Trial</div>
+              
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Log in at /talent-activation to get started
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Access your private company dashboard to manage all consultants
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Bulk upload CVs (PDF/Word) — upload your entire bench in minutes
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Deep AI-driven profiling: technical skills, values, and personality traits
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Build market-ready, high-converting consultant profiles instantly
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Set availability, pricing & choose visibility (public or private)
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Edit, deactivate or update profiles anytime — total control
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Auto-generate personal one-pagers & sales decks for each consultant
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Unlimited admins & users — empower your entire sales team
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Priority email support so you never get stuck
+                </li>
+              </ul>
+
+              <div className="grid grid-cols-1 gap-3 mb-6">
+                <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-3 text-center">
+                  <span className="text-purple-300 font-medium">Activate your bench</span>
+                </div>
+                <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-3 text-center">
+                  <span className="text-purple-300 font-medium">AI-powered consultant packaging</span>
+                </div>
+                <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-3 text-center">
+                  <span className="text-purple-300 font-medium">Sell faster & smarter</span>
+                </div>
+                <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-3 text-center">
+                  <span className="text-purple-300 font-medium">Total admin control • Zero tech hassle</span>
+                </div>
+              </div>
+
+              <TrialSignupModal />
+            </CardContent>
+          </Card>
+
           {/* Internal Pro Plan */}
           <Card className="bg-slate-800/50 border-blue-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <Badge className="bg-blue-600 text-white">💡 Internal Pro Plan</Badge>
             </div>
             <CardContent className="p-8">
-              <h3 className="text-xl font-bold text-white mb-2">Internal Pro Plan</h3>
-              <p className="text-slate-400 mb-6">For teams that want to supercharge their own consultants</p>
-              <div className="text-2xl font-bold text-white mb-6">💬 Start Free Trial</div>
+              <h3 className="text-xl font-bold text-white mb-2">Supercharge your internal team</h3>
+              <p className="text-slate-400 mb-6">Upgrade your own consultants and deliver a branded client experience.</p>
+              <div className="text-2xl font-bold text-white mb-1">Fast price possible</div>
+              <div className="text-sm text-slate-400 mb-6">Contact us</div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start text-slate-300">
@@ -103,7 +176,7 @@ export default function PricingSection() {
                 </li>
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                  Auto-generate personal reports & customized presentations (hello, time saver)
+                  Auto-generate personal reports & customized presentations
                 </li>
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
@@ -120,6 +193,10 @@ export default function PricingSection() {
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
                   Priority email support to keep you moving
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Add-on: Whitelabel portal (offer your own branded experience)
                 </li>
               </ul>
 
