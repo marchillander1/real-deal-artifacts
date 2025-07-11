@@ -59,14 +59,18 @@ export default function PricingSection() {
                 </li>
               </ul>
 
-              <div className="space-y-3 mb-6">
-                <h4 className="text-lg font-semibold text-white">🏆 Badges</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm text-slate-300">
-                  <div>• Only pay when you win</div>
-                  <div>• Access to top external talent</div>
-                  <div>• AI-powered true fit matching</div>
-                  <div>• No upfront fees</div>
-                  <div>• Scalable & risk-free</div>
+              <div className="grid grid-cols-1 gap-3 mb-6">
+                <div className="bg-emerald-600/20 border border-emerald-500/30 rounded-lg p-3 text-center">
+                  <span className="text-emerald-300 font-medium">Only pay when you win</span>
+                </div>
+                <div className="bg-emerald-600/20 border border-emerald-500/30 rounded-lg p-3 text-center">
+                  <span className="text-emerald-300 font-medium">Access to top external talent</span>
+                </div>
+                <div className="bg-emerald-600/20 border border-emerald-500/30 rounded-lg p-3 text-center">
+                  <span className="text-emerald-300 font-medium">AI-powered true fit matching</span>
+                </div>
+                <div className="bg-emerald-600/20 border border-emerald-500/30 rounded-lg p-3 text-center">
+                  <span className="text-emerald-300 font-medium">No upfront fees • Scalable & risk-free</span>
                 </div>
               </div>
 
@@ -119,14 +123,18 @@ export default function PricingSection() {
                 </li>
               </ul>
 
-              <div className="space-y-3 mb-6">
-                <h4 className="text-lg font-semibold text-white">💡 Badges</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm text-slate-300">
-                  <div>• Supercharge your own consultants</div>
-                  <div>• Sell smarter, not harder</div>
-                  <div>• AI profiling beyond CVs</div>
-                  <div>• Instant presentation-ready profiles</div>
-                  <div>• Zero tech investment</div>
+              <div className="grid grid-cols-1 gap-3 mb-6">
+                <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-3 text-center">
+                  <span className="text-blue-300 font-medium">Supercharge your own consultants</span>
+                </div>
+                <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-3 text-center">
+                  <span className="text-blue-300 font-medium">Sell smarter, not harder</span>
+                </div>
+                <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-3 text-center">
+                  <span className="text-blue-300 font-medium">AI profiling beyond CVs</span>
+                </div>
+                <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-3 text-center">
+                  <span className="text-blue-300 font-medium">Instant presentation-ready profiles • Zero tech investment</span>
                 </div>
               </div>
 
