@@ -230,7 +230,7 @@ This automation will streamline the process for ${automationData.description.toL
                   value={automationData.description}
                   onChange={(e) => setAutomationData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Hi! 👋 What would you like to automate today? Describe it briefly in your own words..."
-                  className="h-28 text-lg bg-white/95 border-0 shadow-2xl rounded-2xl p-6 placeholder:text-muted-foreground/70"
+                  className="h-28 text-lg bg-white/95 text-gray-900 border-0 shadow-2xl rounded-2xl p-6 placeholder:text-muted-foreground/70"
                 />
                 
                 <Button 
