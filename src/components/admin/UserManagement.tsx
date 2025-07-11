@@ -52,16 +52,20 @@ export const UserManagement: React.FC = () => {
   // Add user mutation
   const addUserMutation = useMutation({
     mutationFn: async (userData: typeof formData) => {
-      // Create auth user first
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: userData.email,
-        password: userData.password,
-        email_confirm: true
+      // Use the create-user edge function
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: {
+          email: userData.email,
+          full_name: userData.full_name,
+          company: userData.company,
+          password: userData.password
+        }
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
       // Add to user management table
+      const { data: currentUser } = await supabase.auth.getUser();
       const { error: dbError } = await supabase
         .from('user_management')
         .insert({
@@ -69,11 +73,11 @@ export const UserManagement: React.FC = () => {
           full_name: userData.full_name,
           company: userData.company || null,
           role: userData.role,
-          created_by: authData.user.id
+          created_by: currentUser.user?.id || ''
         });
 
       if (dbError) throw dbError;
-      return authData;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
