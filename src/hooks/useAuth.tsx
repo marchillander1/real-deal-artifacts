@@ -31,11 +31,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Handle successful login redirect
         if (event === 'SIGNED_IN' && session) {
           // Defer navigation to avoid conflicts
-          setTimeout(() => {
+          setTimeout(async () => {
             const currentPath = window.location.pathname;
             // Only redirect if coming from auth page, not from other pages
             if (currentPath === '/auth') {
-              window.location.href = '/matchwiseai';
+              // Check if user is a consultant or business user
+              try {
+                // First check if user has a consultant profile
+                const { data: consultant } = await supabase
+                  .from('consultants')
+                  .select('id, user_id')
+                  .eq('user_id', session.user.id)
+                  .single();
+
+                if (consultant) {
+                  // User is a consultant, redirect to their profile
+                  window.location.href = '/my-profile';
+                } else {
+                  // User is a business user, redirect to dashboard
+                  window.location.href = '/matchwiseai';
+                }
+              } catch (error) {
+                // If error checking consultant status, default to business dashboard
+                console.log('Could not determine user type, defaulting to business dashboard');
+                window.location.href = '/matchwiseai';
+              }
             }
           }, 100);
         }
