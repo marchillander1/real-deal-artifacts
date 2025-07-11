@@ -9,63 +9,6 @@ import Logo from '@/components/Logo';
 import TrialSignupModal from '@/components/landing/TrialSignupModal';
 
 export default function Pricing() {
-  const plans = [
-    {
-      name: "Basic Plan",
-      price: "€99",
-      period: "per month",
-      description: "For 1-3 users",
-      features: [
-        "Analyze your own consultants",
-        "AI-driven CV and profile analysis",
-        "Detailed consultant profiles",
-        "Save favorites & download CVs",
-        "1 admin + 2 standard users",
-        "Basic matching algorithms",
-        "Standard report generation",
-        "Email support"
-      ],
-      popular: false,
-      cta: "Start Free Trial"
-    },
-    {
-      name: "Team Plan",
-      price: "€299",
-      period: "per month", 
-      description: "For 3-10 users",
-      features: [
-        "Everything in Basic, plus:",
-        "Access to network consultants",
-        "Extended user access (3-10 users)",
-        "Role-based access control",
-        "Advanced AI matching algorithms",
-        "Priority email support",
-        "Export consultant lists",
-        "Advanced analytics & insights"
-      ],
-      popular: true,
-      cta: "Start Free Trial"
-    },
-    {
-      name: "Enterprise",
-      price: "€599",
-      period: "per month",
-      description: "Unlimited users",
-      features: [
-        "Everything in Team, plus:",
-        "Unlimited searches in consultant database",
-        "Direct access to incoming freelance CVs",
-        "Premium visibility for your assignments",
-        "Full API access & integration capabilities",
-        "Dedicated onboarding & training",
-        "SLA-guaranteed support",
-        "Custom branding options"
-      ],
-      popular: false,
-      cta: "Contact Sales"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Header */}
@@ -88,69 +31,91 @@ export default function Pricing() {
         {/* Header Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            💰 Simple, Transparent <span className="text-blue-400">Pricing</span>
+            Stop paying for "maybe". Only pay when you win.
           </h1>
           <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
-            Choose the plan that fits your company's needs. 
-            Start with a free trial, no credit card required.
+            💎 No risk. No lock-ins. Just 2 % when you land the right consultant.
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
             <Shield className="h-4 w-4" />
-            <span>14-day free trial • No setup fees • Cancel anytime</span>
+            <span>No setup fees • No subscription • No hidden catches</span>
           </div>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
-            <Card key={index} className={`bg-slate-800/50 border-slate-600 hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm relative ${
-              plan.popular ? 'border-emerald-500' : ''
-            }`}>
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-emerald-600 text-white">
-                    <Star className="h-3 w-3 mr-1" />
-                    Most Popular
-                  </Badge>
-                </div>
-              )}
+        {/* Pricing Card */}
+        <div className="flex justify-center mb-16">
+          <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm max-w-lg">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-emerald-600 text-white">🚀 Performance Plan</Badge>
+            </div>
+            
+            <CardHeader className="text-center pb-8">
+              <div className="flex items-center space-x-2 mb-4 justify-center">
+                <div className="w-6 h-6 bg-emerald-600 rounded"></div>
+                <CardTitle className="text-2xl font-bold text-white">Performance Plan</CardTitle>
+              </div>
+              <CardDescription className="text-slate-400 mt-2">For teams who only want to pay when they win</CardDescription>
+              <div className="mt-6">
+                <span className="text-4xl font-bold text-white">💰 2 % success fee</span>
+                <span className="text-slate-400 block mt-2">Only pay when you find the one.</span>
+              </div>
+            </CardHeader>
+            
+            <CardContent>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">Analyze your own or external consultants — no limits</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">AI-powered CV & profile deep dive (way beyond keywords)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">True value & personality insights (because skills alone aren't enough)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">Save favorites, download CVs, and wow your clients</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">Unlimited users, unlimited admins — bring the whole crew</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">Next-level AI matching algorithms (actually smart, not "AI-washed")</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">Auto-generated personalized reports & cover letters (hello, time saver)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
+                  <span className="text-slate-300">Priority support (because we move fast, just like you)</span>
+                </li>
+              </ul>
               
-              <CardHeader className="text-center pb-8">
-                <div className="flex items-center space-x-2 mb-4 justify-center">
-                  <div className={`w-6 h-6 rounded ${plan.popular ? 'bg-emerald-600' : index === 0 ? 'bg-blue-600' : 'bg-red-600'}`}></div>
-                  <CardTitle className="text-2xl font-bold text-white">{plan.name}</CardTitle>
-                </div>
-                <CardDescription className="text-slate-400 mt-2">{plan.description}</CardDescription>
-                <div className="mt-6">
-                  <span className="text-4xl font-bold text-white">{plan.price}</span>
-                  <span className="text-slate-400 ml-2">/{plan.period}</span>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3">
-                      <div className="w-4 h-4 bg-emerald-500 rounded-full mt-0.5 flex-shrink-0"></div>
-                      <span className="text-slate-300">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                {plan.cta === "Contact Sales" ? (
-                  <Button variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-800">
-                    Contact Sales
-                  </Button>
-                ) : (
-                  <TrialSignupModal />
-                )}
-              </CardContent>
-            </Card>
-          ))}
+              <TrialSignupModal />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Why Section */}
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <h2 className="text-3xl font-bold text-white mb-6">💬 Why?</h2>
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700">
+            <p className="text-lg text-slate-300 leading-relaxed">
+              Because paying upfront for "maybe" matches is so 2020.<br/>
+              With MatchWise, you only pay 2 % when you actually place a consultant.<br/>
+              No strings. No fixed fees. No hidden catches. Just real, measurable value, exactly when you need it.
+            </p>
+          </div>
         </div>
 
         {/* FAQ Section */}
-        <div className="mt-24 max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-white mb-12">
             Frequently Asked Questions
           </h2>
@@ -158,31 +123,41 @@ export default function Pricing() {
           <div className="space-y-8">
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">
-                How does the free trial work?
+                How does the 2% success fee work?
               </h3>
               <p className="text-slate-300">
-                Start with our 14-day free trial with full access to all features. 
-                No credit card required. Upgrade or downgrade anytime.
+                You only pay when you successfully place a consultant with a client. 
+                No upfront costs, no monthly subscriptions. Just 2% of the consultant's first project value.
               </p>
             </div>
             
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">
-                Can I change plans later?
+                What counts as a successful placement?
               </h3>
               <p className="text-slate-300">
-                Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately 
-                and we'll prorate the billing accordingly.
+                A successful placement is when a consultant you found through MatchWise starts working 
+                with your client. The fee is calculated on the total project value or first 6 months for long-term placements.
               </p>
             </div>
             
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">
-                What's included in the Enterprise plan?
+                Is there really no monthly fee?
               </h3>
               <p className="text-slate-300">
-                Enterprise plans include dedicated support, custom integrations, white-label options, 
-                and SLA guarantees. Contact our sales team for a custom quote.
+                Absolutely none. No setup fees, no monthly subscriptions, no hidden costs. 
+                You get full access to all features and only pay the 2% when you win.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Can I use MatchWise for my own consultants?
+              </h3>
+              <p className="text-slate-300">
+                Yes! You can analyze and manage your own consultant network without any fees. 
+                The 2% only applies when you place external consultants found through our platform.
               </p>
             </div>
           </div>
@@ -192,13 +167,13 @@ export default function Pricing() {
         <div className="mt-24 text-center bg-slate-800/50 backdrop-blur-sm rounded-2xl p-12 shadow-lg border border-slate-700">
           <Zap className="h-16 w-16 text-blue-400 mx-auto mb-6" />
           <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Transform Your Consulting Business?
+            Ready to Only Pay When You Win?
           </h2>
           <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-            Join hundreds of consulting firms who've already revolutionized their matching process with AI.
+            Join hundreds of consulting firms who've ditched fixed costs and only pay for real results.
           </p>
           <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-lg">
-            Start Your Free Trial Today
+            Start Using MatchWise Today
           </Button>
         </div>
       </div>

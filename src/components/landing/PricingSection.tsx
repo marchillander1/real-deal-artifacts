@@ -9,162 +9,74 @@ export default function PricingSection() {
     <section id="pricing" className="py-20 relative">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">💰 Simple, Transparent Pricing</h2>
-          <p className="text-xl text-slate-300">Choose the plan that fits your company's needs</p>
+          <h2 className="text-4xl font-bold text-white mb-4">Stop paying for "maybe". Only pay when you win.</h2>
+          <p className="text-xl text-slate-300">💎 No risk. No lock-ins. Just 2 % when you land the right consultant.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Basic Plan */}
-          <Card className="bg-slate-800/50 border-slate-600 hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
-            <CardContent className="p-8">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-6 h-6 bg-blue-600 rounded"></div>
-                <h3 className="text-xl font-bold text-white">Basic Plan</h3>
-              </div>
-              <p className="text-slate-400 mb-6">For 1-3 users</p>
-              <div className="text-3xl font-bold text-white mb-6">€99<span className="text-lg text-slate-400">/month</span></div>
-              
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Analyze your own consultants
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  AI-driven CV and profile analysis
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Detailed consultant profiles
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Save favorites & download CVs
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  1 admin + 2 standard users
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Basic matching algorithms
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Standard report generation
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Email support
-                </li>
-              </ul>
-
-              <TrialSignupModal />
-            </CardContent>
-          </Card>
-
-          {/* Team Plan */}
-          <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+        <div className="flex justify-center">
+          {/* Performance Plan */}
+          <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm max-w-lg">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-emerald-600 text-white">Most Popular</Badge>
+              <Badge className="bg-emerald-600 text-white">🚀 Performance Plan</Badge>
             </div>
             <CardContent className="p-8">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-6 h-6 bg-emerald-600 rounded"></div>
-                <h3 className="text-xl font-bold text-white">Team Plan</h3>
+                <h3 className="text-xl font-bold text-white">Performance Plan</h3>
               </div>
-              <p className="text-slate-400 mb-6">For 3-10 users</p>
-              <div className="text-3xl font-bold text-white mb-6">€299<span className="text-lg text-slate-400">/month</span></div>
+              <p className="text-slate-400 mb-6">For teams who only want to pay when they win</p>
+              <div className="text-3xl font-bold text-white mb-6">💰 2 % success fee<span className="text-lg text-slate-400 block">Only pay when you find the one.</span></div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Everything in Basic, plus:
+                  Analyze your own or external consultants — no limits
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Access to network consultants
+                  AI-powered CV & profile deep dive (way beyond keywords)
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Extended user access (3-10 users)
+                  True value & personality insights (because skills alone aren't enough)
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Role-based access control
+                  Save favorites, download CVs, and wow your clients
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Advanced AI matching algorithms
+                  Unlimited users, unlimited admins — bring the whole crew
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Priority email support
+                  Next-level AI matching algorithms (actually smart, not "AI-washed")
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Export consultant lists
+                  Auto-generated personalized reports & cover letters (hello, time saver)
                 </li>
                 <li className="flex items-center text-slate-300">
                   <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Advanced analytics & insights
+                  Priority support (because we move fast, just like you)
                 </li>
               </ul>
 
               <TrialSignupModal />
             </CardContent>
           </Card>
+        </div>
 
-          {/* Enterprise Plan */}
-          <Card className="bg-slate-800/50 border-red-600 hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
-            <CardContent className="p-8">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-6 h-6 bg-red-600 rounded"></div>
-                <h3 className="text-xl font-bold text-white">Enterprise</h3>
-              </div>
-              <p className="text-slate-400 mb-6">Unlimited users</p>
-              <div className="text-3xl font-bold text-white mb-6">€599<span className="text-lg text-slate-400">/month</span></div>
-              
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Everything in Team, plus:
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Unlimited searches in consultant database
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Direct access to incoming freelance CVs
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Premium visibility for your assignments
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Full API access & integration capabilities
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Dedicated onboarding & training
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  SLA-guaranteed support
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Custom branding options
-                </li>
-              </ul>
-
-              <Button variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-800">
-                Contact Sales
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Why Section */}
+        <div className="mt-16 max-w-4xl mx-auto text-center">
+          <h3 className="text-2xl font-bold text-white mb-6">💬 Why?</h3>
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700">
+            <p className="text-lg text-slate-300 leading-relaxed">
+              Because paying upfront for "maybe" matches is so 2020.<br/>
+              With MatchWise, you only pay 2 % when you actually place a consultant.<br/>
+              No strings. No fixed fees. No hidden catches. Just real, measurable value, exactly when you need it.
+            </p>
+          </div>
         </div>
       </div>
     </section>
