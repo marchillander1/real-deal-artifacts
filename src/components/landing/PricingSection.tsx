@@ -22,7 +22,7 @@ export default function PricingSection() {
             <CardContent className="p-8">
               <h3 className="text-xl font-bold text-white mb-2">Win in the open market</h3>
               <p className="text-slate-400 mb-6">Tap into our external network and only pay when you succeed.</p>
-              <div className="text-3xl font-bold text-white mb-6">💰 2 % success fee<span className="text-lg text-slate-400 block">Only pay when you actually place a consultant.</span></div>
+              <div className="text-2xl font-bold text-white mb-6">Start Free Trial</div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start text-slate-300">
