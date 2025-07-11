@@ -91,7 +91,7 @@ export default function PricingSection() {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                  <span>Log in at <Link to="/talent-activation" className="text-purple-300 hover:text-purple-200 underline">/talent-activation</Link> to get started</span>
+                  <span>Log in <Link to="/talent-activation" className="text-purple-300 hover:text-purple-200 underline">here</Link> to get started</span>
                 </li>
                 <li className="flex items-start text-slate-300">
                   <div className="w-4 h-4 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
