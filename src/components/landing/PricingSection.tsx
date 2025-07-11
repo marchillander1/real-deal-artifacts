@@ -20,7 +20,7 @@ export default function PricingSection() {
               <Badge className="bg-emerald-600 text-white">🎯 Performance Plan</Badge>
             </div>
             <CardContent className="p-8">
-              <h3 className="text-xl font-bold text-white mb-2">Win in the open market</h3>
+              <h3 className="text-3xl font-bold text-white mb-2">Win in the open market</h3>
               <p className="text-slate-400 mb-6">Tap into our external network and only pay when you succeed.</p>
               
               <ul className="space-y-3 mb-8">
@@ -83,7 +83,7 @@ export default function PricingSection() {
               <Badge className="bg-purple-600 text-white">🧩 Talent Activation Plan</Badge>
             </div>
             <CardContent className="p-8">
-              <h3 className="text-xl font-bold text-white mb-2">Activate your talent</h3>
+              <h3 className="text-3xl font-bold text-white mb-2">Activate your talent</h3>
               <p className="text-slate-400 mb-6">Get your consultants market-ready and visible, instantly.</p>
               
               
@@ -155,7 +155,7 @@ export default function PricingSection() {
               <Badge className="bg-blue-600 text-white">💡 Internal Pro Plan</Badge>
             </div>
             <CardContent className="p-8">
-              <h3 className="text-xl font-bold text-white mb-2">Supercharge your internal team</h3>
+              <h3 className="text-3xl font-bold text-white mb-2">Supercharge your internal team</h3>
               <p className="text-slate-400 mb-6">Upgrade your own consultants and deliver a branded client experience.</p>
               
               <ul className="space-y-3 mb-8">
