@@ -5,7 +5,7 @@ import { CompanyDashboard } from '@/components/company/CompanyDashboard';
 import { Card } from '@/components/ui/card';
 import { Building2, Users, Zap, Shield } from 'lucide-react';
 
-export default function CVUploadCompany() {
+export default function TalentActivation() {
   const { user, session } = useAuth();
 
   if (session && user) {

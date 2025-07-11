@@ -11,7 +11,7 @@ import Automations from "./pages/Automations";
 import MatchWiseAI from "./pages/MatchWiseAI";
 import CVUpload from "./pages/CVUpload";
 import CVUploadModern from "./pages/CVUploadModern";
-import CVUploadCompany from "./pages/CVUploadCompany";
+import TalentActivation from "./pages/TalentActivation";
 import Analysis from "./pages/Analysis";
 import Reports from "./pages/Reports";
 import MyProfile from "./pages/MyProfile";
@@ -38,7 +38,7 @@ const App: React.FC = () => {
               <Route path="/dashboard" element={<MatchWiseAI />} />
               <Route path="/cv-upload" element={<CVUpload />} />
               <Route path="/cv-upload-new" element={<CVUploadModern />} />
-              <Route path="/cv-upload-company" element={<CVUploadCompany />} />
+              <Route path="/talent-activation" element={<TalentActivation />} />
               <Route path="/analysis" element={<Analysis />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/my-profile" element={<MyProfile />} />
