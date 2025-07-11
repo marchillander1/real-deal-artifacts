@@ -14,6 +14,7 @@ import CVUploadModern from "./pages/CVUploadModern";
 import Analysis from "./pages/Analysis";
 import Reports from "./pages/Reports";
 import MyProfile from "./pages/MyProfile";
+import DemoConsultant from "./pages/DemoConsultant";
 import AdminPortal from "./pages/AdminPortal";
 import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
@@ -39,6 +40,7 @@ const App: React.FC = () => {
               <Route path="/analysis" element={<Analysis />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/my-profile" element={<MyProfile />} />
+              <Route path="/demo-consultant" element={<DemoConsultant />} />
               <Route path="/admin" element={<AdminPortal />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/auth" element={<Auth />} />
