@@ -156,37 +156,29 @@ export default function Automations() {
   const generateFinalGoal = async () => {
     setIsGenerating(true);
     
-    // Simulate AI generation (replace with actual OpenAI API call)
-    setTimeout(() => {
-      const goal = `
-**Automation Goal:** ${automationData.description}
+    try {
+      const response = await fetch('https://xbliknlrikolcjjfhxqa.supabase.co/functions/v1/automation-blueprint', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGlrbmxyaWtvbGNqamZoeHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzAzNzksImV4cCI6MjA2NDY0NjM3OX0.fdHf9AYYfHAwetzpfagscbmXaQSBVgdd38XvzoN0m14`,
+        },
+        body: JSON.stringify({ automationData }),
+      });
 
-**Trigger:** ${automationData.trigger}
+      if (!response.ok) {
+        throw new Error('Failed to generate automation blueprint');
+      }
 
-**Process Flow:**
-${automationData.steps}
-
-**Integrated Systems:**
-${automationData.systems}
-
-**Error Handling:**
-${automationData.errorHandling}
-
-**Expected Output:**
-${automationData.output}
-
-${automationData.notifications ? `**Notifications:** ${automationData.notifications}` : ''}
-
-${automationData.conditions ? `**Conditions & Exceptions:** ${automationData.conditions}` : ''}
-
-**Summary:**
-This automation will streamline the process for ${automationData.description.toLowerCase()} by automatically triggering when ${automationData.trigger.toLowerCase()}. The system will execute the defined steps and deliver ${automationData.output.toLowerCase()} with robust error handling in place.
-      `.trim();
-
-      setFinalGoal(goal);
+      const data = await response.json();
+      setFinalGoal(data.blueprint);
       setIsCompleted(true);
+    } catch (error) {
+      console.error('Error generating blueprint:', error);
+      toast.error('Kunde inte generera automation blueprint. Försök igen.');
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   const copyToClipboard = () => {
