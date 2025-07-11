@@ -122,33 +122,33 @@ export const CompanyDashboard: React.FC = () => {
   };
 
   const generateMockActivities = (consultants: any[]) => {
-    const mockActivities: ActivityItem[] = [
+      const mockActivities: ActivityItem[] = [
       {
         id: '1',
         type: 'inquiry',
-        message: 'Ny förfrågan för React-utvecklare från TechCorp AB',
-        timestamp: '2 timmar sedan',
+        message: 'New inquiry for React developer from TechCorp AB',
+        timestamp: '2 hours ago',
         consultant: consultants[0]?.name
       },
       {
         id: '2',
         type: 'placement',
-        message: `${consultants[0]?.name || 'En konsult'} har matchats till nytt uppdrag`,
-        timestamp: '1 dag sedan',
+        message: `${consultants[0]?.name || 'A consultant'} has been matched to new assignment`,
+        timestamp: '1 day ago',
         consultant: consultants[0]?.name
       },
       {
         id: '3',
         type: 'edit',
-        message: `Profil uppdaterad för ${consultants[1]?.name || 'konsult'}`,
-        timestamp: '3 dagar sedan',
+        message: `Profile updated for ${consultants[1]?.name || 'consultant'}`,
+        timestamp: '3 days ago',
         consultant: consultants[1]?.name
       },
       {
         id: '4',
         type: 'assignment_end',
-        message: 'Uppdrag avslutas inom kort för systemarkitekt',
-        timestamp: '1 vecka sedan'
+        message: 'Assignment ending soon for system architect',
+        timestamp: '1 week ago'
       }
     ];
 
@@ -213,21 +213,21 @@ export const CompanyDashboard: React.FC = () => {
             variant={activeTab === 'overview' ? 'default' : 'outline'}
           >
             <BarChart3 className="h-4 w-4 mr-2" />
-            Översikt
+            Overview
           </Button>
           <Button
             onClick={() => setActiveTab('upload')}
             variant={activeTab === 'upload' ? 'default' : 'outline'}
           >
             <Upload className="h-4 w-4 mr-2" />
-            Ladda upp konsulter
+            Upload Consultants
           </Button>
           <Button
             onClick={() => setActiveTab('consultants')}
             variant={activeTab === 'consultants' ? 'default' : 'outline'}
           >
             <Users className="h-4 w-4 mr-2" />
-            Hantera konsulter ({consultants.length})
+            Manage Consultants ({consultants.length})
           </Button>
         </div>
 
@@ -239,13 +239,13 @@ export const CompanyDashboard: React.FC = () => {
               <CardContent className="p-8">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold mb-2">👋 Välkommen tillbaka, {profile?.company || profile?.full_name}!</h1>
+                    <h1 className="text-3xl font-bold mb-2">👋 Welcome back, {profile?.company || profile?.full_name}!</h1>
                     <p className="text-blue-100 text-lg mb-4">
-                      Här är en snabb överblick av dina konsulter och marknadsaktivitet.
+                      Here's a quick snapshot of your consultants and market activity.
                     </p>
                     <p className="text-blue-100">
-                      Behåll full kontroll över din konsultpool och marknadsaktivitet. Övervaka placeringar, 
-                      hantera profiler och se exakt hur dina konsulter presterar på marknaden — allt på ett ställe.
+                      Keep full control of your consultant pool and market activity. Monitor placements, 
+                      manage profiles, and see exactly how your consultants perform in the market — all in one place.
                     </p>
                   </div>
                   <div className="hidden md:block">
@@ -261,7 +261,7 @@ export const CompanyDashboard: React.FC = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Totalt antal konsulter</p>
+                      <p className="text-sm font-medium text-gray-600">Total Consultants</p>
                       <p className="text-3xl font-bold text-gray-900">{metrics.totalConsultants}</p>
                     </div>
                     <Users className="h-10 w-10 text-blue-600" />
@@ -273,7 +273,7 @@ export const CompanyDashboard: React.FC = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Aktiva konsulter</p>
+                      <p className="text-sm font-medium text-gray-600">Active Consultants</p>
                       <p className="text-3xl font-bold text-green-600">{metrics.activeConsultants}</p>
                     </div>
                     <UserCheck className="h-10 w-10 text-green-600" />
@@ -285,7 +285,7 @@ export const CompanyDashboard: React.FC = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Placerade konsulter</p>
+                      <p className="text-sm font-medium text-gray-600">Placed Consultants</p>
                       <p className="text-3xl font-bold text-purple-600">{metrics.placedConsultants}</p>
                     </div>
                     <TrendingUp className="h-10 w-10 text-purple-600" />
@@ -297,7 +297,7 @@ export const CompanyDashboard: React.FC = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Utkast & pågående redigeringar</p>
+                      <p className="text-sm font-medium text-gray-600">Pending Edits or Drafts</p>
                       <p className="text-3xl font-bold text-orange-600">{metrics.draftConsultants}</p>
                     </div>
                     <FileText className="h-10 w-10 text-orange-600" />
@@ -309,7 +309,7 @@ export const CompanyDashboard: React.FC = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Totala marknadsförfrågningar</p>
+                      <p className="text-sm font-medium text-gray-600">Total Market Inquiries</p>
                       <p className="text-3xl font-bold text-blue-600">{metrics.totalInquiries}</p>
                     </div>
                     <Mail className="h-10 w-10 text-blue-600" />
@@ -321,9 +321,9 @@ export const CompanyDashboard: React.FC = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Genomsnittlig tid till placering</p>
+                      <p className="text-sm font-medium text-gray-600">Average Time to Placement</p>
                       <p className="text-3xl font-bold text-gray-900">{metrics.avgTimeToPlacement}</p>
-                      <p className="text-sm text-gray-500">dagar</p>
+                      <p className="text-sm text-gray-500">days</p>
                     </div>
                     <Clock className="h-10 w-10 text-gray-600" />
                   </div>
@@ -338,7 +338,7 @@ export const CompanyDashboard: React.FC = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <Activity className="h-5 w-5" />
-                      <span>Senaste aktiviteter</span>
+                      <span>Recent Activity</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -354,8 +354,8 @@ export const CompanyDashboard: React.FC = () => {
                       )) : (
                         <div className="text-center py-8 text-gray-500">
                           <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                          <p>Ingen aktivitet att visa ännu</p>
-                          <p className="text-sm">Ladda upp dina första konsulter för att komma igång</p>
+                          <p>No activity to show yet</p>
+                          <p className="text-sm">Upload your first consultants to get started</p>
                         </div>
                       )}
                     </div>
@@ -367,7 +367,7 @@ export const CompanyDashboard: React.FC = () => {
               <div>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Snabbåtgärder</CardTitle>
+                    <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Button 
@@ -376,7 +376,7 @@ export const CompanyDashboard: React.FC = () => {
                       variant="outline"
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      Ladda upp nya konsulter
+                      Upload New Consultants
                     </Button>
                     
                     <Button 
@@ -385,7 +385,7 @@ export const CompanyDashboard: React.FC = () => {
                       variant="outline"
                     >
                       <Settings className="h-4 w-4 mr-2" />
-                      Redigera/inaktivera konsulter
+                      Edit/Deactivate Consultants
                     </Button>
                     
                     <Button 
@@ -394,7 +394,7 @@ export const CompanyDashboard: React.FC = () => {
                       disabled
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Ladda ner one-pagers
+                      Download One-Pagers
                     </Button>
                     
                     <Button 
@@ -403,7 +403,7 @@ export const CompanyDashboard: React.FC = () => {
                       disabled
                     >
                       <BarChart3 className="h-4 w-4 mr-2" />
-                      Visa rapporter
+                      View Reports
                     </Button>
                   </CardContent>
                 </Card>
@@ -413,14 +413,14 @@ export const CompanyDashboard: React.FC = () => {
                   <CardContent className="p-4">
                     <div className="text-center">
                       <div className="mb-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        Företagskonto aktivt
+                        Company Account Active
                       </div>
                       <p className="text-sm text-gray-600">
-                        Du har full kontroll över dina konsulters synlighet och prissättning
+                        You have full control over your consultants' visibility and pricing
                       </p>
                       <div className="mt-4 text-lg font-semibold text-emerald-600">2% Success Fee</div>
                       <p className="text-gray-600 text-sm">
-                        Betala endast när dina konsulter blir anställda
+                        Only pay when your consultants get hired
                       </p>
                     </div>
                   </CardContent>
@@ -435,10 +435,10 @@ export const CompanyDashboard: React.FC = () => {
             <CardHeader className="bg-gray-50 border-b">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl font-bold text-gray-900">Bulk konsultuppladdning</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-900">Bulk Consultant Upload</CardTitle>
                   <p className="text-gray-600 mt-1">
-                    Ladda upp dina konsulter i bulk, låt vår AI analysera och paketera dem, 
-                    och bestäm när och hur de visas på marknaden.
+                    Upload your consultants in bulk, let our AI analyze and package them, 
+                    and decide when and how they appear on the market.
                   </p>
                 </div>
                 <Upload className="h-10 w-10 text-blue-600" />
@@ -450,17 +450,17 @@ export const CompanyDashboard: React.FC = () => {
                 <div className="flex items-start space-x-3">
                   <div className="text-2xl">👋</div>
                   <div>
-                    <h3 className="text-lg font-semibold text-blue-900 mb-2">Välkommen!</h3>
+                    <h3 className="text-lg font-semibold text-blue-900 mb-2">Welcome!</h3>
                     <p className="text-blue-800">
-                      Ladda upp dina konsulter i bulk, låt vår AI analysera och paketera dem, 
-                      och bestäm när och hur de visas på marknaden.
+                      Upload your consultants in bulk, let our AI analyze and package them, 
+                      and decide when and how they appear on the market.
                     </p>
                     <p className="text-blue-800 mt-2">
-                      Du har full kontroll: redigera profiler när som helst, sätt priser och tillgänglighet, 
-                      och ladda ner presentationsfärdiga one-pagers på sekunder.
+                      You're fully in control: edit profiles anytime, set pricing and availability, 
+                      and download presentation-ready one-pagers in seconds.
                     </p>
                     <p className="text-blue-800 mt-2 font-medium">
-                      Redo att få dina talanger från bänken? Vi kör!
+                      Ready to get your talent off the bench? Let's go!
                     </p>
                   </div>
                 </div>
@@ -476,9 +476,9 @@ export const CompanyDashboard: React.FC = () => {
             <CardHeader className="bg-gray-50 border-b">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl font-bold text-gray-900">Hantera konsulter</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-900">Manage Consultants</CardTitle>
                   <p className="text-gray-600 mt-1">
-                    Redigera, aktivera eller inaktivera dina konsulter. Uppdatera priser och tillgänglighet.
+                    Edit, activate, or deactivate your consultants. Update pricing and availability.
                   </p>
                 </div>
                 <Users className="h-10 w-10 text-blue-600" />
