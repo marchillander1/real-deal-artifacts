@@ -13,54 +13,122 @@ export default function PricingSection() {
           <p className="text-xl text-slate-300">💎 No risk. No lock-ins. Just 2 % when you land the right consultant.</p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Performance Plan */}
-          <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm max-w-lg">
+          <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-emerald-600 text-white">🚀 Performance Plan</Badge>
+              <Badge className="bg-emerald-600 text-white">🎯 Performance Plan</Badge>
             </div>
             <CardContent className="p-8">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-6 h-6 bg-emerald-600 rounded"></div>
-                <h3 className="text-xl font-bold text-white">Performance Plan</h3>
-              </div>
-              <p className="text-slate-400 mb-6">For teams who only want to pay when they win</p>
-              <div className="text-3xl font-bold text-white mb-6">💰 2 % success fee<span className="text-lg text-slate-400 block">Only pay when you find the one.</span></div>
+              <h3 className="text-xl font-bold text-white mb-2">Performance Plan</h3>
+              <p className="text-slate-400 mb-6">For companies that want to win in the open market</p>
+              <div className="text-3xl font-bold text-white mb-6">💰 2 % success fee<span className="text-lg text-slate-400 block">Only pay when you actually place a consultant.</span></div>
               
               <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Analyze your own or external consultants — no limits
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Access to MatchWise external network & market consultants
                 </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  AI-powered CV & profile deep dive (way beyond keywords)
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  AI-powered CV and deep profile analysis (way beyond keywords)
                 </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  True value & personality insights (because skills alone aren't enough)
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Personality & value insights for true cultural fit
                 </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Save favorites, download CVs, and wow your clients
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Save favorites & download CVs to wow your clients
                 </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Unlimited users, unlimited admins — bring the whole crew
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Unlimited admins & users — scale without limits
                 </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Next-level AI matching algorithms (actually smart, not "AI-washed")
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Advanced AI matching algorithms (actually smart, not "AI-washed")
                 </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Auto-generated personalized reports & cover letters (hello, time saver)
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Auto-generated personal reports & cover letters (bye manual work)
                 </li>
-                <li className="flex items-center text-slate-300">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3"></div>
-                  Priority support (because we move fast, just like you)
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Priority email support, because you move fast
                 </li>
               </ul>
+
+              <div className="space-y-3 mb-6">
+                <h4 className="text-lg font-semibold text-white">🏆 Badges</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm text-slate-300">
+                  <div>• Only pay when you win</div>
+                  <div>• Access to top external talent</div>
+                  <div>• AI-powered true fit matching</div>
+                  <div>• No upfront fees</div>
+                  <div>• Scalable & risk-free</div>
+                </div>
+              </div>
+
+              <TrialSignupModal />
+            </CardContent>
+          </Card>
+
+          {/* Internal Pro Plan */}
+          <Card className="bg-slate-800/50 border-blue-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-blue-600 text-white">💡 Internal Pro Plan</Badge>
+            </div>
+            <CardContent className="p-8">
+              <h3 className="text-xl font-bold text-white mb-2">Internal Pro Plan</h3>
+              <p className="text-slate-400 mb-6">For teams that want to supercharge their own consultants</p>
+              <div className="text-2xl font-bold text-white mb-6">💬 Start Free Trial</div>
+              
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Analyze and optimize your own consultants — no limits
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Deep AI-driven profiling: strengths, values, and hidden traits
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Boost your internal matchmaking and sales presentations
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Auto-generate personal reports & customized presentations (hello, time saver)
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Build internal "dream teams" and highlight your best people
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Unlimited admins & users — involve the whole team
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  No tech build-out needed, no hidden costs, zero headaches
+                </li>
+                <li className="flex items-start text-slate-300">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                  Priority email support to keep you moving
+                </li>
+              </ul>
+
+              <div className="space-y-3 mb-6">
+                <h4 className="text-lg font-semibold text-white">💡 Badges</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm text-slate-300">
+                  <div>• Supercharge your own consultants</div>
+                  <div>• Sell smarter, not harder</div>
+                  <div>• AI profiling beyond CVs</div>
+                  <div>• Instant presentation-ready profiles</div>
+                  <div>• Zero tech investment</div>
+                </div>
+              </div>
 
               <TrialSignupModal />
             </CardContent>
