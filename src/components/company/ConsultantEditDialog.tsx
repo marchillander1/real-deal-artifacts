@@ -1,0 +1,377 @@
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { X, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+interface ConsultantEditDialogProps {
+  consultant: any;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConsultantUpdated: () => void;
+}
+
+export const ConsultantEditDialog: React.FC<ConsultantEditDialogProps> = ({
+  consultant,
+  open,
+  onOpenChange,
+  onConsultantUpdated
+}) => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    title: '',
+    email: '',
+    phone: '',
+    location: '',
+    availability: 'Available',
+    hourly_rate: '',
+    experience_years: '',
+    skills: [] as string[],
+    certifications: [] as string[],
+    languages: [] as string[],
+    tagline: '',
+    visibility_status: 'private'
+  });
+  
+  const [newSkill, setNewSkill] = useState('');
+  const [newCertification, setNewCertification] = useState('');
+  const [newLanguage, setNewLanguage] = useState('');
+
+  useEffect(() => {
+    if (consultant && open) {
+      setFormData({
+        name: consultant.name || '',
+        title: consultant.title || '',
+        email: consultant.email || '',
+        phone: consultant.phone || '',
+        location: consultant.location || '',
+        availability: consultant.availability || 'Available',
+        hourly_rate: consultant.hourly_rate?.toString() || '',
+        experience_years: consultant.experience_years?.toString() || '',
+        skills: consultant.skills || [],
+        certifications: consultant.certifications || [],
+        languages: consultant.languages || [],
+        tagline: consultant.tagline || '',
+        visibility_status: consultant.visibility_status || 'private'
+      });
+    }
+  }, [consultant, open]);
+
+  const addItem = (type: 'skills' | 'certifications' | 'languages', value: string) => {
+    if (!value.trim()) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      [type]: [...prev[type], value.trim()]
+    }));
+    
+    if (type === 'skills') setNewSkill('');
+    if (type === 'certifications') setNewCertification('');
+    if (type === 'languages') setNewLanguage('');
+  };
+
+  const removeItem = (type: 'skills' | 'certifications' | 'languages', index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [type]: prev[type].filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    
+    try {
+      const updateData = {
+        ...formData,
+        hourly_rate: formData.hourly_rate ? parseInt(formData.hourly_rate) : null,
+        experience_years: formData.experience_years ? parseInt(formData.experience_years) : null,
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('consultants')
+        .update(updateData)
+        .eq('id', consultant.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Consultant Updated",
+        description: "Profile has been successfully updated",
+      });
+
+      onConsultantUpdated();
+      onOpenChange(false);
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit Consultant Profile</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Basic Information */}
+          <Card className="bg-slate-700/50 border-slate-600">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="font-semibold text-white">Basic Information</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-white">Full Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-white">Job Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-white">Phone</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location" className="text-white">Location</Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Professional Details */}
+          <Card className="bg-slate-700/50 border-slate-600">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="font-semibold text-white">Professional Details</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="availability" className="text-white">Availability</Label>
+                <Select value={formData.availability} onValueChange={(value) => setFormData({...formData, availability: value})}>
+                  <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Available">Available</SelectItem>
+                    <SelectItem value="Partially Available">Partially Available</SelectItem>
+                    <SelectItem value="Not Available">Not Available</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="hourly_rate" className="text-white">Hourly Rate (SEK)</Label>
+                <Input
+                  id="hourly_rate"
+                  type="number"
+                  value={formData.hourly_rate}
+                  onChange={(e) => setFormData({...formData, hourly_rate: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="experience_years" className="text-white">Years of Experience</Label>
+                <Input
+                  id="experience_years"
+                  type="number"
+                  value={formData.experience_years}
+                  onChange={(e) => setFormData({...formData, experience_years: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tagline" className="text-white">Professional Tagline</Label>
+                <Textarea
+                  id="tagline"
+                  value={formData.tagline}
+                  onChange={(e) => setFormData({...formData, tagline: e.target.value})}
+                  className="bg-slate-600 border-slate-500 text-white"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="visibility" className="text-white">Visibility</Label>
+                <Select value={formData.visibility_status} onValueChange={(value) => setFormData({...formData, visibility_status: value})}>
+                  <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="private">Private (Internal Only)</SelectItem>
+                    <SelectItem value="public">Public (Network Visible)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Skills */}
+          <Card className="bg-slate-700/50 border-slate-600">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="font-semibold text-white">Skills</h3>
+              
+              <div className="flex gap-2">
+                <Input
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  placeholder="Add skill"
+                  className="bg-slate-600 border-slate-500 text-white"
+                  onKeyPress={(e) => e.key === 'Enter' && addItem('skills', newSkill)}
+                />
+                <Button
+                  onClick={() => addItem('skills', newSkill)}
+                  size="sm"
+                  type="button"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {formData.skills.map((skill, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                    {skill}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => removeItem('skills', index)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Certifications & Languages */}
+          <Card className="bg-slate-700/50 border-slate-600">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="font-semibold text-white">Certifications & Languages</h3>
+              
+              <div>
+                <Label className="text-white">Certifications</Label>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    value={newCertification}
+                    onChange={(e) => setNewCertification(e.target.value)}
+                    placeholder="Add certification"
+                    className="bg-slate-600 border-slate-500 text-white"
+                    onKeyPress={(e) => e.key === 'Enter' && addItem('certifications', newCertification)}
+                  />
+                  <Button
+                    onClick={() => addItem('certifications', newCertification)}
+                    size="sm"
+                    type="button"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.certifications.map((cert, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center gap-1">
+                      {cert}
+                      <X 
+                        className="h-3 w-3 cursor-pointer" 
+                        onClick={() => removeItem('certifications', index)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-white">Languages</Label>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    value={newLanguage}
+                    onChange={(e) => setNewLanguage(e.target.value)}
+                    placeholder="Add language"
+                    className="bg-slate-600 border-slate-500 text-white"
+                    onKeyPress={(e) => e.key === 'Enter' && addItem('languages', newLanguage)}
+                  />
+                  <Button
+                    onClick={() => addItem('languages', newLanguage)}
+                    size="sm"
+                    type="button"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.languages.map((lang, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center gap-1">
+                      {lang}
+                      <X 
+                        className="h-3 w-3 cursor-pointer" 
+                        onClick={() => removeItem('languages', index)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-700">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="text-white border-slate-600">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={loading}>
+            {loading ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
