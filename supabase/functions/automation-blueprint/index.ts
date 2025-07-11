@@ -36,38 +36,40 @@ serve(async (req) => {
 ${automationData.notifications ? `**Notifications:** ${automationData.notifications}` : ''}
 ${automationData.conditions ? `**Conditions:** ${automationData.conditions}` : ''}
 
-Create a structured analysis in English with the following format:
+Create a structured analysis in English. Do NOT mention specific automation tools, platforms, or software names. Focus on concepts, approaches, and feasibility.
 
 ## 🎯 AUTOMATION BLUEPRINT
 
 ### Executive Summary
-[Brief description of the automation and its value proposition]
+[Brief description of the automation opportunity and its strategic value]
 
 ### 🔍 Process Analysis
-**Current State:** [Analyze the current manual process]
-**Automation Potential:** [What can be automated and feasibility assessment]
+**Current State:** [Analyze the current manual process and pain points]
+**Automation Potential:** [Assess what can be automated and complexity level]
 
 ### ⚙️ Technical Approach
-**Implementation Strategy:** [High-level approach without specific tool names]
+**Implementation Strategy:** [High-level technical approach without naming tools]
 **Key Components:**
-1. [Specific component 1]
-2. [Specific component 2]
-3. [Specific component 3]
+1. [Technical component or integration point]
+2. [Data flow or trigger mechanism]
+3. [Action or output generation]
+
+**Integration Considerations:** [How different systems would connect]
 
 ### 📊 Expected Benefits
-**Time Savings:** [Estimate per week/month]
-**Quality Improvements:** [Reduced errors, faster processing]
-**Scalability:** [How this improves as volume grows]
+**Efficiency Gains:** [Quantified time and effort savings]
+**Quality Improvements:** [Error reduction and consistency benefits]
+**Scalability Impact:** [How this enables growth]
 
 ### 🚀 Implementation Roadmap
-**Phase 1:** [First concrete steps]
-**Phase 2:** [Next concrete steps]
-**Estimated Timeline:** [Timeframe for completion]
+**Phase 1:** [Foundation and core automation]
+**Phase 2:** [Enhancement and optimization]
+**Estimated Timeline:** [Realistic timeframe]
 
-### 🎯 Next Actions
-[3-5 concrete actionable steps to get started]
+### 🎯 Strategic Recommendations
+[4-5 high-level strategic recommendations for successful implementation]
 
-Be specific and practical. Focus on feasibility and actionable insights rather than specific tools.`;
+Be specific about the approach and benefits, but avoid mentioning any specific automation platforms, tools, or software names. Focus on the strategic and technical value proposition.`;
 
     console.log('Calling Gemini API...');
     
@@ -125,36 +127,39 @@ Be specific and practical. Focus on feasibility and actionable insights rather t
     const fallbackBlueprint = `## 🎯 AUTOMATION BLUEPRINT
 
 ### Executive Summary
-Based on your description "${automationData?.description || 'automation'}", we have identified several automation opportunities.
+Based on your requirements "${automationData?.description || 'automation'}", we have identified strategic automation opportunities that can significantly enhance operational efficiency.
 
 ### 🔍 Process Analysis
-**Current State:** Manual processes that consume time and may contain errors
-**Automation Potential:** Through automation, we can eliminate repetitive tasks
+**Current State:** Manual processes consuming valuable time and potentially introducing human error
+**Automation Potential:** High feasibility for eliminating repetitive tasks through systematic workflow automation
 
 ### ⚙️ Technical Approach
-**Implementation Strategy:** Workflow automation using integration platforms
+**Implementation Strategy:** Event-driven workflow automation with API integrations
 **Key Components:**
-1. Configure triggers based on your specifications
-2. Set up actions and integrations
-3. Test and verify the workflow
+1. Trigger configuration based on defined events or schedules
+2. Data processing and transformation logic
+3. Multi-system integration and output generation
+
+**Integration Considerations:** Seamless connectivity between existing systems through standardized APIs
 
 ### 📊 Expected Benefits
-**Time Savings:** Estimated 2-5 hours per week
-**Quality Improvements:** Reduced errors and faster processing
+**Efficiency Gains:** Estimated 60-80% reduction in manual processing time
+**Quality Improvements:** Elimination of human error and consistent output quality
+**Scalability Impact:** Ability to handle increased volume without proportional resource growth
 
 ### 🚀 Implementation Roadmap
-**Phase 1:** Pilot project with basic automation
-**Phase 2:** Expand with additional integrations
-**Estimated Timeline:** 2-4 weeks
+**Phase 1:** Core automation infrastructure and primary workflow
+**Phase 2:** Advanced features, monitoring, and optimization
+**Estimated Timeline:** 3-6 weeks depending on complexity
 
-### 🎯 Next Actions
-1. Choose an automation platform
-2. Map exact triggers and actions
-3. Set up a test workflow
-4. Test and iterate
-5. Launch into production
+### 🎯 Strategic Recommendations
+1. Start with highest-impact, lowest-complexity processes
+2. Establish robust monitoring and error handling protocols
+3. Design for scalability and future enhancement
+4. Implement comprehensive testing before production deployment
+5. Create documentation and training for stakeholders
 
-*Note: This is a simplified analysis as the AI service was not available.*`;
+*Note: This analysis provides strategic guidance. Detailed technical specifications require further consultation.*`;
 
     return new Response(JSON.stringify({ 
       blueprint: fallbackBlueprint,
