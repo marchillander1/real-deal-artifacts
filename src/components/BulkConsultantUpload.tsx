@@ -97,6 +97,12 @@ Jane Smith,jane@example.com,UX Designer,"Figma,Sketch,User Research",Göteborg,7
   const createConsultant = async (row: ConsultantRow) => {
     const skillsArray = row.skills.split(',').map(s => s.trim()).filter(s => s);
     
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+    
     const { error } = await supabase
       .from('consultants')
       .insert({
@@ -112,6 +118,7 @@ Jane Smith,jane@example.com,UX Designer,"Figma,Sketch,User Research",Göteborg,7
         rating: 5.0,
         projects_completed: 0,
         type: 'existing',
+        user_id: user.id,
         is_published: true
       });
 
@@ -151,49 +158,51 @@ Jane Smith,jane@example.com,UX Designer,"Figma,Sketch,User Research",Göteborg,7
 
   const processCVFile = async (cvFile: CVFile): Promise<boolean> => {
     try {
-      // Upload CV file first
-      const fileName = `cv_${Date.now()}_${cvFile.file.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('consultant-cvs')
-        .upload(fileName, cvFile.file);
+      // Create FormData for the parse-cv function
+      const formData = new FormData();
+      formData.append('file', cvFile.file);
+      formData.append('personalDescription', '');
+      formData.append('personalTagline', '');
+      formData.append('linkedinUrl', '');
 
-      if (uploadError) throw uploadError;
-
-      // Call CV parsing edge function
-      const { data, error } = await supabase.functions.invoke('parse-cv-enhanced', {
-        body: {
-          file_path: uploadData.path,
-          file_name: cvFile.file.name
-        }
+      // Call the existing parse-cv edge function (it will create a network consultant)
+      const { data, error } = await supabase.functions.invoke('parse-cv', {
+        body: formData
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Parse CV error:', error);
+        throw error;
+      }
 
-      // Create consultant from parsed CV data
-      const consultantData = data.consultant_data || {};
-      
-      const { error: insertError } = await supabase
-        .from('consultants')
-        .insert({
-          name: consultantData.name || `Consultant from ${cvFile.name}`,
-          email: consultantData.email || '',
-          title: consultantData.title || '',
-          skills: consultantData.skills || [],
-          location: consultantData.location || '',
-          hourly_rate: consultantData.hourly_rate || null,
-          experience_years: consultantData.experience_years || null,
-          phone: consultantData.phone || null,
-          cv_file_path: uploadData.path,
-          availability: 'Available',
-          rating: 5.0,
-          projects_completed: 0,
-          type: 'existing',
-          is_published: true,
-          cv_analysis_data: data.analysis || null
-        });
+      // The parse-cv function already created a consultant in the database as a network consultant
+      // We need to find that consultant and update it to be our team consultant
+      if (data && data.consultant) {
+        const consultantId = data.consultant.id;
+        
+        // Get current user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          throw new Error('User not authenticated');
+        }
 
-      if (insertError) throw insertError;
+        // Update the consultant to be a team consultant
+        const { error: updateError } = await supabase
+          .from('consultants')
+          .update({
+            type: 'existing',
+            user_id: user.id,
+            visibility_status: 'private'
+          })
+          .eq('id', consultantId);
 
+        if (updateError) {
+          console.error('Error updating consultant:', updateError);
+          throw updateError;
+        }
+      }
+
+      console.log('✅ CV parsing and team assignment successful for:', cvFile.name);
       return true;
     } catch (error) {
       console.error('Error processing CV:', error);
