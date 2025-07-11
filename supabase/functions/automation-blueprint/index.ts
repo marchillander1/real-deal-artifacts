@@ -9,26 +9,23 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Automation blueprint function called');
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('Processing request...');
     const { automationData } = await req.json();
+    console.log('Received automation data:', JSON.stringify(automationData, null, 2));
 
-    const prompt = `Du är en expert på automation och processoptimering. Din uppgift är att skapa en detaljerad automation blueprint baserat på användarens input. 
+    if (!geminiApiKey) {
+      console.error('GEMINI_API_KEY not found');
+      throw new Error('GEMINI_API_KEY not configured');
+    }
 
-Analysera noggrant vad användaren vill automatisera och skapa en praktisk, genomförbar plan som:
-1. Identifierar exakt vad som kan automatiseras
-2. Föreslår konkreta verktyg och teknologier
-3. Bryter ner processen i steg-för-steg instruktioner
-4. Identifierar potentiella utmaningar och lösningar
-5. Uppskattar tidsbesparingar och ROI
-6. Ger nästa steg för implementation
-
-Var specifik och praktisk. Fokusera på värde och genomförbarhet.
-
-Skapa en automation blueprint för följande scenario:
+    const prompt = `Du är en expert på automation och processoptimering. Skapa en detaljerad automation blueprint baserat på följande information:
 
 **Beskrivning:** ${automationData.description}
 **Trigger:** ${automationData.trigger}
@@ -39,55 +36,43 @@ Skapa en automation blueprint för följande scenario:
 ${automationData.notifications ? `**Notifieringar:** ${automationData.notifications}` : ''}
 ${automationData.conditions ? `**Villkor:** ${automationData.conditions}` : ''}
 
-Strukturera svaret enligt följande format:
+Skapa en strukturerad analys på svenska med följande format:
 
 ## 🎯 AUTOMATION BLUEPRINT
 
 ### Sammanfattning
-[Kort beskrivning av vad som kommer automatiseras och dess värde]
+[Kort beskrivning av automationen och dess värde]
 
 ### 🔍 Procesanalys
-**Nuvarande situation:**
-[Analysera nuvarande manuella process]
-
-**Automation potential:**
-[Vad som kan automatiseras och varför]
+**Nuvarande situation:** [Analysera nuvarande process]
+**Automation potential:** [Vad som kan automatiseras]
 
 ### ⚙️ Teknisk Implementation
-
-**Rekommenderade verktyg:**
-[Konkreta verktyg och plattformar]
-
-**Steg-för-steg process:**
-1. [Detaljerat steg 1]
-2. [Detaljerat steg 2]
-3. [osv...]
-
-**Integrationer:**
-[Hur systemen ska kopplas ihop]
-
-### 🛡️ Riskhantering & Säkerhet
-[Identifiera risker och föreslå lösningar]
+**Verktyg:** [Konkreta verktyg som Zapier, Make, Power Automate]
+**Steg-för-steg:**
+1. [Specifikt steg 1]
+2. [Specifikt steg 2]
+3. [Specifikt steg 3]
 
 ### 📊 Förväntad ROI
-**Tidsbesparingar:** [Konkret uppskattning]
-**Kostnadsbesparing:** [Om möjligt]
-**Kvalitetsförbättringar:** [Mindre fel, snabbare processing etc]
+**Tidsbesparingar:** [Uppskattning per vecka/månad]
+**Kvalitetsförbättringar:** [Mindre fel, snabbare processing]
 
 ### 🚀 Implementation Plan
-**Fas 1:** [Första steg]
-**Fas 2:** [Nästa steg]
-**Fas 3:** [Slutliga steg]
-
+**Fas 1:** [Första konkreta steg]
+**Fas 2:** [Nästa konkreta steg]
 **Uppskattat genomförande:** [Tidsram]
 
-### ⚠️ Potentiella Utmaningar
-[Identifiera möjliga hinder och lösningar]
-
 ### 🎯 Nästa Steg
-[Konkreta åtgärder för att komma igång]
+[3-5 konkreta åtgärder för att komma igång]
 
-Gör analysen på svenska och var specifik och praktisk.`;
+Var specifik och praktisk. Fokusera på konkreta verktyg och åtgärder.`;
+
+    console.log('Calling Gemini API...');
+    
+    // Set a timeout for the API call
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
@@ -104,17 +89,22 @@ Gör analysen på svenska och var specifik och praktisk.`;
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 1500,
         }
       }),
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      console.error('Gemini API error:', response.status, await response.text());
+      const errorText = await response.text();
+      console.error('Gemini API error:', response.status, errorText);
       throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('Gemini response received');
     
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
       console.error('Invalid response format from Gemini:', data);
@@ -122,17 +112,53 @@ Gör analysen på svenska och var specifik och praktisk.`;
     }
     
     const blueprint = data.candidates[0].content.parts[0].text;
+    console.log('Blueprint generated successfully');
 
     return new Response(JSON.stringify({ blueprint }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in automation-blueprint function:', error);
+    
+    // Return a fallback response if API fails
+    const fallbackBlueprint = `## 🎯 AUTOMATION BLUEPRINT
+
+### Sammanfattning
+Baserat på din beskrivning "${automationData?.description || 'automation'}" har vi identifierat flera möjligheter för automation.
+
+### 🔍 Procesanalys
+**Nuvarande situation:** Manuella processer som tar tid och kan innehålla fel
+**Automation potential:** Genom automation kan vi eliminera repetitiva uppgifter
+
+### ⚙️ Teknisk Implementation
+**Verktyg:** Zapier, Microsoft Power Automate, eller Make (tidigare Integromat)
+**Steg-för-steg:**
+1. Konfigurera triggers baserat på dina specificationer
+2. Sätt upp åtgärder och integrationer
+3. Testa och verifiera flödet
+
+### 📊 Förväntad ROI
+**Tidsbesparingar:** Uppskattningsvis 2-5 timmar per vecka
+**Kvalitetsförbättringar:** Minskade fel och snabbare processning
+
+### 🚀 Implementation Plan
+**Fas 1:** Pilotprojekt med grundläggande automation
+**Fas 2:** Utöka med fler integrationer
+**Uppskattat genomförande:** 2-4 veckor
+
+### 🎯 Nästa Steg
+1. Välj automation-plattform (rekommenderar Zapier för enkelhet)
+2. Kartlägg exakta triggers och åtgärder
+3. Sätt upp ett testflöde
+4. Testa och iterera
+5. Lansera i produktion
+
+*Observera: Detta är en förenklad analys då AI-tjänsten inte var tillgänglig.*`;
+
     return new Response(JSON.stringify({ 
-      error: error.message,
-      details: 'Failed to generate automation blueprint'
+      blueprint: fallbackBlueprint,
+      fallback: true 
     }), {
-      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
