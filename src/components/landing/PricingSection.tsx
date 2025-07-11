@@ -22,7 +22,6 @@ export default function PricingSection() {
             <CardContent className="p-8">
               <h3 className="text-xl font-bold text-white mb-2">Win in the open market</h3>
               <p className="text-slate-400 mb-6">Tap into our external network and only pay when you succeed.</p>
-              <div className="text-2xl font-bold text-white mb-6">Start Free Trial</div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start text-slate-300">
@@ -86,7 +85,7 @@ export default function PricingSection() {
             <CardContent className="p-8">
               <h3 className="text-xl font-bold text-white mb-2">Activate your talent</h3>
               <p className="text-slate-400 mb-6">Get your consultants market-ready and visible, instantly.</p>
-              <div className="text-2xl font-bold text-white mb-6">Start Free Trial</div>
+              
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start text-slate-300">
@@ -158,8 +157,6 @@ export default function PricingSection() {
             <CardContent className="p-8">
               <h3 className="text-xl font-bold text-white mb-2">Supercharge your internal team</h3>
               <p className="text-slate-400 mb-6">Upgrade your own consultants and deliver a branded client experience.</p>
-              <div className="text-2xl font-bold text-white mb-1">Fast price possible</div>
-              <div className="text-sm text-slate-400 mb-6">Contact us</div>
               
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start text-slate-300">
