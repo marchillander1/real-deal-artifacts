@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Defer navigation to avoid conflicts
           setTimeout(() => {
             const currentPath = window.location.pathname;
+            // Only redirect if coming from auth page, not from other pages
             if (currentPath === '/auth') {
               window.location.href = '/matchwiseai';
             }
