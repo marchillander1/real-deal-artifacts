@@ -165,51 +165,48 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
   return (
     <div className="space-y-6">
       {/* Upload Area */}
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Bulk Upload Consultants
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Upload className="h-5 w-5 text-gray-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Bulk Upload Consultants</h2>
+          </div>
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
               isDragActive 
-                ? 'border-blue-400 bg-blue-400/10' 
-                : 'border-slate-600 hover:border-slate-500'
+                ? 'border-blue-400 bg-blue-50' 
+                : 'border-gray-300 hover:border-gray-400'
             }`}
           >
             <input {...getInputProps()} />
-            <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               {isDragActive ? 'Drop files here' : 'Upload consultant CVs'}
             </h3>
-            <p className="text-slate-400 mb-4">
+            <p className="text-gray-600 mb-4">
               Drag and drop files here, or click to select files
             </p>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-gray-500">
               Supports PDF, DOC, and DOCX files. Upload multiple files at once.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* File List */}
       {uploadFiles.length > 0 && (
-        <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-white">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Files to Process ({uploadFiles.length})
-              </CardTitle>
+              </h2>
               <div className="flex gap-2">
                 <Button
                   onClick={() => setUploadFiles([])}
                   variant="outline"
                   size="sm"
-                  className="text-white border-slate-600"
                   disabled={isUploading}
                 >
                   Clear All
@@ -223,16 +220,14 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
                 </Button>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
             <div className="space-y-3">
               {uploadFiles.map((uploadFile) => (
-                <div key={uploadFile.id} className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
+                <div key={uploadFile.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                   {getStatusIcon(uploadFile.status)}
                   
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-white font-medium">{uploadFile.file.name}</span>
+                      <span className="text-gray-900 font-medium">{uploadFile.file.name}</span>
                       <span className={`text-sm capitalize ${getStatusColor(uploadFile.status)}`}>
                         {uploadFile.status}
                       </span>
@@ -243,10 +238,10 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
                     )}
                     
                     {uploadFile.error && (
-                      <p className="text-red-400 text-sm mt-1">{uploadFile.error}</p>
+                      <p className="text-red-600 text-sm mt-1">{uploadFile.error}</p>
                     )}
                     
-                    <div className="text-sm text-slate-400">
+                    <div className="text-sm text-gray-500">
                       {(uploadFile.file.size / 1024 / 1024).toFixed(2)} MB
                     </div>
                   </div>
@@ -256,7 +251,7 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
                       onClick={() => removeFile(uploadFile.id)}
                       variant="ghost"
                       size="sm"
-                      className="text-slate-400 hover:text-red-400"
+                      className="text-gray-500 hover:text-red-600"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -264,30 +259,30 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Instructions */}
-      <Card className="bg-slate-800/30 border-slate-700">
-        <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-white mb-3">How it works:</h3>
-          <div className="grid md:grid-cols-3 gap-4 text-sm text-slate-300">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">How it works:</h3>
+          <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
             <div>
-              <div className="text-blue-400 font-semibold mb-1">1. Upload CVs</div>
+              <div className="text-blue-600 font-semibold mb-1">1. Upload CVs</div>
               <p>Select multiple PDF or Word documents containing consultant CVs</p>
             </div>
             <div>
-              <div className="text-blue-400 font-semibold mb-1">2. AI Analysis</div>
+              <div className="text-blue-600 font-semibold mb-1">2. AI Analysis</div>
               <p>Our AI extracts skills, experience, values, and personality traits</p>
             </div>
             <div>
-              <div className="text-blue-400 font-semibold mb-1">3. Review & Publish</div>
+              <div className="text-blue-600 font-semibold mb-1">3. Review & Publish</div>
               <p>Edit profiles, set pricing, and choose visibility settings</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

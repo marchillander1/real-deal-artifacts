@@ -121,112 +121,112 @@ export const CompanyAuth: React.FC = () => {
 
   return (
     <div className="flex justify-center">
-      <Card className="w-full max-w-md bg-slate-800/50 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-center text-white flex items-center justify-center gap-2">
-            <Building2 className="h-5 w-5" />
-            Company Access
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold text-gray-900">Company Access</h2>
+            </div>
+          </div>
           <Tabs defaultValue="signup" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-slate-700">
-              <TabsTrigger value="signup" className="text-white">Sign Up</TabsTrigger>
-              <TabsTrigger value="login" className="text-white">Login</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100">
+              <TabsTrigger value="signup" className="text-gray-700">Sign Up</TabsTrigger>
+              <TabsTrigger value="login" className="text-gray-700">Login</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-white">Full Name</Label>
+                  <Label htmlFor="fullName" className="text-gray-700">Full Name</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="fullName"
                       type="text"
                       placeholder="Your full name"
                       value={signupData.fullName}
                       onChange={(e) => setSignupData({...signupData, fullName: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="company" className="text-white">Company Name</Label>
+                  <Label htmlFor="company" className="text-gray-700">Company Name</Label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="company"
                       type="text"
                       placeholder="Your company name"
                       value={signupData.company}
                       onChange={(e) => setSignupData({...signupData, company: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white">Email</Label>
+                  <Label htmlFor="email" className="text-gray-700">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="company@example.com"
                       value={signupData.email}
                       onChange={(e) => setSignupData({...signupData, email: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-white">Phone (Optional)</Label>
+                  <Label htmlFor="phone" className="text-gray-700">Phone (Optional)</Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="phone"
                       type="tel"
                       placeholder="+46 70 123 45 67"
                       value={signupData.phone}
                       onChange={(e) => setSignupData({...signupData, phone: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-white">Password</Label>
+                  <Label htmlFor="password" className="text-gray-700">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="password"
                       type="password"
                       placeholder="Create a strong password"
                       value={signupData.password}
                       onChange={(e) => setSignupData({...signupData, password: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-white">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-gray-700">Confirm Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="confirmPassword"
                       type="password"
                       placeholder="Confirm your password"
                       value={signupData.confirmPassword}
                       onChange={(e) => setSignupData({...signupData, confirmPassword: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                       required
                     />
                   </div>
@@ -241,32 +241,32 @@ export const CompanyAuth: React.FC = () => {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="loginEmail" className="text-white">Email</Label>
+                  <Label htmlFor="loginEmail" className="text-gray-700">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="loginEmail"
                       type="email"
                       placeholder="your@company.com"
                       value={loginData.email}
                       onChange={(e) => setLoginData({...loginData, email: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="loginPassword" className="text-white">Password</Label>
+                  <Label htmlFor="loginPassword" className="text-gray-700">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="loginPassword"
                       type="password"
                       placeholder="Your password"
                       value={loginData.password}
                       onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white"
+                      className="pl-10 bg-white border-gray-300 text-gray-900"
                       required
                     />
                   </div>
@@ -278,8 +278,8 @@ export const CompanyAuth: React.FC = () => {
               </form>
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
