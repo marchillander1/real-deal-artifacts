@@ -17,7 +17,7 @@ export default function PricingSection() {
           {/* Performance Plan */}
           <Card className="bg-slate-800/50 border-emerald-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-emerald-600 text-white text-lg px-4 py-2">🎯 Performance Plan</Badge>
+              <Badge className="bg-emerald-600 text-white text-base px-3 py-1">🎯 Performance Plan</Badge>
             </div>
             <CardContent className="p-8">
               <h3 className="text-3xl font-bold text-white mb-2">Win in the open market</h3>
@@ -80,7 +80,7 @@ export default function PricingSection() {
           {/* Talent Activation Plan */}
           <Card className="bg-slate-800/50 border-purple-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-purple-600 text-white text-lg px-4 py-2">🧩 Talent Activation Plan</Badge>
+              <Badge className="bg-purple-600 text-white text-base px-3 py-1">🧩 Talent Activation Plan</Badge>
             </div>
             <CardContent className="p-8">
               <h3 className="text-3xl font-bold text-white mb-2">Activate your talent</h3>
@@ -152,7 +152,7 @@ export default function PricingSection() {
           {/* Internal Pro Plan */}
           <Card className="bg-slate-800/50 border-blue-500 relative hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-blue-600 text-white text-lg px-4 py-2">💡 Internal Pro Plan</Badge>
+              <Badge className="bg-blue-600 text-white text-base px-3 py-1">💡 Internal Pro Plan</Badge>
             </div>
             <CardContent className="p-8">
               <h3 className="text-3xl font-bold text-white mb-2">Supercharge your internal team</h3>
