@@ -58,6 +58,8 @@ export interface Consultant {
   updated_at?: string;
   visibility_status?: string;
   is_published?: boolean;
+  user_id?: string;
+  company_id?: string;
   
   // Additional fields
   industries?: string[];

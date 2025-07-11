@@ -64,7 +64,10 @@ export const useSupabaseConsultantsWithDemo = () => {
           title: consultant.title || consultant.roles?.[0] || 'Consultant',
           // Include analysis data for the analysis modal
           cvAnalysis: consultant.cv_analysis_data || consultant.analysis_results,
-          linkedinAnalysis: consultant.linkedin_analysis_data
+          linkedinAnalysis: consultant.linkedin_analysis_data,
+          // Include user_id and company_id for access control
+          user_id: consultant.user_id,
+          company_id: consultant.company_id
         };
       });
 

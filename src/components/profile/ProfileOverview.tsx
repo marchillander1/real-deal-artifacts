@@ -13,6 +13,7 @@ import {
   CheckCircle,
   Calendar
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProfileOverviewProps {
   consultant: any;
@@ -25,6 +26,11 @@ export const ProfileOverview: React.FC<ProfileOverviewProps> = ({
   onEditClick,
   onToggleVisibility
 }) => {
+  const { user } = useAuth();
+  
+  // Check if current user can see contact information
+  const canViewContactInfo = user?.id === consultant.user_id || 
+                             (consultant.user_id && user?.id === consultant.user_id);
   return (
     <Card className="overflow-hidden">
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
@@ -88,14 +94,23 @@ export const ProfileOverview: React.FC<ProfileOverviewProps> = ({
               Kontaktinformation
             </h3>
             <div className="space-y-3">
-              <div className="flex items-center">
-                <Mail className="h-4 w-4 text-gray-500 mr-3" />
-                <span>{consultant.email}</span>
-              </div>
-              <div className="flex items-center">
-                <Phone className="h-4 w-4 text-gray-500 mr-3" />
-                <span>{consultant.phone}</span>
-              </div>
+              {canViewContactInfo ? (
+                <>
+                  <div className="flex items-center">
+                    <Mail className="h-4 w-4 text-gray-500 mr-3" />
+                    <span>{consultant.email}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Phone className="h-4 w-4 text-gray-500 mr-3" />
+                    <span>{consultant.phone}</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center text-gray-500">
+                  <Mail className="h-4 w-4 mr-3" />
+                  <span className="italic">Kontaktuppgifter döljs för allmänheten</span>
+                </div>
+              )}
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 text-gray-500 mr-3" />
                 <span>{consultant.location}</span>

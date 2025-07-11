@@ -20,6 +20,7 @@ import { useSupabaseConsultantsWithDemo } from '@/hooks/useSupabaseConsultantsWi
 import { Consultant } from '@/types/consultant';
 import { useNavigate } from 'react-router-dom';
 import { ConsultantAnalysisModal } from './ConsultantAnalysisModal';
+import { useAuth } from '@/hooks/useAuth';
 
 export const EnhancedConsultantsTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,19 +28,46 @@ export const EnhancedConsultantsTab: React.FC = () => {
   const [selectedConsultant, setSelectedConsultant] = useState<Consultant | null>(null);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const { consultants, isLoading, error } = useSupabaseConsultantsWithDemo();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const filteredConsultants = consultants.filter(consultant => {
-    const matchesSearch = consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                         consultant.location.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filter consultants to hide email and phone from non-company users
+  const filterSensitiveData = (consultant: Consultant): Consultant => {
+    // If consultant has no company_id or user_id, it's a demo/network consultant - hide contact info
+    if (!consultant.company_id && !consultant.user_id) {
+      return {
+        ...consultant,
+        email: '',
+        phone: ''
+      };
+    }
     
-    const matchesFilter = filterBy === 'all' || 
-                         (filterBy === 'network' && consultant.type === 'new') ||
-                         (filterBy === 'my' && consultant.type === 'existing');
+    // If the current user is the same as consultant's user_id, show all data
+    if (user?.id === consultant.user_id) {
+      return consultant;
+    }
     
-    return matchesSearch && matchesFilter;
-  });
+    // Otherwise, hide sensitive contact information
+    return {
+      ...consultant,
+      email: '',
+      phone: ''
+    };
+  };
+
+  const filteredConsultants = consultants
+    .map(filterSensitiveData) // Apply data filtering first
+    .filter(consultant => {
+      const matchesSearch = consultant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           consultant.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                           consultant.location.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesFilter = filterBy === 'all' || 
+                           (filterBy === 'network' && consultant.type === 'new') ||
+                           (filterBy === 'my' && consultant.type === 'existing');
+      
+      return matchesSearch && matchesFilter;
+    });
 
   const handleViewAnalysis = (consultant: Consultant) => {
     setSelectedConsultant(consultant);
