@@ -368,20 +368,6 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      {/* Summary */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
-            💬 One-liner summary
-          </h2>
-          <p className="text-xl text-slate-300 mb-4">
-            Choose your path. Upload. Analyze. Match. Win.
-          </p>
-          <p className="text-lg text-slate-400">
-            No risk. No upfront games.
-          </p>
-        </div>
-      </section>
 
       <Footer />
     </div>
