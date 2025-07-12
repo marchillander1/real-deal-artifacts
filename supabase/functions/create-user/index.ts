@@ -62,7 +62,8 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Add to user_management table using admin client to bypass RLS
-    const { error: userMgmtError } = await supabaseAdmin
+    console.log('Attempting to insert into user_management table...');
+    const { data: userMgmtData, error: userMgmtError } = await supabaseAdmin
       .from('user_management')
       .insert({
         email,
@@ -70,10 +71,15 @@ const handler = async (req: Request): Promise<Response> => {
         company: company || null,
         role: 'user',
         created_by: authData.user.id
-      });
+      })
+      .select()
+      .single();
 
     if (userMgmtError) {
       console.error('User management insertion error:', userMgmtError);
+      // Don't fail completely, just log the error
+    } else {
+      console.log('Successfully inserted into user_management:', userMgmtData);
     }
 
     // Send welcome email with login details
