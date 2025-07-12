@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
+import HowItWorks from "./pages/HowItWorks";
 import Automations from "./pages/Automations";
 import MatchWiseAI from "./pages/MatchWiseAI";
 import CVUpload from "./pages/CVUpload";
@@ -33,6 +34,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/landing" element={<Landing />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/automations" element={<Automations />} />
               <Route path="/matchwiseai" element={<MatchWiseAI />} />
               <Route path="/dashboard" element={<MatchWiseAI />} />
