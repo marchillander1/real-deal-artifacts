@@ -49,7 +49,7 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link to="/cv-upload">
               <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold rounded-xl flex items-center">
                 <Upload className="h-5 w-5 mr-2" />
@@ -69,6 +69,17 @@ const Index = () => {
               <Button variant="outline" size="lg" className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm">
                 <Users className="h-5 w-5 mr-2" />
                 Log In
+              </Button>
+            </Link>
+          </div>
+
+          {/* Try Now Button */}
+          <div className="flex justify-center mb-16">
+            <Link to="/demo">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-xl flex items-center">
+                <Play className="h-5 w-5 mr-2" />
+                Try Now
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </Link>
           </div>
