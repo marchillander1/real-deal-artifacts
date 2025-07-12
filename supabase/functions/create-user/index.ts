@@ -99,35 +99,44 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send welcome email with login details
-    await resend.emails.send({
-      from: "MatchWise <onboarding@resend.dev>",
-      to: [email],
-      subject: "Welcome to MatchWise — Let's get you matched!",
-      html: `
-        <p>Hi ${full_name.split(' ')[0]},</p>
-        <br>
-        <p>Welcome to MatchWise! 🎉</p>
-        <br>
-        <p>We're excited to have you join a smarter, more human way to connect top consultants with the right opportunities.</p>
-        <br>
-        <p><strong>👉 Get started right away here:</strong><br>
-        <a href="https://matchwise.tech/matchwiseai">matchwise.tech/matchwiseai</a></p>
-        <br>
-        <p>Inside, you'll find your personalized dashboard where you can explore matches, update your profile, and manage your preferences.</p>
-        <br>
-        <p><strong>Your login details:</strong><br>
-        Email: ${email}<br>
-        Password: ${password}</p>
-        <br>
-        <p>If you have any questions or need a hand, just reach out — we're here to help!</p>
-        <br>
-        <p><strong>📩 Contact:</strong> marc@matchwise.tech</p>
-        <br>
-        <p>Thanks for joining us — let's make magic happen together. 🚀</p>
-        <br>
-        <p>Warm regards,<br>The MatchWise Team</p>
-      `,
-    });
+    console.log('Attempting to send welcome email to:', email);
+    try {
+      const emailResponse = await resend.emails.send({
+        from: "MatchWise <onboarding@resend.dev>",
+        to: [email],
+        subject: "Welcome to MatchWise — Let's get you matched!",
+        html: `
+          <p>Hi ${full_name.split(' ')[0]},</p>
+          <br>
+          <p>Welcome to MatchWise! 🎉</p>
+          <br>
+          <p>We're excited to have you join a smarter, more human way to connect top consultants with the right opportunities.</p>
+          <br>
+          <p><strong>👉 Get started right away here:</strong><br>
+          <a href="https://matchwise.tech/matchwiseai">matchwise.tech/matchwiseai</a></p>
+          <br>
+          <p>Inside, you'll find your personalized dashboard where you can explore matches, update your profile, and manage your preferences.</p>
+          <br>
+          <p><strong>Your login details:</strong><br>
+          Email: ${email}<br>
+          Password: ${password}</p>
+          <br>
+          <p>If you have any questions or need a hand, just reach out — we're here to help!</p>
+          <br>
+          <p><strong>📩 Contact:</strong> marc@matchwise.tech</p>
+          <br>
+          <p>Thanks for joining us — let's make magic happen together. 🚀</p>
+          <br>
+          <p>Warm regards,<br>The MatchWise Team</p>
+        `,
+      });
+
+      console.log('Email sent successfully:', emailResponse);
+    } catch (emailError: any) {
+      console.error('CRITICAL: Email sending failed:', emailError);
+      // Log the specific error but don't fail the entire user creation
+      console.error('Email error details:', JSON.stringify(emailError));
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 
