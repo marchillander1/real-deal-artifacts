@@ -26,11 +26,24 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { email, full_name, company, password }: CreateUserRequest = await req.json();
 
+    console.log('Creating user with email:', email);
+
     // Create Supabase admin client
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
+
+    // Check if user already exists
+    const { data: existingUser, error: checkError } = await supabaseAdmin.auth.admin.listUsers();
+    if (checkError) {
+      console.error('Error checking existing users:', checkError);
+    }
+
+    const userExists = existingUser?.users?.find(user => user.email === email);
+    if (userExists) {
+      throw new Error(`En användare med e-post ${email} finns redan`);
+    }
 
     // Create user
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -43,8 +56,11 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (authError) {
+      console.error('Auth error:', authError);
       throw authError;
     }
+
+    console.log('User created successfully:', authData.user.id);
 
     // Create profile
     const { error: profileError } = await supabaseAdmin
