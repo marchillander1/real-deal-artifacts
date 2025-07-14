@@ -76,7 +76,7 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
           ? { ...f, progress: 60 }
           : f
       ));
-
+      
       // Create consultant
       const consultant = await ConsultantCreator.createConsultant({
         cvAnalysis: parseResult.analysis,
@@ -86,6 +86,17 @@ export const BulkConsultantUpload: React.FC<BulkConsultantUploadProps> = ({ onCo
         linkedinUrl: '',
         isMyConsultant: true
       });
+
+      // Update the consultant with user_id and company_id if needed
+      if (consultant && user) {
+        await supabase
+          .from('consultants')
+          .update({ 
+            user_id: user.id,
+            company_id: user.id // Set company_id to the user who uploaded
+          })
+          .eq('id', consultant.id);
+      }
 
       // Update progress
       setUploadFiles(prev => prev.map(f => 

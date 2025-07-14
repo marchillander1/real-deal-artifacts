@@ -72,7 +72,7 @@ export class ConsultantCreator {
       roles: cvAnalysis?.workHistory?.map((exp: any) => exp.role).filter((role: string) => role && role !== 'Not specified') || [cvAnalysis?.experience?.currentRole || cvAnalysis?.professionalSummary?.currentRole || 'Consultant'],
       certifications: [],
       type: isMyConsultant ? 'existing' : 'new',
-      user_id: isMyConsultant ? 'temp-user-id' : null,
+      user_id: null, // Will be set by the calling component if needed
       languages: ['English', 'Swedish'],
       work_style: linkedinData?.teamFitAssessment?.workStyle || 'Collaborative',
       values: ['Professional development', 'Innovation'],
