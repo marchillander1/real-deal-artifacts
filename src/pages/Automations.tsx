@@ -156,7 +156,19 @@ export default function Automations() {
   const generateFinalGoal = async () => {
     setIsGenerating(true);
     
+    // Validate input length to prevent API errors
+    const totalInputLength = Object.values(automationData).join(' ').length;
+    if (totalInputLength > 5000) {
+      toast.error('Your input is too long. Please shorten your descriptions and try again.');
+      setIsGenerating(false);
+      return;
+    }
+    
     try {
+      // Add timeout to fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch('https://xbliknlrikolcjjfhxqa.supabase.co/functions/v1/automation-blueprint', {
         method: 'POST',
         headers: {
@@ -164,18 +176,49 @@ export default function Automations() {
           'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGlrbmxyaWtvbGNqamZoeHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzAzNzksImV4cCI6MjA2NDY0NjM3OX0.fdHf9AYYfHAwetzpfagscbmXaQSBVgdd38XvzoN0m14`,
         },
         body: JSON.stringify({ automationData }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error('Failed to generate automation blueprint');
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        
+        if (response.status === 500) {
+          throw new Error('Server error. Please try again in a moment.');
+        } else if (response.status === 429) {
+          throw new Error('Too many requests. Please wait a moment and try again.');
+        } else {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
       }
 
       const data = await response.json();
+      
+      if (!data.blueprint) {
+        throw new Error('No blueprint received from server');
+      }
+      
       setFinalGoal(data.blueprint);
       setIsCompleted(true);
-    } catch (error) {
+      
+      if (data.fallback) {
+        toast.info('Generated using backup system - all functionality preserved.');
+      } else {
+        toast.success('Automation blueprint generated successfully!');
+      }
+      
+    } catch (error: any) {
       console.error('Error generating blueprint:', error);
-      toast.error('Could not generate automation blueprint. Please try again.');
+      
+      if (error.name === 'AbortError') {
+        toast.error('Request timed out. Please try again with shorter descriptions.');
+      } else if (error.message.includes('fetch')) {
+        toast.error('Network error. Please check your connection and try again.');
+      } else {
+        toast.error(error.message || 'Could not generate automation blueprint. Please try again.');
+      }
     } finally {
       setIsGenerating(false);
     }
