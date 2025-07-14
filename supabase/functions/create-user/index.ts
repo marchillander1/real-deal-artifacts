@@ -16,6 +16,8 @@ interface CreateUserRequest {
   full_name: string;
   company: string;
   password: string;
+  access_matchwiseai?: boolean;
+  access_talent_activation?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, full_name, company, password }: CreateUserRequest = await req.json();
+    const { email, full_name, company, password, access_matchwiseai = true, access_talent_activation = false }: CreateUserRequest = await req.json();
 
     console.log('Creating user with email:', email);
 
@@ -86,7 +88,9 @@ const handler = async (req: Request): Promise<Response> => {
         full_name,
         company: company || null,
         role: 'user',
-        created_by: authData.user.id
+        created_by: authData.user.id,
+        access_matchwiseai,
+        access_talent_activation
       })
       .select()
       .single();
@@ -98,13 +102,22 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('Successfully inserted into user_management:', userMgmtData);
     }
 
+    // Generate access information for email
+    const accessSections = [];
+    if (access_matchwiseai) {
+      accessSections.push('<li><strong>MatchWise AI:</strong> <a href="https://matchwise.tech/matchwiseai">matchwise.tech/matchwiseai</a></li>');
+    }
+    if (access_talent_activation) {
+      accessSections.push('<li><strong>Talent Activation:</strong> <a href="https://matchwise.tech/talent-activation">matchwise.tech/talent-activation</a></li>');
+    }
+    
     // Send welcome email with login details
     console.log('Attempting to send welcome email to:', email);
     try {
       const emailResponse = await resend.emails.send({
         from: "MatchWise <onboarding@resend.dev>",
         to: [email],
-        subject: "Welcome to MatchWise — Let's get you matched!",
+        subject: "Welcome to MatchWise",
         html: `
           <p>Hi ${full_name.split(' ')[0]},</p>
           <br>
@@ -112,14 +125,16 @@ const handler = async (req: Request): Promise<Response> => {
           <br>
           <p>We're excited to have you join a smarter, more human way to connect top consultants with the right opportunities.</p>
           <br>
-          <p><strong>👉 Get started right away here:</strong><br>
-          <a href="https://matchwise.tech/matchwiseai">matchwise.tech/matchwiseai</a></p>
-          <br>
-          <p>Inside, you'll find your personalized dashboard where you can explore matches, update your profile, and manage your preferences.</p>
-          <br>
           <p><strong>Your login details:</strong><br>
           Email: ${email}<br>
           Password: ${password}</p>
+          <br>
+          <p><strong>You have access to the following sections:</strong></p>
+          <ul>
+            ${accessSections.join('')}
+          </ul>
+          <br>
+          <p>Inside, you'll find your personalized dashboard where you can explore matches, update your profile, and manage your preferences.</p>
           <br>
           <p>If you have any questions or need a hand, just reach out — we're here to help!</p>
           <br>
@@ -133,11 +148,16 @@ const handler = async (req: Request): Promise<Response> => {
 
       console.log('Email sent successfully:', emailResponse);
 
+      // Generate access info for Marc's notification
+      const accessInfo = [];
+      if (access_matchwiseai) accessInfo.push('MatchWise AI');
+      if (access_talent_activation) accessInfo.push('Talent Activation');
+      
       // Send notification email to Marc
       const notificationResponse = await resend.emails.send({
         from: "MatchWise <onboarding@resend.dev>",
         to: ["marc@matchwise.tech"],
-        subject: "New User Created in MatchWise",
+        subject: "New user created",
         html: `
           <h2>New User Created</h2>
           <p>A new user has been added to MatchWise:</p>
@@ -145,6 +165,7 @@ const handler = async (req: Request): Promise<Response> => {
             <li><strong>Name:</strong> ${full_name}</li>
             <li><strong>Email:</strong> ${email}</li>
             <li><strong>Company:</strong> ${company || 'No company specified'}</li>
+            <li><strong>Access permissions:</strong> ${accessInfo.join(', ') || 'None'}</li>
             <li><strong>Created by:</strong> Admin</li>
           </ul>
           <p>The user has been sent a welcome email with their login credentials.</p>

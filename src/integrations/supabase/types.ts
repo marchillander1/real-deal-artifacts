@@ -744,6 +744,8 @@ export type Database = {
       }
       user_management: {
         Row: {
+          access_matchwiseai: boolean | null
+          access_talent_activation: boolean | null
           company: string | null
           created_at: string
           created_by: string
@@ -755,6 +757,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_matchwiseai?: boolean | null
+          access_talent_activation?: boolean | null
           company?: string | null
           created_at?: string
           created_by: string
@@ -766,6 +770,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_matchwiseai?: boolean | null
+          access_talent_activation?: boolean | null
           company?: string | null
           created_at?: string
           created_by?: string

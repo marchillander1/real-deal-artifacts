@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, Edit, Users, UserPlus } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +23,8 @@ interface User {
   role: string;
   status: string;
   created_at: string;
+  access_matchwiseai?: boolean;
+  access_talent_activation?: boolean;
 }
 
 export const UserManagement: React.FC = () => {
@@ -31,7 +34,9 @@ export const UserManagement: React.FC = () => {
     full_name: '',
     company: '',
     role: 'user',
-    password: ''
+    password: '',
+    access_matchwiseai: true,
+    access_talent_activation: false
   });
   const queryClient = useQueryClient();
 
@@ -58,7 +63,9 @@ export const UserManagement: React.FC = () => {
           email: userData.email,
           full_name: userData.full_name,
           company: userData.company,
-          password: userData.password
+          password: userData.password,
+          access_matchwiseai: userData.access_matchwiseai,
+          access_talent_activation: userData.access_talent_activation
         }
       });
 
@@ -73,7 +80,9 @@ export const UserManagement: React.FC = () => {
         full_name: '',
         company: '',
         role: 'user',
-        password: ''
+        password: '',
+        access_matchwiseai: true,
+        access_talent_activation: false
       });
       toast.success('Användare har lagts till');
     },
@@ -197,6 +206,36 @@ export const UserManagement: React.FC = () => {
                         <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Label>Åtkomstbehörigheter</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="access_matchwiseai"
+                          checked={formData.access_matchwiseai}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, access_matchwiseai: !!checked }))
+                          }
+                        />
+                        <Label htmlFor="access_matchwiseai" className="text-sm font-normal">
+                          Åtkomst till MatchWise AI
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="access_talent_activation"
+                          checked={formData.access_talent_activation}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, access_talent_activation: !!checked }))
+                          }
+                        />
+                        <Label htmlFor="access_talent_activation" className="text-sm font-normal">
+                          Åtkomst till Talent Activation
+                        </Label>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => setShowAddDialog(false)}>
