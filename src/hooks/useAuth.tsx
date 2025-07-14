@@ -35,21 +35,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const currentPath = window.location.pathname;
             // Only redirect if coming from auth page, not from other pages
             if (currentPath === '/auth') {
+              // Check if user is a consultant or business user
               try {
-                // First check if user is admin
-                const { data: profile } = await supabase
-                  .from('profiles')
-                  .select('role')
-                  .eq('id', session.user.id)
-                  .single();
-
-                if (profile?.role === 'admin') {
-                  // User is admin, redirect to admin portal
-                  window.location.href = '/admin';
-                  return;
-                }
-
-                // Then check if user has a consultant profile
+                // First check if user has a consultant profile
                 const { data: consultant } = await supabase
                   .from('consultants')
                   .select('id, user_id')
@@ -64,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   window.location.href = '/matchwiseai';
                 }
               } catch (error) {
-                // If error checking user type, default to business dashboard
+                // If error checking consultant status, default to business dashboard
                 console.log('Could not determine user type, defaulting to business dashboard');
                 window.location.href = '/matchwiseai';
               }
