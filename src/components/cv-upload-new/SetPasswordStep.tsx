@@ -92,9 +92,25 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
           console.error('Error creating user profile:', profileError);
         }
 
+        // Send registration emails
+        try {
+          await supabase.functions.invoke('consultant-registration', {
+            body: {
+              email,
+              full_name: fullName,
+              password,
+              consultant_id: consultantId
+            }
+          });
+          console.log('Registration emails sent successfully');
+        } catch (emailError) {
+          console.error('Error sending registration emails:', emailError);
+          // Don't fail the registration if emails fail
+        }
+
         toast({
           title: "Konto skapat!",
-          description: "Du kan nu logga in med din e-post och lösenord",
+          description: "Du kan nu logga in med din e-post och lösenord. Kolla din inkorg för välkomstmejl!",
         });
 
         // Auto sign in and complete
