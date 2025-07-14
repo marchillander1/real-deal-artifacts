@@ -87,6 +87,22 @@ export const CompanyAuth: React.FC = () => {
           if (profileError) {
             console.error('Profile creation error:', profileError);
           }
+
+          // Also save to user_management table so they appear in /admin
+          const { error: userMgmtError } = await supabase
+            .from('user_management')
+            .insert({
+              email: signupData.email,
+              full_name: signupData.fullName,
+              company: signupData.company,
+              role: 'company_admin',
+              status: 'active',
+              created_by: newUser.id
+            });
+          
+          if (userMgmtError) {
+            console.error('User management creation error:', userMgmtError);
+          }
         }
 
         // Send welcome email
@@ -101,6 +117,19 @@ export const CompanyAuth: React.FC = () => {
           });
         } catch (emailError) {
           console.error('Welcome email error:', emailError);
+        }
+
+        // Send registration notification to Marc
+        try {
+          await supabase.functions.invoke('send-registration-notification', {
+            body: {
+              consultantName: signupData.fullName,
+              consultantEmail: signupData.email,
+              isMyConsultant: false
+            }
+          });
+        } catch (notificationError) {
+          console.error('Registration notification error:', notificationError);
         }
 
         toast({
