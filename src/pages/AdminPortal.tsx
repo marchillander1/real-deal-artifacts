@@ -28,10 +28,47 @@ import { useSupabaseConsultants } from '@/hooks/useSupabaseConsultants';
 import { useSupabaseAssignments } from '@/hooks/useSupabaseAssignments';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { Navigate } from 'react-router-dom';
 
 const AdminPortal = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const { user } = useAuth();
+  
+  // Check if user has admin privileges
+  const { data: userProfile, isLoading } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user
+  });
+  
+  // Show loading while checking permissions
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600">Checking permissions...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Redirect if not admin
+  if (!userProfile || userProfile.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
   
   const { consultants } = useSupabaseConsultants();
   const { assignments } = useSupabaseAssignments();
