@@ -60,12 +60,12 @@ export const UserManagement: React.FC = () => {
       // Use the create-user edge function which handles everything
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
-          email: userData.email,
-          full_name: userData.full_name,
-          company: userData.company,
-          password: userData.password,
-          access_matchwiseai: userData.access_matchwiseai,
-          access_talent_activation: userData.access_talent_activation
+          email: formData.email,
+          full_name: formData.full_name,
+          company: formData.company,
+          password: formData.password,
+          access_matchwiseai: formData.access_matchwiseai,
+          access_talent_activation: formData.access_talent_activation
         }
       });
 
