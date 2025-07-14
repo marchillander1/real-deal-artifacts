@@ -79,17 +79,23 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
         }
 
         // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            user_id: authData.user.id,
-            email,
-            full_name: fullName,
-            availability: 'Available'
-          });
+        try {
+          const { error: profileError } = await supabase
+            .from('user_profiles')
+            .insert({
+              user_id: authData.user.id,
+              email,
+              full_name: fullName,
+              availability: 'Available'
+            });
 
-        if (profileError) {
-          console.error('Error creating user profile:', profileError);
+          if (profileError) {
+            console.error('Error creating user profile:', profileError);
+            // Don't fail the entire process if profile creation fails
+          }
+        } catch (profileErr) {
+          console.error('Profile creation failed:', profileErr);
+          // Continue anyway since the main account was created
         }
 
         // Send registration emails
@@ -125,9 +131,18 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
       }
     } catch (error: any) {
       console.error('Error creating account:', error);
+      
+      let errorMessage = "Kunde inte skapa ditt konto. Försök igen.";
+      
+      if (error.code === 'over_email_send_rate_limit' || error.message?.includes('you can only request this after')) {
+        errorMessage = "För många försök. Vänta en minut och försök igen.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Fel vid kontoskapande",
-        description: error.message || "Kunde inte skapa ditt konto. Försök igen.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
