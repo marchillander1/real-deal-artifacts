@@ -137,6 +137,11 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
           description: "You can now log in with your email and password. Check your inbox for welcome email!",
         });
 
+        // Redirect to my-profile since user is a consultant
+        setTimeout(() => {
+          window.location.href = '/my-profile';
+        }, 1000);
+
         // Complete the process
         onComplete();
       }
