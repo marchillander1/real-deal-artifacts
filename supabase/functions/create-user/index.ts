@@ -36,30 +36,48 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    // Check if user already exists
+    // Check if user already exists in auth.users
     const { data: existingUser, error: checkError } = await supabaseAdmin.auth.admin.listUsers();
     if (checkError) {
       console.error('Error checking existing users:', checkError);
     }
 
     const userExists = existingUser?.users?.find(user => user.email === email);
+    
+    let authData;
     if (userExists) {
-      throw new Error(`En användare med e-post ${email} finns redan`);
-    }
-
-    // Create user
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        full_name,
+      console.log('User already exists in auth.users, using existing user:', userExists.id);
+      authData = { user: userExists };
+      
+      // Update the existing user's password
+      const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+        userExists.id,
+        { 
+          password,
+          user_metadata: { full_name }
+        }
+      );
+      
+      if (updateError) {
+        console.error('Error updating existing user:', updateError);
       }
-    });
+    } else {
+      // Create new user
+      const { data: newAuthData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          full_name,
+        }
+      });
 
-    if (authError) {
-      console.error('Auth error:', authError);
-      throw authError;
+      if (authError) {
+        console.error('Auth error:', authError);
+        throw authError;
+      }
+      
+      authData = newAuthData;
     }
 
     console.log('User created successfully:', authData.user.id);
