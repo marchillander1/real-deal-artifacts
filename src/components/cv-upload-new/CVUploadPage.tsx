@@ -5,10 +5,11 @@ import { AnalysisProgress } from './AnalysisProgress';
 import { AnalysisResults } from './AnalysisResults';
 import { ProfilePreview } from './ProfilePreview';
 import { SummaryConfirmation } from './SummaryConfirmation';
+import { SetPasswordStep } from './SetPasswordStep';
 import { JoinNetworkSuccess } from './JoinNetworkSuccess';
 
 export const CVUploadPage: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<'upload' | 'analysis' | 'results' | 'preview' | 'confirmation' | 'complete'>('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'analysis' | 'results' | 'preview' | 'confirmation' | 'password' | 'complete'>('upload');
   const [sessionToken, setSessionToken] = useState<string>('');
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -71,7 +72,12 @@ export const CVUploadPage: React.FC = () => {
     if (finalData.consultantId) {
       setConsultantId(finalData.consultantId);
     }
-    setCurrentStep('complete');
+    setCurrentStep('password');
+  };
+
+  const handlePasswordComplete = () => {
+    // Navigate to my-profile after successful account creation
+    window.location.href = '/my-profile';
   };
 
   const handleRestartProcess = () => {
@@ -150,6 +156,15 @@ export const CVUploadPage: React.FC = () => {
         <SummaryConfirmation
           analysisData={analysisData}
           onFinalConfirm={handleFinalConfirm}
+        />
+      )}
+
+      {currentStep === 'password' && analysisData && consultantId && (
+        <SetPasswordStep
+          consultantId={consultantId}
+          email={analysisData.personalInfo?.email || analysisData.email || ''}
+          fullName={analysisData.personalInfo?.name || analysisData.name || ''}
+          onComplete={handlePasswordComplete}
         />
       )}
 
