@@ -67,7 +67,7 @@ const AdminPortal = () => {
   
   // Redirect if not admin
   if (!userProfile || userProfile.role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/talent-activation" replace />;
   }
   
   const { consultants } = useSupabaseConsultants();
