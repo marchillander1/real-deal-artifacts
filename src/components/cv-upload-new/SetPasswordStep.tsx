@@ -22,11 +22,21 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
 }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [userEmail, setUserEmail] = useState(email === 'Not specified' ? '' : email);
   const [showPassword, setShowPassword] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
 
   const handleCreateAccount = async () => {
+    if (!userEmail || !userEmail.includes('@')) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast({
         title: "Passwords don't match",
@@ -50,7 +60,7 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
 
       // Create user account
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: userEmail,
         password,
         options: {
           data: {
@@ -80,7 +90,7 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
 
         // Auto sign in first so user is authenticated for profile creation
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: userEmail,
           password
         });
 
@@ -93,7 +103,7 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
               .from('user_profiles')
               .insert({
                 user_id: authData.user.id,
-                email,
+                email: userEmail,
                 full_name: fullName,
                 availability: 'Available'
               });
@@ -110,7 +120,7 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
         try {
           await supabase.functions.invoke('consultant-registration', {
             body: {
-              email,
+              email: userEmail,
               full_name: fullName,
               password,
               consultant_id: consultantId
@@ -173,6 +183,16 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                placeholder="your@email.com"
+              />
+            </div>
+            <div>
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
@@ -222,7 +242,7 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
 
           <Button
             onClick={handleCreateAccount}
-            disabled={!password || !confirmPassword || isCreating}
+            disabled={!userEmail || !password || !confirmPassword || isCreating}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
             {isCreating ? (
