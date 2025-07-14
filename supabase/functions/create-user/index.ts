@@ -77,6 +77,20 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Profile creation error:', profileError);
     }
 
+    // Get admin user ID from auth header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Ingen autentisering tillgänglig');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user: adminUser }, error: adminError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (adminError || !adminUser) {
+      console.error('Admin user verification failed:', adminError);
+      throw new Error('Ogiltig admin-autentisering');
+    }
+
     // Add to user_management table using admin client to bypass RLS
     console.log('Attempting to insert into user_management table...');
     const { data: userMgmtData, error: userMgmtError } = await supabaseAdmin
@@ -86,7 +100,7 @@ const handler = async (req: Request): Promise<Response> => {
         full_name,
         company: company || null,
         role: 'user',
-        created_by: authData.user.id
+        created_by: adminUser.id // Use the admin user ID who is creating the user
       })
       .select()
       .single();

@@ -77,9 +77,25 @@ export const UserManagement: React.FC = () => {
       });
       toast.success('Användare har lagts till');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       // Try to extract the actual error message from the edge function response
-      const errorMessage = error?.message || 'Okänt fel uppstod';
+      console.error('Full error object:', error);
+      
+      let errorMessage = 'Okänt fel uppstod';
+      
+      // Check if the error has a message property
+      if (error?.message) {
+        errorMessage = error.message;
+      } 
+      // Check if it's a response error with data
+      else if (error?.error) {
+        errorMessage = error.error;
+      }
+      // Check if it's a string error
+      else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
       toast.error('Fel vid tillägg av användare: ' + errorMessage);
     }
   });
