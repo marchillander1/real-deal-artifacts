@@ -78,24 +78,32 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
           console.error('Error linking consultant to user:', updateError);
         }
 
-        // Create user profile
-        try {
-          const { error: profileError } = await supabase
-            .from('user_profiles')
-            .insert({
-              user_id: authData.user.id,
-              email,
-              full_name: fullName,
-              availability: 'Available'
-            });
+        // Auto sign in first so user is authenticated for profile creation
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
 
-          if (profileError) {
-            console.error('Error creating user profile:', profileError);
-            // Don't fail the entire process if profile creation fails
+        if (signInError) {
+          console.error('Error signing in:', signInError);
+        } else {
+          // Now create user profile after user is authenticated
+          try {
+            const { error: profileError } = await supabase
+              .from('user_profiles')
+              .insert({
+                user_id: authData.user.id,
+                email,
+                full_name: fullName,
+                availability: 'Available'
+              });
+
+            if (profileError) {
+              console.error('Error creating user profile:', profileError);
+            }
+          } catch (profileErr) {
+            console.error('Profile creation failed:', profileErr);
           }
-        } catch (profileErr) {
-          console.error('Profile creation failed:', profileErr);
-          // Continue anyway since the main account was created
         }
 
         // Send registration emails
@@ -119,15 +127,8 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
           description: "Du kan nu logga in med din e-post och lösenord. Kolla din inkorg för välkomstmejl!",
         });
 
-        // Auto sign in and complete
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (!signInError) {
-          onComplete();
-        }
+        // Complete the process
+        onComplete();
       }
     } catch (error: any) {
       console.error('Error creating account:', error);
