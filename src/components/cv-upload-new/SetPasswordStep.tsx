@@ -29,8 +29,8 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
   const handleCreateAccount = async () => {
     if (password !== confirmPassword) {
       toast({
-        title: "Lösenorden matchar inte",
-        description: "Se till att båda lösenorden är identiska",
+        title: "Passwords don't match",
+        description: "Please make sure both passwords are identical",
         variant: "destructive",
       });
       return;
@@ -38,8 +38,8 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
 
     if (password.length < 6) {
       toast({
-        title: "Lösenordet är för kort",
-        description: "Lösenordet måste vara minst 6 tecken",
+        title: "Password too short",
+        description: "Password must be at least 6 characters",
         variant: "destructive",
       });
       return;
@@ -123,8 +123,8 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
         }
 
         toast({
-          title: "Konto skapat!",
-          description: "Du kan nu logga in med din e-post och lösenord. Kolla din inkorg för välkomstmejl!",
+          title: "Account created!",
+          description: "You can now log in with your email and password. Check your inbox for welcome email!",
         });
 
         // Complete the process
@@ -133,16 +133,18 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
     } catch (error: any) {
       console.error('Error creating account:', error);
       
-      let errorMessage = "Kunde inte skapa ditt konto. Försök igen.";
+      let errorMessage = "Could not create your account. Please try again.";
       
       if (error.code === 'over_email_send_rate_limit' || error.message?.includes('you can only request this after')) {
-        errorMessage = "För många försök. Vänta en minut och försök igen.";
+        errorMessage = "Too many attempts. Please wait a minute and try again.";
+      } else if (error.code === 'validation_failed' && error.message?.includes('email address')) {
+        errorMessage = "Please enter a valid email address.";
       } else if (error.message) {
         errorMessage = error.message;
       }
       
       toast({
-        title: "Fel vid kontoskapande",
+        title: "Account creation failed",
         description: errorMessage,
         variant: "destructive",
       });
@@ -160,10 +162,10 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
           </div>
           <div>
             <CardTitle className="text-2xl font-bold text-gray-900">
-              Skapa ditt konto
+              Create your account
             </CardTitle>
             <p className="text-gray-600 mt-2">
-              Sätt ett lösenord för att komma åt din profil
+              Set a password to access your profile
             </p>
           </div>
         </CardHeader>
@@ -171,14 +173,14 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="password">Lösenord</Label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minst 6 tecken"
+                  placeholder="At least 6 characters"
                   className="pr-10"
                 />
                 <button
@@ -192,13 +194,13 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="confirmPassword">Bekräfta lösenord</Label>
+              <Label htmlFor="confirmPassword">Confirm password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Skriv lösenordet igen"
+                placeholder="Type password again"
               />
             </div>
           </div>
@@ -207,12 +209,12 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
             <div className="flex items-start space-x-3">
               <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-800">
-                <p className="font-medium">Ditt konto ger dig tillgång till:</p>
+                <p className="font-medium">Your account gives you access to:</p>
                 <ul className="mt-2 space-y-1 text-blue-700">
-                  <li>• Din personliga profil på /my-profile</li>
-                  <li>• Redigera och uppdatera din information</li>
-                  <li>• Kontrollera synlighet i nätverket</li>
-                  <li>• Se dina AI-genererade insikter</li>
+                  <li>• Your personal profile at /my-profile</li>
+                  <li>• Edit and update your information</li>
+                  <li>• Control visibility in the network</li>
+                  <li>• View your AI-generated insights</li>
                 </ul>
               </div>
             </div>
@@ -226,18 +228,18 @@ export const SetPasswordStep: React.FC<SetPasswordStepProps> = ({
             {isCreating ? (
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Skapar konto...</span>
+                <span>Creating account...</span>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <span>Skapa konto & logga in</span>
+                <span>Create account & log in</span>
                 <ArrowRight className="w-4 h-4" />
               </div>
             )}
           </Button>
 
           <p className="text-xs text-center text-gray-500">
-            Genom att skapa ett konto godkänner du våra användarvillkor
+            By creating an account you agree to our terms of service
           </p>
         </CardContent>
       </Card>
