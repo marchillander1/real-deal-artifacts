@@ -146,6 +146,26 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       console.log('Email sent successfully:', emailResponse);
+
+      // Send notification email to Marc
+      const notificationResponse = await resend.emails.send({
+        from: "MatchWise <onboarding@resend.dev>",
+        to: ["marc@matchwise.tech"],
+        subject: "New User Created in MatchWise",
+        html: `
+          <h2>New User Created</h2>
+          <p>A new user has been added to MatchWise:</p>
+          <ul>
+            <li><strong>Name:</strong> ${full_name}</li>
+            <li><strong>Email:</strong> ${email}</li>
+            <li><strong>Company:</strong> ${company || 'No company specified'}</li>
+            <li><strong>Created by:</strong> ${adminUser.email}</li>
+          </ul>
+          <p>The user has been sent a welcome email with their login credentials.</p>
+        `,
+      });
+
+      console.log('Notification email sent to Marc:', notificationResponse);
     } catch (emailError: any) {
       console.error('CRITICAL: Email sending failed:', emailError);
       // Log the specific error but don't fail the entire user creation
