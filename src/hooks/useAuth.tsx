@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
       setLoading(true);
-      const redirectUrl = `${window.location.origin}/matchwiseai`;
+      const redirectUrl = `${window.location.origin}/my-profile`;
       
       const { error } = await supabase.auth.signUp({
         email,

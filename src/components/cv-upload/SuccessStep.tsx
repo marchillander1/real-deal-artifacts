@@ -82,10 +82,10 @@ export const SuccessStep: React.FC<SuccessStepProps> = ({ consultant }) => {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
-            onClick={() => window.location.href = '/matchwiseai'}
+            onClick={() => window.location.href = '/my-profile'}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl"
           >
-            Se Konsultnätverket
+            Gå till Min Profil
             <ExternalLink className="ml-2 h-4 w-4" />
           </Button>
           
