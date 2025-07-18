@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ConsultantGuard } from "@/components/ConsultantGuard";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import HowItWorks from "./pages/HowItWorks";
@@ -31,26 +32,28 @@ const App: React.FC = () => {
         <TooltipProvider>
           <Toaster />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/landing" element={<Landing />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/automations" element={<Automations />} />
-              <Route path="/matchwiseai" element={<MatchWiseAI />} />
-              <Route path="/dashboard" element={<MatchWiseAI />} />
-              <Route path="/cv-upload" element={<CVUpload />} />
-              <Route path="/cv-upload-new" element={<CVUploadModern />} />
-              <Route path="/talent-activation" element={<TalentActivation />} />
-              <Route path="/analysis" element={<Analysis />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/my-profile" element={<MyProfile />} />
-              <Route path="/demo-consultant" element={<DemoConsultant />} />
-              <Route path="/admin" element={<AdminPortal />} />
-              
-              <Route path="/demo" element={<Demo />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <ConsultantGuard>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/landing" element={<Landing />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/automations" element={<Automations />} />
+                <Route path="/matchwiseai" element={<MatchWiseAI />} />
+                <Route path="/dashboard" element={<MatchWiseAI />} />
+                <Route path="/cv-upload" element={<CVUpload />} />
+                <Route path="/cv-upload-new" element={<CVUploadModern />} />
+                <Route path="/talent-activation" element={<TalentActivation />} />
+                <Route path="/analysis" element={<Analysis />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/my-profile" element={<MyProfile />} />
+                <Route path="/demo-consultant" element={<DemoConsultant />} />
+                <Route path="/admin" element={<AdminPortal />} />
+                
+                <Route path="/demo" element={<Demo />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ConsultantGuard>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
