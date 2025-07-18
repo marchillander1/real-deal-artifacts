@@ -64,6 +64,7 @@ export default function MyProfile() {
   }, [user]);
 
   const loadProfileData = async () => {
+    console.log('🔍 MyProfile: Loading profile data for user:', user?.id);
     try {
       setIsLoading(true);
       
@@ -96,6 +97,8 @@ export default function MyProfile() {
         .eq('is_active', true)
         .single();
 
+      console.log('🔍 MyProfile: Loaded data:', { profile, analysis, consultantData, published });
+      
       setUserProfile(profile);
       setAiAnalysis(analysis);
       setConsultant(consultantData);
