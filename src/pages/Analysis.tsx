@@ -23,18 +23,64 @@ export default function Analysis() {
 
   const fetchLatestAnalysis = async () => {
     try {
-      const { data, error } = await supabase
-        .from('ai_analysis')
-        .select(`
-          *,
-          user_profiles (*)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      const consultantId = searchParams.get('id');
+      
+      if (consultantId) {
+        // Fetch specific consultant data if ID is provided
+        const { data: consultantData, error: consultantError } = await supabase
+          .from('consultants')
+          .select('*')
+          .eq('id', consultantId)
+          .single();
 
-      if (error) throw error;
-      setAnalysisData(data);
+        if (consultantError) throw consultantError;
+        
+        // Try to get associated AI analysis
+        const { data: aiData } = await supabase
+          .from('ai_analysis')
+          .select('*')
+          .eq('user_profile_id', consultantData.user_id)
+          .maybeSingle();
+
+        // Combine consultant data with AI analysis structure
+        setAnalysisData({
+          ...consultantData,
+          user_profiles: {
+            full_name: consultantData.name,
+            email: consultantData.email,
+            title: consultantData.title,
+            years_of_experience: consultantData.experience_years
+          },
+          analysis_data: consultantData.analysis_results || {},
+          thought_leadership_score: consultantData.thought_leadership_score,
+          tech_stack_primary: consultantData.primary_tech_stack || consultantData.skills?.slice(0, 4) || [],
+          tech_stack_secondary: consultantData.secondary_tech_stack || consultantData.skills?.slice(4) || [],
+          top_values: consultantData.top_values || (consultantData.analysis_results as any)?.softSkills?.values || [],
+          personality_traits: consultantData.personality_traits || [],
+          communication_style: consultantData.communication_style,
+          industries: consultantData.industries || [],
+          certifications: consultantData.certifications || [],
+          cv_tips: consultantData.cv_tips || (consultantData.analysis_results as any)?.careerCoaching?.cvOptimizationTips || [],
+          linkedin_tips: consultantData.linkedin_tips || [],
+          certification_recommendations: consultantData.certification_recommendations || [],
+          linkedin_engagement_level: consultantData.linkedin_engagement_level,
+          brand_themes: consultantData.brand_themes || []
+        });
+      } else {
+        // Fallback to latest analysis for current user
+        const { data, error } = await supabase
+          .from('ai_analysis')
+          .select(`
+            *,
+            user_profiles (*)
+          `)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (error) throw error;
+        setAnalysisData(data);
+      }
     } catch (error: any) {
       console.error('Error fetching analysis:', error);
       toast({
