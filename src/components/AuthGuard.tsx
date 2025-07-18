@@ -32,7 +32,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .from('consultants')
           .select('id')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (consultant) {
           console.log('🔍 AuthGuard: User is a consultant');
@@ -46,7 +46,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .from('profiles')
           .select('role')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (profile?.role === 'admin') {
           console.log('🔍 AuthGuard: User is admin');
@@ -60,7 +60,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .from('user_management')
           .select('access_matchwiseai, access_talent_activation')
           .eq('email', user.email)
-          .single();
+          .maybeSingle();
 
         if (userMgmt) {
           console.log('🔍 AuthGuard: User is business user with permissions:', userMgmt);

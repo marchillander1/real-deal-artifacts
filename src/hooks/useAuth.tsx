@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   .from('profiles')
                   .select('role')
                   .eq('id', session.user.id)
-                  .single();
+                  .maybeSingle();
 
                 if (profile?.role === 'admin') {
                   window.location.href = '/admin';
@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   .from('consultants')
                   .select('id')
                   .eq('user_id', session.user.id)
-                  .single();
+                  .maybeSingle();
 
                 if (consultant) {
                   window.location.href = '/my-profile';
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   .from('user_management')
                   .select('access_matchwiseai, access_talent_activation')
                   .eq('email', session.user.email)
-                  .single();
+                  .maybeSingle();
 
                 if (userMgmt?.access_matchwiseai) {
                   window.location.href = '/matchwiseai';
