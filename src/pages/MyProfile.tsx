@@ -533,13 +533,17 @@ export default function MyProfile() {
                 <Button 
                   variant="outline" 
                   onClick={() => {
-                    console.log('🔍 Navigating to analysis with consultant ID:', consultant?.id);
-                    navigate(`/analysis?id=${consultant?.id}`);
+                    console.log('🔍 Button clicked! Consultant data:', consultant);
+                    if (consultant?.id) {
+                      console.log('🔍 Navigating to analysis with consultant ID:', consultant.id);
+                      navigate(`/analysis?id=${consultant.id}`);
+                    } else {
+                      console.log('❌ No consultant ID found');
+                    }
                   }}
                   className="w-full"
-                  disabled={!consultant?.id}
                 >
-                  View full AI analysis
+                  View full AI analysis {consultant?.id ? `(${consultant.id.slice(0,8)}...)` : '(No ID)'}
                 </Button>
               </CardContent>
             </Card>
