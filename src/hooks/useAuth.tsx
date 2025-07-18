@@ -32,11 +32,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' && session) {
           // Defer navigation to avoid conflicts
           setTimeout(async () => {
-            // Only check for admin redirect from auth page
+            // Only redirect from auth page based on user type
             const currentPath = window.location.pathname;
             if (currentPath === '/auth') {
               try {
-                // Check if user is admin
+                // Check if admin
                 const { data: profile } = await supabase
                   .from('profiles')
                   .select('role')
@@ -47,11 +47,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   window.location.href = '/admin';
                   return;
                 }
+
+                // Check if consultant
+                const { data: consultant } = await supabase
+                  .from('consultants')
+                  .select('id')
+                  .eq('user_id', session.user.id)
+                  .single();
+
+                if (consultant) {
+                  window.location.href = '/my-profile';
+                  return;
+                }
+
+                // Business user - redirect to their allowed service
+                const { data: userMgmt } = await supabase
+                  .from('user_management')
+                  .select('access_matchwiseai, access_talent_activation')
+                  .eq('email', session.user.email)
+                  .single();
+
+                if (userMgmt?.access_matchwiseai) {
+                  window.location.href = '/matchwiseai';
+                } else if (userMgmt?.access_talent_activation) {
+                  window.location.href = '/talent-activation';
+                } else {
+                  window.location.href = '/matchwiseai'; // fallback
+                }
               } catch (error) {
-                console.log('Could not check admin role');
+                console.log('Error determining user type, using fallback');
+                window.location.href = '/matchwiseai';
               }
             }
-            // Let ConsultantGuard handle all other routing
           }, 100);
         }
       }

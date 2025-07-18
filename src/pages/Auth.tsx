@@ -28,11 +28,10 @@ export default function Auth() {
   const packageInfo = location.state;
   const hasValidPayment = packageInfo?.paymentComplete;
 
-  // Let ConsultantGuard handle redirect after authentication
+  // Redirect if already authenticated - let useAuth handle the routing
   useEffect(() => {
     if (!authLoading && user) {
-      // ConsultantGuard will handle the appropriate redirect
-      navigate('/');
+      // useAuth will handle the redirect based on user type
     }
   }, [user, authLoading, navigate]);
 
