@@ -28,12 +28,14 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
 
       try {
         // Check if user is consultant
-        const { data: consultant } = await supabase
+        console.log('🔍 AuthGuard: Checking consultant for user_id:', user.id);
+        const { data: consultant, error: consultantError } = await supabase
           .from('consultants')
           .select('id')
           .eq('user_id', user.id)
           .maybeSingle();
 
+        console.log('🔍 AuthGuard: Consultant query result:', { consultant, consultantError });
         if (consultant) {
           console.log('🔍 AuthGuard: User is a consultant');
           setUserType('consultant');
