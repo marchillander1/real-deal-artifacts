@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Attempting to send welcome email to:', email);
     try {
       const emailResponse = await resend.emails.send({
-        from: "MatchWise <onboarding@resend.dev>",
+        from: "MatchWise <marc@matchwise.tech>",
         to: [email],
         subject: "Välkommen till MatchWise-nätverket!",
         html: `
@@ -72,7 +72,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       // Send notification email to Marc
       const notificationResponse = await resend.emails.send({
-        from: "MatchWise <onboarding@resend.dev>",
+        from: "MatchWise <marc@matchwise.tech>",
         to: ["marc@matchwise.tech"],
         subject: "Ny konsult har registrerat sig i nätverket",
         html: `
