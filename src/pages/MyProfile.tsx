@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -73,21 +72,22 @@ export default function MyProfile() {
         .from('user_profiles')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       // Load AI analysis
       const { data: analysis } = await supabase
         .from('ai_analysis')
         .select('*')
         .eq('user_profile_id', profile?.id)
-        .single();
+        .maybeSingle();
 
       // Load consultant data
       const { data: consultantData } = await supabase
         .from('consultants')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       // Check if profile is published
       const { data: published } = await supabase
@@ -95,7 +95,7 @@ export default function MyProfile() {
         .select('*')
         .eq('user_profile_id', profile?.id)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
       console.log('🔍 MyProfile: Loaded data:', { profile, analysis, consultantData, published });
       
@@ -120,8 +120,8 @@ export default function MyProfile() {
     } catch (error) {
       console.error('Error loading profile data:', error);
       toast({
-        title: "Fel vid laddning",
-        description: "Kunde inte ladda din profil. Försök igen.",
+        title: "Loading Error",
+        description: "Could not load your profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -168,8 +168,8 @@ export default function MyProfile() {
       }
 
       toast({
-        title: "Profil uppdaterad",
-        description: "Dina ändringar har sparats framgångsrikt",
+        title: "Profile Updated",
+        description: "Your changes have been saved successfully",
       });
 
       // Reload data
@@ -177,8 +177,8 @@ export default function MyProfile() {
     } catch (error) {
       console.error('Error saving changes:', error);
       toast({
-        title: "Fel vid sparande",
-        description: "Kunde inte spara ändringarna. Försök igen.",
+        title: "Save Error",
+        description: "Could not save changes. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -208,16 +208,16 @@ export default function MyProfile() {
 
       setIsPublished(!isPublished);
       toast({
-        title: isPublished ? "Profil dold" : "Profil publicerad",
+        title: isPublished ? "Profile Hidden" : "Profile Published",
         description: isPublished 
-          ? "Din profil är nu endast synlig för dig" 
-          : "Din profil är nu synlig i MatchWise-nätverket",
+          ? "Your profile is now only visible to you" 
+          : "Your profile is now visible in the MatchWise network",
       });
     } catch (error) {
       console.error('Error toggling visibility:', error);
       toast({
-        title: "Fel",
-        description: "Kunde inte ändra synlighet. Försök igen.",
+        title: "Error",
+        description: "Could not change visibility. Please try again.",
         variant: "destructive",
       });
     }
@@ -273,10 +273,10 @@ export default function MyProfile() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <div className="w-full max-w-md text-center">
-          <h2 className="text-xl font-semibold mb-4">Ingen profil hittad</h2>
-          <p className="text-gray-600 mb-4">Du har ingen profil än. Ladda upp ditt CV för att komma igång.</p>
+          <h2 className="text-xl font-semibold mb-4">No Profile Found</h2>
+          <p className="text-gray-600 mb-4">You don't have a profile yet. Upload your CV to get started.</p>
           <Button onClick={() => navigate('/cv-upload')}>
-            Ladda upp CV
+            Upload CV
           </Button>
         </div>
       </div>
@@ -294,9 +294,9 @@ export default function MyProfile() {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Tillbaka
+            Back
           </Button>
-          <h1 className="text-xl font-semibold">Min Profil</h1>
+          <h1 className="text-xl font-semibold">My Profile</h1>
           <div className="w-20"></div> {/* Spacer for centering */}
         </div>
       </div>
@@ -309,33 +309,33 @@ export default function MyProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Profilinformation
+                Profile Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Fullständigt namn</label>
+                  <label className="text-sm font-medium mb-1 block">Full Name</label>
                   <Input
                     value={formData.full_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                    placeholder="Ditt fullständiga namn"
+                    placeholder="Your full name"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">E-post</label>
+                  <label className="text-sm font-medium mb-1 block">Email</label>
                   <Input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="din@email.com"
+                    placeholder="your@email.com"
                   />
                 </div>
               </div>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Telefonnummer</label>
+                  <label className="text-sm font-medium mb-1 block">Phone Number</label>
                   <Input
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -343,26 +343,26 @@ export default function MyProfile() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Tillgänglighet</label>
+                  <label className="text-sm font-medium mb-1 block">Availability</label>
                   <Input
                     value={formData.availability}
                     onChange={(e) => setFormData(prev => ({ ...prev, availability: e.target.value }))}
-                    placeholder="Tillgänglig"
+                    placeholder="Available"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1 block">Personlig tagline (max 150 tecken)</label>
+                <label className="text-sm font-medium mb-1 block">Personal tagline (max 150 characters)</label>
                 <Textarea
                   value={formData.personal_tagline}
                   onChange={(e) => setFormData(prev => ({ ...prev, personal_tagline: e.target.value }))}
-                  placeholder="Beskriv dig själv kort..."
+                  placeholder="Describe yourself briefly..."
                   maxLength={150}
                   className="resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.personal_tagline.length}/150 tecken
+                  {formData.personal_tagline.length}/150 characters
                 </p>
               </div>
             </CardContent>
@@ -373,12 +373,12 @@ export default function MyProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Tag className="h-5 w-5" />
-                Kompetenser & Tech Stack
+                Skills & Tech Stack
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Dina kompetenser</label>
+                <label className="text-sm font-medium mb-2 block">Your skills</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.skills.map((skill, index) => (
                     <Badge key={index} variant="secondary" className="flex items-center gap-1">
@@ -394,7 +394,7 @@ export default function MyProfile() {
                   <Input
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
-                    placeholder="Lägg till kompetens..."
+                    placeholder="Add skill..."
                     onKeyPress={(e) => e.key === 'Enter' && addSkill()}
                   />
                   <Button onClick={addSkill} size="sm">
@@ -410,12 +410,12 @@ export default function MyProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Star className="h-5 w-5" />
-                Certifieringar
+                Certifications
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Dina certifieringar</label>
+                <label className="text-sm font-medium mb-2 block">Your certifications</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.certifications.map((cert, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-1">
@@ -431,7 +431,7 @@ export default function MyProfile() {
                   <Input
                     value={newCertification}
                     onChange={(e) => setNewCertification(e.target.value)}
-                    placeholder="Lägg till certifiering..."
+                    placeholder="Add certification..."
                     onKeyPress={(e) => e.key === 'Enter' && addCertification()}
                   />
                   <Button onClick={addCertification} size="sm">
@@ -447,12 +447,12 @@ export default function MyProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
-                Pris & Tillgänglighet
+                Rate & Availability
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div>
-                <label className="text-sm font-medium mb-1 block">Önskad timtaxa (SEK)</label>
+                <label className="text-sm font-medium mb-1 block">Preferred hourly rate (SEK)</label>
                 <Input
                   type="number"
                   value={formData.rate_preference}
@@ -468,15 +468,15 @@ export default function MyProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {isPublished ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                Synlighet
+                Visibility
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium">Visa min profil publikt i MatchWise-nätverket</h3>
+                  <h3 className="font-medium">Show my profile publicly in the MatchWise network</h3>
                   <p className="text-sm text-gray-600">
-                    När aktiverad kommer din profil att synas för potentiella klienter
+                    When enabled, your profile will be visible to potential clients
                   </p>
                 </div>
                 <Switch
@@ -493,13 +493,13 @@ export default function MyProfile() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="h-5 w-5" />
-                  AI-analys & Insikter
+                  AI Analysis & Insights
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium">Topvärden</p>
+                    <p className="text-sm font-medium">Top values</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {(aiAnalysis?.top_values || consultant?.top_values)?.map((value: string, index: number) => (
                         <Badge key={index} variant="secondary">{value}</Badge>
@@ -507,7 +507,7 @@ export default function MyProfile() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Personlighetsdrag</p>
+                    <p className="text-sm font-medium">Personality traits</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {(aiAnalysis?.personality_traits || consultant?.personality_traits)?.map((trait: string, index: number) => (
                         <Badge key={index} variant="outline">{trait}</Badge>
@@ -518,14 +518,14 @@ export default function MyProfile() {
                 
                 {(aiAnalysis?.communication_style || consultant?.communication_style) && (
                   <div>
-                    <p className="text-sm font-medium">Kommunikationsstil</p>
+                    <p className="text-sm font-medium">Communication style</p>
                     <p className="text-sm text-gray-600 mt-1">{aiAnalysis?.communication_style || consultant?.communication_style}</p>
                   </div>
                 )}
                 
                 {(aiAnalysis?.thought_leadership_score || consultant?.thought_leadership_score) && (
                   <div>
-                    <p className="text-sm font-medium">Thought Leadership-poäng</p>
+                    <p className="text-sm font-medium">Thought Leadership score</p>
                     <p className="text-lg font-semibold text-blue-600">{aiAnalysis?.thought_leadership_score || consultant?.thought_leadership_score}/100</p>
                   </div>
                 )}
@@ -535,7 +535,7 @@ export default function MyProfile() {
                   onClick={() => navigate(`/analysis?id=${consultant?.id}`)}
                   className="w-full"
                 >
-                  Visa fullständig AI-analys
+                  View full AI analysis
                 </Button>
               </CardContent>
             </Card>
@@ -551,14 +551,14 @@ export default function MyProfile() {
                   className="w-full"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  Ladda upp nytt CV & LinkedIn
+                  Upload new CV & LinkedIn
                 </Button>
                 <Button 
                   onClick={handleSaveChanges}
                   disabled={isSaving}
                   className="w-full"
                 >
-                  {isSaving ? 'Sparar...' : 'Spara alla ändringar'}
+                  {isSaving ? 'Saving...' : 'Save all changes'}
                 </Button>
               </div>
             </CardContent>
@@ -567,8 +567,8 @@ export default function MyProfile() {
           {/* Privacy Notice */}
           <div className="text-center text-sm text-gray-600 bg-white rounded-lg p-4 border">
             <p>
-              Din data lagras säkert och är endast synlig för dig och MatchWise-administratörer 
-              om du inte väljer att publicera den. Du kan uppdatera eller ta bort dina data när som helst.
+              Your data is stored securely and is only visible to you and MatchWise administrators 
+              unless you choose to publish it. You can update or delete your data at any time.
             </p>
           </div>
         </div>
