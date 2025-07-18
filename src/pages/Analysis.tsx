@@ -1,15 +1,20 @@
 
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Brain, TrendingUp, Star, Target, Users, Briefcase, Award, BookOpen, DollarSign, BarChart3 } from 'lucide-react';
+import { Brain, TrendingUp, Star, Target, Users, Briefcase, Award, BookOpen, DollarSign, BarChart3, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import jsPDF from 'jspdf';
+import Logo from '@/components/Logo';
 
 export default function Analysis() {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,6 +45,214 @@ export default function Analysis() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const generatePDF = () => {
+    const profile = analysisData.user_profiles;
+    const analysis = analysisData.analysis_data;
+    const doc = new jsPDF();
+    
+    // Add MatchWise logo/header
+    doc.setFillColor(59, 130, 246); // Blue color
+    doc.rect(0, 0, 210, 25, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MatchWise', 15, 16);
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AI Career Analysis Report', 15, 22);
+    
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
+    
+    let yPos = 40;
+    
+    // Profile Header
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(profile?.full_name || 'Professional Analysis', 15, yPos);
+    yPos += 8;
+    
+    if (profile?.title) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text(profile.title, 15, yPos);
+      yPos += 15;
+    } else {
+      yPos += 10;
+    }
+    
+    // Key Metrics
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Key Performance Metrics', 15, yPos);
+    yPos += 10;
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Market Position Score: ${analysisData.thought_leadership_score}/100`, 15, yPos);
+    yPos += 6;
+    doc.text(`Years of Experience: ${profile?.years_of_experience || 5}+`, 15, yPos);
+    yPos += 6;
+    doc.text(`Market Rate: $${analysis?.market_analysis?.hourly_rate_optimized || 950}/hr`, 15, yPos);
+    yPos += 15;
+    
+    // Core Values
+    if (analysisData.top_values?.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Core Values', 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      const values = analysisData.top_values.join(', ');
+      doc.text(values, 15, yPos, { maxWidth: 180 });
+      yPos += 12;
+    }
+    
+    // Technical Skills
+    if (analysisData.tech_stack_primary?.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Core Technology Stack', 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      analysisData.tech_stack_primary.forEach((skill: string) => {
+        doc.text(`• ${skill}`, 15, yPos);
+        yPos += 5;
+      });
+      yPos += 8;
+    }
+    
+    // Personality Traits
+    if (analysisData.personality_traits?.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Personality Traits', 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      const traits = analysisData.personality_traits.join(', ');
+      doc.text(traits, 15, yPos, { maxWidth: 180 });
+      yPos += 12;
+    }
+    
+    // Communication Style
+    if (analysisData.communication_style) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Communication Style', 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text(analysisData.communication_style, 15, yPos, { maxWidth: 180 });
+      yPos += 15;
+    }
+    
+    // Check if we need a new page
+    if (yPos > 250) {
+      doc.addPage();
+      yPos = 20;
+    }
+    
+    // Industry Expertise
+    if (analysisData.industries?.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Industry Expertise', 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      const industries = analysisData.industries.join(', ');
+      doc.text(industries, 15, yPos, { maxWidth: 180 });
+      yPos += 12;
+    }
+    
+    // Certifications
+    if (analysisData.certifications?.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Current Certifications', 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      analysisData.certifications.forEach((cert: string) => {
+        doc.text(`• ${cert}`, 15, yPos);
+        yPos += 5;
+      });
+      yPos += 8;
+    }
+    
+    // Career Recommendations
+    if (analysisData.cv_tips?.length > 0 || analysisData.linkedin_tips?.length > 0) {
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Career Development Recommendations', 15, yPos);
+      yPos += 12;
+      
+      if (analysisData.cv_tips?.length > 0) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('CV Enhancement Tips:', 15, yPos);
+        yPos += 6;
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        analysisData.cv_tips.forEach((tip: string) => {
+          doc.text(`• ${tip}`, 15, yPos, { maxWidth: 180 });
+          yPos += 6;
+        });
+        yPos += 8;
+      }
+      
+      if (analysisData.linkedin_tips?.length > 0) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('LinkedIn Optimization:', 15, yPos);
+        yPos += 6;
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        analysisData.linkedin_tips.forEach((tip: string) => {
+          doc.text(`• ${tip}`, 15, yPos, { maxWidth: 180 });
+          yPos += 6;
+        });
+      }
+    }
+    
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text(`Generated by MatchWise AI - Page ${i} of ${pageCount}`, 15, 290);
+      doc.text(`Report generated on ${new Date().toLocaleDateString()}`, 150, 290);
+    }
+    
+    // Save the PDF
+    const fileName = `${profile?.full_name?.replace(/[^a-z0-9]/gi, '_') || 'MatchWise'}_AI_Analysis.pdf`;
+    doc.save(fileName);
+    
+    toast({
+      title: "PDF Downloaded",
+      description: "Your AI analysis has been saved as a PDF",
+    });
   };
 
   if (loading) {
@@ -73,12 +286,21 @@ export default function Analysis() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Brain className="h-8 w-8 text-blue-500" />
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">AI Career Analysis</h1>
-              <p className="text-slate-600">Deep insights into your professional profile</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Brain className="h-8 w-8 text-blue-500" />
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">AI Career Analysis</h1>
+                <p className="text-slate-600">Deep insights into your professional profile</p>
+              </div>
             </div>
+            <Button 
+              onClick={generatePDF}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <Download className="h-4 w-4" />
+              Download PDF Report
+            </Button>
           </div>
         </div>
       </div>
