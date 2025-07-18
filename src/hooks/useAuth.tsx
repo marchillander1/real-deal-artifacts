@@ -65,9 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   window.location.href = '/matchwiseai';
                 }
               } catch (error) {
-                // If error checking user type, default to business dashboard
-                console.log('Could not determine user type, defaulting to business dashboard');
-                window.location.href = '/matchwiseai';
+                // Don't redirect on error, let ConsultantGuard handle routing
+                console.log('Could not determine user type, ConsultantGuard will handle routing');
               }
             }
           }, 100);
