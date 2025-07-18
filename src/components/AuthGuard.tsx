@@ -33,6 +33,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .from('consultants')
           .select('id')
           .eq('user_id', user.id)
+          .limit(1)
           .maybeSingle();
 
         console.log('🔍 AuthGuard: Consultant query result:', { consultant, consultantError });
