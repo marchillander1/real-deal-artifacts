@@ -532,8 +532,12 @@ export default function MyProfile() {
                 
                 <Button 
                   variant="outline" 
-                  onClick={() => navigate(`/analysis?id=${consultant?.id}`)}
+                  onClick={() => {
+                    console.log('🔍 Navigating to analysis with consultant ID:', consultant?.id);
+                    navigate(`/analysis?id=${consultant?.id}`);
+                  }}
                   className="w-full"
+                  disabled={!consultant?.id}
                 >
                   View full AI analysis
                 </Button>
