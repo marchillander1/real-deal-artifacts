@@ -18,8 +18,10 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔍 AuthGuard: Checking user type and permissions for:', user?.email);
     const checkUserTypeAndPermissions = async () => {
       if (!user) {
+        console.log('🔍 AuthGuard: No user found');
         setLoading(false);
         return;
       }
@@ -33,6 +35,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .single();
 
         if (consultant) {
+          console.log('🔍 AuthGuard: User is a consultant');
           setUserType('consultant');
           setLoading(false);
           return;
@@ -46,6 +49,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .single();
 
         if (profile?.role === 'admin') {
+          console.log('🔍 AuthGuard: User is admin');
           setUserType('admin');
           setLoading(false);
           return;
@@ -59,12 +63,14 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .single();
 
         if (userMgmt) {
+          console.log('🔍 AuthGuard: User is business user with permissions:', userMgmt);
           setUserType('business');
           setPermissions({
             access_matchwiseai: userMgmt.access_matchwiseai || false,
             access_talent_activation: userMgmt.access_talent_activation || false
           });
         } else {
+          console.log('🔍 AuthGuard: User not found in user_management, defaulting to business');
           setUserType('business');
           setPermissions({
             access_matchwiseai: false,
@@ -72,13 +78,14 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           });
         }
       } catch (error) {
-        console.error('Error checking user type:', error);
+        console.error('🔍 AuthGuard: Error checking user type:', error);
         setUserType('business');
         setPermissions({
           access_matchwiseai: false,
           access_talent_activation: false
         });
       } finally {
+        console.log('🔍 AuthGuard: Check complete, loading finished');
         setLoading(false);
       }
     };
@@ -89,6 +96,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }, [user, authLoading]);
 
   if (authLoading || loading) {
+    console.log('🔍 AuthGuard: Still loading...', { authLoading, loading });
     return <div>Loading...</div>;
   }
 
