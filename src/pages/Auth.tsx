@@ -28,10 +28,11 @@ export default function Auth() {
   const packageInfo = location.state;
   const hasValidPayment = packageInfo?.paymentComplete;
 
-  // Redirect if already authenticated
+  // Let ConsultantGuard handle redirect after authentication
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/matchwiseai');
+      // ConsultantGuard will handle the appropriate redirect
+      navigate('/');
     }
   }, [user, authLoading, navigate]);
 
