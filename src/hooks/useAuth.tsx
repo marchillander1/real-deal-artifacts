@@ -32,8 +32,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' && session) {
           // Defer navigation to avoid conflicts
           setTimeout(async () => {
-            // Let ConsultantGuard handle all routing after authentication
-            console.log('User authenticated, ConsultantGuard will handle routing');
+            // Only check for admin redirect from auth page
+            const currentPath = window.location.pathname;
+            if (currentPath === '/auth') {
+              try {
+                // Check if user is admin
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('role')
+                  .eq('id', session.user.id)
+                  .single();
+
+                if (profile?.role === 'admin') {
+                  window.location.href = '/admin';
+                  return;
+                }
+              } catch (error) {
+                console.log('Could not check admin role');
+              }
+            }
+            // Let ConsultantGuard handle all other routing
           }, 100);
         }
       }
