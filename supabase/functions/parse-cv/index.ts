@@ -110,15 +110,16 @@ CRITICAL REQUIREMENTS:
 - Focus on actionable career advice and market positioning
 - Return ONLY valid JSON without markdown formatting
 - For hourly rates, provide ONLY numeric values (no currency symbols, no ranges)
+- ALWAYS extract email addresses from the CV - look for @ symbols and email patterns in contact information
 
 COMPREHENSIVE CAREER ANALYSIS JSON STRUCTURE:
 
 {
   "personalInfo": {
-    "name": "Extract full name from CV (never use 'Not specified')",
-    "email": "Extract email from CV (never use 'Not specified')", 
-    "phone": "Extract phone number from CV",
-    "location": "Extract city/location from CV"
+    "name": "Extract full name from CV - look in header, contact section, or signature",
+    "email": "MANDATORY: Extract email address from CV - look for @ symbol in contact info, header, or footer", 
+    "phone": "Extract phone number from CV - look for +46, 07, or phone patterns",
+    "location": "Extract city/location from CV - look for address, location, or city information"
   },
   "experience": {
     "years": "Calculate total years of professional experience as integer",
@@ -309,14 +310,23 @@ IMPORTANT:
       throw fetchError;
     }
 
-    // Extract and validate personal info
+    // Extract and validate personal info with enhanced email handling
     const personalInfo = analysis.personalInfo || {};
+    console.log('📧 Raw extracted email from Gemini:', personalInfo.email);
+    
     const detectedInfo = {
       names: [personalInfo.name].filter(name => name && name !== 'Not specified' && name !== 'Professional Consultant'),
-      emails: [personalInfo.email].filter(email => email && email !== 'Not specified' && email !== 'consultant@example.com' && email.includes('@')),
+      emails: [personalInfo.email].filter(email => email && email !== 'Not specified' && email !== 'consultant@example.com' && email.includes('@') && email.includes('.')),
       phones: [personalInfo.phone].filter(phone => phone && phone !== 'Not specified' && phone.trim() !== ''),
       locations: personalInfo.location && personalInfo.location !== 'Not specified' ? [personalInfo.location] : []
     };
+    
+    console.log('📧 Filtered emails:', detectedInfo.emails);
+    console.log('📧 Email extraction check:', {
+      rawEmail: personalInfo.email,
+      hasEmail: detectedInfo.emails.length > 0,
+      finalEmail: detectedInfo.emails[0] || 'no valid email found'
+    });
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
