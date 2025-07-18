@@ -485,7 +485,7 @@ export default function MyProfile() {
           </Card>
 
           {/* AI Analysis & Insights */}
-          {aiAnalysis && (
+          {(aiAnalysis || consultant) && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -498,7 +498,7 @@ export default function MyProfile() {
                   <div>
                     <p className="text-sm font-medium">Topvärden</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {aiAnalysis.top_values?.map((value: string, index: number) => (
+                      {(aiAnalysis?.top_values || consultant?.top_values)?.map((value: string, index: number) => (
                         <Badge key={index} variant="secondary">{value}</Badge>
                       ))}
                     </div>
@@ -506,24 +506,24 @@ export default function MyProfile() {
                   <div>
                     <p className="text-sm font-medium">Personlighetsdrag</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {aiAnalysis.personality_traits?.map((trait: string, index: number) => (
+                      {(aiAnalysis?.personality_traits || consultant?.personality_traits)?.map((trait: string, index: number) => (
                         <Badge key={index} variant="outline">{trait}</Badge>
                       ))}
                     </div>
                   </div>
                 </div>
                 
-                {aiAnalysis.communication_style && (
+                {(aiAnalysis?.communication_style || consultant?.communication_style) && (
                   <div>
                     <p className="text-sm font-medium">Kommunikationsstil</p>
-                    <p className="text-sm text-gray-600 mt-1">{aiAnalysis.communication_style}</p>
+                    <p className="text-sm text-gray-600 mt-1">{aiAnalysis?.communication_style || consultant?.communication_style}</p>
                   </div>
                 )}
                 
-                {aiAnalysis.thought_leadership_score && (
+                {(aiAnalysis?.thought_leadership_score || consultant?.thought_leadership_score) && (
                   <div>
                     <p className="text-sm font-medium">Thought Leadership-poäng</p>
-                    <p className="text-lg font-semibold text-blue-600">{aiAnalysis.thought_leadership_score}/100</p>
+                    <p className="text-lg font-semibold text-blue-600">{aiAnalysis?.thought_leadership_score || consultant?.thought_leadership_score}/100</p>
                   </div>
                 )}
                 
