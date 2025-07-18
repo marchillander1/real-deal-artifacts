@@ -12,8 +12,8 @@ export const JoinNetworkSuccess: React.FC<JoinNetworkSuccessProps> = ({
   consultantId
 }) => {
   const handleExploreOpportunities = () => {
-    // Navigate to the main dashboard
-    window.location.href = '/matchwiseai';
+    // Navigate to the consultant's profile page
+    window.location.href = '/my-profile';
   };
 
   const handleViewProfile = () => {
