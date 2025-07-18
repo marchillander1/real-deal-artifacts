@@ -61,8 +61,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   // User is a consultant, redirect to their profile
                   window.location.href = '/my-profile';
                 } else {
-                  // User is a business user, redirect to dashboard
-                  window.location.href = '/matchwiseai';
+                  // Let ConsultantGuard handle routing for non-consultants
+                  console.log('User type will be determined by ConsultantGuard');
                 }
               } catch (error) {
                 // Don't redirect on error, let ConsultantGuard handle routing
