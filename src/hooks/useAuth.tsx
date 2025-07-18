@@ -32,43 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' && session) {
           // Defer navigation to avoid conflicts
           setTimeout(async () => {
-            const currentPath = window.location.pathname;
-            // Only redirect if coming from auth page, not from other pages
-            if (currentPath === '/auth') {
-              // Check user type and redirect accordingly
-              try {
-                // First check if user has admin role
-                const { data: profile } = await supabase
-                  .from('profiles')
-                  .select('role')
-                  .eq('id', session.user.id)
-                  .single();
-
-                if (profile?.role === 'admin') {
-                  // User is admin, redirect to admin portal
-                  window.location.href = '/admin';
-                  return;
-                }
-
-                // Then check if user has a consultant profile
-                const { data: consultant } = await supabase
-                  .from('consultants')
-                  .select('id, user_id')
-                  .eq('user_id', session.user.id)
-                  .single();
-
-                if (consultant) {
-                  // User is a consultant, redirect to their profile
-                  window.location.href = '/my-profile';
-                } else {
-                  // Let ConsultantGuard handle routing for non-consultants
-                  console.log('User type will be determined by ConsultantGuard');
-                }
-              } catch (error) {
-                // Don't redirect on error, let ConsultantGuard handle routing
-                console.log('Could not determine user type, ConsultantGuard will handle routing');
-              }
-            }
+            // Let ConsultantGuard handle all routing after authentication
+            console.log('User authenticated, ConsultantGuard will handle routing');
           }, 100);
         }
       }
