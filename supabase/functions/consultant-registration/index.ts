@@ -32,39 +32,39 @@ const handler = async (req: Request): Promise<Response> => {
       const emailResponse = await resend.emails.send({
         from: "MatchWise <marc@matchwise.tech>",
         to: [email],
-        subject: "Välkommen till MatchWise-nätverket!",
+        subject: "🚀 Welcome to MatchWise Network!",
         html: `
-          <p>Hej ${full_name.split(' ')[0]},</p>
+          <p>Hi ${full_name.split(' ')[0]},</p>
           <br>
-          <p>Välkommen till MatchWise-nätverket! 🎉</p>
+          <p>Welcome to the MatchWise network! 🎉</p>
           <br>
-          <p>Grattis till att du har blivit en del av vårt professionella konsultnätverk. Din profil har nu analyserats och är redo att användas.</p>
+          <p>Congratulations on becoming part of our professional consultant network. Your profile has been analyzed and is ready to use.</p>
           <br>
-          <p><strong>🔑 Dina inloggningsuppgifter:</strong><br>
-          E-post: ${email}<br>
-          Lösenord: ${password}</p>
+          <p><strong>🔑 Your login credentials:</strong><br>
+          Email: ${email}<br>
+          Password: ${password}</p>
           <br>
-          <p><strong>📊 Kom åt din profil här:</strong><br>
-          <a href="https://matchwise.tech/my-profile" style="background: linear-gradient(to right, #2563eb, #7c3aed); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 10px 0;">Öppna Min Profil</a></p>
+          <p><strong>📊 Access your profile here:</strong><br>
+          <a href="https://matchwise.tech/my-profile" style="background: linear-gradient(to right, #2563eb, #7c3aed); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 10px 0;">Open My Profile</a></p>
           <br>
-          <p><strong>På din profilsida kan du:</strong></p>
+          <p><strong>On your profile page you can:</strong></p>
           <ul>
-            <li>📝 Redigera och uppdatera din information</li>
-            <li>👁️ Kontrollera synlighet i nätverket</li>
-            <li>🧠 Se dina AI-genererade karriärinsikter</li>
-            <li>💰 Ange önskad timtaxa</li>
-            <li>🎯 Hantera dina kompetenser och certifieringar</li>
+            <li>📝 Edit and update your information</li>
+            <li>👁️ Control visibility in the network</li>
+            <li>🧠 View your AI-generated career insights</li>
+            <li>💰 Set your preferred hourly rate</li>
+            <li>🎯 Manage your skills and certifications</li>
           </ul>
           <br>
-          <p>Din profil är nu en del av MatchWise-nätverket där vi kopplar ihop toppkonsulter med rätt möjligheter.</p>
+          <p>Your profile is now part of the MatchWise network where we connect top consultants with the right opportunities.</p>
           <br>
-          <p>Om du har några frågor eller behöver hjälp, tveka inte att höra av dig!</p>
+          <p>If you have any questions or need help, don't hesitate to reach out!</p>
           <br>
-          <p><strong>📩 Kontakt:</strong> marc@matchwise.tech</p>
+          <p><strong>📩 Contact:</strong> marc@matchwise.tech</p>
           <br>
-          <p>Tack för att du blev en del av MatchWise! 🚀</p>
+          <p>Thank you for becoming part of MatchWise! 🚀</p>
           <br>
-          <p>Vänliga hälsningar,<br>MatchWise-teamet</p>
+          <p>Best regards,<br>The MatchWise Team</p>
         `,
       });
 
@@ -74,20 +74,20 @@ const handler = async (req: Request): Promise<Response> => {
       const notificationResponse = await resend.emails.send({
         from: "MatchWise <marc@matchwise.tech>",
         to: ["marc@matchwise.tech"],
-        subject: "Ny konsult har registrerat sig i nätverket",
+        subject: "New consultant registered in network",
         html: `
-          <h2>Ny Konsult Registrerad</h2>
-          <p>En ny konsult har slutfört CV-upload processen och registrerat sig i MatchWise-nätverket:</p>
+          <h2>New Consultant Registered</h2>
+          <p>A new consultant has completed the CV-upload process and registered in the MatchWise network:</p>
           <ul>
-            <li><strong>Namn:</strong> ${full_name}</li>
-            <li><strong>E-post:</strong> ${email}</li>
-            <li><strong>Konsult-ID:</strong> ${consultant_id}</li>
-            <li><strong>Registrerad:</strong> ${new Date().toLocaleString('sv-SE')}</li>
+            <li><strong>Name:</strong> ${full_name}</li>
+            <li><strong>Email:</strong> ${email}</li>
+            <li><strong>Consultant ID:</strong> ${consultant_id}</li>
+            <li><strong>Registered:</strong> ${new Date().toLocaleString('en-US')}</li>
           </ul>
-          <p>Konsulten har fått ett välkomstmejl med sina inloggningsuppgifter och kan nu komma åt sin profil på:</p>
+          <p>The consultant has received a welcome email with their login credentials and can now access their profile at:</p>
           <p><a href="https://matchwise.tech/my-profile">https://matchwise.tech/my-profile</a></p>
           <br>
-          <p>Du kan se konsultens profil i admin-panelen.</p>
+          <p>You can view the consultant's profile in the admin panel.</p>
         `,
       });
 
