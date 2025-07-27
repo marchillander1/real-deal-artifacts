@@ -104,13 +104,13 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
 
   // Allow access to public pages for everyone
-  const publicPaths = ['/auth', '/', '/landing', '/how-it-works', '/cv-upload', '/cv-upload-new'];
+  const publicPaths = ['/auth', '/', '/landing', '/how-it-works', '/cv-upload', '/cv-upload-new', '/aipowerbriefing'];
   if (publicPaths.includes(location.pathname)) {
     return <>{children}</>;
   }
 
-  // If user is a consultant, only allow access to /my-profile
-  if (userType === 'consultant' && location.pathname !== '/my-profile') {
+  // If user is a consultant, allow access to /my-profile and /aipowerbriefing
+  if (userType === 'consultant' && location.pathname !== '/my-profile' && location.pathname !== '/aipowerbriefing') {
     return <Navigate to="/my-profile" replace />;
   }
 
