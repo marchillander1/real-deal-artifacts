@@ -97,13 +97,11 @@ export default function AIPowerBriefing() {
               <p className="text-xl text-white/70">Simply provide these details in the chat below to generate your personalized briefing</p>
             </div>
             
-            <Card className="bg-gradient-to-br from-emerald-900/30 via-blue-900/30 to-purple-900/30 border-emerald-400/30 backdrop-blur-sm overflow-hidden">
+            <Card className="bg-white border border-gray-200 shadow-lg overflow-hidden">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 p-6 border-b border-emerald-400/20">
+                <div className="bg-gray-50 p-6 border-b border-gray-200">
                   <div className="flex items-center justify-center gap-3">
-                    <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                    <h3 className="text-2xl font-bold text-white">Required Information</h3>
-                    <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <h3 className="text-2xl font-bold text-gray-900">Required Information</h3>
                   </div>
                 </div>
                 
