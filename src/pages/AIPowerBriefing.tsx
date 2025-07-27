@@ -108,83 +108,83 @@ export default function AIPowerBriefing() {
                 <div className="p-10">
                   <div className="grid md:grid-cols-2 gap-10">
                     <div className="space-y-6">
-                      <div className="flex items-start group">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl mr-6 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                      <div className="flex items-start">
+                        <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mr-6 flex-shrink-0">
                           <span className="text-white font-bold text-lg">1</span>
                         </div>
                         <div>
-                          <h4 className="text-xl font-semibold text-white mb-2">Your Services</h4>
-                          <p className="text-white/80">What services do you offer?</p>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">Your Services</h4>
+                          <p className="text-gray-600">What services do you offer?</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start group">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl mr-6 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                      <div className="flex items-start">
+                        <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mr-6 flex-shrink-0">
                           <span className="text-white font-bold text-lg">2</span>
                         </div>
                         <div>
-                          <h4 className="text-xl font-semibold text-white mb-2">Your Profile</h4>
-                          <p className="text-white/80">Your profile or company info (LinkedIn or short description)</p>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">Your Profile</h4>
+                          <p className="text-gray-600">Your profile or company info (LinkedIn or short description)</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start group">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-pink-500 to-red-500 rounded-xl mr-6 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                      <div className="flex items-start">
+                        <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mr-6 flex-shrink-0">
                           <span className="text-white font-bold text-lg">3</span>
                         </div>
                         <div>
-                          <h4 className="text-xl font-semibold text-white mb-2">Target Company</h4>
-                          <p className="text-white/80">The company website you're meeting with</p>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">Target Company</h4>
+                          <p className="text-gray-600">The company website you're meeting with</p>
                         </div>
                       </div>
                     </div>
                     
                     <div className="space-y-6">
-                      <div className="flex items-start group">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl mr-6 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                      <div className="flex items-start">
+                        <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mr-6 flex-shrink-0">
                           <span className="text-white font-bold text-lg">4</span>
                         </div>
                         <div>
-                          <h4 className="text-xl font-semibold text-white mb-2">Participants</h4>
-                          <p className="text-white/80">Names and roles of the meeting participants</p>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">Participants</h4>
+                          <p className="text-gray-600">Names and roles of the meeting participants</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start group">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mr-6 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                      <div className="flex items-start">
+                        <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mr-6 flex-shrink-0">
                           <span className="text-white font-bold text-lg">5</span>
                         </div>
                         <div>
-                          <h4 className="text-xl font-semibold text-white mb-2">LinkedIn Profiles</h4>
-                          <p className="text-white/80">LinkedIn profiles of the participants</p>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">LinkedIn Profiles</h4>
+                          <p className="text-gray-600">LinkedIn profiles of the participants</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start group">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-yellow-500 to-emerald-500 rounded-xl mr-6 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                      <div className="flex items-start">
+                        <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mr-6 flex-shrink-0">
                           <span className="text-white font-bold text-lg">6</span>
                         </div>
                         <div>
-                          <h4 className="text-xl font-semibold text-white mb-2">Meeting Context</h4>
-                          <p className="text-white/80">Meeting purpose, agenda, or background if known</p>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">Meeting Context</h4>
+                          <p className="text-gray-600">Meeting purpose, agenda, or background if known</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-12 pt-8 border-t border-white/10">
+                  <div className="mt-12 pt-8 border-t border-gray-200">
                     <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                           <span className="text-2xl">🌐</span>
                         </div>
-                        <p className="text-white/90 font-medium">Write in your native language</p>
+                        <p className="text-gray-700 font-medium">Write in your native language</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                           <span className="text-2xl">💡</span>
                         </div>
-                        <p className="text-white/90 font-medium">More context = more powerful briefing</p>
+                        <p className="text-gray-700 font-medium">More context = more powerful briefing</p>
                       </div>
                     </div>
                   </div>
