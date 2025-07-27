@@ -208,11 +208,6 @@ export default function AIPowerBriefing() {
               <CardContent className="p-0">
                 <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 p-4 border-b border-slate-700/50">
                   <div className="flex items-center gap-3">
-                    <div className="flex gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    </div>
                     <span className="text-white/70 font-mono text-sm">AI Power Briefing Chat</span>
                   </div>
                 </div>
