@@ -18,6 +18,9 @@ export default function Navbar() {
               <Link to="/cv-upload-new">Upload CV</Link>
             </Button>
             <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
+              <Link to="/aipowerbriefing">AI Power Briefing</Link>
+            </Button>
+            <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
               <Link to="/my-profile">My Profile</Link>
             </Button>
             <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
