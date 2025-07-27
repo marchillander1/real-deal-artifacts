@@ -202,11 +202,6 @@ export default function AIPowerBriefing() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/30 rounded-full px-6 py-3 mb-4">
-                <MessageSquare className="w-5 h-5 text-emerald-400" />
-                <span className="text-emerald-300 font-medium">Start Your Briefing</span>
-                <ArrowRight className="w-5 h-5 text-emerald-400" />
-              </div>
               <h3 className="text-3xl font-bold text-white mb-2">AI Chat Interface</h3>
               <p className="text-white/70">Provide your meeting details below and get your personalized Power Briefing</p>
             </div>
