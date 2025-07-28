@@ -28,6 +28,8 @@ const ICPOutreach = () => {
     setIsSubmitting(true);
 
     try {
+      console.log('Sending data to webhook:', formData);
+      
       const response = await fetch('https://matchwise.app.n8n.cloud/webhook/icp-outreach', {
         method: 'POST',
         headers: {
@@ -36,6 +38,8 @@ const ICPOutreach = () => {
         body: JSON.stringify(formData),
       });
 
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
         toast.success('Your request has been submitted. Check your email soon!');
         setFormData({
@@ -48,10 +52,13 @@ const ICPOutreach = () => {
           outputLanguage: 'English'
         });
       } else {
-        toast.error('Something went wrong. Please try again.');
+        const errorData = await response.text();
+        console.log('Error response:', errorData);
+        toast.error(`Server error (${response.status}): The workflow service is currently unavailable. Please try again later or contact support.`);
       }
     } catch (error) {
-      toast.error('Network error. Please try again.');
+      console.error('Network error:', error);
+      toast.error('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
