@@ -104,7 +104,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
 
   // Allow access to public pages for everyone
-  const publicPaths = ['/auth', '/', '/landing', '/how-it-works', '/cv-upload', '/cv-upload-new', '/aipowerbriefing'];
+  const publicPaths = ['/auth', '/', '/landing', '/how-it-works', '/cv-upload', '/cv-upload-new', '/aipowerbriefing', '/icp-outreach'];
   if (publicPaths.includes(location.pathname)) {
     return <>{children}</>;
   }
