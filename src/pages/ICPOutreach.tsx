@@ -1,184 +1,106 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import React from 'react';
 
 const ICPOutreach = () => {
-  const [formData, setFormData] = useState({
-    recipientEmail: '',
-    service: '',
-    market: '',
-    roles: '',
-    tone: '',
-    exampleClients: '',
-    outputLanguage: 'English'
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
+    const formData = Object.fromEntries(new FormData(e.currentTarget).entries());
+    
     try {
-      console.log('Sending data to webhook:', formData);
-      
-      const response = await fetch('https://matchwise.app.n8n.cloud/webhook/icp-outreach', {
+      await fetch('https://matchwise.app.n8n.cloud/webhook/icp-outreach', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
-
-      console.log('Response status:', response.status);
-      
-      if (response.ok) {
-        toast.success('Your request has been submitted. Check your email soon!');
-        setFormData({
-          recipientEmail: '',
-          service: '',
-          market: '',
-          roles: '',
-          tone: '',
-          exampleClients: '',
-          outputLanguage: 'English'
-        });
-      } else {
-        const errorData = await response.text();
-        console.log('Error response:', errorData);
-        toast.error(`Server error (${response.status}): The workflow service is currently unavailable. Please try again later or contact support.`);
-      }
+      alert('✅ Your request has been sent! Check your email shortly.');
     } catch (error) {
-      console.error('Network error:', error);
-      toast.error('Network error. Please check your connection and try again.');
-    } finally {
-      setIsSubmitting(false);
+      alert('❌ Something went wrong. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">🚀 AI ICP + Outreach Generator</h1>
-          <p className="text-xl mb-4">
-            Stop wasting time on generic lead lists.
-          </p>
-          <p className="text-lg mb-4">
-            With this tool, you create a <strong>tailored Ideal Customer Profile (ICP)</strong> and get <strong>real companies and decision-makers</strong> based on your service, market, and target roles.
-          </p>
-          <div className="space-y-2 mb-6">
-            <p className="flex items-center">✔️ Hyper-personalized outreach messages</p>
-            <p className="flex items-center">✔️ PDF + CSV report sent directly to your email</p>
-            <p className="flex items-center">✔️ AI analysis of buying triggers, funding signals & market trends</p>
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-2xl mx-auto">
+        <h2 className="text-3xl font-bold mb-4">AI ICP + Outreach Generator</h2>
+        <p className="mb-8 text-lg">Fill out the form to get your tailored Ideal Customer Profile and outreach strategy delivered as PDF + CSV.</p>
+
+        <form id="icpForm" onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block font-medium mb-2">Your Email:</label>
+            <input 
+              type="email" 
+              name="recipientEmail" 
+              required 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-          <p className="text-lg font-medium">
-            👉 <strong>Fill out the form and receive your customized ICP + Outreach package automatically.</strong>
-          </p>
-        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Generate Your ICP + Outreach Report</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="recipientEmail">Your email *</Label>
-                <Input
-                  id="recipientEmail"
-                  type="email"
-                  value={formData.recipientEmail}
-                  onChange={(e) => handleInputChange('recipientEmail', e.target.value)}
-                  required
-                />
-              </div>
+          <div>
+            <label className="block font-medium mb-2">Your Service / Solution:</label>
+            <input 
+              type="text" 
+              name="service" 
+              required 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="service">Your service / solution *</Label>
-                <Input
-                  id="service"
-                  type="text"
-                  value={formData.service}
-                  onChange={(e) => handleInputChange('service', e.target.value)}
-                  required
-                />
-              </div>
+          <div>
+            <label className="block font-medium mb-2">Target Market:</label>
+            <input 
+              type="text" 
+              name="market" 
+              required 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="market">Target market *</Label>
-                <Input
-                  id="market"
-                  type="text"
-                  value={formData.market}
-                  onChange={(e) => handleInputChange('market', e.target.value)}
-                  required
-                />
-              </div>
+          <div>
+            <label className="block font-medium mb-2">Target Roles (CEO, CTO, etc.):</label>
+            <input 
+              type="text" 
+              name="roles" 
+              required 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="roles">Target roles (e.g. CEO, CTO) *</Label>
-                <Input
-                  id="roles"
-                  type="text"
-                  value={formData.roles}
-                  onChange={(e) => handleInputChange('roles', e.target.value)}
-                  required
-                />
-              </div>
+          <div>
+            <label className="block font-medium mb-2">Outreach Tone:</label>
+            <input 
+              type="text" 
+              name="tone" 
+              placeholder="Warm, Advisory, Direct, Premium" 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="tone">Outreach tone</Label>
-                <Select value={formData.tone} onValueChange={(value) => handleInputChange('tone', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Warm">Warm</SelectItem>
-                    <SelectItem value="Advisory">Advisory</SelectItem>
-                    <SelectItem value="Direct">Direct</SelectItem>
-                    <SelectItem value="Premium">Premium</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div>
+            <label className="block font-medium mb-2">Example Clients (optional):</label>
+            <input 
+              type="text" 
+              name="exampleClients" 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="exampleClients">Example clients (optional)</Label>
-                <Input
-                  id="exampleClients"
-                  type="text"
-                  value={formData.exampleClients}
-                  onChange={(e) => handleInputChange('exampleClients', e.target.value)}
-                />
-              </div>
+          <div>
+            <label className="block font-medium mb-2">Preferred Report Language:</label>
+            <select 
+              name="outputLanguage" 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="en">English</option>
+              <option value="sv">Swedish</option>
+            </select>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="outputLanguage">Preferred report language *</Label>
-                <Select value={formData.outputLanguage} onValueChange={(value) => handleInputChange('outputLanguage', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Swedish">Swedish</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? 'Generating Report...' : 'Generate Report'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          <button 
+            type="submit" 
+            className="w-full bg-blue-600 text-white p-3 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Generate Report
+          </button>
+        </form>
       </div>
     </div>
   );
