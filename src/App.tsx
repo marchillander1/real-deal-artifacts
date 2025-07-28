@@ -22,6 +22,7 @@ import AdminPortal from "./pages/AdminPortal";
 import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
 import AIPowerBriefing from "./pages/AIPowerBriefing";
+import ICPOutreach from "./pages/ICPOutreach";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App: React.FC = () => {
                 <Route path="/demo-consultant" element={<DemoConsultant />} />
                 <Route path="/admin" element={<AdminPortal />} />
                 <Route path="/aipowerbriefing" element={<AIPowerBriefing />} />
+                <Route path="/icp-outreach" element={<ICPOutreach />} />
                 
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/auth" element={<Auth />} />
