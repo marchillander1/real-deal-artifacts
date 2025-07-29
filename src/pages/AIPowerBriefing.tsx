@@ -212,7 +212,7 @@ export default function AIPowerBriefing() {
                   </div>
                 </div>
                 <iframe
-                  src="https://udify.app/chatbot/KyYgQkhLyu9gOhkA"
+                  src="https://udify.app/chat/KyYgQkhLyu9gOhkA"
                   style={{ width: '100%', height: '100%', minHeight: '700px' }}
                   frameBorder="0"
                   allow="microphone"
